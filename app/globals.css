@@ -1904,7 +1904,7 @@ input,select,textarea{min-height:42px}
 .navScrollHint{display:flex;align-items:center;justify-content:center;gap:8px;padding:3px 11px 7px;pointer-events:none;user-select:none}
 .navScrollHint span:last-child{font-size:7px;color:var(--silver);white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
 .navScrollTrack{position:relative;display:block;width:min(150px,38vw);height:4px;border-radius:999px;background:rgba(184,191,188,.12);overflow:hidden}
-.navScrollTrack i{display:block;width:42%;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--forest),var(--forest-light));opacity:.85}
+.navScrollTrack i{position:absolute;top:0;display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--forest),var(--forest-light));opacity:.85;transition:left .08s linear,width .15s ease}
 @media(max-width:600px){.navScrollHint{padding-left:9px;padding-right:9px}.navScrollTrack{width:min(120px,34vw)}}
 
 /* =========================================================
@@ -1936,3 +1936,14 @@ input,select,textarea{min-height:42px}
 .featureHelpFooter b,.featureHelpFooter span{display:block}.featureHelpFooter b{font-size:9px}.featureHelpFooter span{font-size:8px;color:var(--muted);margin-top:2px}
 .featureHelpFooter button{min-height:38px!important}
 @media(max-width:620px){.featureHelpOverlay{padding:10px}.featureHelpGrid{grid-template-columns:1fr}.featureHelpCard{border-radius:18px}.featureHelpFooter{align-items:stretch;flex-direction:column}.featureHelpFooter button{width:100%}}
+
+/* =========================================================
+   Phase 71.9 — Daily/weekly prompts + moving scroll cue
+   ========================================================= */
+.routinePromptOverlay{position:fixed;inset:0;z-index:10015;background:rgba(5,8,6,.84);backdrop-filter:blur(8px);display:grid;place-items:center;padding:16px}
+.routinePromptCard{width:min(500px,100%);background:linear-gradient(180deg,#252a27,#171b19);border:1px solid rgba(184,191,188,.20);border-radius:20px;padding:20px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.58)}
+.routinePromptIcon{display:grid;place-items:center;width:50px;height:50px;margin:0 auto 11px;border-radius:15px;background:rgba(23,107,74,.16);border:1px solid rgba(117,212,169,.20);color:var(--forest-light);font-size:21px;font-weight:900}
+.routinePromptCard>small{display:block;font-size:7px;letter-spacing:.1em;color:var(--forest-light);margin-bottom:5px}
+.routinePromptCard h2{font-size:20px;margin:0 0 8px}.routinePromptCard p{font-size:10px;line-height:1.65;color:var(--muted);margin:0 auto;max-width:430px}
+.routinePromptActions{display:grid;grid-template-columns:1fr 1.6fr;gap:8px;margin-top:18px}.routinePromptActions button{min-height:42px!important}
+@media(max-width:520px){.routinePromptActions{grid-template-columns:1fr}.routinePromptCard{padding:17px}}

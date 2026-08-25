@@ -1,25 +1,14 @@
-# Athlete Performance App — Phase 71.8.4
+# Athlete Performance App — Phase 71.9
 
-## Help after setup
-Once guided setup is completed, Help becomes a full app feature overview.
+## Changes
+- Renamed **Export Results CSV** to **Download Test Results**.
+- Test-results download now uses `test-results.csv`.
+- Bottom navigation indicator remains visual-only but now moves with the user's horizontal tab scrolling.
+- Fixed local-date handling to prevent dates appearing one day behind because of UTC conversion.
+- Weekly Review now displays **Week of [date]**.
+- On Sundays, if the current week's review has not been completed, the app prompts the athlete to fill out the weekly review.
+- Each day, if today's readiness check-in has not been completed, the app prompts the athlete to complete it.
+- “Not now” dismisses the daily readiness reminder for that day and the weekly-review reminder for that week.
+- Prompt buttons jump directly to the correct area of the app.
 
-The overview explains:
-- Overview
-- Goals
-- Schedule
-- Testing
-- Progress / Analytics
-- Readiness / Coach tools
-- Development
-- Competition
-- Roster for Coach/Admin roles
-
-Each feature card can be tapped to jump directly to that part of the app.
-
-When setup finishes, the feature overview opens automatically once.
-
-The Help button later opens the feature overview instead of restarting setup.
-
-A **Restart Setup Guide** button is included if the user wants to go through setup again.
-
-If setup was skipped and remains incomplete, Help still resumes the unfinished setup from where the user stopped.
+All guided setup and Help overview behavior from Phase 71.8 remains included.

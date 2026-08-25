@@ -135,8 +135,11 @@ const raw:Record<Sport,string[][]>={
  "Figure Skating":[["Single-leg balance","Skill","sec","0"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["30-second jump count","Endurance","reps","0"],["Spin rotations","Skill","reps","0"],["Edge control course","Agility","sec","1"]]
 };
 const definitions=(sport:Sport):TestDef[]=>raw[sport].map((x,i)=>({id:`${sport}-${i}`,name:x[0],category:x[1],unit:x[2],lowerBetter:x[3]==="1"}));
-const today=()=>new Date().toISOString().slice(0,10);
-const daysAgo=(n:number)=>{const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10)};
+const localDate=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const today=()=>localDate();
+const daysAgo=(n:number)=>{const d=new Date();d.setDate(d.getDate()-n);return localDate(d)};
+const mondayOfWeek=(d=new Date())=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return localDate(x)};
+const friendlyDate=(iso:string)=>{const [y,m,d]=iso.split("-").map(Number);return new Date(y,m-1,d).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})};
 const improvement=(first:number,last:number,lower:boolean)=>first===0?0:Math.round((lower?(first-last)/first:(last-first)/first*100)*10)/10;
 const pct=(n:number)=>Math.max(0,Math.min(100,Math.round(n)));
 
@@ -168,6 +171,12 @@ export default function AthleteApp(){
  const [guideWaitingFor,setGuideWaitingFor]=useState<string|null>(null);
  const [showSkipSetupDisclaimer,setShowSkipSetupDisclaimer]=useState(false);
  const [showFeatureOverview,setShowFeatureOverview]=useState(false);
+ const [showReadinessPrompt,setShowReadinessPrompt]=useState(false);
+ const [showWeeklyReviewPrompt,setShowWeeklyReviewPrompt]=useState(false);
+ const [navScrollProgress,setNavScrollProgress]=useState(0);
+ const [navIndicatorWidth,setNavIndicatorWidth]=useState(42);
+ const navRef=useRef<HTMLElement|null>(null);
+
 
  const [mounted,setMounted]=useState(false);
  useEffect(()=>{for(const [key,setter] of [["results",setResults],["custom",setCustom],["goals",setGoals],["workouts",setWorkouts]] as any[]){try{const v=localStorage.getItem(key);if(v)setter(JSON.parse(v))}catch{}}},[]);
@@ -273,6 +282,58 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  };
  const accountRole:AccountRole=accountSession?.role||"Player";
  const effectiveRole:AccountRole=accountRole==="Admin"?(adminView==="Admin"?"Admin":adminView):accountRole;
+ const todayLocal=today();
+ const thisWeekStart=mondayOfWeek();
+ const hasReadinessToday=readiness.some(r=>r.date===todayLocal);
+ const hasCurrentWeekReview=weeklyReviews.some(r=>r.weekStart===thisWeekStart);
+
+ useEffect(()=>{
+  if(!mounted||!accountSession||showGuide||showSkipSetupDisclaimer||showFeatureOverview)return;
+  if(effectiveRole==="Parent"){setShowReadinessPrompt(false);return;}
+  try{
+   const dismissed=localStorage.getItem(`readinessPromptDismissed:${activeAthleteId}`);
+   if(!hasReadinessToday&&dismissed!==todayLocal)setShowReadinessPrompt(true);
+   else setShowReadinessPrompt(false);
+  }catch{if(!hasReadinessToday)setShowReadinessPrompt(true)}
+ },[mounted,accountSession,effectiveRole,hasReadinessToday,todayLocal,activeAthleteId,showGuide,showSkipSetupDisclaimer,showFeatureOverview]);
+
+ useEffect(()=>{
+  if(!mounted||!accountSession||showGuide||showSkipSetupDisclaimer||showFeatureOverview||showReadinessPrompt)return;
+  if(effectiveRole==="Parent"){setShowWeeklyReviewPrompt(false);return;}
+  const isEndOfWeek=new Date().getDay()===0;
+  if(!isEndOfWeek||hasCurrentWeekReview){setShowWeeklyReviewPrompt(false);return;}
+  try{
+   const dismissed=localStorage.getItem(`weeklyReviewPromptDismissed:${activeAthleteId}`);
+   if(dismissed!==thisWeekStart)setShowWeeklyReviewPrompt(true);
+  }catch{setShowWeeklyReviewPrompt(true)}
+ },[mounted,accountSession,effectiveRole,hasCurrentWeekReview,thisWeekStart,activeAthleteId,showGuide,showSkipSetupDisclaimer,showFeatureOverview,showReadinessPrompt]);
+
+ const dismissReadinessPrompt=()=>{
+  setShowReadinessPrompt(false);
+  try{localStorage.setItem(`readinessPromptDismissed:${activeAthleteId}`,todayLocal)}catch{}
+ };
+ const openReadinessFromPrompt=()=>{
+  setShowReadinessPrompt(false);
+  setTab("Coach");
+  window.setTimeout(()=>document.getElementById("setup-readiness")?.scrollIntoView({behavior:"smooth",block:"center"}),180);
+ };
+ const dismissWeeklyReviewPrompt=()=>{
+  setShowWeeklyReviewPrompt(false);
+  try{localStorage.setItem(`weeklyReviewPromptDismissed:${activeAthleteId}`,thisWeekStart)}catch{}
+ };
+ const openWeeklyReviewFromPrompt=()=>{
+  setShowWeeklyReviewPrompt(false);
+  setTab("Home");
+  window.setTimeout(()=>document.getElementById("setup-weekly-review")?.scrollIntoView({behavior:"smooth",block:"center"}),220);
+ };
+ const updateNavScrollIndicator=()=>{
+  const el=navRef.current;if(!el)return;
+  const max=Math.max(0,el.scrollWidth-el.clientWidth);
+  const width=Math.max(22,Math.min(100,el.scrollWidth?el.clientWidth/el.scrollWidth*100:100));
+  setNavIndicatorWidth(width);
+  setNavScrollProgress(max?el.scrollLeft/max:0);
+ };
+
  const allAthletes=useMemo<AthleteRecord[]>(()=>{
   const primary:AthleteRecord={id:"primary",name:profile.name,sport,position:profile.position,team:profile.team,season:profile.season,height:profile.height,weight:profile.weight,handedness:profile.handedness};
   const merged=[primary,...roster.filter(r=>r.id!=="primary")];
@@ -406,6 +467,12 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition"]
   :["Home","Calendar","Analytics","Development","Competition"];
  const roleNavLabel=(x:string)=>accountRole==="Player"&&x==="Coach"?"Readiness":navMeta[x]?.label||x;
+ useEffect(()=>{
+  const id=window.setTimeout(updateNavScrollIndicator,80);
+  window.addEventListener("resize",updateNavScrollIndicator);
+  return()=>{window.clearTimeout(id);window.removeEventListener("resize",updateNavScrollIndicator)}
+ },[visibleTabs.length,tab]);
+
 
  
  const quickActions:QuickAction[]=[
@@ -457,6 +524,14 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="guideFooter"><button disabled={guideStep===0} onClick={()=>openGuideStep(guideStep-1)}>Back</button><button onClick={()=>guideStep===guideSteps.length-1?finishGuide():openGuideStep(guideStep+1)}>{guideStep===guideSteps.length-1?"Finish":"Skip this step"}</button></div>
    <small className="guideHint">{guideSteps[guideStep]?.button?"Use the main button to go do this step. When the required information is saved, setup continues automatically.":"Every step is optional."}</small>
   </div></div>}
+  {showReadinessPrompt&&accountSession&&!showGuide&&!showFeatureOverview&&<div className="routinePromptOverlay" role="dialog" aria-modal="true" aria-label="Morning readiness check-in"><div className="routinePromptCard">
+   <span className="routinePromptIcon">☀</span><small>GOOD MORNING</small><h2>Ready for your daily check-in?</h2><p>Take a minute to log sleep, energy, soreness, and stress so today's training can match how you feel.</p>
+   <div className="routinePromptActions"><button onClick={dismissReadinessPrompt}>Not now</button><button className="featureAction" onClick={openReadinessFromPrompt}>Start Readiness Check-in</button></div>
+  </div></div>}
+  {showWeeklyReviewPrompt&&accountSession&&!showGuide&&!showFeatureOverview&&!showReadinessPrompt&&<div className="routinePromptOverlay" role="dialog" aria-modal="true" aria-label="Weekly review reminder"><div className="routinePromptCard">
+   <span className="routinePromptIcon">✓</span><small>END OF WEEK</small><h2>Complete your weekly review</h2><p>Review the week of <b>{friendlyDate(thisWeekStart)}</b>: record the biggest win, main challenge, next week's focus, and an overall rating.</p>
+   <div className="routinePromptActions"><button onClick={dismissWeeklyReviewPrompt}>Not now</button><button className="featureAction" onClick={openWeeklyReviewFromPrompt}>Fill Out Weekly Review</button></div>
+  </div></div>}
   {showFeatureOverview&&accountSession&&<div className="featureHelpOverlay" role="dialog" aria-modal="true" aria-label="App feature overview"><div className="featureHelpCard">
    <div className="featureHelpHead"><div><small>HELP · APP OVERVIEW</small><h2>Everything you can do in Athlete Performance</h2><p>Choose any feature below to jump directly to it.</p></div><button onClick={()=>setShowFeatureOverview(false)} aria-label="Close help">×</button></div>
    <div className="featureHelpGrid">{featureOverviewItems.map(item=><button key={item.tab} className="featureHelpItem" onClick={()=>openFeatureFromHelp(item.tab)}><div><span className="featureHelpIcon">{navMeta[item.tab]?.icon||"•"}</span><b>{item.title}</b></div><p>{item.description}</p><small>Open {item.title} →</small></button>)}</div>
@@ -470,7 +545,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="skipSetupActions"><button onClick={()=>setShowSkipSetupDisclaimer(false)}>Continue Setup</button><button className="skipAnywayButton" onClick={confirmSkipSetup}>Skip Setup Anyway</button></div>
   </div></div>}
   {commandOpen&&<div className="commandOverlay" role="dialog" aria-modal="true" aria-label="Quick navigation" onClick={()=>setCommandOpen(false)}><div className="commandPalette" onClick={e=>e.stopPropagation()}><div className="sectionHead"><h2>Go to a section</h2><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder="Search Overview, Goals, Testing, Roster…"/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span>{navMeta[a.tab]?.icon||"•"}</span><b>{a.label}</b><small>{a.keywords.join(" · ")}</small></button>)}</div></div></div>}
- <div className="navDock"><nav className="mainNav">{visibleTabs.map(x=><button aria-current={tab===x?"page":undefined} aria-label={roleNavLabel(x)} className={tab===x?"active":""} onClick={()=>setTab(x)} key={x}><span className="navIcon" aria-hidden="true">{navMeta[x]?.icon||"•"}</span><span className="navLabel">{roleNavLabel(x)}</span></button>)}</nav><div className="navScrollHint" aria-hidden="true"><span className="navScrollTrack"><i/></span><span>Swipe for more tabs ↔</span></div></div>
+ <div className="navDock"><nav ref={navRef} onScroll={updateNavScrollIndicator} className="mainNav">{visibleTabs.map(x=><button aria-current={tab===x?"page":undefined} aria-label={roleNavLabel(x)} className={tab===x?"active":""} onClick={()=>setTab(x)} key={x}><span className="navIcon" aria-hidden="true">{navMeta[x]?.icon||"•"}</span><span className="navLabel">{roleNavLabel(x)}</span></button>)}</nav><div className="navScrollHint" aria-hidden="true"><span className="navScrollTrack"><i style={{width:`${navIndicatorWidth}%`,left:`${navScrollProgress*(100-navIndicatorWidth)}%`}}/></span><span>Swipe for more tabs ↔</span></div></div>
  </div>
 }
 
@@ -685,7 +760,7 @@ function Home({sport,goals,workouts,results,profile,setProfile,readiness,competi
  const score=Math.round((baseScore*.45)+(avgReadiness||70)*.2+(competitionAvg||70)*.15+(program?programPct*.2:70*.2));
 
  const [wins,setWins]=useState(""),[challenges,setChallenges]=useState(""),[focus,setFocus]=useState(""),[rating,setRating]=useState("8");
- const weekStart=(()=>{const d=new Date();const day=d.getDay();d.setDate(d.getDate()-((day+6)%7));return d.toISOString().slice(0,10)})();
+ const weekStart=mondayOfWeek();
  const currentReview=weeklyReviews.find(r=>r.weekStart===weekStart);
 
  const saveReview=()=>{
@@ -886,9 +961,9 @@ const signals:PerformanceSignal[]=[
 
  </div></details>
  <div className="sectionDivider"><span><i/>Weekly Review</span></div>
- <div className="card weeklyReview"><div className="sectionHead"><h2>Weekly Review</h2><span>{weekStart}</span></div><div className="two"><label>Biggest Win<input value={wins} onChange={e=>setWins(e.target.value)} placeholder="What went well?"/></label><label>Main Challenge<input value={challenges} onChange={e=>setChallenges(e.target.value)} placeholder="What held you back?"/></label><label>Next Week Focus<input value={focus} onChange={e=>setFocus(e.target.value)} placeholder="One priority for next week"/></label><label>Week Rating<select value={rating} onChange={e=>setRating(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}/10</option>)}</select></label></div><button className="primary" onClick={saveReview}>{currentReview?"Update Weekly Review":"Save Weekly Review"}</button></div>
+ <div className="card weeklyReview setupAnchor" id="setup-weekly-review" tabIndex={-1}><div className="sectionHead"><h2>Weekly Review</h2><span>Week of {friendlyDate(weekStart)}</span></div><div className="two"><label>Biggest Win<input value={wins} onChange={e=>setWins(e.target.value)} placeholder="What went well?"/></label><label>Main Challenge<input value={challenges} onChange={e=>setChallenges(e.target.value)} placeholder="What held you back?"/></label><label>Next Week Focus<input value={focus} onChange={e=>setFocus(e.target.value)} placeholder="One priority for next week"/></label><label>Week Rating<select value={rating} onChange={e=>setRating(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}/10</option>)}</select></label></div><button className="primary" onClick={saveReview}>{currentReview?"Update Weekly Review":"Save Weekly Review"}</button></div>
 
- <div className="card"><h2>Recent Weekly Reviews</h2>{weeklyReviews.length===0?<p>No weekly reviews yet.</p>:weeklyReviews.slice(0,5).map(r=><div className="reviewRow" key={r.id}><div className="reviewRating">{r.rating}<small>/10</small></div><div><b>{r.weekStart}</b><small>{r.wins?"Win: "+r.wins:""}{r.focus?" · Next: "+r.focus:""}</small></div></div>)}</div>
+ <div className="card"><h2>Recent Weekly Reviews</h2>{weeklyReviews.length===0?<p>No weekly reviews yet.</p>:weeklyReviews.slice(0,5).map(r=><div className="reviewRow" key={r.id}><div className="reviewRating">{r.rating}<small>/10</small></div><div><b>Week of {friendlyDate(r.weekStart)}</b><small>{r.wins?"Win: "+r.wins:""}{r.focus?" · Next: "+r.focus:""}</small></div></div>)}</div>
  </>;
 }
 
@@ -1232,7 +1307,7 @@ function Analytics({sport,results,goals,workouts,readiness,competitions}:{sport:
   <div className="card insightPanel"><h2>Needs Attention</h2>{declining[0]?<><b className="big bad">{declining[0].imp}%</b><p>{declining[0].g.name}</p><small>Baseline {declining[0].baseline} {declining[0].g.unit} → Current {declining[0].current} {declining[0].g.unit}</small></>:<p>No declining repeated-test trend detected.</p>}</div>
  </div>
 
- <div className="card"><div className="sectionHead"><h2>Performance Trends</h2><button onClick={()=>exportResults(rows)}>Export Results CSV</button></div>
+ <div className="card"><div className="sectionHead"><h2>Performance Trends</h2><button onClick={()=>exportResults(rows)}>Download Test Results</button></div>
  {summaries.length===0?<p>No matching test results.</p>:summaries.map(({g,r,def,baseline,current,best,imp})=><div className="trend" key={g.testId}>
    <div className="row"><span><b>{g.name}</b><small>{g.category} · {r.length} results</small></span><strong className={imp>=0?"good":"bad"}>{r.length>1?(imp>=0?"+":"")+imp+"%":"New"}</strong></div>
    <TrendChart values={r.map(x=>x.value)} lower={def.lowerBetter}/>
@@ -1260,7 +1335,7 @@ function CompareTests({sport,results}:{sport:Sport;results:Result[]}){
 function exportResults(rows:Result[]){
  const header="Date,Test,Category,Unit,Value,Sport";
  const body=rows.map(r=>[r.date,r.name,r.category,r.unit,r.value,r.sport].map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
- const blob=new Blob([header+"\n"+body],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="athlete-performance-results.csv";a.click();URL.revokeObjectURL(url);
+ const blob=new Blob([header+"\n"+body],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="test-results.csv";a.click();URL.revokeObjectURL(url);
 }
 function Development({sport,profile,dev,setDev,results,goals,workouts,program,readiness,competitions,milestones,setMilestones}:{sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];goals:Goal[];workouts:Workout[];program:TrainingProgram|null;readiness:ReadinessLog[];competitions:CompetitionLog[];milestones:Milestone[];setMilestones:React.Dispatch<React.SetStateAction<Milestone[]>>}){
  const [title,setTitle]=useState(""),[category,setCategory]=useState("Skill"),[target,setTarget]=useState(""),[dueDate,setDueDate]=useState(""),[priority,setPriority]=useState<"High"|"Medium"|"Low">("Medium"),[linkedGoalId,setLinkedGoalId]=useState(""),[devNotes,setDevNotes]=useState("");
