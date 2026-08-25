@@ -1,0 +1,1 @@
+import AthleteApp from "../components/AthleteApp"; export default function Page(){return <AthleteApp/>}
