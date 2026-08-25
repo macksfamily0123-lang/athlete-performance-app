@@ -1,6 +1,6 @@
 
 "use client";
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 
 type Sport="Baseball"|"Football"|"Ice Hockey"|"Basketball"|"Lacrosse"|"Wrestling"|"Soccer"|"Figure Skating";
 type TestDef={id:string;name:string;category:string;unit:string;lowerBetter:boolean};
@@ -163,6 +163,12 @@ export default function AthleteApp(){
  const [editProfileRequest,setEditProfileRequest]=useState(0);
  const [accountSession,setAccountSession]=useState<AccountSession|null>(null);
  const [adminView,setAdminView]=useState<"Admin"|"Coach"|"Player"|"Parent">("Admin");
+ const [showGuide,setShowGuide]=useState(false);
+ const [guideStep,setGuideStep]=useState(0);
+ const [guideWaitingFor,setGuideWaitingFor]=useState<string|null>(null);
+ const [showSkipSetupDisclaimer,setShowSkipSetupDisclaimer]=useState(false);
+ const [showFeatureOverview,setShowFeatureOverview]=useState(false);
+
  const [mounted,setMounted]=useState(false);
  useEffect(()=>{for(const [key,setter] of [["results",setResults],["custom",setCustom],["goals",setGoals],["workouts",setWorkouts]] as any[]){try{const v=localStorage.getItem(key);if(v)setter(JSON.parse(v))}catch{}}},[]);
  useEffect(()=>localStorage.setItem("results",JSON.stringify(results)),[results]);
@@ -202,6 +208,8 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  useEffect(()=>{try{setOnboardingDismissed(localStorage.getItem("onboardingDismissed")==="1")}catch{}},[]);
  useEffect(()=>{try{if(onboardingDismissed)localStorage.setItem("onboardingDismissed","1")}catch{}},[onboardingDismissed]);
  useEffect(()=>{try{const raw=localStorage.getItem("accountSession");if(raw){const x=JSON.parse(raw);if(["Player","Coach","Parent","Admin"].includes(x?.role))setAccountSession(x)}}catch{}},[]);
+ useEffect(()=>{try{setShowGuide(localStorage.getItem("guidedTourComplete")!=="1")}catch{setShowGuide(true)}},[]);
+
  useEffect(()=>setMounted(true),[]);
  useEffect(()=>{try{localStorage.setItem(`athleteData:${activeAthleteId}`,JSON.stringify({profile,goals,workouts,results,development:dev,program,readiness,coachNotes,competitions,reportNotes}))}catch{}},[activeAthleteId,profile,goals,workouts,results,dev,program,readiness,coachNotes,competitions,reportNotes]);
 
@@ -251,7 +259,11 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    setAccountSession(session);
    setWorkspaceRole(roleToWorkspace(role));
    setTab("Home");
-   try{localStorage.setItem("accountSession",JSON.stringify(session))}catch{}
+   setGuideStep(0);
+   try{
+    localStorage.setItem("accountSession",JSON.stringify(session));
+    if(localStorage.getItem("guidedTourComplete")!=="1")setShowGuide(true);
+   }catch{setShowGuide(true)}
  };
  const signOutRole=()=>{
    setAccountSession(null);
@@ -284,6 +296,110 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   switchAthlete(athlete);
  };
 
+ const guideProfileChecks=[
+  Boolean(profile.name&&profile.name!=="Athlete"),
+  Boolean(profile.position),
+  Boolean(profile.team),
+  Boolean(profile.height),
+  Boolean(profile.weight),
+  Boolean(profile.handedness)
+ ];
+ const guideProfileComplete=guideProfileChecks.every(Boolean);
+
+ const guideSteps:{id:string;title:string;body:string;tab?:Tab;target?:string;button?:string;complete?:()=>boolean}[]=[
+  {id:"welcome",title:"Welcome to Athlete Performance",body:"This setup will walk you through the app one step at a time. Each step can open the exact place you need. You can also skip any step or skip the entire setup."},
+  {id:"profile",title:"Set up the player profile",body:"Add the athlete's name, position, team, season, height, weight, and handedness.",tab:"Home",target:"profile",button:"Open Player Profile",complete:()=>guideProfileComplete},
+  {id:"goal",title:"Create the first goal",body:"Add a short-term or long-term goal so the app can begin tracking development progress.",tab:"Goals",target:"goals",button:"Create a Goal",complete:()=>goals.length>0},
+  {id:"testing",title:"Log a performance test",body:"Enter at least one baseline test result. This gives Progress a starting point for trends and improvement.",tab:"Testing",target:"testing",button:"Open Testing",complete:()=>results.some(r=>r.sport===sport)},
+  {id:"calendar",title:"Schedule a workout",body:"Add at least one workout to the schedule so the athlete has something planned.",tab:"Calendar",target:"calendar",button:"Open Schedule",complete:()=>workouts.some(w=>w.sport===sport)},
+  {id:"readiness",title:"Complete a readiness check-in",body:effectiveRole==="Parent"?"Parent accounts can review readiness information. You can skip this step.":"Log readiness so training decisions can reflect sleep, energy, and recovery.",tab:"Coach",target:"readiness",button:effectiveRole==="Parent"?"View Readiness":"Open Readiness",complete:()=>effectiveRole==="Parent"||readiness.length>0},
+  {id:"development",title:"Explore Development",body:"Open Development to see objectives, mental preparation, breathing, and the training-program builder.",tab:"Development",button:"Open Development",complete:()=>true},
+  {id:"competition",title:"Explore Competition",body:"Open Competition to see where games, matches, events, performance ratings, and sport-specific stats are recorded.",tab:"Competition",button:"Open Competition",complete:()=>true},
+  ...(effectiveRole==="Coach"||effectiveRole==="Admin"?[{id:"roster",title:"Review the roster",body:"Open Roster to add athletes, switch players, edit profiles, and manage athlete data.",tab:"Roster" as Tab,button:"Open Roster",complete:()=>true}]:[]),
+  {id:"finish",title:"Setup complete",body:"You now know the main workflow. Use the bottom tab bar to move through the app, and swipe or drag the slider when more tabs are off-screen."}
+ ];
+ const finishGuide=()=>{
+  setShowGuide(false);setGuideStep(0);setGuideWaitingFor(null);setShowSkipSetupDisclaimer(false);
+  try{
+   localStorage.setItem("guidedTourComplete","1");
+   localStorage.removeItem("guidedTourSkipped");
+   localStorage.removeItem("guidedTourResumeStep");
+  }catch{}
+  setShowFeatureOverview(true);
+ };
+ const requestSkipSetup=()=>setShowSkipSetupDisclaimer(true);
+ const confirmSkipSetup=()=>{
+  setShowSkipSetupDisclaimer(false);
+  setShowGuide(false);
+  setGuideWaitingFor(null);
+  try{
+   localStorage.removeItem("guidedTourComplete");
+   localStorage.setItem("guidedTourSkipped","1");
+   localStorage.setItem("guidedTourResumeStep",String(guideStep));
+  }catch{}
+ };
+ const resumeGuide=()=>{
+  setShowSkipSetupDisclaimer(false);
+  try{
+   const complete=localStorage.getItem("guidedTourComplete")==="1";
+   if(complete){
+    setShowFeatureOverview(true);
+    return;
+   }
+   const saved=Number(localStorage.getItem("guidedTourResumeStep"));
+   if(Number.isFinite(saved)&&saved>=0&&saved<guideSteps.length)setGuideStep(saved);
+  }catch{}
+  setShowGuide(true);
+ };
+ const openGuideStep=(index:number)=>{
+  const next=Math.max(0,Math.min(guideSteps.length-1,index));
+  setGuideStep(next);
+  setGuideWaitingFor(null);
+  try{localStorage.setItem("guidedTourResumeStep",String(next))}catch{}
+ };
+ const jumpToGuideTarget=()=>{
+  const step=guideSteps[guideStep];
+  if(!step?.tab)return;
+  setShowGuide(false);
+  setTab(step.tab);
+  setGuideWaitingFor(step.id);
+  try{localStorage.setItem("guidedTourResumeStep",String(guideStep))}catch{}
+  if(step.id==="profile")setEditProfileRequest(x=>x+1);
+  window.setTimeout(()=>{
+    if(step.target){
+      const el=document.getElementById(`setup-${step.target}`);
+      if(el){el.scrollIntoView({behavior:"smooth",block:"center"});(el as HTMLElement).focus({preventScroll:true});}
+    }
+  },220);
+ };
+ const nextIncompleteGuideStep=()=>{
+  const currentIndex=guideSteps.findIndex(x=>x.id===guideWaitingFor);
+  if(currentIndex<0)return;
+  const current=guideSteps[currentIndex];
+  if(current.complete&&current.complete()){
+    const next=Math.min(currentIndex+1,guideSteps.length-1);
+    setGuideStep(next);
+    setGuideWaitingFor(null);
+    try{localStorage.setItem("guidedTourResumeStep",String(next))}catch{}
+    setShowGuide(true);
+  }
+ };
+ useEffect(()=>{nextIncompleteGuideStep()},[guideWaitingFor,guideProfileComplete,goals.length,results.length,workouts.length,readiness.length,sport]);
+ const featureOverviewItems:{tab:Tab;title:string;description:string}[]=[
+  {tab:"Home",title:"Overview",description:"See the athlete profile, readiness, goals, current program, next focus, weekly activity, and setup status."},
+  {tab:"Goals",title:"Goals",description:"Create short- and long-term goals, track progress, review insights, and mark goals complete."},
+  {tab:"Calendar",title:"Schedule",description:"Plan workouts, competitions, season events, and training blocks in one place."},
+  {tab:"Testing",title:"Testing",description:"Log performance tests, add custom tests, set retest targets, and track personal records."},
+  {tab:"Analytics",title:"Progress",description:"Review trends, improvement, testing history, readiness, goals, reports, exports, and performance snapshots."},
+  {tab:"Coach",title:effectiveRole==="Player"?"Readiness":"Readiness & Coach Tools",description:effectiveRole==="Player"?"Complete readiness check-ins for sleep, energy, recovery, and training readiness.":"Review readiness, coaching priorities, private coach notes, and athlete-management tools."},
+  {tab:"Development",title:"Development",description:"Manage development objectives, mental preparation, breathing routines, milestones, and complete training programs."},
+  {tab:"Competition",title:"Competition",description:"Log and review competitions, ratings, results, confidence, notes, and sport-specific statistics."},
+  ...(effectiveRole==="Coach"||effectiveRole==="Admin"?[{tab:"Roster" as Tab,title:"Roster",description:"Add athletes, switch active players, edit athlete profiles, compare athletes, and manage app data."}]:[])
+ ];
+ const openFeatureFromHelp=(tab:Tab)=>{
+  setShowFeatureOverview(false);
+  setTab(tab);
+ };
  const visibleTabs:Tab[]=accountRole==="Admin"&&adminView==="Admin"?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]:effectiveRole==="Coach"
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]
   :effectiveRole==="Player"
@@ -312,10 +428,11 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  if(!mounted)return <div className="app hydrationShell"><header><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Loading athlete dashboard…</small></div></header><main id="main-content" tabIndex={-1}><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading your performance data</b><small>Your saved athlete data will appear in a moment.</small></div></div></main></div>;
  if(!accountSession)return <RoleLogin profile={profile} activeAthleteId={activeAthleteId} roster={roster} onLogin={completeRoleLogin}/>;
  return <div className="app"><a className="skipLink" href="#main-content">Skip to main content</a>
-  <header className="appHeader"><div className="brandBlock"><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Train with purpose.</small></div></div><div className="headerActions"><span className="accountHeaderRole">{accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span><button className="commandButton" aria-label="Open quick navigation" onClick={()=>setCommandOpen(true)}>Navigate</button></div></header>
+  <header className="appHeader"><div className="brandBlock"><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Train with purpose.</small></div></div><div className="headerActions"><span className="accountHeaderRole">{accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span><button className="helpButton" onClick={resumeGuide}>Help</button><button className="commandButton" aria-label="Open quick navigation" onClick={()=>setCommandOpen(true)}>Navigate</button></div></header>
   <div className="contextBar cleanContext"><div className="athleteContext"><small>ACTIVE ATHLETE</small><b>{profile.name}</b><span>{sport}{profile.position?` · ${profile.position}`:""}{profile.team?` · ${profile.team}`:""}</span></div><div className="contextControls">{accountRole!=="Player"&&allowedAthletes.length>0&&<label className="athleteSelector"><small>Viewing</small><select value={activeAthleteId} onChange={e=>selectAthleteById(e.target.value)}>{allowedAthletes.map(a=><option value={a.id} key={a.id}>{a.name}{a.team?` · ${a.team}`:""}</option>)}</select></label>}{accountRole==="Admin"&&<label className="adminViewPicker"><small>Preview role</small><select value={adminView} onChange={e=>{setAdminView(e.target.value as "Admin"|"Coach"|"Player"|"Parent");setTab("Home")}}><option>Admin</option><option>Coach</option><option>Player</option><option>Parent</option></select></label>}<div className="sessionIdentity"><small>SIGNED IN</small><b>{accountSession.displayName}</b><span>{accountRole}</span></div><button className="signOutButton" onClick={signOutRole}>Sign out</button></div></div>
   <main>
    <div className="sportSelectorBlock"><div className="sportSelectorHead"><small>SPORT</small><span>Choose a sport</span></div><div className="sports topSportButtons">{sports.map(s=><button className={sport===s?"sel":""} onClick={()=>{setSport(s);setProfile((x:Profile)=>({...x,position:positions[s].includes(x.position)?x.position:""}))}} key={s}>{s}</button>)}</div></div>
+   {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>Complete this step and the guide will continue automatically.</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
    <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Track progress without editing athlete data":effectiveRole==="Player"?"Focus on today’s training and development":"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{pageHelp[tab]?.title||tab}</small><b>{pageHelp[tab]?.purpose||""}</b></div><span>{pageHelp[tab]?.primary||""}</span></div>
    {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} competitions={competitions} dev={dev} program={program}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home sport={sport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/></>:<Home sport={sport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/>)} 
    {tab==="Goals"&&<Goals goals={goals} setGoals={setGoals}/>}
@@ -333,8 +450,27 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    
     
   </main>
+  {showGuide&&accountSession&&<div className="guideOverlay" role="dialog" aria-modal="true" aria-label="Getting started guide"><div className="guideCard">
+   <div className="guideTop"><div><small>GETTING STARTED</small><b>Step {guideStep+1} of {guideSteps.length}</b></div><button onClick={requestSkipSetup} aria-label="Skip setup">Skip setup</button></div>
+   <div className="guideProgress"><i style={{width:`${Math.round((guideStep+1)/guideSteps.length*100)}%`}}/></div>
+   <div className="guideBody"><span className="guideIcon">{guideStep===0?"◆":guideStep===guideSteps.length-1?"✓":guideStep+1}</span><h2>{guideSteps[guideStep]?.title}</h2><p>{guideSteps[guideStep]?.body}</p>{guideSteps[guideStep]?.button&&<button className="featureAction guideAction" onClick={jumpToGuideTarget}>{guideSteps[guideStep].button}</button>}</div>
+   <div className="guideFooter"><button disabled={guideStep===0} onClick={()=>openGuideStep(guideStep-1)}>Back</button><button onClick={()=>guideStep===guideSteps.length-1?finishGuide():openGuideStep(guideStep+1)}>{guideStep===guideSteps.length-1?"Finish":"Skip this step"}</button></div>
+   <small className="guideHint">{guideSteps[guideStep]?.button?"Use the main button to go do this step. When the required information is saved, setup continues automatically.":"Every step is optional."}</small>
+  </div></div>}
+  {showFeatureOverview&&accountSession&&<div className="featureHelpOverlay" role="dialog" aria-modal="true" aria-label="App feature overview"><div className="featureHelpCard">
+   <div className="featureHelpHead"><div><small>HELP · APP OVERVIEW</small><h2>Everything you can do in Athlete Performance</h2><p>Choose any feature below to jump directly to it.</p></div><button onClick={()=>setShowFeatureOverview(false)} aria-label="Close help">×</button></div>
+   <div className="featureHelpGrid">{featureOverviewItems.map(item=><button key={item.tab} className="featureHelpItem" onClick={()=>openFeatureFromHelp(item.tab)}><div><span className="featureHelpIcon">{navMeta[item.tab]?.icon||"•"}</span><b>{item.title}</b></div><p>{item.description}</p><small>Open {item.title} →</small></button>)}</div>
+   <div className="featureHelpFooter"><div><b>Need setup help again?</b><span>You can restart the guided setup at any time.</span></div><button onClick={()=>{setShowFeatureOverview(false);setGuideStep(0);setShowGuide(true)}}>Restart Setup Guide</button></div>
+  </div></div>}
+  {showSkipSetupDisclaimer&&<div className="skipSetupOverlay" role="alertdialog" aria-modal="true" aria-label="Setup incomplete"><div className="skipSetupCard">
+   <span className="skipSetupIcon">!</span>
+   <small>SETUP INCOMPLETE</small>
+   <h2>Your setup is not finished yet</h2>
+   <p>You can skip the guided setup now, but some profile information or app features may still need to be completed. You can tap <b>Help</b> at any time to continue the setup guide from where you left off.</p>
+   <div className="skipSetupActions"><button onClick={()=>setShowSkipSetupDisclaimer(false)}>Continue Setup</button><button className="skipAnywayButton" onClick={confirmSkipSetup}>Skip Setup Anyway</button></div>
+  </div></div>}
   {commandOpen&&<div className="commandOverlay" role="dialog" aria-modal="true" aria-label="Quick navigation" onClick={()=>setCommandOpen(false)}><div className="commandPalette" onClick={e=>e.stopPropagation()}><div className="sectionHead"><h2>Go to a section</h2><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder="Search Overview, Goals, Testing, Roster…"/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span>{navMeta[a.tab]?.icon||"•"}</span><b>{a.label}</b><small>{a.keywords.join(" · ")}</small></button>)}</div></div></div>}
- <nav className="mainNav">{visibleTabs.map(x=><button aria-current={tab===x?"page":undefined} aria-label={roleNavLabel(x)} className={tab===x?"active":""} onClick={()=>setTab(x)} key={x}><span className="navIcon" aria-hidden="true">{navMeta[x]?.icon||"•"}</span><span className="navLabel">{roleNavLabel(x)}</span></button>)}</nav>
+ <div className="navDock"><nav className="mainNav">{visibleTabs.map(x=><button aria-current={tab===x?"page":undefined} aria-label={roleNavLabel(x)} className={tab===x?"active":""} onClick={()=>setTab(x)} key={x}><span className="navIcon" aria-hidden="true">{navMeta[x]?.icon||"•"}</span><span className="navLabel">{roleNavLabel(x)}</span></button>)}</nav><div className="navScrollHint" aria-hidden="true"><span className="navScrollTrack"><i/></span><span>Swipe for more tabs ↔</span></div></div>
  </div>
 }
 
@@ -528,6 +664,7 @@ function MentalTraining({sport,profile}:{sport:Sport;profile:Profile}){
 }
 
 function Home({sport,goals,workouts,results,profile,setProfile,readiness,competitions,dev,program,weeklyReviews,setWeeklyReviews,testTargets,workspaceRole,onboardingDismissed,setOnboardingDismissed,setTab,editProfileRequest}:{sport:Sport;goals:Goal[];workouts:Workout[];results:Result[];profile:Profile;setProfile:any;readiness:ReadinessLog[];competitions:CompetitionLog[];dev:DevelopmentItem[];program:TrainingProgram|null;weeklyReviews:WeeklyReview[];setWeeklyReviews:React.Dispatch<React.SetStateAction<WeeklyReview[]>>;testTargets:TestTarget[];workspaceRole:WorkspaceRole;onboardingDismissed:boolean;setOnboardingDismissed:React.Dispatch<React.SetStateAction<boolean>>;setTab:React.Dispatch<React.SetStateAction<Tab>>;editProfileRequest:number}){
+ const [editingProfile,setEditingProfile]=useState(false);
  const gs=goals.length?Math.round(goals.reduce((a,g)=>a+g.progress,0)/goals.length):0;
  const ws=workouts.filter(x=>x.sport===sport),done=ws.filter(x=>x.completed).length;
  const rs=results.filter(x=>x.sport===sport);
@@ -600,6 +737,7 @@ function Home({sport,goals,workouts,results,profile,setProfile,readiness,competi
  const setupPct=Math.round(setupSteps.filter(x=>x.done).length/setupSteps.length*100);
  useEffect(()=>{
   if(editProfileRequest<=0)return;
+  setEditingProfile(true);
   window.setTimeout(()=>{
    const el=document.getElementById("setup-profile");
    if(el){el.scrollIntoView({behavior:"smooth",block:"center"});(el as HTMLElement).focus({preventScroll:true});}
@@ -608,6 +746,7 @@ function Home({sport,goals,workouts,results,profile,setProfile,readiness,competi
 
  const goToSetupItem=(tab:Tab,target:string)=>{
   setTab(tab);
+  if(target==="profile")setEditingProfile(true);
   window.setTimeout(()=>{
    const el=document.getElementById(`setup-${target}`);
    if(el){el.scrollIntoView({behavior:"smooth",block:"center"});(el as HTMLElement).focus({preventScroll:true});}
@@ -676,17 +815,7 @@ const signals:PerformanceSignal[]=[
  {!onboardingDismissed&&setupPct<100&&<div className="onboardingCard"><div className="sectionHead"><div><small>PHASE 56 · ONBOARDING</small><h2>Finish Your Setup</h2></div><button aria-label="Dismiss onboarding" onClick={()=>setOnboardingDismissed(true)}>×</button></div><div className="setupMeter"><div className="progress"><i style={{width:`${setupPct}%`}}/></div><b>{setupPct}%</b></div><div className="setupSteps">{setupSteps.map(x=>x.done?<span className="done" key={x.label}>✓ {x.label}</span>:<button type="button" className="setupStepLink" key={x.label} onClick={()=>goToSetupItem(x.tab,x.target)}><span>○ {x.label}</span><b>Open →</b></button>)}</div></div>}
 
  
- <div className="card profileEditor setupAnchor" id="setup-profile" tabIndex={-1}>
-  <div className="sectionHead"><div><small>ATHLETE PROFILE</small><h2>Edit Profile</h2></div><span className="tag">{profileCompletion}% complete</span></div>
-  <div className="profileGrid">
-   <label>Name<input value={profile.name||""} onChange={e=>setProfile((x:Profile)=>({...x,name:e.target.value}))}/></label>
-   <label>Position<select value={positions[sport].includes(profile.position)?profile.position:""} onChange={e=>setProfile((x:Profile)=>({...x,position:e.target.value}))}><option value="">Select position</option>{positions[sport].map(x=><option key={x} value={x}>{x}</option>)}</select></label>
-   <label>Team<input value={profile.team||""} onChange={e=>setProfile((x:Profile)=>({...x,team:e.target.value}))}/></label>
-   <label>Height<input value={profile.height||""} onChange={e=>setProfile((x:Profile)=>({...x,height:e.target.value}))} placeholder="e.g. 5'10&quot;"/></label>
-   <label>Weight<input value={profile.weight||""} onChange={e=>setProfile((x:Profile)=>({...x,weight:e.target.value}))} placeholder="e.g. 165 lb"/></label><label>Handedness<select value={profile.handedness||"Right"} onChange={e=>setProfile((x:Profile)=>({...x,handedness:e.target.value as "Right"|"Left"}))}><option value="Right">Right</option><option value="Left">Left</option></select></label>
-  </div>
-  <small className="profileHint">Complete all six fields to finish Athlete Profile setup.</small>
- </div>
+
 
  <div className="roleBrief"><span className="tag">PHASE 61 · {workspaceRole.toUpperCase()} VIEW</span><p>{roleMessage}</p></div>
  <div className="roleActionGrid">{roleActions.map(x=><div key={x.title}><small>{x.title}</small><b>{x.detail}</b></div>)}</div>
@@ -698,7 +827,35 @@ const signals:PerformanceSignal[]=[
   <div className="commandCard"><small>NEXT FOCUS</small><b className="focusText">{nextAction}</b><span>{openDev[0]?"development priority":"next action"}</span></div>
  </div>
 
- <div className="card profileCard"><div className="sectionHead"><h2>Athlete Profile</h2><span className="tag">{sport}</span></div><div className="two"><label>Name<input value={profile.name??""} onChange={e=>setProfile((x:Profile)=>({...x,name:e.target.value}))}/></label><label>Position<select value={positions[sport].includes(profile.position)?profile.position:""} onChange={e=>setProfile((x:Profile)=>({...x,position:e.target.value}))}><option value="">Select position</option>{positions[sport].map(x=><option key={x}>{x}</option>)}</select></label><label>Team<input value={profile.team??""} onChange={e=>setProfile((x:Profile)=>({...x,team:e.target.value}))}/></label><label>Season<input value={profile.season??""} onChange={e=>setProfile((x:Profile)=>({...x,season:e.target.value}))}/></label><label>Height<input value={profile.height??""} onChange={e=>setProfile((x:Profile)=>({...x,height:e.target.value}))} placeholder="e.g. 5'10&quot;"/></label><label>Weight<input inputMode="decimal" value={profile.weight??""} onChange={e=>setProfile((x:Profile)=>({...x,weight:e.target.value}))} placeholder="e.g. 165 lb"/></label><label>Handedness<select value={profile.handedness??"Right"} onChange={e=>setProfile((x:Profile)=>({...x,handedness:e.target.value as "Right"|"Left"}))}><option>Right</option><option>Left</option></select></label></div></div>
+ <div className="card playerProfileCard setupAnchor" id="setup-profile" tabIndex={-1}>
+  <div className="sectionHead playerProfileHead">
+   <div><small>PLAYER PROFILE</small><h2>{profile.name||"Athlete"}</h2><p>{sport}{profile.position?` · ${profile.position}`:""}{profile.team?` · ${profile.team}`:""}</p></div>
+   <div className="profileHeadActions"><span className="tag">{profileCompletion}% complete</span><button type="button" className={editingProfile?"profileDoneButton":"featureAction profileEditButton"} onClick={()=>setEditingProfile(x=>!x)}>{editingProfile?"Done":"Edit Profile"}</button></div>
+  </div>
+  {!editingProfile?
+   <div className="profileSummaryGrid">
+    <div><small>Position</small><b>{profile.position||"Not set"}</b></div>
+    <div><small>Team</small><b>{profile.team||"Not set"}</b></div>
+    <div><small>Season</small><b>{profile.season||"Not set"}</b></div>
+    <div><small>Height</small><b>{profile.height||"Not set"}</b></div>
+    <div><small>Weight</small><b>{profile.weight||"Not set"}</b></div>
+    <div><small>Handedness</small><b>{profile.handedness||"Not set"}</b></div>
+   </div>
+   :
+   <div className="profileEditPanel">
+    <div className="profileGrid">
+     <label>Name<input value={profile.name||""} onChange={e=>setProfile((x:Profile)=>({...x,name:e.target.value}))}/></label>
+     <label>Position<select value={positions[sport].includes(profile.position)?profile.position:""} onChange={e=>setProfile((x:Profile)=>({...x,position:e.target.value}))}><option value="">Select position</option>{positions[sport].map(x=><option key={x} value={x}>{x}</option>)}</select></label>
+     <label>Team<input value={profile.team||""} onChange={e=>setProfile((x:Profile)=>({...x,team:e.target.value}))}/></label>
+     <label>Season<input value={profile.season||""} onChange={e=>setProfile((x:Profile)=>({...x,season:e.target.value}))} placeholder="e.g. 2026-27"/></label>
+     <label>Height<input value={profile.height||""} onChange={e=>setProfile((x:Profile)=>({...x,height:e.target.value}))} placeholder="e.g. 5'10&quot;"/></label>
+     <label>Weight<input inputMode="decimal" value={profile.weight||""} onChange={e=>setProfile((x:Profile)=>({...x,weight:e.target.value}))} placeholder="e.g. 165 lb"/></label>
+     <label>Handedness<select value={profile.handedness||"Right"} onChange={e=>setProfile((x:Profile)=>({...x,handedness:e.target.value as "Right"|"Left"}))}><option value="Right">Right</option><option value="Left">Left</option></select></label>
+    </div>
+    <div className="profileEditFooter"><small>Changes save automatically.</small><button type="button" className="featureAction" onClick={()=>setEditingProfile(false)}>Done Editing</button></div>
+   </div>
+  }
+ </div>
 
  
  <details className="simpleDisclosure advancedTools"><summary><div><b>V1 Readiness</b><small>Setup and release-readiness checklist</small></div><span>Open</span></summary><div className="simpleDisclosureBody"><div className="sectionDivider"><span><i/>V1 Readiness</span></div>
