@@ -22,12 +22,13 @@ type ReportNote={id:number;date:string;title:string;body:string};
 type AthleteRecord={id:string;name:string;sport:Sport;position:string;team:string;season:string;height:string;weight:string;handedness:"Right"|"Left"};
 type RosterSummary={id:string;name:string;sport:Sport;position:string;team:string;goals:number;workouts:number;tests:number;competitions:number;readiness:number;score:number};
 type DailyLoad={date:string;label:string;load:number;workouts:number;events:number};
-type QuickAction={id:string;label:string;tab:string;keywords:string[]};
+type QuickAction={id:string;label:string;tab:Tab;keywords:string[]};
 type RecoveryFlag={label:string;value:string;status:"Good"|"Watch"|"Low"};
 type PerformanceSignal={label:string;value:string;detail:string;tone:"good"|"watch"|"neutral"};
 type SeasonMetric={label:string;value:number;display:string};
 type BenchmarkBand={label:string;min?:number;max?:number};
 type WeeklyPlanItem={day:string;focus:string;action:string;priority:"High"|"Medium"|"Low"};
+type Tab="Home"|"Goals"|"Calendar"|"Testing"|"Analytics"|"Coach"|"Development"|"Competition"|"Roster";
 type WorkspaceRole="Athlete"|"Coach"|"Parent";
 type AccountRole="Player"|"Coach"|"Parent"|"Admin";
 type AccountSession={role:AccountRole;displayName:string;athleteId:string;linkedAthleteIds?:string[]};
@@ -130,6 +131,7 @@ const raw:Record<Sport,string[][]>={
  Basketball:[["10-yard sprint","Speed","sec","1"],["Lane agility","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Squat","Strength","lb","0"]],
  Lacrosse:[["20-yard sprint","Speed","sec","1"],["Pro agility shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Bench press","Strength","lb","0"]],
  Wrestling:[["20-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Squat","Strength","lb","0"],["Pull-ups","Strength","reps","0"]],
+ Soccer:[["10-yard sprint","Speed","sec","1"],["20-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"]],
  "Figure Skating":[["Single-leg balance","Skill","sec","0"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["30-second jump count","Endurance","reps","0"],["Spin rotations","Skill","reps","0"],["Edge control course","Agility","sec","1"]]
 };
 const definitions=(sport:Sport):TestDef[]=>raw[sport].map((x,i)=>({id:`${sport}-${i}`,name:x[0],category:x[1],unit:x[2],lowerBetter:x[3]==="1"}));
@@ -139,7 +141,7 @@ const improvement=(first:number,last:number,lower:boolean)=>first===0?0:Math.rou
 const pct=(n:number)=>Math.max(0,Math.min(100,Math.round(n)));
 
 export default function AthleteApp(){
- const [sport,setSport]=useState<Sport>("Ice Hockey"),[tab,setTab]=useState("Home");
+ const [sport,setSport]=useState<Sport>("Ice Hockey"),[tab,setTab]=useState<Tab>("Home");
  const [results,setResults]=useState<Result[]>([]),[custom,setCustom]=useState<CustomTest[]>([]),[goals,setGoals]=useState<Goal[]>([]),[workouts,setWorkouts]=useState<Workout[]>([]),[profile,setProfile]=useState<Profile>({name:"Athlete",position:"",team:"",season:"2026-27",height:"",weight:"",handedness:"Right"});
  const [dev,setDev]=useState<DevelopmentItem[]>([]);
  const [program,setProgram]=useState<TrainingProgram|null>(null);
@@ -282,7 +284,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   switchAthlete(athlete);
  };
 
- const visibleTabs:string[]=accountRole==="Admin"&&adminView==="Admin"?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]:effectiveRole==="Coach"
+ const visibleTabs:Tab[]=accountRole==="Admin"&&adminView==="Admin"?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]:effectiveRole==="Coach"
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]
   :effectiveRole==="Player"
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition"]
@@ -1186,7 +1188,8 @@ const sportProgramTemplates:Record<Sport,{speed:string[];strength:string[];skill
  Basketball:{speed:["First-step acceleration","Closeout-to-sprint","Lateral change of direction"],strength:["Jump strength","Single-leg strength","Upper-body strength"],skill:["Ball-handling pace","Finishing footwork","Shooting movement"],conditioning:["Court intervals","Tempo runs","Mobility recovery"]},
  Lacrosse:{speed:["20-yard acceleration","Reactive cuts","Crossover sprint mechanics"],strength:["Rotational power","Single-leg strength","Upper-body push/pull"],skill:["Stick-skill tempo","Dodging footwork","Passing on the move"],conditioning:["Field intervals","Repeated sprint conditioning","Mobility recovery"]},
  Wrestling:{speed:["Short acceleration","Sprawl reaction","Lateral movement"],strength:["Total-body strength","Grip strength","Posterior-chain strength"],skill:["Stance and motion","Shot-entry technique","Hand-fighting drill"],conditioning:["Match intervals","Bike intervals","Mobility recovery"]},
- Soccer:{speed:["10-meter acceleration","Flying sprint","Change-of-direction sprint"],strength:["Single-leg strength","Hamstring strength","Core stability"],skill:["First-touch drill","Passing on the move","Dribbling change of direction"],conditioning:["Repeated sprint intervals","Aerobic tempo work","Mobility recovery"]}
+ Soccer:{speed:["10-meter acceleration","Flying sprint","Change-of-direction sprint"],strength:["Single-leg strength","Hamstring strength","Core stability"],skill:["First-touch drill","Passing on the move","Dribbling change of direction"],conditioning:["Repeated sprint intervals","Aerobic tempo work","Mobility recovery"]},
+ "Figure Skating":{speed:["Quick-step acceleration","Lateral quickness","Rotation-speed drill"],strength:["Single-leg strength","Landing strength","Core stability"],skill:["Edge-control practice","Jump technique","Spin and balance practice"],conditioning:["Skating intervals","Jump endurance","Mobility recovery"]}
 };
 
 
