@@ -2013,3 +2013,335 @@ input,select,textarea{min-height:42px}
 .programBuilderSimple{margin-top:10px}.programSimpleInputs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.scienceRules{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.scienceRules span{padding:6px 8px;border-radius:999px;background:rgba(23,107,74,.10);border:1px solid rgba(117,212,169,.12);font-size:7px;color:var(--silver-light)}.programSafetyNote{display:block;margin-top:9px;font-size:7px;line-height:1.45;color:var(--muted)}.scienceSourceNote small{color:var(--forest-light);font-size:7px;letter-spacing:.08em}.scienceSourceNote p{font-size:8px;line-height:1.55;color:var(--muted)}
 @media(max-width:760px){.scienceBasisCard{grid-template-columns:1fr}.programSimpleInputs{grid-template-columns:1fr 1fr}}
 @media(max-width:480px){.programSimpleInputs{grid-template-columns:1fr}.simpleNavOverlay{padding:8px}.simpleNavSheet{border-radius:16px}.simpleBottomNav button b{font-size:6.8px}}
+
+
+/* =========================================================
+   Phase 72.3.7 — Post-setup complete feature tour
+   ========================================================= */
+.featureNavHowTo{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.featureNavHowTo>div{position:relative;padding:11px 10px 10px 38px;border-radius:12px;background:#181d1a;border:1px solid rgba(184,191,188,.09)}
+.featureNavHowTo>div>small{position:absolute;left:10px;top:10px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:rgba(23,107,74,.18);color:var(--forest-light);font-size:8px;font-weight:900}
+.featureNavHowTo b,.featureNavHowTo span{display:block}.featureNavHowTo b{font-size:9px}.featureNavHowTo span{font-size:7.5px;line-height:1.4;color:var(--muted);margin-top:3px}
+.featureNavMap{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:4px}
+.featureNavMap>div{flex:1;min-width:105px;padding:8px;border-radius:10px;background:rgba(23,107,74,.08);border:1px solid rgba(117,212,169,.10)}
+.featureNavMap b,.featureNavMap span{display:block}.featureNavMap b{font-size:8px;color:var(--forest-light)}.featureNavMap span{font-size:7px;color:var(--muted);line-height:1.35;margin-top:3px}
+.roleToolsOverview{padding:10px 11px;margin:4px 0 13px;border-radius:12px;background:linear-gradient(135deg,rgba(23,107,74,.13),rgba(28,32,30,.9));border:1px solid rgba(117,212,169,.14)}
+.roleToolsOverview small,.roleToolsOverview b{display:block}.roleToolsOverview small{font-size:7px;letter-spacing:.08em;color:var(--forest-light)}.roleToolsOverview b{font-size:10px;margin:3px 0}.roleToolsOverview p{font-size:8px;line-height:1.5;color:var(--muted);margin:0}
+.featureOverviewSections{display:grid;gap:12px}.featureOverviewSections section{display:grid;gap:7px}.featureGroupTitle{display:flex;align-items:center;justify-content:space-between;padding:0 2px}.featureGroupTitle>span{font-size:9px;font-weight:900;color:var(--silver-light)}.featureGroupTitle>small{font-size:7px;color:var(--muted)}
+.featureHow{display:block;font-size:7px!important;line-height:1.35;color:var(--forest-light)!important;margin:6px 0 2px}
+.featureHelpFooterActions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.featureHelpFooterActions .featureAction{min-width:120px}
+@media(max-width:700px){.featureNavHowTo{grid-template-columns:1fr}.featureNavMap>div{min-width:120px}.featureHelpFooter{align-items:stretch!important;flex-direction:column}.featureHelpFooterActions{justify-content:stretch}.featureHelpFooterActions button{flex:1}}
+
+
+/* Phase 72.3.9 — explicit Player Setup save flow */
+.profileSetupNotice{display:flex;flex-direction:column;gap:3px;padding:9px 10px;margin-bottom:10px;border-radius:10px;background:rgba(23,107,74,.10);border:1px solid rgba(117,212,169,.14)}
+.profileSetupNotice b{font-size:9px;color:var(--forest-light)}
+.profileSetupNotice span{font-size:8px;line-height:1.4;color:var(--muted)}
+.profileSaveError{margin-top:8px;padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.045);font-size:8px;line-height:1.45;color:var(--silver-light)}
+
+/* =========================================================
+   Phase 72.3.11 — age-aware programs, curated demos, custom workouts
+   ========================================================= */
+.ageGenerationNote,.verifiedDemoPolicy{display:flex;flex-direction:column;gap:4px;margin-top:10px;padding:10px 11px;border-radius:11px;background:rgba(23,107,74,.10);border:1px solid rgba(117,212,169,.14)}
+.ageGenerationNote b,.verifiedDemoPolicy b{font-size:9px;color:var(--forest-light)}
+.ageGenerationNote span,.verifiedDemoPolicy span{font-size:8px;line-height:1.45;color:var(--muted)}
+.exerciseResourceNote{margin-top:7px;font-size:7px;line-height:1.4;color:var(--muted);font-style:italic}
+.customWorkoutBuilder{margin-top:14px}
+.customExerciseList{display:grid;gap:10px;margin-top:12px}
+.customExerciseEditor{padding:11px;border-radius:12px;background:#181d1a;border:1px solid rgba(184,191,188,.10)}
+.customExerciseHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.customExerciseHead b{font-size:9px}.customExerciseHead button{font-size:7px}
+.customExerciseInputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.customWorkoutActions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:11px}
+.customWorkoutMessage{margin-top:9px;padding:8px 10px;border-radius:9px;background:rgba(117,212,169,.08);border:1px solid rgba(117,212,169,.13);font-size:8px;color:var(--forest-light)}
+.workoutTagRow{display:flex;gap:5px;flex-wrap:wrap;align-items:center}.workoutSourceTag{opacity:.86}
+.scheduledWorkoutExercises{margin:9px 0;padding:8px 9px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06)}
+.scheduledWorkoutExercises summary{cursor:pointer;font-size:8px;font-weight:800;color:var(--silver-light)}
+.scheduledWorkoutExercises>div{display:grid;gap:6px;margin-top:8px}
+.scheduledExerciseRow{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;padding:7px 0;border-top:1px solid rgba(255,255,255,.05)}
+.scheduledExerciseRow:first-child{border-top:0}.scheduledExerciseRow b,.scheduledExerciseRow small{display:block}.scheduledExerciseRow b{font-size:8px}.scheduledExerciseRow small{font-size:7px;color:var(--muted);margin-top:2px}.scheduledExerciseRow p{font-size:7px;color:var(--muted);margin:3px 0 0}
+@media(max-width:700px){.customExerciseInputs{grid-template-columns:1fr 1fr}.customWorkoutActions{justify-content:stretch}.customWorkoutActions button{flex:1}}
+@media(max-width:480px){.customExerciseInputs{grid-template-columns:1fr}}
+
+
+/* Phase 72.3.12 — verified full-routine video references */
+.routineReferenceCard,.scheduledRoutineReference{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0;padding:11px 12px;border-radius:12px;background:rgba(23,107,74,.10);border:1px solid rgba(117,212,169,.18)}
+.routineReferenceCard>div,.scheduledRoutineReference>div{min-width:0}
+.routineReferenceCard small,.routineReferenceCard b,.routineReferenceCard span,.scheduledRoutineReference small,.scheduledRoutineReference b,.scheduledRoutineReference span{display:block}
+.routineReferenceCard small,.scheduledRoutineReference small{font-size:7px;letter-spacing:.07em;color:var(--forest-light)}
+.routineReferenceCard b,.scheduledRoutineReference b{font-size:10px;margin:3px 0}
+.routineReferenceCard p{font-size:8px;line-height:1.45;color:var(--muted);margin:4px 0}
+.routineReferenceCard span,.scheduledRoutineReference span{font-size:7.5px;color:var(--muted)}
+.routineReferenceCard a,.scheduledRoutineReference a{flex:0 0 auto;text-decoration:none;padding:8px 10px;border-radius:9px;background:var(--forest);color:white;font-size:8px;font-weight:900}
+@media(max-width:700px){.routineReferenceCard,.scheduledRoutineReference{align-items:stretch;flex-direction:column}.routineReferenceCard a,.scheduledRoutineReference a{text-align:center}}
+
+
+/* Phase 72.3.13 — duration control + strict multi-video bundles */
+.routineReferenceBundle{display:grid;gap:7px;margin:10px 0}
+.routineBundleHead{padding:9px 10px;border-radius:10px;background:rgba(23,107,74,.07);border:1px solid rgba(117,212,169,.12)}
+.routineBundleHead small,.routineBundleHead b,.routineBundleHead span{display:block}
+.routineBundleHead small{font-size:7px;letter-spacing:.07em;color:var(--forest-light)}
+.routineBundleHead b{font-size:10px;margin:2px 0}
+.routineBundleHead span{font-size:7.5px;color:var(--muted)}
+.noVerifiedVideo{display:flex;flex-direction:column;gap:3px;margin:10px 0;padding:10px 11px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(184,191,188,.10)}
+.noVerifiedVideo b{font-size:9px;color:var(--silver-light)}
+.noVerifiedVideo span{font-size:7.5px;line-height:1.45;color:var(--muted)}
+.programSimpleInputs label small{display:block;margin-top:3px;font-size:7px;color:var(--muted)}
+
+
+/* Phase 72.3.16 — detailed exercise coaching + verified visual media */
+.detailedExerciseGuide{margin-top:8px;border:1px solid rgba(184,191,188,.12);border-radius:10px;background:rgba(255,255,255,.025);overflow:hidden}
+.detailedExerciseGuide summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:9px 10px;list-style:none}
+.detailedExerciseGuide summary::-webkit-details-marker{display:none}
+.detailedExerciseGuide summary span{font-size:8.5px;font-weight:900;color:var(--silver-light)}
+.detailedExerciseGuide summary small{font-size:7px;color:var(--forest-light)}
+.exerciseGuideBody{display:grid;gap:9px;padding:0 10px 11px}
+.exerciseGuideBody small{display:block;font-size:6.8px;letter-spacing:.08em;color:var(--forest-light);font-weight:900;margin-bottom:3px}
+.exerciseGuideBody p,.exerciseGuideBody li{font-size:8px;line-height:1.55;color:var(--silver-light)}
+.exerciseGuideSteps ol{margin:4px 0 0;padding-left:18px}
+.exerciseGuideSteps li{margin:4px 0}
+.exerciseGuideColumns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.exerciseGuideColumns>div{padding:8px;border-radius:8px;background:rgba(255,255,255,.025)}
+.exerciseGuideColumns span{display:block;font-size:7.5px;line-height:1.45;color:var(--muted);margin:3px 0}
+.exerciseGuideSafety{padding:8px;border-radius:8px;background:rgba(23,107,74,.08);border:1px solid rgba(117,212,169,.1)}
+.verifiedSupportVideo{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:12px;margin:11px 0;padding:10px;border-radius:12px;background:rgba(23,107,74,.09);border:1px solid rgba(117,212,169,.18)}
+.verifiedVideoThumb{position:relative;display:block;border-radius:9px;overflow:hidden;min-height:105px;background:#111}
+.verifiedVideoThumb img{display:block;width:100%;height:100%;min-height:105px;object-fit:cover}
+.verifiedVideoThumb>span{position:absolute;inset:0;display:grid;place-items:center;font-size:28px;color:white;background:rgba(0,0,0,.2)}
+.verifiedVideoBody small,.verifiedVideoBody b{display:block}
+.verifiedVideoBody small{font-size:7px;letter-spacing:.08em;color:var(--forest-light)}
+.verifiedVideoBody b{font-size:11px;margin:4px 0}
+.verifiedVideoBody p{font-size:8px;line-height:1.5;color:var(--muted);margin:5px 0}
+.verifiedVideoMeta{display:flex;flex-wrap:wrap;gap:5px;margin:5px 0}
+.verifiedVideoMeta span{font-size:7px;padding:3px 6px;border-radius:999px;background:rgba(255,255,255,.05);color:var(--silver)}
+.verifiedVideoBody>a{display:inline-block;margin-top:4px;padding:7px 9px;border-radius:8px;background:var(--forest);color:white;text-decoration:none;font-size:8px;font-weight:900}
+.verifiedSupportVideo.compact{grid-template-columns:120px 1fr}
+@media(max-width:700px){.exerciseGuideColumns{grid-template-columns:1fr}.verifiedSupportVideo,.verifiedSupportVideo.compact{grid-template-columns:1fr}.verifiedVideoThumb{min-height:150px}}
+
+
+/* Phase 72.3.17 — readable typography + user text-size settings */
+.app{
+ --ui-text-scale:1.10;
+ font-size:calc(14px * var(--ui-text-scale));
+}
+.app[data-text-size="standard"]{--ui-text-scale:1}
+.app[data-text-size="comfortable"]{--ui-text-scale:1.10}
+.app[data-text-size="large"]{--ui-text-scale:1.20}
+.app[data-text-size="xlarge"]{--ui-text-scale:1.32}
+
+/* Raise the app's minimum everyday reading sizes. */
+.app p,
+.app li{font-size:calc(13px * var(--ui-text-scale))!important;line-height:1.55}
+.app small{font-size:calc(10px * var(--ui-text-scale))!important;line-height:1.4}
+.app label{font-size:calc(12px * var(--ui-text-scale))!important}
+.app input,
+.app select,
+.app textarea{font-size:calc(13px * var(--ui-text-scale))!important}
+.app button{font-size:calc(12px * var(--ui-text-scale))}
+.app h1{font-size:calc(31px * var(--ui-text-scale));line-height:1.08}
+.app h2{font-size:calc(18px * var(--ui-text-scale));line-height:1.18}
+.app .hero h1{font-size:clamp(calc(30px * var(--ui-text-scale)),5vw,calc(42px * var(--ui-text-scale)))}
+.app .tag,
+.app .sectionDivider span,
+.app .navLabel,
+.app .simpleBottomNav b,
+.app .workspaceGuide span,
+.app .pageGuide span{font-size:calc(10px * var(--ui-text-scale))!important}
+.app .simpleBottomNav button{font-size:calc(11px * var(--ui-text-scale))}
+.app .exerciseGuideBody p,
+.app .exerciseGuideBody li{font-size:calc(11px * var(--ui-text-scale))!important;line-height:1.55}
+.app .exerciseGuideColumns span{font-size:calc(10px * var(--ui-text-scale))!important;line-height:1.45}
+.app .detailedExerciseGuide summary span{font-size:calc(11px * var(--ui-text-scale))!important}
+.app .detailedExerciseGuide summary small{font-size:calc(9px * var(--ui-text-scale))!important}
+.app .verifiedVideoBody p{font-size:calc(11px * var(--ui-text-scale))!important}
+.app .verifiedVideoBody b{font-size:calc(13px * var(--ui-text-scale))!important}
+.app .simpleInstruction,
+.app .exercisePurpose,
+.app .exerciseHow{font-size:calc(11px * var(--ui-text-scale))!important;line-height:1.5}
+.app .exercisePrescription strong{font-size:calc(11px * var(--ui-text-scale))!important}
+
+/* Header settings control */
+.settingsButton{
+ border:1px solid var(--line);
+ background:#232725;
+ color:var(--silver-light,#e0e4e2);
+ border-radius:10px;
+ padding:8px 10px;
+ font-weight:800
+}
+.settingsButton:hover{border-color:rgba(117,212,169,.35)}
+
+/* Settings dialog */
+.settingsOverlay{
+ position:fixed;inset:0;z-index:60;
+ display:grid;place-items:center;
+ padding:16px;
+ background:rgba(0,0,0,.72);
+ backdrop-filter:blur(10px)
+}
+.settingsCard{
+ width:min(620px,100%);
+ max-height:min(760px,90vh);
+ overflow:auto;
+ background:linear-gradient(180deg,#242826,#191c1a);
+ border:1px solid rgba(117,212,169,.18);
+ border-radius:22px;
+ box-shadow:0 24px 70px rgba(0,0,0,.45);
+ padding:18px
+}
+.settingsHead{
+ display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+ border-bottom:1px solid var(--line);
+ padding-bottom:13px
+}
+.settingsHead h2{margin:3px 0 5px}
+.settingsHead p{margin:0;max-width:470px}
+.settingsHead>div>small{color:var(--accent);font-weight:900;letter-spacing:.1em}
+.settingsClose{
+ width:38px;height:38px;padding:0!important;border-radius:50%!important;
+ font-size:22px!important;display:grid;place-items:center
+}
+.textSizeSetting{padding:15px 0 4px}
+.settingLabel{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.settingLabel b{font-size:calc(14px * var(--ui-text-scale))}
+.settingLabel span{font-size:calc(11px * var(--ui-text-scale));color:var(--muted)}
+.textSizeChoices{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.textSizeChoices button{
+ display:grid;grid-template-columns:42px 1fr auto;align-items:center;gap:10px;
+ text-align:left;padding:12px!important;border-radius:13px!important;
+ border:1px solid var(--line)!important;background:#1d211f!important;color:var(--text)!important
+}
+.textSizeChoices button.active{
+ border-color:var(--accent)!important;
+ background:rgba(117,212,169,.09)!important;
+ box-shadow:0 0 0 2px rgba(117,212,169,.08)
+}
+.textSizeChoices button>div b,
+.textSizeChoices button>div small{display:block}
+.textSizeChoices button>strong{color:var(--accent);font-size:18px}
+.textSizeSample{
+ width:40px;height:40px;border-radius:10px;background:#2a2e2c;
+ display:grid;place-items:center;font-weight:900;color:var(--accent2)
+}
+.textSizeChoices button:nth-child(1) .textSizeSample{font-size:14px}
+.textSizeChoices button:nth-child(2) .textSizeSample{font-size:16px}
+.textSizeChoices button:nth-child(3) .textSizeSample{font-size:18px}
+.textSizeChoices button:nth-child(4) .textSizeSample{font-size:20px}
+.textPreview{
+ margin-top:13px;padding:14px;border-radius:13px;
+ background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)
+}
+.textPreview small,.textPreview b{display:block}
+.textPreview small{color:var(--accent);letter-spacing:.08em;font-weight:900}
+.textPreview b{margin:4px 0;font-size:calc(15px * var(--ui-text-scale))}
+.textPreview p{margin:0}
+.settingsFooter{
+ display:flex;justify-content:flex-end;gap:8px;
+ border-top:1px solid var(--line);margin-top:14px;padding-top:13px
+}
+.settingsFooter button{padding:10px 13px;border-radius:11px}
+
+@media(max-width:650px){
+ .headerActions{gap:5px}
+ .settingsButton,.helpButton{padding:8px 9px}
+ .textSizeChoices{grid-template-columns:1fr}
+ .settingsCard{padding:15px;border-radius:18px}
+}
+
+
+/* Phase 72.3.18 — Sleep Recovery Guide */
+.sleepRecoveryGuide{border-color:rgba(117,212,169,.15)}
+.sleepGuideSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.sleepGuideSummary>div{padding:11px;border-radius:11px;background:#181c1a;border:1px solid rgba(255,255,255,.06)}
+.sleepGuideSummary small,.sleepGuideSummary b,.sleepGuideSummary span{display:block}
+.sleepGuideSummary small{color:var(--forest-light);font-weight:900;letter-spacing:.06em}
+.sleepGuideSummary b{margin:4px 0;font-size:calc(14px * var(--ui-text-scale))}
+.sleepGuideSummary span{color:var(--muted);font-size:calc(10px * var(--ui-text-scale))}
+.sleepGuideBody{display:grid;gap:13px;margin-top:13px}
+.sleepPlanner{display:grid;grid-template-columns:1.35fr .65fr 1fr;gap:10px;align-items:end;padding:13px;border-radius:13px;background:rgba(23,107,74,.08);border:1px solid rgba(117,212,169,.12)}
+.sleepPlanner h2{margin:3px 0}
+.sleepPlanner p{margin:0}
+.sleepPlanner label{margin:0}
+.bedtimeResult{padding:10px;border-radius:10px;background:#171a18;border:1px solid rgba(255,255,255,.07)}
+.bedtimeResult small,.bedtimeResult b,.bedtimeResult span{display:block}
+.bedtimeResult small{color:var(--forest-light);font-weight:900;letter-spacing:.06em}
+.bedtimeResult b{font-size:calc(17px * var(--ui-text-scale));margin:4px 0}
+.bedtimeResult span{color:var(--muted);font-size:calc(10px * var(--ui-text-scale));line-height:1.4}
+.sleepRoutineTimeline{display:grid;gap:7px}
+.sleepRoutineStep{display:grid;grid-template-columns:50px 1fr;gap:10px;align-items:start;padding:10px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055)}
+.sleepRoutineStep>span{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(117,212,169,.09);border:1px solid rgba(117,212,169,.17);color:var(--accent2);font-weight:900}
+.sleepRoutineStep small,.sleepRoutineStep b{display:block}
+.sleepRoutineStep small{color:var(--forest-light);letter-spacing:.07em;font-weight:900}
+.sleepRoutineStep b{margin:2px 0}
+.sleepRoutineStep p{margin:3px 0 0}
+.sleepGuideGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sleepAdviceCard{display:grid;grid-template-columns:36px 1fr;gap:9px;padding:11px;border-radius:11px;background:#191d1b;border:1px solid rgba(255,255,255,.055)}
+.sleepAdviceCard>span{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:rgba(117,212,169,.08);color:var(--accent2);font-weight:900}
+.sleepAdviceCard b{display:block;margin-bottom:2px}
+.sleepAdviceCard p{margin:0}
+.sleepTroubleGuide{border:1px solid rgba(184,191,188,.12);border-radius:11px;background:rgba(255,255,255,.025);overflow:hidden}
+.sleepTroubleGuide summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;list-style:none}
+.sleepTroubleGuide summary::-webkit-details-marker{display:none}
+.sleepTroubleGuide summary b,.sleepTroubleGuide summary small{display:block}
+.sleepTroubleGuide summary small{margin-top:2px;color:var(--muted)}
+.sleepTroubleGuide>div{padding:0 11px 11px}
+.sleepTroubleGuide p{margin:7px 0}
+.sleepGuideNote{display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:10px;background:rgba(117,212,169,.06);border:1px solid rgba(117,212,169,.1)}
+.sleepGuideNote b{flex:0 0 auto;color:var(--forest-light)}
+.sleepGuideNote span{color:var(--muted);line-height:1.45}
+
+@media(max-width:700px){
+ .sleepGuideSummary{grid-template-columns:1fr}
+ .sleepPlanner{grid-template-columns:1fr}
+ .sleepGuideGrid{grid-template-columns:1fr}
+ .sleepRoutineStep{grid-template-columns:44px 1fr}
+}
+
+
+/* Phase 72.3.19 — Mindful Recovery & Meditation */
+.mindfulnessRecoveryGuide{border-color:rgba(117,212,169,.15)}
+.mindfulnessBody{display:grid;gap:12px;margin-top:13px}
+.mindfulnessIntro{display:grid;grid-template-columns:1.2fr 1fr;gap:12px;align-items:end;padding:13px;border-radius:13px;background:rgba(23,107,74,.07);border:1px solid rgba(117,212,169,.12)}
+.mindfulnessIntro h2{margin:3px 0}
+.mindfulnessIntro p{margin:0}
+.mindfulnessIntro>div>small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.mindfulnessLengthChoices{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.mindfulnessLengthChoices button{padding:10px!important;border-radius:10px!important;text-align:center}
+.mindfulnessLengthChoices button b,.mindfulnessLengthChoices button span{display:block}
+.mindfulnessLengthChoices button b{font-size:calc(14px * var(--ui-text-scale))}
+.mindfulnessLengthChoices button span{font-size:calc(9px * var(--ui-text-scale));color:var(--muted);margin-top:2px}
+.mindfulnessLengthChoices button.active{border-color:var(--accent)!important;background:rgba(117,212,169,.1)!important}
+.mindfulnessProgress{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mindfulnessProgress small,.mindfulnessProgress b{display:block}
+.mindfulnessProgress small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.mindfulnessProgress span{padding:6px 9px;border-radius:999px;background:#191d1b;border:1px solid rgba(255,255,255,.07);color:var(--silver-light)}
+.mindfulnessBar{height:7px;border-radius:999px;overflow:hidden;background:#171a18;border:1px solid rgba(255,255,255,.05)}
+.mindfulnessBar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--forest),var(--accent2))}
+.mindfulnessStepCard{display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:start;padding:15px;border-radius:14px;background:#191d1b;border:1px solid rgba(255,255,255,.06)}
+.mindfulnessStepIcon{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(117,212,169,.1);border:1px solid rgba(117,212,169,.18);color:var(--accent2);font-weight:900;font-size:calc(17px * var(--ui-text-scale))}
+.mindfulnessStepCard small{color:var(--forest-light);font-weight:900}
+.mindfulnessStepCard h2{margin:2px 0 5px}
+.mindfulnessStepCard p{margin:0}
+.mindfulnessActions{display:flex;justify-content:flex-end;gap:8px}
+.mindfulnessUseCases{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mindfulnessUseCases>div{padding:11px;border-radius:11px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055)}
+.mindfulnessUseCases b,.mindfulnessUseCases span{display:block}
+.mindfulnessUseCases b{margin-bottom:3px;color:var(--silver-light)}
+.mindfulnessUseCases span{color:var(--muted);font-size:calc(10px * var(--ui-text-scale));line-height:1.5}
+.mindfulnessTips{border:1px solid rgba(184,191,188,.12);border-radius:11px;background:rgba(255,255,255,.025);overflow:hidden}
+.mindfulnessTips summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;list-style:none}
+.mindfulnessTips summary::-webkit-details-marker{display:none}
+.mindfulnessTips summary b,.mindfulnessTips summary small{display:block}
+.mindfulnessTips summary small{margin-top:2px;color:var(--muted)}
+.mindfulnessTips>div{padding:0 11px 11px}
+.mindfulnessTips p{margin:7px 0}
+.mindfulnessNote{display:flex;gap:8px;align-items:flex-start;padding:10px;border-radius:10px;background:rgba(117,212,169,.06);border:1px solid rgba(117,212,169,.1)}
+.mindfulnessNote b{flex:0 0 auto;color:var(--forest-light)}
+.mindfulnessNote span{color:var(--muted);line-height:1.45}
+
+@media(max-width:700px){
+ .mindfulnessIntro{grid-template-columns:1fr}
+ .mindfulnessLengthChoices{grid-template-columns:repeat(3,1fr)}
+ .mindfulnessUseCases{grid-template-columns:1fr}
+}

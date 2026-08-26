@@ -614,7 +614,8 @@ grant execute on function public.admin_set_beta_user_active(uuid,boolean) to aut
 -- * A Player enters the invite code, or a Parent selects one of their players and enters it.
 -- * Parent always retains Parent-view access to every player linked to that Parent account.
 
--- Phase 72.3.5 API grants
+
+-- Phase 72.3.6 API grants
 grant usage on schema public to authenticated;
 
 grant select on

@@ -1,6 +1,6 @@
 {
   "name": "athlete-performance-app",
-  "version": "72.3.5",
+  "version": "72.3.19",
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -409,7 +409,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message:feedbackBody.trim(),
-      app_version:"72.3.4",
+      app_version:"72.3.19",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -495,7 +495,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · v72.3.4</div>
+    <div className="betaRibbon">BETA · v72.3.19</div>
 
     <AthleteApp betaBridge={bridge!}/>
 
