@@ -16,7 +16,7 @@ type ProgramSession={id:number;day:string;name:string;category:string;minutes:nu
 
 type TrainingProgram={id:number;created:string;sport:Sport;position:string;focus:string;daysPerWeek:number;sessions:ProgramSession[];equipment?:"Gym Access"|"Body Weight Only";age?:number;ageBand?:string;environment?:"Off-Ice";targetMinutes?:number;assignedByRole?:AccountRole};
 type ReadinessLog={id:number;date:string;sleep:number;soreness:number;energy:number;stress:number;notes:string};
-type CoachNote={id:number;date:string;title:string;note:string;category:string};
+type CoachNote={id:number;date:string;title:string;note:string;category:string;authorType?:"Coach"|"Parent"|"Athlete"|"Medical Provider"|"Admin";authorName?:string;shared?:boolean};
 type StatEntry={label:string;value:string};
 type CompetitionLog={id:number;date:string;opponent:string;eventType:string;result:string;minutes:string;rating:number;notes:string;sport:Sport;stats:StatEntry[];location?:string;role?:string;keyWin?:string;improveNext?:string;confidence?:number};
 type ReportNote={id:number;date:string;title:string;body:string};
@@ -50,6 +50,7 @@ export type BetaBridge={
  openBetaAdmin?:()=>void;
  returnToCoachWorkspace?:()=>void;
  selectedAthleteName?:string;
+ saveSharedNotes?:(notes:unknown[])=>Promise<void>;
 };
 
 type ReminderItem={id:string;title:string;detail:string;date:string;kind:"Workout"|"Competition"|"Retest"|"Goal"|"Readiness";priority:"High"|"Normal"};
@@ -577,8 +578,8 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]
   :effectiveRole==="Player"
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition"]
-  :["Home","Calendar","Analytics","Development","Competition"];
- const roleNavLabel=(x:string)=>accountRole==="Player"&&x==="Coach"?"Readiness":navMeta[x]?.label||x;
+  :["Home","Calendar","Coach","Analytics","Development","Competition"];
+ const roleNavLabel=(x:string)=>x==="Coach"?(effectiveRole==="Parent"?"Recovery & Notes":effectiveRole==="Player"?"Readiness":navMeta[x]?.label||x):navMeta[x]?.label||x;
  const navGroups:Record<"Plan"|"Train"|"Progress"|"More",Tab[]>={
   Plan:visibleTabs.filter(x=>x==="Goals"||x==="Calendar"),
   Train:visibleTabs.filter(x=>x==="Development"||x==="Coach"),
@@ -603,7 +604,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   {tab:"Goals",group:"Plan",title:"Goals",description:"Create short- and long-term performance goals, track progress, review goal insights, and complete goals.",how:"Open Plan, then choose Goals."},
   {tab:"Calendar",group:"Plan",title:"Schedule",description:"Plan manual workouts, custom workouts, generated training sessions, competitions, season events, and training blocks.",how:"Open Plan, then choose Schedule."},
   {tab:"Development",group:"Train",title:"Development",description:"Track development objectives and milestones, use mental preparation and breathing, generate sport/position/age-aware training programs, and build your own custom workouts.",how:"Open Train, then choose Development."},
-  {tab:"Coach",group:"Train",title:effectiveRole==="Player"?"Readiness":"Readiness & Coach Tools",description:effectiveRole==="Player"?"Log sleep, energy, soreness, and stress and use readiness to guide training.":"Review readiness and training decisions. Coach/Admin views also include coaching priorities and private coach notes.",how:"Open Train, then choose Readiness."},
+  {tab:"Coach",group:"Train",title:effectiveRole==="Parent"?"Recovery & Notes":effectiveRole==="Player"?"Readiness":"Readiness & Coach Tools",description:effectiveRole==="Parent"?"Review sleep, recovery, and readiness, use the recovery guides, and add shared Coach / Parent / Athlete / Medical Provider notes visible to the athlete support team.":effectiveRole==="Player"?"Log sleep, energy, soreness, and stress, use readiness to guide training, and add shared athlete notes.":"Review readiness and training decisions. Shared support-team notes are visible to Coach, Parent, Athlete, and authorized contributors.",how:"Open Train, then choose Recovery / Readiness."},
   {tab:"Testing",group:"Progress",title:"Testing",description:"Log standard or custom performance tests, record units/categories, set retest targets, and build a testing history.",how:"Open Progress, then choose Testing."},
   {tab:"Analytics",group:"Progress",title:"Analytics & Reports",description:"See performance trends, improvement, personal records, readiness and goal context, reports, exports, and athlete snapshots.",how:"Open Progress, then choose Analytics."},
   {tab:"Competition",group:"More",title:"Competition",description:"Track games, matches, meets, ratings, confidence, notes, results, and sport-specific performance statistics.",how:"Open More, then choose Competition."},
@@ -615,7 +616,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   .filter(group=>group.items.length>0);
  const roleToolsOverview=
   effectiveRole==="Parent"
-   ?{title:"Parent account tools",description:"Use My Players to add multiple players, switch the athlete you are viewing, and enter Coach team invite codes. The athlete workspace remains read-only for Parent accounts."}
+   ?{title:"Parent account tools",description:"Use My Players to switch athletes or join a Coach team. Parent navigation now includes Recovery & Notes, where Parents can add shared support-team notes while training and performance editing remains protected."}
    :effectiveRole==="Coach"
    ?{title:"Coach team tools",description:"Use Teams to create/select teams, share Player Invite Codes, view joined athletes, and open athlete workspaces. Only Coach accounts manage team rosters."}
    :effectiveRole==="Player"
@@ -658,13 +659,13 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   <main>
    <div className="sportSelectorBlock"><div className="sportSelectorHead"><small>SPORT</small><span>Choose a sport</span></div><div className="sports topSportButtons">{sports.map(s=><button className={sport===s?"sel":""} onClick={()=>{setSport(s);setProfile((x:Profile)=>({...x,position:positions[s].includes(x.position)?x.position:""}))}} key={s}>{s}</button>)}</div></div>
    {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>{guideSteps.find(x=>x.id===guideWaitingFor)?.complete?"Complete this step and the guide will continue automatically.":"Explore this feature, then return to the guide when you're ready."}</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
-   <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Track progress without editing athlete data":effectiveRole==="Player"?"Focus on today’s training and development":"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{pageHelp[tab]?.title||tab}</small><b>{pageHelp[tab]?.purpose||""}</b></div><span>{pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
-   {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} competitions={competitions} dev={dev} program={program}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/></>:<Home sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/>)} 
+   <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Follow progress, recovery, schedule, and shared notes":effectiveRole==="Player"?"Focus on today’s training and development":"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{effectiveRole==="Parent"&&tab==="Coach"?"Recovery & Notes":pageHelp[tab]?.title||tab}</small><b>{effectiveRole==="Parent"&&tab==="Coach"?"Review recovery and communicate with the athlete support team.":pageHelp[tab]?.purpose||""}</b></div><span>{effectiveRole==="Parent"&&tab==="Coach"?"Review recovery · Add a shared note":pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
+   {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/></>:<Home sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/>)} 
    {tab==="Goals"&&<Goals goals={goals} setGoals={setGoals}/>}
    {tab==="Calendar"&&(effectiveRole==="Parent"?<ParentSchedule sport={sport} workouts={workouts} competitions={competitions} seasonEvents={seasonEvents}/>:<Calendar sport={sport} workouts={workouts} setWorkouts={setWorkouts} profile={profile} seasonEvents={seasonEvents} setSeasonEvents={setSeasonEvents} trainingBlocks={trainingBlocks} setTrainingBlocks={setTrainingBlocks} competitions={competitions}/>)} 
    {tab==="Testing"&&<Testing sport={sport} library={[...definitions(sport),...custom.filter(x=>x.sport===sport)]} custom={custom} setCustom={setCustom} results={results} setResults={setResults} testTargets={testTargets} setTestTargets={setTestTargets}/>} 
    {tab==="Analytics"&&(effectiveRole==="Parent"?<ParentProgress sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions}/>:<AnalyticsHub sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions} reportNotes={reportNotes} setReportNotes={setReportNotes}/>)} 
-   {tab==="Coach"&&((effectiveRole==="Coach"||effectiveRole==="Admin")?<CoachHub sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} setReadiness={setReadiness} competitions={competitions} coachNotes={coachNotes} setCoachNotes={setCoachNotes}/>:effectiveRole==="Player"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Player"/>:null)} 
+   {tab==="Coach"&&((effectiveRole==="Coach"||effectiveRole==="Admin")?<CoachHub accountRole={effectiveRole} authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} setReadiness={setReadiness} competitions={competitions} coachNotes={coachNotes} setCoachNotes={setCoachNotes}/>:effectiveRole==="Player"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Player" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes}/>:effectiveRole==="Parent"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Parent" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes}/>:null)} 
    
    {tab==="Development"&&(effectiveRole==="Parent"?<ParentDevelopment sport={sport} dev={dev} program={program} milestones={milestones}/>:<DevelopmentHub accountRole={effectiveRole} sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} goals={goals} workouts={workouts} program={program} setProgram={setProgram} readiness={readiness} competitions={competitions} milestones={milestones} setMilestones={setMilestones} setWorkouts={setWorkouts}/>)} 
    
@@ -783,14 +784,21 @@ function AdminHome({profile,sport,roster}:{profile:Profile;sport:Sport;roster:At
  <div className="card adminInfoCard"><h2>Admin Testing</h2><p>Use <b>Test View</b> in the top bar to preview exactly what a Coach, Player, or Parent can see. Return to <b>Admin</b> to restore unrestricted access.</p></div></>;
 }
 
-function ParentHome({profile,sport,goals,workouts,readiness,competitions,dev,program}:{profile:Profile;sport:Sport;goals:Goal[];workouts:Workout[];readiness:ReadinessLog[];competitions:CompetitionLog[];dev:DevelopmentItem[];program:TrainingProgram|null}){
+function ParentHome({profile,sport,goals,workouts,readiness,competitions,dev,program,setTab}:{profile:Profile;sport:Sport;goals:Goal[];workouts:Workout[];readiness:ReadinessLog[];competitions:CompetitionLog[];dev:DevelopmentItem[];program:TrainingProgram|null;setTab:React.Dispatch<React.SetStateAction<Tab>>}){
  const upcoming=workouts.filter(w=>w.sport===sport&&!w.completed&&w.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
  const nextComp=competitions.filter(c=>c.sport===sport&&c.date>=today()).sort((a,b)=>a.date.localeCompare(b.date))[0];
  const activeGoals=goals.filter(g=>(g.status||"Active")!=="Complete");
  const avgGoal=activeGoals.length?Math.round(activeGoals.reduce((a,g)=>a+g.progress,0)/activeGoals.length):0;
  const latest=readiness[0];
  return <><div className="hero"><small>PARENT WORKSPACE</small><h1>{profile.name}</h1><p>{sport}{profile.position?" · "+profile.position:""} · Progress, schedule, and development at a glance.</p></div>
-  <div className="parentNotice"><b>Parent view</b><span>This workspace is read-only. Coaching controls, roster tools, and private coach notes are hidden.</span></div>
+  <div className="parentNotice"><b>Parent view</b><span>Training and performance editing stays protected. Parents can review the athlete and add shared support-team notes in Recovery & Notes.</span></div>
+  <div className="parentQuickActions">
+   <button onClick={()=>setTab("Calendar")}><span>▦</span><div><b>Schedule</b><small>What is coming up?</small></div></button>
+   <button onClick={()=>setTab("Coach")}><span>♡</span><div><b>Recovery & Notes</b><small>Sleep, readiness, and shared notes</small></div></button>
+   <button onClick={()=>setTab("Analytics")}><span>⌁</span><div><b>Progress</b><small>Testing and development trends</small></div></button>
+   <button onClick={()=>setTab("Development")}><span>◇</span><div><b>Development</b><small>Priorities and training plan</small></div></button>
+   <button onClick={()=>setTab("Competition")}><span>★</span><div><b>Competition</b><small>Games and performance history</small></div></button>
+  </div>
   <div className="grid three"><div className="stat"><small>Goal Progress</small><b>{avgGoal}%</b></div><div className="stat"><small>Upcoming Workouts</small><b>{upcoming.length}</b></div><div className="stat"><small>Development Priorities</small><b>{dev.filter(d=>d.status!=="Complete").length}</b></div></div>
   <div className="grid twoCards"><div className="card"><h2>Coming Up</h2>{upcoming.length===0?<p>No upcoming workouts.</p>:upcoming.map(w=><div className="dashboardRow" key={w.id}><span className="dashDate">{w.date.slice(5)}</span><div><b>{w.name}</b><small>{w.category} · {w.minutes} min</small></div></div>)}{nextComp&&<div className="dashboardRow"><span className="dashDate">{nextComp.date.slice(5)}</span><div><b>{nextComp.opponent||nextComp.eventType}</b><small>Competition</small></div></div>}</div>
   <div className="card"><h2>Current Status</h2><p><b>Latest readiness:</b> {latest?`${latest.energy}/10 energy · ${latest.sleep}h sleep`:"No readiness entry yet."}</p><p><b>Training program:</b> {program?`${program.focus} · ${program.daysPerWeek} days/week`:"No active program."}</p></div></div>
@@ -803,7 +811,7 @@ function ParentSchedule({sport,workouts,competitions,seasonEvents}:{sport:Sport;
   ...competitions.filter(c=>c.sport===sport&&c.date>=today()).map(c=>({id:`c-${c.id}`,date:c.date,title:c.opponent||c.eventType,detail:"Competition"})),
   ...seasonEvents.filter(e=>e.date>=today()).map(e=>({id:`e-${e.id}`,date:e.date,title:e.title,detail:e.eventType}))
  ].sort((a,b)=>a.date.localeCompare(b.date));
- return <><div className="hero"><small>PARENT · SCHEDULE</small><h1>Schedule</h1><p>Upcoming training, competitions, and season events.</p></div><div className="parentNotice"><b>Read-only schedule</b><span>Workout and season planning changes are managed by the athlete or coach.</span></div>
+ return <><div className="hero"><small>PARENT · SCHEDULE</small><h1>Schedule</h1><p>Upcoming training, competitions, and season events.</p></div><div className="parentNotice"><b>Schedule view</b><span>Workout and season planning changes are managed by the athlete or coach. Use Recovery & Notes to communicate shared context.</span></div>
  <div className="card"><h2>Upcoming</h2>{items.length===0?<p>Nothing scheduled yet.</p>:items.slice(0,20).map(x=><div className="parentScheduleRow" key={x.id}><span>{x.date}</span><div><b>{x.title}</b><small>{x.detail}</small></div></div>)}</div></>;
 }
 
@@ -839,10 +847,10 @@ function AnalyticsHub({sport,profile,goals,workouts,results,dev,program,readines
  {showReport&&<Reports sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions} reportNotes={reportNotes} setReportNotes={setReportNotes}/>}</>;
 }
 
-function CoachHub({sport,profile,goals,workouts,results,dev,program,readiness,setReadiness,competitions,coachNotes,setCoachNotes}:{sport:Sport;profile:Profile;goals:Goal[];workouts:Workout[];results:Result[];dev:DevelopmentItem[];program:TrainingProgram|null;readiness:ReadinessLog[];setReadiness:React.Dispatch<React.SetStateAction<ReadinessLog[]>>;competitions:CompetitionLog[];coachNotes:CoachNote[];setCoachNotes:React.Dispatch<React.SetStateAction<CoachNote[]>>}){
+function CoachHub({accountRole,authorName,saveSharedNotes,sport,profile,goals,workouts,results,dev,program,readiness,setReadiness,competitions,coachNotes,setCoachNotes}:{accountRole:AccountRole;authorName:string;saveSharedNotes?:((notes:unknown[])=>Promise<void>);sport:Sport;profile:Profile;goals:Goal[];workouts:Workout[];results:Result[];dev:DevelopmentItem[];program:TrainingProgram|null;readiness:ReadinessLog[];setReadiness:React.Dispatch<React.SetStateAction<ReadinessLog[]>>;competitions:CompetitionLog[];coachNotes:CoachNote[];setCoachNotes:React.Dispatch<React.SetStateAction<CoachNote[]>>}){
  const [mode,setMode]=useState<"Readiness"|"Plan">("Readiness");
  return <><div className="simpleSectionNav"><button className={mode==="Readiness"?"active":""} onClick={()=>setMode("Readiness")}>Readiness</button><button className={mode==="Plan"?"active":""} onClick={()=>setMode("Plan")}>Coach Plan</button></div>
- {mode==="Readiness"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Coach"/>:<SmartCoach sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions}/>}</>;
+ {mode==="Readiness"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole={accountRole} authorName={authorName} saveSharedNotes={saveSharedNotes}/>:<SmartCoach sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions}/>}</>;
 }
 
 function DevelopmentHub({accountRole,sport,profile,dev,setDev,results,goals,workouts,program,setProgram,readiness,competitions,milestones,setMilestones,setWorkouts}:{accountRole:AccountRole;sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];goals:Goal[];workouts:Workout[];program:TrainingProgram|null;setProgram:React.Dispatch<React.SetStateAction<TrainingProgram|null>>;readiness:ReadinessLog[];competitions:CompetitionLog[];milestones:Milestone[];setMilestones:React.Dispatch<React.SetStateAction<Milestone[]>>;setWorkouts:any}){
@@ -2543,9 +2551,13 @@ function Program({accountRole,sport,profile,dev,results,readiness,program,setPro
  </>;
 }
 
-function Readiness({sport,profile,readiness,setReadiness,coachNotes,setCoachNotes,program,workouts,accountRole="Coach"}:{sport:Sport;profile:Profile;readiness:ReadinessLog[];setReadiness:React.Dispatch<React.SetStateAction<ReadinessLog[]>>;coachNotes:CoachNote[];setCoachNotes:React.Dispatch<React.SetStateAction<CoachNote[]>>;program:TrainingProgram|null;workouts:Workout[];accountRole?:AccountRole}){
+function Readiness({sport,profile,readiness,setReadiness,coachNotes,setCoachNotes,program,workouts,accountRole="Coach",authorName="",saveSharedNotes}:{sport:Sport;profile:Profile;readiness:ReadinessLog[];setReadiness:React.Dispatch<React.SetStateAction<ReadinessLog[]>>;coachNotes:CoachNote[];setCoachNotes:React.Dispatch<React.SetStateAction<CoachNote[]>>;program:TrainingProgram|null;workouts:Workout[];accountRole?:AccountRole;authorName?:string;saveSharedNotes?:((notes:unknown[])=>Promise<void>)}){
  const [sleep,setSleep]=useState("8"),[soreness,setSoreness]=useState("3"),[energy,setEnergy]=useState("7"),[stress,setStress]=useState("3"),[notes,setNotes]=useState("");
- const [noteTitle,setNoteTitle]=useState(""),[noteText,setNoteText]=useState(""),[noteCategory,setNoteCategory]=useState("Coach");
+ const [noteTitle,setNoteTitle]=useState(""),[noteText,setNoteText]=useState(""),[noteCategory,setNoteCategory]=useState("General");
+ const defaultNoteAuthor=accountRole==="Player"?"Athlete":accountRole==="Parent"?"Parent":accountRole==="Admin"?"Admin":"Coach";
+ const [noteAuthorType,setNoteAuthorType]=useState<"Coach"|"Parent"|"Athlete"|"Medical Provider"|"Admin">(defaultNoteAuthor);
+ const [noteAuthorName,setNoteAuthorName]=useState(authorName||defaultNoteAuthor);
+ const [sharedNoteMessage,setSharedNoteMessage]=useState("");
  const [wakeTime,setWakeTime]=useState("07:00");
  const [sleepGuideOpen,setSleepGuideOpen]=useState(true);
  const [mindfulnessOpen,setMindfulnessOpen]=useState(true);
@@ -2556,9 +2568,19 @@ function Readiness({sport,profile,readiness,setReadiness,coachNotes,setCoachNote
   setReadiness(x=>[item,...x.filter(r=>r.date!==item.date)]);
   setNotes("");
  };
- const saveCoachNote=()=>{
+ useEffect(()=>{
+  const next=accountRole==="Player"?"Athlete":accountRole==="Parent"?"Parent":accountRole==="Admin"?"Admin":"Coach";
+  setNoteAuthorType(next);
+  setNoteAuthorName(authorName||next);
+ },[accountRole,authorName]);
+
+ const saveSharedSupportNote=async()=>{
   if(!noteTitle.trim()&&!noteText.trim())return;
-  setCoachNotes(x=>[{id:Date.now(),date:today(),title:noteTitle.trim()||"Note",note:noteText.trim(),category:noteCategory},...x]);
+  const item:CoachNote={id:Date.now(),date:today(),title:noteTitle.trim()||"Shared Note",note:noteText.trim(),category:noteCategory,authorType:noteAuthorType,authorName:noteAuthorName.trim()||noteAuthorType,shared:true};
+  const next=[item,...coachNotes];
+  setCoachNotes(next);
+  setSharedNoteMessage("Shared note saved.");
+  try{if(saveSharedNotes)await saveSharedNotes(next)}catch(err:any){setSharedNoteMessage(err?.message||"The note is saved on this device, but cloud sharing failed.");}
   setNoteTitle("");setNoteText("");
  };
  const calc=(r:ReadinessLog)=>Math.max(0,Math.min(100,Math.round(Math.min(10,r.sleep/8*10)*2.5+(10-Math.min(10,r.soreness))*2.5+Math.min(10,r.energy)*2.5+(10-Math.min(10,r.stress))*2.5)));
@@ -2700,16 +2722,30 @@ function Readiness({sport,profile,readiness,setReadiness,coachNotes,setCoachNote
   </div>}
  </div>
 
- <div className="card setupAnchor" id="setup-readiness" tabIndex={-1}><h2>Daily Check-In</h2><div className="two">
+ {accountRole!=="Parent"?<div className="card setupAnchor" id="setup-readiness" tabIndex={-1}><h2>Daily Check-In</h2><div className="two">
   <label>Sleep (hours)<select value={sleep} onChange={e=>setSleep(e.target.value)}>{["4","5","6","7","8","9","10"].map(x=><option key={x}>{x}</option>)}</select></label>
   <label>Energy (1–10)<select value={energy} onChange={e=>setEnergy(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}</option>)}</select></label>
   <label>Soreness (1–10)<select value={soreness} onChange={e=>setSoreness(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}</option>)}</select></label>
   <label>Stress (1–10)<select value={stress} onChange={e=>setStress(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}</option>)}</select></label>
- </div><label>Notes<input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Sleep quality, soreness location, school stress, etc."/></label><button className="primary" onClick={saveReadiness}>Save Today's Readiness</button></div>
+ </div><label>Notes<input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Sleep quality, soreness location, school stress, etc."/></label><button className="primary" onClick={saveReadiness}>Save Today's Readiness</button></div>:<div className="card parentRecoveryNotice"><span className="tag">PARENT VIEW</span><h2>Recovery information</h2><p>Readiness entries are logged by the athlete or coach. Parents can review the recovery trend and add shared support-team notes below.</p></div>}
  <div className="card"><h2>7-Day Readiness Trend</h2>{recent.length?<div className="readinessBars">{recent.slice().reverse().map(r=>{const v=calc(r);return <div key={r.id}><i style={{height:`${v}%`}}/><small>{r.date.slice(5)}</small><b>{v}</b></div>})}</div>:<p>Log readiness each day to build a recovery trend.</p>}</div>
  <div className="grid twoCards"><div className="card"><h2>Training Recommendation</h2><p>{score>=80?"Proceed with the planned session.":score>=60?"Complete the session, but reduce volume if performance drops.":score>0?"Use recovery, mobility, technique, or an easier conditioning session.":"Log readiness first."}</p>{nextWorkout&&<p><b>Next:</b> {nextWorkout.name} · {nextWorkout.date}</p>}</div><div className="card"><h2>Program Status</h2><p>{program?`${program.focus} · ${program.daysPerWeek} days/week`:"No active training program yet."}</p></div></div>
- {accountRole==="Coach"&&<><div className="card privateCoachCard"><div className="sectionHead"><h2>Private Coach Notes</h2><span className="tag">COACH ONLY</span></div><div className="two"><label>Category<select value={noteCategory} onChange={e=>setNoteCategory(e.target.value)}><option>Coach</option><option>Parent</option><option>Athlete</option><option>Medical / Recovery</option><option>Game Review</option></select></label><label>Title<input value={noteTitle} onChange={e=>setNoteTitle(e.target.value)} placeholder="e.g. Practice feedback"/></label></div><label>Note<input value={noteText} onChange={e=>setNoteText(e.target.value)} placeholder="Private coaching observation"/></label><button className="featureAction" onClick={saveCoachNote}>Save Private Note</button></div>
- {coachNotes.slice(0,8).map(n=><div className="card row privateCoachNote" key={n.id}><div><span className="tag">{n.category}</span><h2>{n.title}</h2><p>{n.note}</p></div><small>{n.date}</small></div>)}</>}
+ <div className="card sharedNotesCard"><div className="sectionHead"><div><span className="tag">SHARED SUPPORT TEAM</span><h2>Coach / Parent Notes</h2><small>Coach, Parent, Athlete, or Medical Provider notes · visible to everyone supporting this athlete</small></div><span className="sharedVisibilityBadge">VISIBLE TO ALL</span></div>
+  <div className="sharedNoteInfo"><b>Use shared notes for communication—not private messaging.</b><span>Examples: recovery observations, training feedback, scheduling context, return-to-play instructions supplied by a provider, or something the athlete wants the support team to know.</span></div>
+  <div className="sharedNoteForm">
+   <label>Note source<select value={noteAuthorType} onChange={e=>setNoteAuthorType(e.target.value as "Coach"|"Parent"|"Athlete"|"Medical Provider"|"Admin")}><option>Coach</option><option>Parent</option><option>Athlete</option><option>Medical Provider</option>{accountRole==="Admin"&&<option>Admin</option>}</select></label>
+   <label>Author name<input value={noteAuthorName} onChange={e=>setNoteAuthorName(e.target.value)} placeholder={noteAuthorType==="Medical Provider"?"Provider name":"Name"}/></label>
+   <label>Topic<select value={noteCategory} onChange={e=>setNoteCategory(e.target.value)}><option>General</option><option>Recovery</option><option>Training</option><option>Medical / Return to Play</option><option>Competition</option><option>Schedule</option></select></label>
+   <label>Title<input value={noteTitle} onChange={e=>setNoteTitle(e.target.value)} placeholder="Short note title"/></label>
+  </div>
+  <label>Shared note<textarea rows={4} value={noteText} onChange={e=>setNoteText(e.target.value)} placeholder="Write the information the athlete's support team should see."/></label>
+  {noteAuthorType==="Medical Provider"&&<div className="providerNoteReminder"><b>Medical-provider note</b><span>Enter only information you are authorized to share. This app does not verify clinical credentials and is not a medical record system.</span></div>}
+  {sharedNoteMessage&&<div className="sharedNoteMessage">{sharedNoteMessage}</div>}
+  <button className="featureAction" onClick={()=>void saveSharedSupportNote()}>Save Shared Note</button>
+ </div>
+ <div className="sharedNoteHistory"><div className="sectionHead"><div><h2>Shared Note History</h2><small>Newest first · legacy Coach notes are also shown here</small></div><span className="tag">{coachNotes.length} NOTE{coachNotes.length===1?"":"S"}</span></div>
+  {coachNotes.length===0?<div className="card"><p>No shared notes yet.</p></div>:coachNotes.slice(0,20).map(n=><div className="card sharedNoteItem" key={n.id}><div className="sharedNoteTop"><div><span className="tag">{n.authorType||n.category||"Coach"}</span><b>{n.authorName||"Support Team"}{n.category&&n.category!==(n.authorType||"")?` · ${n.category}`:""}</b></div><small>{n.date}</small></div><h2>{n.title}</h2><p>{n.note}</p></div>)}
+ </div>
  </>;
 }
 function Competition({sport,competitions,setCompetitions,profile}:{sport:Sport;competitions:CompetitionLog[];setCompetitions:React.Dispatch<React.SetStateAction<CompetitionLog[]>>;profile:Profile}){

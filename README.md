@@ -1,4 +1,4 @@
-# Athlete Performance App — Phase 72.3.20
+# Athlete Performance App — Phase 72.3.21
 
 ## Simplified navigation
 
@@ -412,3 +412,58 @@ On phones, the header actions use a compact two-column grid so they remain avail
 All existing modals and permissions are unchanged; only the entry-point location/layout changed.
 
 Phase 72.3.19 mindful recovery, Phase 72.3.18 sleep recovery, and Phase 72.3.17 text-size Settings are preserved.
+
+
+## Phase 72.3.21 — Shared Coach / Parent Notes + easier Parent navigation
+
+### Shared support-team notes
+The old **Private Coach Notes** section is replaced by **Coach / Parent Notes**.
+
+Shared notes are visible in the athlete workspace to the athlete support team and may be entered as:
+- Coach
+- Parent
+- Athlete
+- Medical Provider
+- Admin (Admin workspace only)
+
+Each note includes:
+- source / author type;
+- author name;
+- topic;
+- title;
+- note body;
+- date.
+
+Legacy Coach notes remain visible in Shared Note History.
+
+A Medical Provider source is supported for entering information supplied by a provider. This phase does **not** create a separate Medical Provider login/account role; it does not verify clinical credentials and is not intended to be a medical-record system.
+
+### Parent permissions
+Parent accounts can now add **shared notes**, but they still cannot modify the athlete's general training/performance workspace.
+
+This is enforced with `002_shared_support_notes.sql`, which adds a `save_shared_notes` RPC. The function:
+- requires authentication;
+- verifies that the user can access the athlete workspace;
+- permits Player / Coach / Parent / Admin;
+- updates only the `coachNotes` shared-note array inside `workspace_state`;
+- leaves the rest of the Parent workspace read-only.
+
+### Parent navigation
+Parent navigation now includes **Recovery & Notes** under Train.
+
+Parent Overview adds large direct shortcuts:
+- Schedule
+- Recovery & Notes
+- Progress
+- Development
+- Competition
+
+Parent Recovery & Notes provides:
+- readiness/recovery overview;
+- Sleep Improvement Guide;
+- Mindful Recovery & Meditation;
+- shared support-team notes.
+
+The Daily Readiness check-in remains controlled by Player/Coach rather than Parent.
+
+Phase 72.3.20 mobile header tools and all earlier workout/recovery/text-size features are preserved.

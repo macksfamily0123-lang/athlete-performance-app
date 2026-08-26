@@ -204,6 +204,17 @@ export default function BetaGate(){
     if(error)throw error;
   };
 
+
+  const saveSharedNotes=async(notes:unknown[])=>{
+    if(!supabase||!access)return;
+    const workspaceId=selectedCloudWorkspaceId||access.workspace_id;
+    const {error}=await supabase.rpc("save_shared_notes",{
+      p_workspace_id:workspaceId,
+      p_notes:notes
+    });
+    if(error)throw error;
+  };
+
   // ------------------------------------------------------------
   // Parent: multiple players
   // ------------------------------------------------------------
@@ -409,7 +420,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message:feedbackBody.trim(),
-      app_version:"72.3.20",
+      app_version:"72.3.21",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -469,7 +480,8 @@ export default function BetaGate(){
     openCoachTeams:access.role==="Coach"?()=>setShowTeams(true):undefined,
     openBetaAdmin:access.role==="Admin"?()=>setShowAdmin(true):undefined,
     returnToCoachWorkspace:access.role==="Coach"&&selectedAthleteName?returnToCoachWorkspace:undefined,
-    selectedAthleteName
+    selectedAthleteName,
+    saveSharedNotes
   }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,selectedAthleteName]);
 
   if(!betaConfigured())return <div className="betaSetupShell"><div className="betaSetupCard">
@@ -502,7 +514,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · v72.3.20</div>
+    <div className="betaRibbon">BETA · v72.3.21</div>
 
     <AthleteApp betaBridge={bridge!}/>
 

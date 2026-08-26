@@ -2407,3 +2407,92 @@ input,select,textarea{min-height:42px}
  .headerActions{max-width:64vw}
  .headerActions button{font-size:calc(8px * var(--ui-text-scale))!important}
 }
+
+
+/* Phase 72.3.21 — shared Coach/Parent notes + parent navigation */
+.parentQuickActions{
+ display:grid;
+ grid-template-columns:repeat(5,1fr);
+ gap:8px;
+ margin:10px 0 13px
+}
+.parentQuickActions button{
+ min-height:74px;
+ display:flex;
+ align-items:center;
+ gap:9px;
+ text-align:left;
+ padding:10px!important;
+ border-radius:12px!important;
+ background:linear-gradient(180deg,#222724,#191d1b)!important;
+ border:1px solid rgba(117,212,169,.12)!important
+}
+.parentQuickActions button>span{
+ width:32px;height:32px;flex:0 0 32px;
+ display:grid;place-items:center;border-radius:9px;
+ background:rgba(117,212,169,.08);
+ color:var(--accent2);font-weight:900
+}
+.parentQuickActions b,.parentQuickActions small{display:block}
+.parentQuickActions b{color:var(--silver-light)}
+.parentQuickActions small{margin-top:2px;color:var(--muted);line-height:1.35}
+
+.sharedNotesCard{border-color:rgba(117,212,169,.18)!important}
+.sharedVisibilityBadge{
+ padding:6px 8px;border-radius:999px;
+ border:1px solid rgba(117,212,169,.22);
+ background:rgba(117,212,169,.08);
+ color:var(--forest-light);
+ font-size:calc(9px * var(--ui-text-scale));
+ font-weight:900;
+ white-space:nowrap
+}
+.sharedNoteInfo{
+ display:flex;flex-direction:column;gap:3px;
+ margin:10px 0;padding:10px;border-radius:10px;
+ background:rgba(23,107,74,.07);
+ border:1px solid rgba(117,212,169,.1)
+}
+.sharedNoteInfo span{color:var(--muted);line-height:1.5}
+.sharedNoteForm{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:8px
+}
+.sharedNotesCard textarea{
+ width:100%;margin-top:6px;
+ background:#1b201e;color:#fff;
+ border:1px solid var(--line);border-radius:12px;
+ padding:12px 13px;outline:none;resize:vertical;
+ font:inherit
+}
+.sharedNotesCard textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(117,212,169,.09)}
+.providerNoteReminder{
+ display:flex;gap:8px;align-items:flex-start;
+ margin:9px 0;padding:9px;border-radius:9px;
+ background:rgba(184,191,188,.05);
+ border:1px solid rgba(184,191,188,.11)
+}
+.providerNoteReminder b{flex:0 0 auto;color:var(--silver-light)}
+.providerNoteReminder span{color:var(--muted);line-height:1.4}
+.sharedNoteMessage{margin:8px 0;color:var(--forest-light);font-weight:800}
+.sharedNoteHistory{margin:14px 0}
+.sharedNoteItem{padding:13px!important}
+.sharedNoteTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.sharedNoteTop>div{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.sharedNoteTop small{white-space:nowrap}
+.sharedNoteItem h2{margin:8px 0 3px!important}
+.sharedNoteItem p{margin:0}
+.parentRecoveryNotice{border-color:rgba(117,212,169,.12)!important}
+
+@media(max-width:850px){
+ .parentQuickActions{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:600px){
+ .parentQuickActions{grid-template-columns:1fr 1fr}
+ .parentQuickActions button{min-height:68px}
+ .sharedNoteForm{grid-template-columns:1fr}
+ .sharedVisibilityBadge{align-self:flex-start}
+}
+@media(max-width:380px){
+ .parentQuickActions{grid-template-columns:1fr}
+}
