@@ -1,0 +1,21 @@
+{
+  "name": "Athlete Performance Beta",
+  "short_name": "Athlete Performance",
+  "description": "Beta athlete performance and development app",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0f0e",
+  "theme_color": "#176b4a",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

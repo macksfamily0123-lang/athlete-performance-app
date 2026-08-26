@@ -31,7 +31,17 @@ type WeeklyPlanItem={day:string;focus:string;action:string;priority:"High"|"Medi
 type Tab="Home"|"Goals"|"Calendar"|"Testing"|"Analytics"|"Coach"|"Development"|"Competition"|"Roster";
 type WorkspaceRole="Athlete"|"Coach"|"Parent";
 type AccountRole="Player"|"Coach"|"Parent"|"Admin";
+export type BetaRole=AccountRole;
 type AccountSession={role:AccountRole;displayName:string;athleteId:string;linkedAthleteIds?:string[]};
+export type BetaBridge={
+ userId:string;
+ email:string;
+ workspaceId:string;
+ session:AccountSession;
+ loadState:()=>Promise<Record<string,unknown>|null>;
+ saveState:(data:Record<string,unknown>)=>Promise<void>;
+ onSignOut:()=>Promise<void>|void;
+};
 
 type ReminderItem={id:string;title:string;detail:string;date:string;kind:"Workout"|"Competition"|"Retest"|"Goal"|"Readiness";priority:"High"|"Normal"};
 type DataHealthCheck={label:string;ok:boolean;detail:string};
@@ -143,7 +153,7 @@ const friendlyDate=(iso:string)=>{const [y,m,d]=iso.split("-").map(Number);retur
 const improvement=(first:number,last:number,lower:boolean)=>first===0?0:Math.round((lower?(first-last)/first:(last-first)/first*100)*10)/10;
 const pct=(n:number)=>Math.max(0,Math.min(100,Math.round(n)));
 
-export default function AthleteApp(){
+export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
  const [sport,setSport]=useState<Sport>("Ice Hockey"),[tab,setTab]=useState<Tab>("Home");
  const [results,setResults]=useState<Result[]>([]),[custom,setCustom]=useState<CustomTest[]>([]),[goals,setGoals]=useState<Goal[]>([]),[workouts,setWorkouts]=useState<Workout[]>([]),[profile,setProfile]=useState<Profile>({name:"Athlete",position:"",team:"",season:"2026-27",height:"",weight:"",handedness:"Right"});
  const [dev,setDev]=useState<DevelopmentItem[]>([]);
@@ -173,12 +183,26 @@ export default function AthleteApp(){
  const [showFeatureOverview,setShowFeatureOverview]=useState(false);
  const [showReadinessPrompt,setShowReadinessPrompt]=useState(false);
  const [showWeeklyReviewPrompt,setShowWeeklyReviewPrompt]=useState(false);
- const [navScrollProgress,setNavScrollProgress]=useState(0);
- const [navIndicatorWidth,setNavIndicatorWidth]=useState(42);
- const navRef=useRef<HTMLElement|null>(null);
+ const [navSheet,setNavSheet]=useState<null|"Plan"|"Train"|"Progress"|"More">(null);
+ const cloudLoadedRef=useRef(false);
+ const cloudReadyWorkspaceRef=useRef<string|null>(null);
+ const cloudSaveTimerRef=useRef<number|null>(null);
+ const [cloudStatus,setCloudStatus]=useState<"local"|"loading"|"saved"|"error">(betaBridge?"loading":"local");
+
 
 
  const [mounted,setMounted]=useState(false);
+
+ // Every section change starts at the top so navigation feels like opening a new page.
+ useEffect(()=>{
+  if(!mounted)return;
+  const frame=window.requestAnimationFrame(()=>{
+   window.scrollTo({top:0,left:0,behavior:"auto"});
+   document.documentElement.scrollTop=0;
+   document.body.scrollTop=0;
+  });
+  return()=>window.cancelAnimationFrame(frame);
+ },[tab,mounted]);
  useEffect(()=>{for(const [key,setter] of [["results",setResults],["custom",setCustom],["goals",setGoals],["workouts",setWorkouts]] as any[]){try{const v=localStorage.getItem(key);if(v)setter(JSON.parse(v))}catch{}}},[]);
  useEffect(()=>localStorage.setItem("results",JSON.stringify(results)),[results]);
  useEffect(()=>localStorage.setItem("custom",JSON.stringify(custom)),[custom]);
@@ -216,7 +240,10 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  useEffect(()=>{try{localStorage.setItem("workspaceRole",workspaceRole)}catch{}},[workspaceRole]);
  useEffect(()=>{try{setOnboardingDismissed(localStorage.getItem("onboardingDismissed")==="1")}catch{}},[]);
  useEffect(()=>{try{if(onboardingDismissed)localStorage.setItem("onboardingDismissed","1")}catch{}},[onboardingDismissed]);
- useEffect(()=>{try{const raw=localStorage.getItem("accountSession");if(raw){const x=JSON.parse(raw);if(["Player","Coach","Parent","Admin"].includes(x?.role))setAccountSession(x)}}catch{}},[]);
+ useEffect(()=>{
+ if(betaBridge){setAccountSession(betaBridge.session);setWorkspaceRole(roleToWorkspace(betaBridge.session.role));return}
+ try{const raw=localStorage.getItem("accountSession");if(raw){const x=JSON.parse(raw);if(["Player","Coach","Parent","Admin"].includes(x?.role))setAccountSession(x)}}catch{}
+},[betaBridge?.userId]);
  useEffect(()=>{try{setShowGuide(localStorage.getItem("guidedTourComplete")!=="1")}catch{setShowGuide(true)}},[]);
 
  useEffect(()=>setMounted(true),[]);
@@ -232,6 +259,60 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  const saveActiveSnapshot=()=>{
    try{localStorage.setItem(storageKey(activeAthleteId),JSON.stringify(buildSnapshot()))}catch{}
  };
+ useEffect(()=>{
+   if(!mounted||!betaBridge)return;
+   const workspaceId=betaBridge.workspaceId;
+   cloudLoadedRef.current=false;
+   cloudReadyWorkspaceRef.current=null;
+   if(cloudSaveTimerRef.current)window.clearTimeout(cloudSaveTimerRef.current);
+   setCloudStatus("loading");
+   betaBridge.loadState().then((raw:any)=>{
+     if(betaBridge.workspaceId!==workspaceId)return;
+     if(raw){
+      if(raw.profile)setProfile(raw.profile);
+      if(Array.isArray(raw.goals))setGoals(raw.goals);
+      if(Array.isArray(raw.workouts))setWorkouts(raw.workouts);
+      if(Array.isArray(raw.results))setResults(raw.results);
+      if(Array.isArray(raw.custom))setCustom(raw.custom);
+      if(Array.isArray(raw.development))setDev(raw.development);
+      setProgram(raw.program||null);
+      if(Array.isArray(raw.readiness))setReadiness(raw.readiness);
+      if(Array.isArray(raw.coachNotes))setCoachNotes(raw.coachNotes);
+      if(Array.isArray(raw.competitions))setCompetitions(raw.competitions);
+      if(Array.isArray(raw.reportNotes))setReportNotes(raw.reportNotes);
+      if(Array.isArray(raw.roster))setRoster(raw.roster);
+      if(Array.isArray(raw.milestones))setMilestones(raw.milestones);
+      if(Array.isArray(raw.seasonEvents))setSeasonEvents(raw.seasonEvents);
+      if(Array.isArray(raw.trainingBlocks))setTrainingBlocks(raw.trainingBlocks);
+      if(Array.isArray(raw.weeklyReviews))setWeeklyReviews(raw.weeklyReviews);
+      if(Array.isArray(raw.testTargets))setTestTargets(raw.testTargets);
+      if(raw.activeAthleteId)setActiveAthleteId(String(raw.activeAthleteId));
+      if(raw.sport&&sports.includes(raw.sport as Sport))setSport(raw.sport as Sport);
+     }
+     cloudLoadedRef.current=true;
+     cloudReadyWorkspaceRef.current=workspaceId;
+     setCloudStatus("saved");
+   }).catch(()=>{
+     if(betaBridge.workspaceId===workspaceId)setCloudStatus("error");
+   });
+ },[mounted,betaBridge?.workspaceId]);
+
+ useEffect(()=>{
+   if(!betaBridge||!cloudLoadedRef.current||cloudReadyWorkspaceRef.current!==betaBridge.workspaceId)return;
+   if(cloudSaveTimerRef.current)window.clearTimeout(cloudSaveTimerRef.current);
+   setCloudStatus("loading");
+   cloudSaveTimerRef.current=window.setTimeout(()=>{
+     const cloudData={
+       profile,goals,workouts,results,custom,development:dev,program,readiness,coachNotes,
+       competitions,reportNotes,roster,milestones,seasonEvents,trainingBlocks,weeklyReviews,
+       testTargets,activeAthleteId,sport
+     };
+     betaBridge.saveState(cloudData).then(()=>setCloudStatus("saved")).catch(()=>setCloudStatus("error"));
+   },900);
+   return()=>{if(cloudSaveTimerRef.current)window.clearTimeout(cloudSaveTimerRef.current)}
+ },[betaBridge?.workspaceId,profile,goals,workouts,results,custom,dev,program,readiness,coachNotes,competitions,reportNotes,roster,milestones,seasonEvents,trainingBlocks,weeklyReviews,testTargets,activeAthleteId,sport]);
+
+
 
  const loadAthleteSnapshot=(id:string,record?:AthleteRecord)=>{
    try{
@@ -279,6 +360,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    setTab("Home");
    setCommandOpen(false);
    try{localStorage.removeItem("accountSession")}catch{}
+   if(betaBridge){void betaBridge.onSignOut()}
  };
  const accountRole:AccountRole=accountSession?.role||"Player";
  const effectiveRole:AccountRole=accountRole==="Admin"?(adminView==="Admin"?"Admin":adminView):accountRole;
@@ -325,13 +407,6 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   setShowWeeklyReviewPrompt(false);
   setTab("Home");
   window.setTimeout(()=>document.getElementById("setup-weekly-review")?.scrollIntoView({behavior:"smooth",block:"center"}),220);
- };
- const updateNavScrollIndicator=()=>{
-  const el=navRef.current;if(!el)return;
-  const max=Math.max(0,el.scrollWidth-el.clientWidth);
-  const width=Math.max(22,Math.min(100,el.scrollWidth?el.clientWidth/el.scrollWidth*100:100));
-  setNavIndicatorWidth(width);
-  setNavScrollProgress(max?el.scrollLeft/max:0);
  };
 
  const allAthletes=useMemo<AthleteRecord[]>(()=>{
@@ -461,17 +536,30 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   setShowFeatureOverview(false);
   setTab(tab);
  };
- const visibleTabs:Tab[]=accountRole==="Admin"&&adminView==="Admin"?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]:effectiveRole==="Coach"
+ const visibleTabs:Tab[]=accountRole==="Admin"&&adminView==="Admin"?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition"]:effectiveRole==="Coach"
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition","Roster"]
   :effectiveRole==="Player"
   ?["Home","Goals","Calendar","Testing","Analytics","Coach","Development","Competition"]
   :["Home","Calendar","Analytics","Development","Competition"];
  const roleNavLabel=(x:string)=>accountRole==="Player"&&x==="Coach"?"Readiness":navMeta[x]?.label||x;
- useEffect(()=>{
-  const id=window.setTimeout(updateNavScrollIndicator,80);
-  window.addEventListener("resize",updateNavScrollIndicator);
-  return()=>{window.clearTimeout(id);window.removeEventListener("resize",updateNavScrollIndicator)}
- },[visibleTabs.length,tab]);
+ const navGroups:Record<"Plan"|"Train"|"Progress"|"More",Tab[]>={
+  Plan:visibleTabs.filter(x=>x==="Goals"||x==="Calendar"),
+  Train:visibleTabs.filter(x=>x==="Development"||x==="Coach"),
+  Progress:visibleTabs.filter(x=>x==="Testing"||x==="Analytics"),
+  More:visibleTabs.filter(x=>x==="Competition"||x==="Roster")
+ };
+ const activeGroupTabs=
+  navGroups.Plan.includes(tab)?navGroups.Plan:
+  navGroups.Train.includes(tab)?navGroups.Train:
+  navGroups.Progress.includes(tab)?navGroups.Progress:
+  navGroups.More.includes(tab)?navGroups.More:[];
+ const groupActive=(group:keyof typeof navGroups)=>navGroups[group].includes(tab);
+ const openNavGroup=(group:keyof typeof navGroups)=>{
+  const items=navGroups[group];
+  if(items.length===1){setTab(items[0]);return}
+  setNavSheet(group);
+ };
+
 
 
  
@@ -493,14 +581,14 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  },[]);
 
  if(!mounted)return <div className="app hydrationShell"><header><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Loading athlete dashboard…</small></div></header><main id="main-content" tabIndex={-1}><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading your performance data</b><small>Your saved athlete data will appear in a moment.</small></div></div></main></div>;
- if(!accountSession)return <RoleLogin profile={profile} activeAthleteId={activeAthleteId} roster={roster} onLogin={completeRoleLogin}/>;
+ if(!accountSession)return betaBridge?<div className="app hydrationShell"><main><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading secure beta workspace</b><small>Verifying your account permissions…</small></div></div></main></div>:<RoleLogin profile={profile} activeAthleteId={activeAthleteId} roster={roster} onLogin={completeRoleLogin}/>;
  return <div className="app"><a className="skipLink" href="#main-content">Skip to main content</a>
-  <header className="appHeader"><div className="brandBlock"><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Train with purpose.</small></div></div><div className="headerActions"><span className="accountHeaderRole">{accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span><button className="helpButton" onClick={resumeGuide}>Help</button><button className="commandButton" aria-label="Open quick navigation" onClick={()=>setCommandOpen(true)}>Navigate</button></div></header>
+  <header className="appHeader"><div className="brandBlock"><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Train with purpose.</small></div>{betaBridge&&<span className={"cloudStatus "+cloudStatus}>{cloudStatus==="saved"?"Cloud saved":cloudStatus==="loading"?"Saving…":cloudStatus==="error"?"Sync issue":"Local"}</span>}</div><div className="headerActions"><span className="accountHeaderRole">{accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span><button className="helpButton" onClick={resumeGuide}>Help</button></div></header>
   <div className="contextBar cleanContext"><div className="athleteContext"><small>ACTIVE ATHLETE</small><b>{profile.name}</b><span>{sport}{profile.position?` · ${profile.position}`:""}{profile.team?` · ${profile.team}`:""}</span></div><div className="contextControls">{accountRole!=="Player"&&allowedAthletes.length>0&&<label className="athleteSelector"><small>Viewing</small><select value={activeAthleteId} onChange={e=>selectAthleteById(e.target.value)}>{allowedAthletes.map(a=><option value={a.id} key={a.id}>{a.name}{a.team?` · ${a.team}`:""}</option>)}</select></label>}{accountRole==="Admin"&&<label className="adminViewPicker"><small>Preview role</small><select value={adminView} onChange={e=>{setAdminView(e.target.value as "Admin"|"Coach"|"Player"|"Parent");setTab("Home")}}><option>Admin</option><option>Coach</option><option>Player</option><option>Parent</option></select></label>}<div className="sessionIdentity"><small>SIGNED IN</small><b>{accountSession.displayName}</b><span>{accountRole}</span></div><button className="signOutButton" onClick={signOutRole}>Sign out</button></div></div>
   <main>
    <div className="sportSelectorBlock"><div className="sportSelectorHead"><small>SPORT</small><span>Choose a sport</span></div><div className="sports topSportButtons">{sports.map(s=><button className={sport===s?"sel":""} onClick={()=>{setSport(s);setProfile((x:Profile)=>({...x,position:positions[s].includes(x.position)?x.position:""}))}} key={s}>{s}</button>)}</div></div>
    {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>Complete this step and the guide will continue automatically.</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
-   <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Track progress without editing athlete data":effectiveRole==="Player"?"Focus on today’s training and development":"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{pageHelp[tab]?.title||tab}</small><b>{pageHelp[tab]?.purpose||""}</b></div><span>{pageHelp[tab]?.primary||""}</span></div>
+   <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Track progress without editing athlete data":effectiveRole==="Player"?"Focus on today’s training and development":"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{pageHelp[tab]?.title||tab}</small><b>{pageHelp[tab]?.purpose||""}</b></div><span>{pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
    {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} competitions={competitions} dev={dev} program={program}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home sport={sport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/></>:<Home sport={sport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/>)} 
    {tab==="Goals"&&<Goals goals={goals} setGoals={setGoals}/>}
    {tab==="Calendar"&&(effectiveRole==="Parent"?<ParentSchedule sport={sport} workouts={workouts} competitions={competitions} seasonEvents={seasonEvents}/>:<Calendar sport={sport} workouts={workouts} setWorkouts={setWorkouts} profile={profile} seasonEvents={seasonEvents} setSeasonEvents={setSeasonEvents} trainingBlocks={trainingBlocks} setTrainingBlocks={setTrainingBlocks} competitions={competitions}/>)} 
@@ -513,7 +601,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    
    {tab==="Competition"&&(effectiveRole==="Parent"?<ParentCompetition sport={sport} profile={profile} competitions={competitions}/>:<Competition sport={sport} competitions={competitions} setCompetitions={setCompetitions} profile={profile}/>)} 
    
-   {tab==="Roster"&&(effectiveRole==="Coach"||effectiveRole==="Admin")&&<><Roster sport={sport} profile={profile} roster={roster} setRoster={setRoster} activeAthleteId={activeAthleteId} switchAthlete={switchAthlete} setTab={setTab} setEditProfileRequest={setEditProfileRequest}/><DataCenter profile={profile} sport={sport} roster={roster} activeAthleteId={activeAthleteId} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} coachNotes={coachNotes} competitions={competitions} reportNotes={reportNotes} setProfile={setProfile} setGoals={setGoals} setWorkouts={setWorkouts} setResults={setResults} setDev={setDev} setProgram={setProgram} setReadiness={setReadiness} setCoachNotes={setCoachNotes} setCompetitions={setCompetitions} setReportNotes={setReportNotes} setRoster={setRoster} setActiveAthleteId={setActiveAthleteId} setSport={setSport}/></>} 
+   {tab==="Roster"&&effectiveRole==="Coach"&&<><Roster sport={sport} profile={profile} roster={roster} setRoster={setRoster} activeAthleteId={activeAthleteId} switchAthlete={switchAthlete} setTab={setTab} setEditProfileRequest={setEditProfileRequest}/><DataCenter profile={profile} sport={sport} roster={roster} activeAthleteId={activeAthleteId} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} coachNotes={coachNotes} competitions={competitions} reportNotes={reportNotes} setProfile={setProfile} setGoals={setGoals} setWorkouts={setWorkouts} setResults={setResults} setDev={setDev} setProgram={setProgram} setReadiness={setReadiness} setCoachNotes={setCoachNotes} setCompetitions={setCompetitions} setReportNotes={setReportNotes} setRoster={setRoster} setActiveAthleteId={setActiveAthleteId} setSport={setSport}/></>} 
    
     
   </main>
@@ -545,7 +633,18 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="skipSetupActions"><button onClick={()=>setShowSkipSetupDisclaimer(false)}>Continue Setup</button><button className="skipAnywayButton" onClick={confirmSkipSetup}>Skip Setup Anyway</button></div>
   </div></div>}
   {commandOpen&&<div className="commandOverlay" role="dialog" aria-modal="true" aria-label="Quick navigation" onClick={()=>setCommandOpen(false)}><div className="commandPalette" onClick={e=>e.stopPropagation()}><div className="sectionHead"><h2>Go to a section</h2><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder="Search Overview, Goals, Testing, Roster…"/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span>{navMeta[a.tab]?.icon||"•"}</span><b>{a.label}</b><small>{a.keywords.join(" · ")}</small></button>)}</div></div></div>}
- <div className="navDock"><nav ref={navRef} onScroll={updateNavScrollIndicator} className="mainNav">{visibleTabs.map(x=><button aria-current={tab===x?"page":undefined} aria-label={roleNavLabel(x)} className={tab===x?"active":""} onClick={()=>setTab(x)} key={x}><span className="navIcon" aria-hidden="true">{navMeta[x]?.icon||"•"}</span><span className="navLabel">{roleNavLabel(x)}</span></button>)}</nav><div className="navScrollHint" aria-hidden="true"><span className="navScrollTrack"><i style={{width:`${navIndicatorWidth}%`,left:`${navScrollProgress*(100-navIndicatorWidth)}%`}}/></span><span>Swipe for more tabs ↔</span></div></div>
+ {navSheet&&<div className="simpleNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
+   <div className="sectionHead"><div><small>{navSheet.toUpperCase()}</small><h2>{navSheet==="More"?"More Features":navSheet}</h2></div><button onClick={()=>setNavSheet(null)}>×</button></div>
+   <div className="simpleNavChoices">{navGroups[navSheet].map(x=><button key={x} onClick={()=>{setTab(x);setNavSheet(null)}}><span>{navMeta[x]?.icon||"•"}</span><div><b>{roleNavLabel(x)}</b><small>{pageHelp[x]?.purpose||""}</small></div><strong>Open →</strong></button>)}</div>
+   {navSheet==="More"&&<button className="allFeaturesButton" onClick={()=>{setNavSheet(null);setCommandOpen(true)}}>Search All Features</button>}
+  </div></div>}
+ <div className="simpleBottomNav">
+  <button className={tab==="Home"?"active":""} onClick={()=>setTab("Home")}><span>⌂</span><b>Overview</b></button>
+  <button className={groupActive("Plan")?"active":""} onClick={()=>openNavGroup("Plan")}><span>▦</span><b>Plan</b></button>
+  <button className={groupActive("Train")?"active":""} onClick={()=>openNavGroup("Train")}><span>◇</span><b>Train</b></button>
+  <button className={groupActive("Progress")?"active":""} onClick={()=>openNavGroup("Progress")}><span>⌁</span><b>Progress</b></button>
+  <button className={groupActive("More")?"active":""} onClick={()=>openNavGroup("More")}><span>•••</span><b>More</b></button>
+ </div>
  </div>
 }
 
@@ -653,7 +752,7 @@ function DevelopmentHub({sport,profile,dev,setDev,results,goals,workouts,program
  <div className="card mentalTrainingLauncher"><div className="sectionHead"><div><span className="tag">MENTAL PERFORMANCE</span><h2>Mental Preparation & Rehearsal</h2><small>Breathing, visualization, cue words, and a simple pre-performance routine</small></div><button className="featureAction" onClick={()=>setShowMental(x=>!x)}>{showMental?"Close":"Start"}</button></div></div>
  {showMental&&<MentalTraining sport={sport} profile={profile}/>}
  <div className="card compactTools"><div className="sectionHead"><div><h2>Training Program</h2><small>Weekly program builder and sessions</small></div><button className="featureAction" onClick={()=>setShowProgram(x=>!x)}>{showProgram?"Hide Program":"Open Program"}</button></div></div>
- {showProgram&&<Program sport={sport} profile={profile} dev={dev} results={results} program={program} setProgram={setProgram} setWorkouts={setWorkouts}/>}</>;
+ {showProgram&&<Program sport={sport} profile={profile} dev={dev} results={results} readiness={readiness} program={program} setProgram={setProgram} setWorkouts={setWorkouts}/>}</>;
 }
 
 
@@ -1533,125 +1632,336 @@ function ExerciseResourceLinks({name}:{name:string}){
  </div>;
 }
 
-function Program({sport,profile,dev,results,program,setProgram,setWorkouts}:{sport:Sport;profile:Profile;dev:DevelopmentItem[];results:Result[];program:TrainingProgram|null;setProgram:React.Dispatch<React.SetStateAction<TrainingProgram|null>>;setWorkouts:any}){
- const [focus,setFocus]=useState("Balanced"),[days,setDays]=useState("4"),[equipment,setEquipment]=useState<"Gym Access"|"Body Weight Only">("Gym Access");
- const templates=sportProgramTemplates[sport];
+
+type PositionTrainingProfile={
+ role:string;
+ priorities:string[];
+ speed:string;
+ power:string;
+ gymStrength:string[];
+ bodyStrength:string[];
+ robustness:string;
+ conditioning:string;
+ skill:string;
+};
+
+function positionTrainingProfile(sport:Sport,position:string):PositionTrainingProfile{
+ const p=position.toLowerCase();
+ const base:PositionTrainingProfile={
+  role:position||"General athlete",
+  priorities:["Acceleration","Unilateral strength","Power","Movement quality"],
+  speed:"10–20 yard acceleration with full recovery",
+  power:"Countermovement jump to controlled landing",
+  gymStrength:["Goblet squat","Romanian deadlift","Rear-foot elevated split squat","Cable or band row"],
+  bodyStrength:["Tempo bodyweight squat","Reverse lunge","Single-leg hip bridge","Push-up"],
+  robustness:"Pallof press + side plank",
+  conditioning:"6 rounds · 20 sec strong / 70 sec easy",
+  skill:"Reactive sport-position footwork"
+ };
+
+ if(sport==="Ice Hockey"){
+  if(p.includes("goal")){
+   return {...base,role:"Goaltender",priorities:["Lateral power","Deceleration","Hip/adductor robustness","Reaction"],speed:"Crease lateral push + recover",power:"Lateral bound to stick",gymStrength:["Rear-foot elevated split squat","Romanian deadlift","Cable lateral lunge","Cable or band row"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Lateral squat","Push-up"],robustness:"Copenhagen plank + Pallof press",conditioning:"8 rounds · 10 sec explosive / 50 sec easy",skill:"Goalie lateral reaction + recovery pattern"};
+  }
+  if(p.includes("defense")){
+   return {...base,role:"Defense",priorities:["Backward-to-forward acceleration","Lateral crossover power","Lower-body strength","Repeated shift capacity"],speed:"Backward crossover → forward acceleration",power:"Lateral bound → crossover start",gymStrength:["Trap-bar deadlift","Rear-foot elevated split squat","Single-arm cable row","Landmine press"],bodyStrength:["Split squat","Single-leg hip bridge","Push-up","Band row"],robustness:"Adductor side plank + anti-rotation hold",conditioning:"6 rounds · 30 sec hard / 90 sec easy",skill:"Gap-control transition footwork"};
+  }
+  if(p.includes("center")){
+   return {...base,role:"Center",priorities:["First-step acceleration","Multi-directional power","Total-body strength","Repeated shift capacity"],speed:"Faceoff-exit 10-yard acceleration",power:"Lateral bound → short sprint",gymStrength:["Front squat","Romanian deadlift","Single-arm row","Half-kneeling cable press"],bodyStrength:["Tempo squat","Reverse lunge","Push-up","Band row"],robustness:"Pallof press + Copenhagen plank",conditioning:"7 rounds · 30 sec hard / 90 sec easy",skill:"Faceoff-exit reaction + puck-support footwork"};
+  }
+  return {...base,role:"Wing",priorities:["Acceleration","Crossover speed","Unilateral power","Repeated sprint capacity"],speed:"Crossover start → 15-yard acceleration",power:"Skater bound to stick",gymStrength:["Rear-foot elevated split squat","Romanian deadlift","Cable row","Dumbbell bench press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Band row"],robustness:"Side plank + anti-rotation hold",conditioning:"7 rounds · 25 sec hard / 75 sec easy",skill:"Puck-protection change-of-direction footwork"};
+ }
+
+ if(sport==="Baseball"){
+  if(p.includes("pitch")){
+   return {...base,role:"Pitcher",priorities:["Lower-body force","Single-leg control","Rotational power","Scapular control"],speed:"10-yard first-step acceleration",power:"Medicine-ball step-behind rotational throw",gymStrength:["Rear-foot elevated split squat","Single-leg Romanian deadlift","Chest-supported row","Half-kneeling cable press"],bodyStrength:["Split squat","Single-leg hip bridge","Push-up plus","Prone Y-T raise"],robustness:"Pallof press + scapular wall slide",conditioning:"6 rounds · 10 sec fast / 50 sec easy",skill:"Pitcher fielding + first-step reaction"};
+  }
+  if(p.includes("catch")){
+   return {...base,role:"Catcher",priorities:["Lateral quickness","Squat strength","Hip mobility","Short-burst power"],speed:"Catcher lateral start → 10-yard sprint",power:"Lateral bound to stick",gymStrength:["Goblet squat","Romanian deadlift","Split squat","Cable row"],bodyStrength:["Tempo squat","Reverse lunge","Single-leg hip bridge","Push-up"],robustness:"Adductor side plank + ankle mobility",conditioning:"8 rounds · 10 sec hard / 50 sec easy",skill:"Block → recover → throw-footwork pattern"};
+  }
+  if(p.includes("field")||p.includes("short")||p.includes("second")||p.includes("third")){
+   return {...base,role:"Fielder",priorities:["First-step speed","Change of direction","Unilateral strength","Reactive power"],speed:"Drop-step / crossover → 15-yard acceleration",power:"Broad jump to controlled landing",gymStrength:["Split squat","Romanian deadlift","Cable row","Dumbbell press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Side plank"],robustness:"Pallof press + calf raise",conditioning:"6 rounds · 15 sec fast / 60 sec easy",skill:"Reactive fielding first-step drill"};
+  }
+  return {...base,role:"Infielder / Utility",priorities:["First-step speed","Lateral quickness","Rotational power","Strength"],speed:"Lateral shuffle → 10-yard acceleration",power:"Medicine-ball rotational scoop toss",skill:"First-step fielding reaction"};
+ }
+
+ if(sport==="Football"){
+  if(p.includes("quarter")){
+   return {...base,role:"Quarterback",priorities:["Pocket footwork","Rotational power","Acceleration","Trunk control"],speed:"Pocket escape → 10-yard acceleration",power:"Medicine-ball rotational throw",gymStrength:["Split squat","Romanian deadlift","Single-arm row","Landmine press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Band row"],robustness:"Pallof press + dead bug",conditioning:"6 rounds · 12 sec fast / 60 sec easy",skill:"Pocket reaction + reset footwork"};
+  }
+  if(p.includes("offensive line")||p.includes("defensive line")||p.includes("long snap")){
+   return {...base,role:p.includes("offensive")?"Offensive Line":p.includes("defensive")?"Defensive Line":"Long Snapper",priorities:["Short acceleration","Force production","Total-body strength","Trunk stiffness"],speed:"5–10 yard stance-start acceleration",power:"Broad jump to stick",gymStrength:["Trap-bar deadlift","Front squat","Dumbbell bench press","Chest-supported row"],bodyStrength:["Tempo squat","Split squat","Push-up","Band row"],robustness:"Farmer carry + Pallof press",conditioning:"8 rounds · 8 sec hard / 52 sec easy",skill:"Stance → first-two-steps reaction"};
+  }
+  if(p.includes("receiver")||p.includes("corner")||p.includes("safety")||p.includes("running")){
+   return {...base,role:"Speed / Skill Position",priorities:["Acceleration","Max-speed mechanics","Change of direction","Elastic power"],speed:"10-yard acceleration + flying sprint exposure",power:"Bounds + countermovement jump",gymStrength:["Rear-foot elevated split squat","Romanian deadlift","Hip thrust","Cable row"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Single-leg squat to box","Push-up"],robustness:"Nordic progression + side plank",conditioning:"6 rounds · 20 sec fast / 80 sec easy",skill:"Reactive route / pursuit change-of-direction"};
+  }
+  if(p.includes("kicker")||p.includes("punter")){
+   return {...base,role:"Kicker / Punter",priorities:["Single-leg power","Hip control","Approach speed","Landing control"],speed:"Approach acceleration mechanics",power:"Single-leg jump to stick",gymStrength:["Rear-foot elevated split squat","Single-leg Romanian deadlift","Cable hip flexion","Cable row"],bodyStrength:["Split squat","Single-leg hip bridge","Step-up","Push-up"],robustness:"Adductor plank + calf isometric",conditioning:"5 rounds · 15 sec moderate-hard / 75 sec easy",skill:"Approach-step rhythm and balance"};
+  }
+  return {...base,role:"Hybrid Football Position",priorities:["Acceleration","Change of direction","Strength","Power"],speed:"10-yard acceleration → reactive cut",power:"Broad jump + lateral bound",gymStrength:["Front squat","Romanian deadlift","Split squat","Cable row"],conditioning:"7 rounds · 15 sec hard / 60 sec easy",skill:"Position reaction footwork"};
+ }
+
+ if(sport==="Basketball"){
+  if(p.includes("point")||p.includes("shooting")){
+   return {...base,role:"Guard",priorities:["First-step speed","Lateral change of direction","Deceleration","Repeat-effort power"],speed:"First-step acceleration → reactive cut",power:"Lateral bound + vertical jump",gymStrength:["Split squat","Romanian deadlift","Dumbbell bench press","Cable row"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Side plank"],robustness:"Calf isometric + adductor side plank",conditioning:"8 rounds · 15 sec court work / 45 sec easy",skill:"Ball-handling reaction + finish footwork"};
+  }
+  if(p.includes("center")||p.includes("power")){
+   return {...base,role:"Interior",priorities:["Jump/landing power","Short acceleration","Lower-body strength","Contact robustness"],speed:"5–10 yard acceleration + closeout",power:"Repeated jump → controlled landing",gymStrength:["Front squat","Romanian deadlift","Split squat","Cable row"],bodyStrength:["Tempo squat","Reverse lunge","Single-leg hip bridge","Push-up"],robustness:"Isometric split squat + Pallof press",conditioning:"7 rounds · 15 sec hard / 45 sec easy",skill:"Rebound landing → outlet footwork"};
+  }
+  return {...base,role:"Wing",priorities:["Multi-directional power","Acceleration","Deceleration","Strength"],speed:"Closeout → crossover acceleration",power:"Lateral bound → vertical jump",conditioning:"8 rounds · 15 sec court work / 45 sec easy",skill:"Catch → attack-space reaction"};
+ }
+
+ if(sport==="Lacrosse"){
+  if(p.includes("goal")){
+   return {...base,role:"Goalie",priorities:["Lateral reaction","Deceleration","Hip/adductor strength","Short-burst power"],speed:"Goalie step → lateral reaction",power:"Lateral bound to stick",gymStrength:["Split squat","Romanian deadlift","Cable lateral lunge","Cable row"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Lateral squat","Push-up"],robustness:"Copenhagen plank + Pallof press",conditioning:"8 rounds · 10 sec explosive / 50 sec easy",skill:"Save-step reaction + reset"};
+  }
+  if(p.includes("midfield")){
+   return {...base,role:"Midfield",priorities:["Repeated sprint ability","Acceleration","Change of direction","Aerobic support"],speed:"20-yard acceleration → reactive cut",power:"Bounds + broad jump",gymStrength:["Split squat","Romanian deadlift","Cable row","Dumbbell press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Band row"],robustness:"Calf raise + anti-rotation hold",conditioning:"8 rounds · 20 sec fast / 60 sec easy",skill:"Transition run → catch/pass footwork"};
+  }
+  if(p.includes("defense")){
+   return {...base,role:"Defense",priorities:["Lateral movement","Backpedal-to-sprint","Strength","Deceleration"],speed:"Backpedal → crossover sprint",power:"Lateral bound to stick",gymStrength:["Front squat","Romanian deadlift","Cable row","Landmine press"],bodyStrength:["Tempo squat","Reverse lunge","Band row","Push-up"],robustness:"Adductor plank + Pallof press",conditioning:"7 rounds · 20 sec hard / 70 sec easy",skill:"Approach → breakdown → recover footwork"};
+  }
+  if(p.includes("faceoff")){
+   return {...base,role:"Faceoff Specialist",priorities:["First-step power","Isometric strength","Grip","Hip/trunk force"],speed:"Faceoff exit → 10-yard acceleration",power:"Broad jump to sprint",gymStrength:["Trap-bar deadlift","Split squat","Cable row","Farmer carry"],bodyStrength:["Tempo squat","Reverse lunge","Towel row","Bear crawl"],robustness:"Grip isometric + Pallof press",conditioning:"8 rounds · 8 sec hard / 52 sec easy",skill:"Faceoff exit reaction"};
+  }
+  return {...base,role:"Attack",priorities:["Acceleration","Change of direction","Rotational power","Decision speed"],speed:"Dodge start → 15-yard acceleration",power:"Medicine-ball rotational throw",conditioning:"7 rounds · 15 sec hard / 60 sec easy",skill:"Reactive dodge + pass/shoot footwork"};
+ }
+
+ if(sport==="Soccer"){
+  if(p.includes("goalkeeper")){
+   return {...base,role:"Goalkeeper",priorities:["Lateral reaction","Jump/landing","Short acceleration","Hip/adductor robustness"],speed:"Goalkeeper lateral shuffle → 5-yard burst",power:"Lateral bound + vertical jump",gymStrength:["Split squat","Romanian deadlift","Cable lateral lunge","Cable row"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Lateral squat","Push-up"],robustness:"Copenhagen plank + calf isometric",conditioning:"6 rounds · 10 sec explosive / 60 sec easy",skill:"Set-position → dive-step reaction"};
+  }
+  if(p.includes("center back")){
+   return {...base,role:"Center Back",priorities:["Acceleration","Deceleration","Aerial power","Strength"],speed:"Backpedal → 15 m acceleration",power:"Vertical jump → controlled landing",gymStrength:["Front squat","Romanian deadlift","Split squat","Cable row"],bodyStrength:["Tempo squat","Reverse lunge","Single-leg hip bridge","Push-up"],robustness:"Copenhagen plank + Pallof press",conditioning:"6 rounds · 20 sec hard / 80 sec easy",skill:"Drop-step → close-space reaction"};
+  }
+  if(p.includes("wing")||p.includes("left back")||p.includes("right back")){
+   return {...base,role:p.includes("wing")?"Wide Player":"Fullback",priorities:["Repeated high-speed running","Acceleration","Change of direction","Hamstring strength"],speed:"10–20 m acceleration + flying sprint exposure",power:"Bounds + lateral jump",gymStrength:["Rear-foot elevated split squat","Romanian deadlift","Nordic hamstring progression","Cable row"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Hamstring walkout","Push-up"],robustness:"Calf raise + Copenhagen plank",conditioning:"6 rounds · 25 sec fast / 75 sec easy",skill:"Overlap / 1v1 reactive movement"};
+  }
+  if(p.includes("midfielder")){
+   return {...base,role:"Midfielder",priorities:["Repeated efforts","Aerobic power","Acceleration","Change of direction"],speed:"10 m acceleration → reactive turn",power:"Lateral bound to acceleration",gymStrength:["Split squat","Romanian deadlift","Cable row","Dumbbell press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Side plank"],robustness:"Calf raise + adductor plank",conditioning:"4 rounds · 3 min strong / 2 min easy",skill:"Scan → receive → turn footwork"};
+  }
+  if(p.includes("striker")||p.includes("forward")){
+   return {...base,role:"Striker / Forward",priorities:["Acceleration","Max-speed exposure","Explosive power","Deceleration"],speed:"10–20 m acceleration + flying sprint exposure",power:"Broad jump → short sprint",gymStrength:["Split squat","Romanian deadlift","Hip thrust","Cable row"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Single-leg squat to box","Push-up"],robustness:"Hamstring walkout + calf isometric",conditioning:"7 rounds · 20 sec fast / 70 sec easy",skill:"Check-away → attack-space reaction"};
+  }
+  return {...base,role:"Central / Attacking Midfielder",priorities:["Acceleration","Change of direction","Repeated efforts","Decision speed"],speed:"10 m acceleration → reactive turn",power:"Lateral bound → short acceleration",gymStrength:["Split squat","Romanian deadlift","Cable row","Dumbbell press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Side plank"],robustness:"Calf raise + anti-rotation hold",conditioning:"5 rounds · 2 min strong / 2 min easy",skill:"Scan → receive → turn → accelerate"};
+ }
+
+ if(sport==="Figure Skating"){
+  if(p.includes("ice dance")){
+   return {...base,role:"Ice Dance",priorities:["Edge control","Single-leg strength","Rotation control","Aerobic repeatability"],speed:"Quick-step edge transition drill",power:"Lateral bound to balanced landing",gymStrength:["Split squat","Single-leg Romanian deadlift","Cable row","Pallof press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Side plank","Push-up"],robustness:"Ankle/calf isometric + hip stability",conditioning:"4 rounds · 2 min strong / 2 min easy",skill:"Edge-transition + rotation-control sequence"};
+  }
+  if(p.includes("synch")){
+   return {...base,role:"Synchronized Skating",priorities:["Repeat movement quality","Alignment","Single-leg strength","Conditioning"],speed:"Quick-step synchronization pattern",power:"Snap jump to controlled landing",gymStrength:["Split squat","Romanian deadlift","Cable row","Dumbbell press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Side plank"],robustness:"Calf isometric + Pallof press",conditioning:"5 rounds · 90 sec strong / 90 sec easy",skill:"Pattern timing + edge-control sequence"};
+  }
+  if(p.includes("pair")){
+   return {...base,role:"Pairs",priorities:["Landing strength","Total-body force","Single-leg control","Trunk stability"],speed:"Quick-step entry acceleration",power:"Countermovement jump to stick",gymStrength:["Front squat","Romanian deadlift","Split squat","Cable row"],bodyStrength:["Tempo squat","Reverse lunge","Single-leg hip bridge","Push-up"],robustness:"Pallof press + shoulder stability",conditioning:"6 rounds · 30 sec strong / 90 sec easy",skill:"Entry → jump/landing-control sequence"};
+  }
+  return {...base,role:"Singles",priorities:["Jump power","Landing control","Single-leg strength","Rotation speed"],speed:"Quick-step jump-entry drill",power:"Countermovement jump + rotational landing control",gymStrength:["Split squat","Romanian deadlift","Cable row","Pallof press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Side plank","Push-up"],robustness:"Calf isometric + hip stability",conditioning:"6 rounds · 30 sec strong / 90 sec easy",skill:"Jump-entry + spin-balance sequence"};
+ }
+
+ if(sport==="Wrestling"){
+  return {...base,role:"Wrestler",priorities:["Explosive entry","Total-body strength","Grip","Repeated high-intensity efforts"],speed:"Stance reaction → penetration step",power:"Broad jump → sprawl reaction",gymStrength:["Trap-bar deadlift","Front squat","Pull-up / lat pulldown","Farmer carry"],bodyStrength:["Tempo squat","Reverse lunge","Towel row","Bear crawl"],robustness:"Grip isometric + anti-rotation hold",conditioning:"3 rounds · 2 min hard / 1 min easy",skill:"Shot-entry → sprawl → re-attack reaction"};
+ }
+
+ return base;
+}
+
+function Program({sport,profile,dev,results,readiness,program,setProgram,setWorkouts}:{sport:Sport;profile:Profile;dev:DevelopmentItem[];results:Result[];readiness:ReadinessLog[];program:TrainingProgram|null;setProgram:React.Dispatch<React.SetStateAction<TrainingProgram|null>>;setWorkouts:any}){
+ const [focus,setFocus]=useState("Balanced");
+ const [days,setDays]=useState("4");
+ const [equipment,setEquipment]=useState<"Gym Access"|"Body Weight Only">("Gym Access");
+ const [seasonPhase,setSeasonPhase]=useState<"Off-season"|"Pre-season"|"In-season">("Off-season");
+ const demands=positionTrainingProfile(sport,profile.position);
+
+ const latestReadiness=readiness.find(r=>r.date===today())||readiness[0];
+ const readinessScore=latestReadiness?Math.max(0,Math.min(100,Math.round(Math.min(10,latestReadiness.sleep/8*10)*2.5+(10-Math.min(10,latestReadiness.soreness))*2.5+Math.min(10,latestReadiness.energy)*2.5+(10-Math.min(10,latestReadiness.stress))*2.5))):0;
+ const reduceVolume=readinessScore>0&&readinessScore<60;
+ const mainSets=(normal:string,reduced:string="2")=>reduceVolume?reduced:(seasonPhase==="In-season"&&normal==="3"?"2":normal);
 
  const ex=(phase:ProgramExercise["phase"],name:string,sets:string,reps:string,rest:string,notes:string,instructions?:string):ProgramExercise=>({phase,name,sets,reps,rest,notes,instructions});
 
- const buildExercises=(category:"speed"|"strength"|"skill"|"conditioning",sessionName:string):ProgramExercise[]=>{
-  const gym=equipment==="Gym Access";
-  const commonWarmup=[
-   ex("Warm-up","Easy movement + dynamic mobility","1","5–7 min","—","Raise body temperature, then move through ankles, hips, thoracic spine, and shoulders.","2 min easy jog/bike → 10 ankle rocks/side → 8 walking lunges/side → 8 hip openers/side → 10 arm circles each direction."),
-   ex("Warm-up","Movement preparation","2","10–15 yd each","20 sec","Use skips, shuffles, lunges, and controlled acceleration mechanics.","Perform A-skips, lateral shuffles, walking lunges, and 2 progressive accelerations. Keep posture tall and movements crisp.")
+ const commonWarmup=[
+  ex("Warm-up","Easy movement + dynamic mobility","1","5–7 min","—","Raise body temperature, then prepare ankles, hips, trunk, and shoulders."),
+  ex("Warm-up","Movement preparation","2","10–15 yd each","20 sec","Use skips, shuffles, lunges, and progressive accelerations with clean mechanics.")
+ ];
+
+ const strengthList=equipment==="Gym Access"?demands.gymStrength:demands.bodyStrength;
+
+ const buildExercises=(category:"speed"|"strength"|"skill"|"conditioning"):ProgramExercise[]=>{
+  const recoveryNote=reduceVolume?"Readiness is below 60 today: reduce volume, keep effort submaximal, and stop if movement quality drops.":"Keep 1–3 quality reps in reserve on strength work; speed and power reps should stay crisp.";
+
+  if(category==="speed"){
+   return [
+    ...commonWarmup,
+    ex("Sport",demands.speed,mainSets("4","3"),"3–5 quality reps","75–120 sec",`${demands.role}: ${demands.priorities[0]} emphasis. Full recovery protects sprint quality.`),
+    ex("Main",equipment==="Gym Access"?"Light resisted acceleration":"Falling-start acceleration",mainSets("4","3"),"10–20 yd","90–120 sec","Use resistance only if mechanics stay fast and natural."),
+    ex("Main",demands.power,mainSets("3","2"),"3–5 reps","75–90 sec","Explosive intent with controlled landings; stop before jump height or distance drops."),
+    ex("Main","Reactive change-of-direction",mainSets("3","2"),"3–4 reps / side","60–90 sec","React to a cue rather than pre-planning every rep."),
+    ex("Cooldown","Easy recovery + mobility","1","5 min","—",recoveryNote)
+   ];
+  }
+
+  if(category==="strength"){
+   return [
+    ...commonWarmup,
+    ex("Main",strengthList[0],mainSets("3"),"5–8 reps","90–120 sec",`${demands.role} foundation strength. Use controlled technique and leave 2–3 reps in reserve.`),
+    ex("Main",strengthList[1]||"Rear-foot elevated split squat",mainSets("3"),"6–8 reps / side","75–90 sec","Build unilateral force while maintaining joint alignment."),
+    ex("Main",strengthList[2]||"Cable or band row",mainSets("3"),"8–10 reps","60–90 sec","Support total-body robustness and balanced strength."),
+    ex("Main",strengthList[3]||"Push-up",mainSets("2","2"),"8–12 reps","60 sec","Use a load or variation that keeps technique clean."),
+    ex("Finisher",demands.robustness,mainSets("2","1"),"20–40 sec / side","45 sec","Position-specific robustness for trunk, hips, or lower leg."),
+    ex("Cooldown","Easy recovery + mobility","1","5 min","—",recoveryNote)
+   ];
+  }
+
+  if(category==="skill"){
+   return [
+    ...commonWarmup,
+    ex("Sport",demands.skill,mainSets("4","3"),"4–6 quality reps","60 sec",`Position-specific ${sport} movement. Prioritize perception, decision, and clean execution.`),
+    ex("Main","Reaction drill",mainSets("3","2"),"4–6 reps","45–60 sec","Use a visual or verbal cue so the athlete must perceive and respond."),
+    ex("Main",demands.power,mainSets("3","2"),"3 reps","75 sec","Keep power volume low enough that every rep remains explosive."),
+    ex("Finisher",demands.robustness,mainSets("2","1"),"20–30 sec / side","45 sec","Finish with controlled robustness work."),
+    ex("Cooldown","Easy recovery + mobility","1","5 min","—",recoveryNote)
+   ];
+  }
+
+  return [
+   ...commonWarmup,
+   ex("Sport",demands.conditioning,seasonPhase==="In-season"?"4":"6","As written","—",`${demands.role} conditioning matched to the sport's work-rest pattern. Maintain repeat quality rather than turning every interval into an all-out effort.`),
+   ex("Main","Low-intensity aerobic recovery",seasonPhase==="In-season"?"1":"2","6–10 min conversational pace","—","Build aerobic support without adding unnecessary high-intensity fatigue."),
+   ex("Finisher","Core stability circuit","2","3 exercises × 30 sec","30 sec","Use anti-extension, anti-rotation, and side-plank variations."),
+   ex("Cooldown","Easy recovery + mobility","1","5 min","—",recoveryNote)
   ];
-
-  const sportDrill=ex("Sport",sessionName,"3","4–6 quality reps","45–60 sec",`Perform with ${sport} technique. Stop the set when movement quality drops.`);
-
-  const strengthGym=[
-   ex("Main","Goblet squat","3","6–10 reps","75–90 sec","Controlled lowering, strong posture, smooth acceleration up.","Hold one dumbbell/kettlebell at chest. Lower for 3 seconds until thighs are near parallel, pause briefly, then stand forcefully. Leave 2–3 good reps in reserve."),
-   ex("Main","Romanian deadlift","3","6–10 reps","75–90 sec","Hinge at the hips and keep the spine neutral. Use a manageable load.","Hold weights close to the legs. Push hips backward with soft knees until hamstrings are loaded, then squeeze glutes to stand. Do not round the lower back."),
-   ex("Main","Rear-foot elevated split squat","3","6–8 / side","60–75 sec","Keep the front foot planted and control the full range.","Place rear foot on a low bench. Lower straight down under control, keep front knee tracking over toes, then drive through the front foot to stand."),
-   ex("Main","Cable or band row","3","8–12 reps","60 sec","Pull shoulder blades back without shrugging.","Start with arms long. Pull handles toward lower ribs, pause 1 second with shoulder blades together, then return slowly without leaning back."),
-   ex("Main","Pallof press","2–3","8–10 / side","45 sec","Resist rotation and keep ribs stacked over hips.","Stand sideways to cable/band at chest height. Press hands straight out, hold 1–2 seconds without twisting, then return. Repeat both sides.")
-  ];
-  const strengthBody=[
-   ex("Main","Tempo bodyweight squat","3","10–15 reps","45–60 sec","Use a 3-second lowering phase and maintain knee alignment.","Feet about shoulder-width. Lower for 3 seconds, pause 1 second near the bottom, then stand in 1 second. Knees track in line with toes."),
-   ex("Main","Reverse lunge","3","8–12 / side","45–60 sec","Stay tall and push through the whole front foot.","Step one foot backward, lower until both knees are comfortably bent, then drive through the front foot to return. Alternate or complete one side at a time."),
-   ex("Main","Single-leg hip bridge","3","8–12 / side","45 sec","Finish with the hips level; do not overarch the back.","Lie on back, one foot planted and opposite leg raised. Drive through the planted heel, squeeze glute at the top for 1 second, lower under control."),
-   ex("Main","Push-up","3","6–15 reps","45–60 sec","Keep a straight body line. Elevate hands if needed for quality reps.","Hands slightly wider than shoulders. Lower chest toward the floor while keeping ribs and hips together, then press back up. Stop 1–2 reps before form breaks."),
-   ex("Main","Side plank","2–3","20–40 sec / side","30 sec","Keep shoulder, hip, and ankle aligned.","Elbow directly under shoulder. Lift hips until body forms a straight line. Keep top hip stacked and breathe normally throughout the hold.")
-  ];
-
-  const speedGym=[
-   ex("Main","Wall acceleration drill","3","5 switches / side","30 sec","Drive the knee while keeping a strong body angle.","Lean into a wall at roughly 45°. Hold one knee up, then switch legs quickly without losing body angle. Finish each rep with toe pulled up and heel under hip."),
-   ex("Main","Short acceleration sprint","5","10–20 yd","60–90 sec","Full-quality acceleration; walk back and recover between reps.","Start from a consistent athletic stance. Push hard for the first 3–5 steps, keep a forward lean early, and sprint through the finish. Every rep should be fast, not fatigued."),
-   ex("Main","Lateral bound to stick","3","5 / side","45 sec","Land quietly and hold balance before the next rep.","Jump sideways off one leg, land on the opposite leg, and hold the landing for 2 seconds. Keep knee aligned over foot before the next bound."),
-   ex("Main",gym?"Sled push / light resisted acceleration":"Falling-start acceleration","4",gym?"10–15 yd":"10 yd","60–90 sec",gym?"Use light resistance that does not change sprint mechanics.":"Fall forward under control, then accelerate through the line.")
-  ];
-
-  const skillWork=[
-   sportDrill,
-   ex("Main","Reaction drill","3","20–30 sec","45 sec","React to a visual or verbal cue and move with game-like posture.","Have a partner call left/right/forward/back or use a random visual cue. React immediately, move 2–4 steps with sport posture, reset, and repeat."),
-   ex("Main","Footwork pattern","3","20–30 sec","45 sec","Prioritize clean movement over speed, then gradually increase pace.","Choose a sport-specific pattern. Begin at 70% speed for clean technique, then increase to 85–90% only if posture and foot placement stay controlled."),
-   ex("Main","Decision-speed reps","3","4–6 reps","45 sec","Add a simple choice or reaction so the drill is not fully pre-planned.","Start each rep without knowing the direction or action. Use a partner cue, numbered cones, or two possible skills. Make the decision first, then execute at game speed.")
-  ];
-
-  const conditioningGym=[
-   ex("Main",gym?"Bike / rower intervals":"Shuttle intervals","6",gym?"20 sec hard / 70 sec easy":"20 sec work / 70 sec walk","—","Keep output consistent across all rounds rather than sprinting the first rep."),
-   ex("Main","Tempo conditioning","4","45 sec moderate / 45 sec easy","—","Stay smooth and controlled; breathing should recover during the easy period."),
-   ex("Finisher","Core stability circuit","2","3 exercises × 30 sec","30 sec","Use plank, dead bug, and side plank variations.")
-  ];
-
-  const selected =
-   category==="strength" ? (gym?strengthGym:strengthBody) :
-   category==="speed" ? speedGym :
-   category==="skill" ? skillWork :
-   conditioningGym;
-
-  const finisher=category==="conditioning"
-   ? []
-   : [ex("Finisher",gym?"Farmer carry":"Bear crawl + plank combo","2–3",gym?"20–30 yd":"20 sec + 30 sec","45 sec",gym?"Walk tall with controlled steps and even loading.":"Stay controlled; stop before posture breaks down.")];
-
-  const cooldown=[
-   ex("Cooldown","Easy recovery + mobility","1","5 min","—","Lower breathing gradually and use comfortable hip, calf, and upper-body mobility.","Walk or pedal easily for 2 minutes, then hold comfortable calf, hip-flexor, hamstring, and chest stretches for about 20–30 seconds each.")
-  ];
-
-  return [...commonWarmup,...selected,...finisher,...cooldown];
  };
 
  const generate=()=>{
-  const n=Math.max(2,Math.min(6,Number(days)||4)),week=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-  const cycle=focus==="Balanced"?["speed","strength","skill","conditioning"]:Array(n).fill(focus.toLowerCase());
+  if(!profile.position){
+   alert("Choose the athlete's position in Player Profile first so the program can be position-specific.");
+   return;
+  }
+  const n=Math.max(2,Math.min(6,Number(days)||4));
+  const week=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const balancedByDays:Record<number,("speed"|"strength"|"skill"|"conditioning")[]>={
+   2:["speed","strength"],
+   3:["speed","strength","conditioning"],
+   4:["speed","strength","skill","conditioning"],
+   5:["speed","strength","skill","strength","conditioning"],
+   6:["speed","strength","skill","speed","strength","conditioning"]
+  };
+  let cycle=focus==="Balanced"?balancedByDays[n]:Array(n).fill(focus.toLowerCase()) as ("speed"|"strength"|"skill"|"conditioning")[];
+  if(seasonPhase==="In-season"&&focus==="Balanced"){
+   cycle=balancedByDays[n].map((x,i)=>i===n-1&&x==="conditioning"?"skill":x);
+  }
+
+  const priorityObjective=dev.filter(d=>d.status!=="Complete").sort((a,b)=>({High:0,Medium:1,Low:2}[a.priority||"Medium"])-({High:0,Medium:1,Low:2}[b.priority||"Medium"]))[0]?.title;
   const sessions:ProgramSession[]=Array.from({length:n},(_,i)=>{
-   const category=cycle[i%cycle.length] as "speed"|"strength"|"skill"|"conditioning";
-   const objective=dev.filter(d=>d.status!=="Complete").sort((a,b)=>({High:0,Medium:1,Low:2}[a.priority||"Medium"])-({High:0,Medium:1,Low:2}[b.priority||"Medium"]))[0]?.title;
-   const sessionName=templates[category][i%templates[category].length];
-   const exercises=buildExercises(category,sessionName);
-   const minutes=category==="conditioning"?45:55;
-   return {id:Date.now()+i,day:week[i],name:sessionName,category:category[0].toUpperCase()+category.slice(1),minutes,focus:objective||`${sport} ${category} development`,completed:false,exercises};
+   const category=cycle[i%cycle.length];
+   const title=category==="speed"?`${demands.role} Speed + Power`
+    :category==="strength"?`${demands.role} Strength`
+    :category==="skill"?`${demands.role} Movement + Skill`
+    :`${demands.role} Conditioning`;
+   return {
+    id:Date.now()+i,
+    day:week[i],
+    name:title,
+    category:category==="speed"?"Speed + Power":category[0].toUpperCase()+category.slice(1),
+    minutes:category==="conditioning"?40:50,
+    focus:priorityObjective||demands.priorities[i%demands.priorities.length],
+    completed:false,
+    exercises:buildExercises(category)
+   };
   });
-  setProgram({id:Date.now(),created:today(),sport,position:profile.position||"",focus,daysPerWeek:n,sessions,equipment});
+
+  setProgram({
+   id:Date.now(),
+   created:today(),
+   sport,
+   position:profile.position,
+   focus:`${focus} · ${seasonPhase}`,
+   daysPerWeek:n,
+   sessions,
+   equipment
+  });
  };
 
- const toggle=(id:number)=>setProgram(x=>x?{...x,sessions:x.sessions.map(s=>s.id===id?{...s,completed:!s.completed}:s)}:x);
+ const toggle=(id:number)=>setProgram(x=>x?{...x,sessions:x.sessions.map(session=>session.id===id?{...session,completed:!session.completed}:session)}:x);
 
  const addToCalendar=()=>{
   if(!program)return;
-  const start=new Date(),dayIndex:Record<string,number>={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6},current=start.getDay();
-  setWorkouts((existing:Workout[])=>[...program.sessions.map((session,i)=>{let offset=(dayIndex[session.day]-current+7)%7;if(offset===0&&i>0)offset=7;const d=new Date(start);d.setDate(start.getDate()+offset);return {id:Date.now()+i,date:d.toISOString().slice(0,10),name:session.name,category:session.category,minutes:session.minutes,completed:false,sport,intensity:session.category==="Conditioning"?"Hard":"Moderate",focus:`${session.focus} · ${session.exercises?.length||0} exercises`};}),...existing]);
+  const start=new Date();
+  const dayIndex:Record<string,number>={Sunday:0,Monday:1,Tuesday:2,Wednesday:3,Thursday:4,Friday:5,Saturday:6};
+  const current=start.getDay();
+  setWorkouts((existing:Workout[])=>[
+   ...program.sessions.map((session,i)=>{
+    let offset=(dayIndex[session.day]-current+7)%7;
+    if(offset===0&&i>0)offset=7;
+    const d=new Date(start);
+    d.setDate(start.getDate()+offset);
+    return {
+     id:Date.now()+i,
+     date:localDate(d),
+     name:session.name,
+     category:session.category,
+     minutes:session.minutes,
+     completed:false,
+     sport,
+     intensity:session.category.includes("Conditioning")?"Hard":"Moderate",
+     focus:`${session.focus} · ${session.exercises?.length||0} exercises · ${profile.position}`
+    };
+   }),
+   ...existing
+  ]);
  };
 
- const completion=program?.sessions.length?Math.round(program.sessions.filter(s=>s.completed).length/program.sessions.length*100):0;
- const remaining=program?.sessions.filter(s=>!s.completed).length||0;
+ const completion=program?.sessions.length?Math.round(program.sessions.filter(x=>x.completed).length/program.sessions.length*100):0;
 
- return <><div className="sectionDivider"><span><i/>Training Program</span></div><div className="hero phase35Hero"><small>PHASE 70.7 · COMPLETE PROGRAM GENERATOR</small><h1>Weekly Program Builder</h1><p>{sport}{profile.position?" · "+profile.position:""} · Generate complete daily sessions with exercises, volume, rest, and coaching cues.</p></div>
+ return <><div className="sectionDivider"><span><i/>Training Program</span></div>
+ <div className="hero scienceProgramHero"><small>EVIDENCE-INFORMED · 2026</small><h1>Sport + Position Workout Builder</h1><p>{sport}{profile.position?" · "+profile.position:" · Select a position in Player Profile"} · Workouts adapt exercise selection, movement demands, work-rest patterns, season phase, and readiness.</p></div>
 
- <div className="card"><h2>Generate Program</h2><div className="two">
-  <label>Primary Focus<select value={focus} onChange={e=>setFocus(e.target.value)}>{["Balanced","Speed","Strength","Skill","Conditioning"].map(x=><option key={x}>{x}</option>)}</select></label>
-  <label>Training Days / Week<select value={days} onChange={e=>setDays(e.target.value)}>{["2","3","4","5","6"].map(x=><option key={x}>{x}</option>)}</select></label>
-  <label>Exercise Access<select value={equipment} onChange={e=>setEquipment(e.target.value as "Gym Access"|"Body Weight Only")}><option value="Gym Access">Gym Access</option><option value="Body Weight Only">Body Weight Only</option></select></label>
- </div><p className="programAccessNote">{equipment==="Gym Access"?"Programs may use dumbbells, cables/bands, cardio equipment, and other standard gym tools.":"Programs use body weight, running space, and simple no-gym movements."}</p><button className="primary" onClick={generate}>Build Complete Program</button></div>
+ <div className="scienceBasisCard">
+  <div><small>POSITION DEMANDS</small><b>{demands.role}</b><span>{demands.priorities.join(" · ")}</span></div>
+  <div><small>PROGRAMMING MODEL</small><b>Strength + Sprint + Plyometric</b><span>High-quality speed/power work, progressive strength, reactive movement, and sport-specific conditioning.</span></div>
+  <div><small>READINESS</small><b>{readinessScore?`${readinessScore}/100`:"No check-in today"}</b><span>{reduceVolume?"Volume automatically reduced for this generated plan.":"Normal quality-focused volume."}</span></div>
+ </div>
 
- {program&&<><div className="programOverview"><div><small>FOCUS</small><b>{program.focus}</b></div><div><small>WEEKLY DAYS</small><b>{program.daysPerWeek}</b></div><div><small>ACCESS</small><b>{program.equipment||"Legacy"}</b></div><div><small>COMPLETE</small><b>{completion}%</b></div></div>
+ <div className="card programBuilderSimple">
+  <div className="sectionHead"><div><h2>Generate Workout Program</h2><small>Three choices. Sport and position come from the Player Profile.</small></div><span className="tag">{sport} · {profile.position||"Position needed"}</span></div>
+  <div className="programSimpleInputs">
+   <label>Primary Focus<select value={focus} onChange={e=>setFocus(e.target.value)}>{["Balanced","Speed","Strength","Skill","Conditioning"].map(x=><option key={x}>{x}</option>)}</select></label>
+   <label>Season Phase<select value={seasonPhase} onChange={e=>setSeasonPhase(e.target.value as "Off-season"|"Pre-season"|"In-season")}><option>Off-season</option><option>Pre-season</option><option>In-season</option></select></label>
+   <label>Days / Week<select value={days} onChange={e=>setDays(e.target.value)}>{["2","3","4","5","6"].map(x=><option key={x}>{x}</option>)}</select></label>
+   <label>Equipment<select value={equipment} onChange={e=>setEquipment(e.target.value as "Gym Access"|"Body Weight Only")}><option>Gym Access</option><option>Body Weight Only</option></select></label>
+  </div>
+  <div className="scienceRules"><span>✓ Speed and power before fatigue</span><span>✓ Strength leaves 1–3 reps in reserve</span><span>✓ Full recovery for quality sprint reps</span><span>✓ In-season volume is reduced</span></div>
+  <button className="primary" onClick={generate}>Generate {profile.position||sport} Workouts</button>
+  <small className="programSafetyNote">Evidence-informed training guidance is not a substitute for qualified coaching or medical care. Youth athletes should use appropriate supervision, technically sound progressions, and stop any painful movement.</small>
+ </div>
 
- <div className="card"><div className="sectionHead"><h2>Current Program</h2><span>{completion}% complete</span></div><div className="progress"><i style={{width:`${completion}%`}}/></div><p>{program.focus} · {program.daysPerWeek} days/week · {program.equipment||"Previous program"} · Created {program.created}</p><button className="primary" onClick={addToCalendar}>Add Program to Calendar</button></div>
+ {program&&<><div className="programOverview">
+  <div><small>SPORT / POSITION</small><b>{program.sport} · {program.position||"General"}</b></div>
+  <div><small>PROGRAM</small><b>{program.focus}</b></div>
+  <div><small>ACCESS</small><b>{program.equipment||"Legacy"}</b></div>
+  <div><small>COMPLETE</small><b>{completion}%</b></div>
+ </div>
+
+ <div className="card"><div className="sectionHead"><div><h2>Current Program</h2><small>{demands.priorities.join(" · ")}</small></div><span>{completion}% complete</span></div><div className="progress"><i style={{width:`${completion}%`}}/></div><button className="primary" onClick={addToCalendar}>Add Program to Schedule</button></div>
 
  {program.sessions.map((session,sessionIndex)=><div className={"card programSession completeSession "+(session.completed?"sessionDone":"")} key={session.id}>
-  <div className="programDayHeader"><div><span className="tag">DAY {sessionIndex+1} · {session.day} · {session.category}</span><h2>{session.name}</h2><p>{session.minutes} min · Focus: {session.focus}</p><small className="sessionInstruction">Complete exercises in the order shown. Use controlled technique, stop any painful movement, and keep enough quality in reserve to maintain form.</small></div><button className={session.completed?"completedAction":"featureAction"} onClick={()=>toggle(session.id)}>{session.completed?"✓ Complete":"Mark Day Complete"}</button></div>
-  <div className="mentalPrepWorkoutReminder"><div className="mentalPrepReminderIcon">◎</div><div><b>Start with Mental Preparation & Breathing</b><p>Before this workout, complete your mental preparation routine: settle your attention, then do 6–10 rounds of Reilly Rescue Breathing followed by 6–10 rounds of Box Breathing.</p></div></div>
+  <div className="programDayHeader"><div><span className="tag">DAY {sessionIndex+1} · {session.day} · {session.category}</span><h2>{session.name}</h2><p>{session.minutes} min · Focus: {session.focus}</p><small className="sessionInstruction">Complete speed/power work while fresh. Maintain clean technique and end sets before movement quality falls.</small></div><button className={session.completed?"completedAction":"featureAction"} onClick={()=>toggle(session.id)}>{session.completed?"✓ Complete":"Mark Day Complete"}</button></div>
+  <div className="mentalPrepWorkoutReminder"><div className="mentalPrepReminderIcon">◎</div><div><b>Start with Mental Preparation & Breathing</b><p>Settle attention, then complete 6–10 rounds of Reilly Rescue Breathing followed by 6–10 rounds of Box Breathing.</p></div></div>
   {session.exercises?.length?<div className="exerciseTable">
    <div className="exerciseTableHead"><span>Exercise & How To</span><span>Sets</span><span>Reps / Time</span><span>Rest</span></div>
    {session.exercises.map((exercise,i)=><div className="exerciseRow" key={`${session.id}-${i}`}>
     <div><span className={"exercisePhase "+exercise.phase.toLowerCase().replace("-","")}>{exercise.phase}</span><b>{exercise.name}</b><div className="exercisePrescription"><strong>{exercise.sets} sets · {exercise.reps} · Rest {exercise.rest}</strong></div><small className="exercisePurpose">{exercise.notes}</small>{exerciseStepGuides(exercise.name).length?<ExerciseStepResources steps={exerciseStepGuides(exercise.name)}/>:<><div className="simpleInstruction"><b>Simple instruction:</b> {simpleExerciseInstruction(exercise.name)}</div>{exercise.instructions&&<small className="exerciseHow"><b>More detail:</b> {exercise.instructions}</small>}<ExerciseResourceLinks name={exercise.name}/></>}</div>
     <span data-label="Sets">{exercise.sets}</span><span data-label="Reps / Time">{exercise.reps}</span><span data-label="Rest">{exercise.rest}</span>
    </div>)}
-  </div>:<div className="legacyProgramNote"><b>Previous program session</b><p>Regenerate the program to add the complete exercise prescription.</p></div>}
+  </div>:null}
  </div>)}
 
- <div className="card"><h2>Program Inputs</h2><div className="quickStats"><span><b>{dev.filter(x=>x.status!=="Complete").length}</b><small>Open development objectives</small></span><span><b>{results.filter(x=>x.sport===sport).length}</b><small>Sport test results</small></span><span><b>{profile.position||"—"}</b><small>Position</small></span></div></div></>}
+ <div className="card scienceSourceNote"><small>SPORTS SCIENCE BASIS</small><p>This generator follows contemporary strength-and-conditioning principles: individualized sport/position demands, progressive strength, plyometric and sprint exposure, repeated-sprint conditioning when appropriate, adequate recovery between high-quality efforts, and developmentally appropriate technique-first progression.</p></div>
+ </>}
  </>;
 }
+
 function Readiness({sport,readiness,setReadiness,coachNotes,setCoachNotes,program,workouts,accountRole="Coach"}:{sport:Sport;readiness:ReadinessLog[];setReadiness:React.Dispatch<React.SetStateAction<ReadinessLog[]>>;coachNotes:CoachNote[];setCoachNotes:React.Dispatch<React.SetStateAction<CoachNote[]>>;program:TrainingProgram|null;workouts:Workout[];accountRole?:AccountRole}){
  const [sleep,setSleep]=useState("8"),[soreness,setSoreness]=useState("3"),[energy,setEnergy]=useState("7"),[stress,setStress]=useState("3"),[notes,setNotes]=useState("");
  const [noteTitle,setNoteTitle]=useState(""),[noteText,setNoteText]=useState(""),[noteCategory,setNoteCategory]=useState("Coach");

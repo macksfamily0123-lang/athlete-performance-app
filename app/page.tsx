@@ -1,1 +1,2 @@
-import AthleteApp from "../components/AthleteApp"; export default function Page(){return <AthleteApp/>}
+import BetaGate from "../components/BetaGate";
+export default function Page(){return <BetaGate/>}
