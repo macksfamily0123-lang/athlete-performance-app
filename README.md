@@ -1,4 +1,4 @@
-# Athlete Performance App — Phase 72.3.19
+# Athlete Performance App — Phase 72.3.20
 
 ## Simplified navigation
 
@@ -391,3 +391,24 @@ The app explains that:
 - mindfulness is optional and is not a substitute for professional mental-health care, medical care, sleep, food, hydration, or appropriate recovery.
 
 Phase 72.3.18 Sleep Improvement Guide and Phase 72.3.17 text-size Settings are preserved.
+
+
+## Phase 72.3.20 — Mobile beta/account tools moved to header
+
+Fixed the small-screen overlap where beta/account action buttons could sit on top of the fixed bottom navigation.
+
+The floating bottom-right beta utility bar has been removed.
+
+Role-specific beta actions now appear in the top app header next to Settings / Help:
+- Parent: **My Players**
+- Player: **Join Team**
+- Coach: **Teams**
+- Coach while viewing an athlete: **Coach Home**
+- Admin: **Beta Admin**
+- Everyone: **Report Problem**
+
+On phones, the header actions use a compact two-column grid so they remain available without covering Overview / Plan / Train / Progress / More at the bottom.
+
+All existing modals and permissions are unchanged; only the entry-point location/layout changed.
+
+Phase 72.3.19 mindful recovery, Phase 72.3.18 sleep recovery, and Phase 72.3.17 text-size Settings are preserved.

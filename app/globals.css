@@ -2345,3 +2345,65 @@ input,select,textarea{min-height:42px}
  .mindfulnessLengthChoices{grid-template-columns:repeat(3,1fr)}
  .mindfulnessUseCases{grid-template-columns:1fr}
 }
+
+
+/* Phase 72.3.20 — beta/account tools moved into the top header */
+.headerUtilityButton{
+ min-height:34px!important;
+ padding:7px 9px!important;
+ border-radius:10px!important;
+ background:#1c211e!important;
+ border:1px solid rgba(117,212,169,.18)!important;
+ color:var(--forest-light)!important;
+ box-shadow:none!important;
+ white-space:nowrap
+}
+.headerUtilityButton:hover{border-color:rgba(117,212,169,.34)!important;background:#202722!important}
+.reportProblemButton{color:var(--silver-light)!important}
+.coachReturnButton{border-color:rgba(184,191,188,.18)!important}
+
+/* The old floating beta utility bar is intentionally retired. */
+.betaUtilityBar{display:none!important}
+
+@media(max-width:760px){
+ .appHeader{align-items:flex-start}
+ .headerActions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,auto));
+  justify-content:end;
+  align-items:center!important;
+  gap:5px!important;
+  max-width:min(58vw,300px)
+ }
+ .headerActions .accountHeaderRole{
+  grid-column:1/-1;
+  justify-self:end
+ }
+ .headerActions button{
+  min-height:34px!important;
+  padding:7px 8px!important;
+  width:auto!important
+ }
+}
+@media(max-width:520px){
+ .appHeader{gap:8px;padding-left:10px!important;padding-right:10px!important}
+ .brandBlock{gap:7px}
+ .brandBlock .logo{width:36px;height:36px;border-radius:11px}
+ .brandBlock strong{font-size:12px!important}
+ .brandBlock small{font-size:8px!important}
+ .headerActions{max-width:62vw;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .headerActions .accountHeaderRole{display:none!important}
+ .headerActions button{
+  width:100%!important;
+  min-width:0!important;
+  padding:7px 5px!important;
+  font-size:calc(9px * var(--ui-text-scale))!important;
+  overflow:hidden;
+  text-overflow:ellipsis
+ }
+}
+@media(max-width:390px){
+ .brandBlock>div:nth-child(2) small{display:none}
+ .headerActions{max-width:64vw}
+ .headerActions button{font-size:calc(8px * var(--ui-text-scale))!important}
+}

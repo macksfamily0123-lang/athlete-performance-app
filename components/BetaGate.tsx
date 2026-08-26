@@ -409,7 +409,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message:feedbackBody.trim(),
-      app_version:"72.3.19",
+      app_version:"72.3.20",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -462,8 +462,15 @@ export default function BetaGate(){
     workspaceId:selectedCloudWorkspaceId||access.workspace_id,
     loadState:loadCloudState,
     saveState:saveCloudState,
-    onSignOut:signOut
-  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers]);
+    onSignOut:signOut,
+    openFeedback:()=>setShowFeedback(true),
+    openParentPlayers:access.role==="Parent"?()=>setShowParentPlayers(true):undefined,
+    openPlayerJoinTeam:access.role==="Player"?()=>setShowPlayerJoinTeam(true):undefined,
+    openCoachTeams:access.role==="Coach"?()=>setShowTeams(true):undefined,
+    openBetaAdmin:access.role==="Admin"?()=>setShowAdmin(true):undefined,
+    returnToCoachWorkspace:access.role==="Coach"&&selectedAthleteName?returnToCoachWorkspace:undefined,
+    selectedAthleteName
+  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,selectedAthleteName]);
 
   if(!betaConfigured())return <div className="betaSetupShell"><div className="betaSetupCard">
     <div className="betaMark">BETA</div><h1>Beta backend needs configuration</h1>
@@ -495,18 +502,9 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · v72.3.19</div>
+    <div className="betaRibbon">BETA · v72.3.20</div>
 
     <AthleteApp betaBridge={bridge!}/>
-
-    <div className="betaUtilityBar">
-      {access.role==="Parent"&&<button onClick={()=>setShowParentPlayers(true)}>My Players</button>}
-      {access.role==="Player"&&<button onClick={()=>setShowPlayerJoinTeam(true)}>Join Team</button>}
-      {access.role==="Coach"&&<button onClick={()=>setShowTeams(true)}>Teams</button>}
-      {access.role==="Coach"&&selectedAthleteName&&<button onClick={returnToCoachWorkspace}>Return to Coach Workspace</button>}
-      {access.role==="Admin"&&<button onClick={()=>setShowAdmin(true)}>Beta Admin</button>}
-      <button onClick={()=>setShowFeedback(true)}>Report a Problem</button>
-    </div>
 
     {access.role==="Parent"&&selectedAthleteName&&<div className="parentViewingBanner"><small>PARENT VIEWING</small><b>{selectedAthleteName}</b><span>Parent tools for this player.</span></div>}
     {access.role==="Coach"&&selectedAthleteName&&<div className="coachViewingBanner"><small>COACH VIEWING</small><b>{selectedAthleteName}</b><span>Changes are saving to this player's cloud workspace.</span></div>}

@@ -43,6 +43,13 @@ export type BetaBridge={
  loadState:()=>Promise<Record<string,unknown>|null>;
  saveState:(data:Record<string,unknown>)=>Promise<void>;
  onSignOut:()=>Promise<void>|void;
+ openFeedback?:()=>void;
+ openParentPlayers?:()=>void;
+ openPlayerJoinTeam?:()=>void;
+ openCoachTeams?:()=>void;
+ openBetaAdmin?:()=>void;
+ returnToCoachWorkspace?:()=>void;
+ selectedAthleteName?:string;
 };
 
 type ReminderItem={id:string;title:string;detail:string;date:string;kind:"Workout"|"Competition"|"Retest"|"Goal"|"Readiness";priority:"High"|"Normal"};
@@ -638,7 +645,15 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  if(!mounted)return <div className="app hydrationShell"><header><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Loading athlete dashboard…</small></div></header><main id="main-content" tabIndex={-1}><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading your performance data</b><small>Your saved athlete data will appear in a moment.</small></div></div></main></div>;
  if(!accountSession)return betaBridge?<div className="app hydrationShell"><main><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading secure beta workspace</b><small>Verifying your account permissions…</small></div></div></main></div>:<RoleLogin profile={profile} activeAthleteId={activeAthleteId} roster={roster} onLogin={completeRoleLogin}/>;
  return <div className="app" data-text-size={textSize}><a className="skipLink" href="#main-content">Skip to main content</a>
-  <header className="appHeader"><div className="brandBlock"><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Train with purpose.</small></div>{betaBridge&&<span className={"cloudStatus "+cloudStatus}>{cloudStatus==="saved"?"Cloud saved":cloudStatus==="loading"?"Saving…":cloudStatus==="error"?"Sync issue":"Local"}</span>}</div><div className="headerActions"><span className="accountHeaderRole">{accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span><button className="settingsButton" onClick={()=>setShowSettings(true)} aria-label="Open settings">Settings</button><button className="helpButton" onClick={resumeGuide}>Help</button></div></header>
+  <header className="appHeader"><div className="brandBlock"><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Train with purpose.</small></div>{betaBridge&&<span className={"cloudStatus "+cloudStatus}>{cloudStatus==="saved"?"Cloud saved":cloudStatus==="loading"?"Saving…":cloudStatus==="error"?"Sync issue":"Local"}</span>}</div><div className="headerActions"><span className="accountHeaderRole">{accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span>
+   {betaBridge?.openParentPlayers&&accountRole==="Parent"&&<button className="headerUtilityButton" onClick={betaBridge.openParentPlayers}>My Players</button>}
+   {betaBridge?.openPlayerJoinTeam&&accountRole==="Player"&&<button className="headerUtilityButton" onClick={betaBridge.openPlayerJoinTeam}>Join Team</button>}
+   {betaBridge?.openCoachTeams&&accountRole==="Coach"&&<button className="headerUtilityButton" onClick={betaBridge.openCoachTeams}>Teams</button>}
+   {betaBridge?.returnToCoachWorkspace&&accountRole==="Coach"&&betaBridge.selectedAthleteName&&<button className="headerUtilityButton coachReturnButton" onClick={betaBridge.returnToCoachWorkspace}>Coach Home</button>}
+   {betaBridge?.openBetaAdmin&&accountRole==="Admin"&&<button className="headerUtilityButton" onClick={betaBridge.openBetaAdmin}>Beta Admin</button>}
+   {betaBridge?.openFeedback&&<button className="headerUtilityButton reportProblemButton" onClick={betaBridge.openFeedback}>Report Problem</button>}
+   <button className="settingsButton" onClick={()=>setShowSettings(true)} aria-label="Open settings">Settings</button><button className="helpButton" onClick={resumeGuide}>Help</button>
+  </div></header>
   <div className="contextBar cleanContext"><div className="athleteContext"><small>ACTIVE ATHLETE</small><b>{profile.name}</b><span>{sport}{profile.position?` · ${profile.position}`:""}{profile.team?` · ${profile.team}`:""}</span></div><div className="contextControls">{accountRole!=="Player"&&allowedAthletes.length>0&&<label className="athleteSelector"><small>Viewing</small><select value={activeAthleteId} onChange={e=>selectAthleteById(e.target.value)}>{allowedAthletes.map(a=><option value={a.id} key={a.id}>{a.name}{a.team?` · ${a.team}`:""}</option>)}</select></label>}{accountRole==="Admin"&&<label className="adminViewPicker"><small>Preview role</small><select value={adminView} onChange={e=>{setAdminView(e.target.value as "Admin"|"Coach"|"Player"|"Parent");setTab("Home")}}><option>Admin</option><option>Coach</option><option>Player</option><option>Parent</option></select></label>}<div className="sessionIdentity"><small>SIGNED IN</small><b>{accountSession.displayName}</b><span>{accountRole}</span></div><button className="signOutButton" onClick={signOutRole}>Sign out</button></div></div>
   <main>
    <div className="sportSelectorBlock"><div className="sportSelectorHead"><small>SPORT</small><span>Choose a sport</span></div><div className="sports topSportButtons">{sports.map(s=><button className={sport===s?"sel":""} onClick={()=>{setSport(s);setProfile((x:Profile)=>({...x,position:positions[s].includes(x.position)?x.position:""}))}} key={s}>{s}</button>)}</div></div>
