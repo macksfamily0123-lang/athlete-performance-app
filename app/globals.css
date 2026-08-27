@@ -2496,3 +2496,908 @@ input,select,textarea{min-height:42px}
 @media(max-width:380px){
  .parentQuickActions{grid-template-columns:1fr}
 }
+
+
+/* Phase 72.3.22 — Beta feedback inbox, signup verification, mobile recovery alignment */
+.signupConfirmationCard{text-align:center;max-width:560px}
+.signupMailIcon{width:58px;height:58px;margin:0 auto 10px;display:grid;place-items:center;border-radius:18px;background:rgba(117,212,169,.10);border:1px solid rgba(117,212,169,.20);font-size:25px;color:var(--forest-light)}
+.signupConfirmationEyebrow{display:block;color:var(--forest-light);font-weight:900;letter-spacing:.1em;margin-bottom:4px}
+.signupConfirmationCard>p{color:var(--muted);line-height:1.6}
+.signupConfirmationSteps{display:grid;gap:7px;margin:14px 0;text-align:left}
+.signupConfirmationSteps>div{display:grid;grid-template-columns:30px 1fr;gap:9px;align-items:start;padding:10px;border-radius:11px;background:#191d1b;border:1px solid rgba(184,191,188,.08)}
+.signupConfirmationSteps span{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:rgba(117,212,169,.10);color:var(--forest-light);font-weight:900}
+.signupConfirmationSteps p{margin:2px 0;color:var(--text);line-height:1.45}
+.signupApprovalNote{display:flex;flex-direction:column;gap:3px;text-align:left;margin:10px 0;padding:10px;border-radius:11px;background:rgba(23,107,74,.08);border:1px solid rgba(117,212,169,.12)}
+.signupApprovalNote span,.signupSpamTip{color:var(--muted);line-height:1.5}
+.signupSecondary{width:100%;margin-top:7px}
+
+.betaAdminTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 14px}
+.betaAdminTabs button{min-height:40px!important}
+.betaAdminTabs button.active{background:rgba(23,107,74,.20)!important;border-color:rgba(117,212,169,.25)!important;color:var(--forest-light)!important}
+.betaAdminTabs button span{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 5px;margin-left:4px;border-radius:999px;background:rgba(117,212,169,.10);font-size:9px}
+.feedbackInboxToolbar{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:4px 0 11px;padding-bottom:10px;border-bottom:1px solid rgba(184,191,188,.09)}
+.feedbackInboxToolbar small,.feedbackInboxToolbar b{display:block}
+.feedbackInboxToolbar small{color:var(--forest-light);font-size:8px;letter-spacing:.08em}
+.feedbackInboxToolbar b{margin-top:2px}
+.feedbackInboxToolbar>div:last-child{display:flex;align-items:center;gap:6px}.feedbackInboxToolbar select{min-height:36px!important}.feedbackInboxToolbar button{min-height:36px!important}
+.feedbackInboxList{display:grid;gap:8px}
+.feedbackInboxItem{padding:12px;border-radius:12px;background:#181c1a;border:1px solid rgba(184,191,188,.09)}
+.feedbackInboxTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.feedbackInboxTop>div{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.feedbackInboxTop time{font-size:9px;color:var(--muted);white-space:nowrap}
+.feedbackInboxItem p{margin:9px 0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;color:var(--text)}
+.feedbackInboxMeta{display:flex;gap:6px;flex-wrap:wrap}.feedbackInboxMeta span{font-size:9px;color:var(--muted);padding:4px 6px;border-radius:999px;background:rgba(184,191,188,.06)}
+.feedbackInboxItem a{display:inline-block;margin-top:8px;color:var(--forest-light);font-weight:800;text-decoration:none}
+.feedbackEmpty{text-align:center;padding:30px 12px;border:1px dashed rgba(184,191,188,.14);border-radius:12px}.feedbackEmpty b,.feedbackEmpty span{display:block}.feedbackEmpty span{margin-top:4px;color:var(--muted)}
+
+@media(max-width:600px){
+ .mindfulnessNote{flex-direction:column!important;align-items:stretch!important;gap:4px!important;text-align:left!important;width:100%;min-width:0}
+ .mindfulnessNote b{flex:none!important;width:100%;text-align:left;white-space:normal;overflow-wrap:anywhere}
+ .mindfulnessNote span{display:block;width:100%;min-width:0;text-align:left;overflow-wrap:anywhere}
+ .feedbackInboxToolbar{align-items:stretch;flex-direction:column}
+ .feedbackInboxToolbar>div:last-child{display:grid;grid-template-columns:1fr auto;width:100%}
+ .feedbackInboxTop{flex-direction:column}.feedbackInboxTop time{white-space:normal}
+ .betaAdminInboxCard{padding:14px!important}
+}
+
+
+/* =========================================================
+   Phase 72.3.23 — role clarity + simplified interactive Parent UX
+   ========================================================= */
+.parentSectionNav{
+ display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
+ margin:2px 0 10px;padding:3px 1px 5px
+}
+.parentSectionNav::-webkit-scrollbar{display:none}
+.parentSectionNav button{
+ flex:0 0 auto;min-height:38px!important;padding:7px 10px!important;
+ display:flex;align-items:center;gap:6px;border-radius:999px!important;
+ background:#1b201d!important;border:1px solid rgba(184,191,188,.10)!important;
+ color:var(--muted)!important
+}
+.parentSectionNav button span{font-size:14px}
+.parentSectionNav button b{font-size:calc(9px * var(--ui-text-scale))}
+.parentSectionNav button.active{
+ background:rgba(23,107,74,.18)!important;
+ border-color:rgba(117,212,169,.28)!important;
+ color:var(--forest-light)!important
+}
+
+.parentStartCard{
+ margin:10px 0;padding:14px;border-radius:16px;
+ background:linear-gradient(145deg,#202522,#181c1a);
+ border:1px solid rgba(117,212,169,.13)
+}
+.parentStartCard>div:first-child small{color:var(--forest-light);font-weight:900;letter-spacing:.08em}
+.parentStartCard h2{margin:4px 0 11px}
+.parentTaskGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.parentTaskGrid button{
+ display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;
+ gap:1px 8px;align-items:center;text-align:left;padding:10px!important;
+ min-height:72px!important;border-radius:12px!important;
+ background:#1a1f1c!important;border:1px solid rgba(184,191,188,.10)!important
+}
+.parentTaskGrid button>span{
+ grid-row:1/3;width:34px;height:34px;border-radius:9px;
+ display:grid;place-items:center;background:rgba(117,212,169,.08);
+ color:var(--accent2);font-size:16px
+}
+.parentTaskGrid button b{align-self:end;color:var(--silver-light)}
+.parentTaskGrid button small{align-self:start;color:var(--muted);line-height:1.3}
+.parentTaskGrid button:hover{border-color:rgba(117,212,169,.25)!important}
+
+.parentSnapshotGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.parentSnapshotGrid button{
+ text-align:left;display:flex;flex-direction:column;align-items:flex-start;
+ min-height:96px!important;padding:12px!important;border-radius:13px!important;
+ background:#1b201d!important;border:1px solid rgba(184,191,188,.10)!important
+}
+.parentSnapshotGrid small{color:var(--forest-light);letter-spacing:.06em;font-weight:900}
+.parentSnapshotGrid b{font-size:calc(18px * var(--ui-text-scale));margin:5px 0;color:var(--text)}
+.parentSnapshotGrid span{color:var(--muted);line-height:1.3}
+
+.parentListButton,.parentAttentionButton{
+ width:100%;display:grid!important;align-items:center;text-align:left;
+ background:transparent!important;border:0!important;border-bottom:1px solid rgba(184,191,188,.08)!important;
+ border-radius:0!important;padding:10px 2px!important
+}
+.parentListButton{grid-template-columns:46px 1fr auto;gap:9px}
+.parentAttentionButton{grid-template-columns:1fr auto;gap:10px}
+.parentListButton:last-child,.parentAttentionButton:last-child{border-bottom:0!important}
+.parentListButton div b,.parentListButton div small,.parentAttentionButton b,.parentAttentionButton small{display:block}
+.parentListButton small,.parentAttentionButton small{margin-top:2px;color:var(--muted);line-height:1.35}
+.parentListButton strong,.parentAttentionButton strong{white-space:nowrap;color:var(--forest-light)}
+.parentShowMore{width:100%;margin-top:7px}
+
+.parentEmptyState{
+ display:flex;flex-direction:column;gap:3px;padding:14px;border-radius:11px;
+ background:rgba(184,191,188,.035);border:1px dashed rgba(184,191,188,.12)
+}
+.parentEmptyState b{color:var(--silver-light)}
+.parentEmptyState span{color:var(--muted)}
+.parentEmptyState.good{background:rgba(23,107,74,.07);border-color:rgba(117,212,169,.12)}
+
+.parentSimpleStatus>div:last-child{display:grid;grid-template-columns:1.4fr .6fr 1fr;gap:8px}
+.parentSimpleStatus>div:last-child button{
+ text-align:left;display:flex;flex-direction:column;align-items:flex-start;
+ min-height:74px!important;padding:10px!important;border-radius:10px!important
+}
+.parentSimpleStatus small{color:var(--muted)}
+.parentSimpleStatus b{margin-top:4px;color:var(--text)}
+
+.parentControlBar{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ margin:8px 0;padding:9px 10px;border:1px solid rgba(184,191,188,.10);
+ border-radius:12px;background:#181c1a
+}
+.parentControlBar>div{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.parentControlBar small{font-weight:900;color:var(--silver);margin-right:2px}
+.parentControlBar button,.parentViewTabs button{
+ min-height:32px!important;padding:5px 9px!important;border-radius:999px!important
+}
+.parentControlBar button.active,.parentViewTabs button.active{
+ background:rgba(23,107,74,.20)!important;
+ border-color:rgba(117,212,169,.25)!important;color:var(--forest-light)!important
+}
+
+.parentViewTabs{
+ display:flex;gap:6px;margin:8px 0 11px;padding:3px;
+ border-radius:12px;background:#181c1a;border:1px solid rgba(184,191,188,.09);
+ overflow-x:auto
+}
+.parentViewTabs button{flex:1}
+.parentViewTabs.compact{max-width:420px}
+
+.parentExpandable{border-bottom:1px solid rgba(184,191,188,.08)}
+.parentExpandable:last-child{border-bottom:0}
+.parentExpandable>button{
+ width:100%;display:grid!important;grid-template-columns:48px 1fr 26px;
+ gap:9px;align-items:center;text-align:left;padding:11px 2px!important;
+ background:transparent!important;border:0!important
+}
+.parentExpandable>button>div small,.parentExpandable>button>div b,.parentExpandable>button>div span{display:block}
+.parentExpandable>button>div small{color:var(--forest-light);font-weight:900;letter-spacing:.05em}
+.parentExpandable>button>div span{color:var(--muted);margin-top:2px}
+.parentExpandable>button>strong{font-size:20px;color:var(--forest-light);text-align:center}
+.parentDateBadge{
+ width:46px;min-height:40px;display:grid;place-items:center;
+ border-radius:9px;background:rgba(117,212,169,.07);
+ border:1px solid rgba(117,212,169,.12);color:var(--silver-light);font-weight:900
+}
+.parentExpandedDetail{
+ margin:0 0 10px 57px;padding:10px;border-radius:10px;
+ background:rgba(184,191,188,.035);border:1px solid rgba(184,191,188,.08)
+}
+.parentExpandedDetail p{margin:0 0 8px}
+.parentExpandedDetail button{min-height:34px!important}
+.parentCompetitionDetails{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.parentCompetitionDetails span{padding:7px;border-radius:8px;background:#181c1a}
+.parentCompetitionDetails small,.parentCompetitionDetails b{display:block}
+.parentCompetitionDetails small{color:var(--muted);font-weight:900}
+.parentCompetitionDetails b{margin-top:2px}
+
+.parentDevelopmentRow{
+ display:grid;grid-template-columns:1fr 130px;gap:12px;align-items:center;
+ padding:11px 0;border-bottom:1px solid rgba(184,191,188,.08)
+}
+.parentDevelopmentRow:last-child{border-bottom:0}
+.parentDevelopmentRow>div:first-child b,.parentDevelopmentRow>div:first-child small{display:block}
+.parentDevelopmentRow>div:first-child b{margin:4px 0 2px}
+.parentDevelopmentRow>div:last-child{text-align:right}
+.parentDevelopmentRow>div:last-child strong{display:block;margin-bottom:5px}
+.parentProgramSummary{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin:8px 0}
+.parentProgramSummary>div{padding:10px;border-radius:10px;background:#181c1a;border:1px solid rgba(184,191,188,.08)}
+.parentProgramSummary small,.parentProgramSummary b{display:block}
+.parentProgramSummary small{color:var(--muted);font-weight:900}
+.parentProgramSummary b{margin-top:3px}
+
+.parentRecoveryChooser{
+ margin:8px 0 11px;padding:12px;border-radius:14px;
+ background:linear-gradient(145deg,#202522,#181c1a);
+ border:1px solid rgba(117,212,169,.13)
+}
+.parentRecoveryChooser>div:first-child small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.parentRecoveryChooser h2{margin:3px 0}
+.parentRecoveryChooser p{margin:0;color:var(--muted)}
+.parentRecoveryChooser>div:last-child{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.parentRecoveryChooser button{min-height:40px!important}
+.parentRecoverySummaryCard .muted{color:var(--muted)}
+
+.roleActionGrid button{
+ text-align:left!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ position:relative;cursor:pointer
+}
+.roleActionGrid button span{margin-top:6px;color:var(--forest-light);font-weight:900}
+.roleActionGrid button:hover{border-color:rgba(117,212,169,.22)!important}
+
+.parentBottomNav button b{font-size:calc(9px * var(--ui-text-scale))!important}
+
+@media(max-width:850px){
+ .parentTaskGrid{grid-template-columns:repeat(3,1fr)}
+ .parentSimpleStatus>div:last-child{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+ .parentSectionNav{margin-top:0}
+ .parentTaskGrid{grid-template-columns:1fr 1fr}
+ .parentSnapshotGrid{grid-template-columns:1fr}
+ .parentSnapshotGrid button{min-height:76px!important}
+ .parentHomeTwo{grid-template-columns:1fr!important}
+ .parentSimpleStatus>div:last-child{grid-template-columns:1fr}
+ .parentControlBar{align-items:flex-start;flex-direction:column}
+ .parentControlBar>div{width:100%}
+ .parentViewTabs button{white-space:nowrap}
+ .parentExpandable>button{grid-template-columns:46px 1fr 24px}
+ .parentExpandedDetail{margin-left:0}
+ .parentCompetitionDetails{grid-template-columns:1fr}
+ .parentDevelopmentRow{grid-template-columns:1fr}
+ .parentDevelopmentRow>div:last-child{text-align:left}
+ .parentProgramSummary{grid-template-columns:1fr}
+ .parentRecoveryChooser>div:last-child{grid-template-columns:1fr 1fr}
+}
+@media(max-width:390px){
+ .parentTaskGrid{grid-template-columns:1fr}
+ .parentRecoveryChooser>div:last-child{grid-template-columns:1fr}
+}
+
+
+/* Phase 72.3.24 — sport belongs to the athlete profile */
+.lockedProfileSport{border-color:rgba(117,212,169,.13)!important}
+.lockedSportDisplay{display:flex;align-items:center;gap:10px;padding:8px 10px 10px}
+.lockedSportButton{
+ min-height:38px!important;padding:8px 14px!important;opacity:1!important;cursor:default!important;
+ pointer-events:none;background:linear-gradient(180deg,var(--forest-soft),var(--forest-deep))!important;
+ color:#fff!important;border-color:rgba(117,212,169,.30)!important
+}
+.lockedSportDisplay>span{color:var(--muted);font-size:calc(10px * var(--ui-text-scale));line-height:1.4}
+.lockedSportDisplay>span b{color:var(--silver-light)}
+@media(max-width:520px){
+ .lockedSportDisplay{align-items:flex-start;flex-direction:column}
+ .lockedSportButton{width:auto!important}
+}
+
+
+/* Phase 72.3.25 — Player-only check-ins and reviews */
+.playerOnlyNotice{
+ border-color:rgba(117,212,169,.14)!important;
+ background:linear-gradient(180deg,#202522,#181c1a)!important
+}
+.playerOnlyNotice>.tag{margin-bottom:7px}
+.playerOnlyNotice h2{margin:3px 0 5px!important}
+.supportDailyResult{
+ display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:11px
+}
+.supportDailyResult>div{
+ padding:9px;border-radius:10px;background:rgba(255,255,255,.025);
+ border:1px solid rgba(184,191,188,.08)
+}
+.supportDailyResult small,.supportDailyResult b{display:block}
+.supportDailyResult small{color:var(--muted);font-weight:800}
+.supportDailyResult b{margin-top:3px}
+.supportCheckinNote{
+ margin-top:8px;padding:10px;border-radius:10px;
+ background:rgba(117,212,169,.05);border:1px solid rgba(117,212,169,.1)
+}
+.supportCheckinNote small{color:var(--forest-light);font-weight:900}
+.supportCheckinNote p{margin:4px 0 0}
+
+.playerCheckinRows{display:grid;gap:7px}
+.playerCheckinRows>div{
+ display:grid;grid-template-columns:minmax(140px,1.4fr) repeat(4,minmax(70px,.65fr));
+ gap:7px;align-items:center;padding:9px;border-radius:10px;
+ background:rgba(255,255,255,.025);border:1px solid rgba(184,191,188,.07)
+}
+.playerCheckinRows>div>div small,.playerCheckinRows>div>div b,
+.playerCheckinRows>div>span small,.playerCheckinRows>div>span b{display:block}
+.playerCheckinRows>div>div small,.playerCheckinRows>div>span small{color:var(--muted)}
+.playerCheckinRows>div>p{
+ grid-column:1/-1;margin:2px 0 0;padding-top:7px;
+ border-top:1px solid rgba(184,191,188,.07);color:var(--muted)
+}
+
+.supportWeeklyReview{
+ display:grid;grid-template-columns:58px 1fr;gap:11px;align-items:start;margin-top:10px
+}
+.supportWeeklyReview>div:last-child{display:grid;gap:4px}
+.supportWeeklyReview span{display:block;color:var(--muted)}
+.supportWeeklyReview strong{color:var(--silver-light)}
+
+.supportWeeklyReviewList{display:grid;gap:8px}
+.supportWeeklyReviewList>div{
+ display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:start;
+ padding:10px;border-radius:10px;background:rgba(255,255,255,.025);
+ border:1px solid rgba(184,191,188,.07)
+}
+.supportWeeklyReviewList>div>div:last-child{display:grid;gap:3px}
+.supportWeeklyReviewList span{display:block;color:var(--muted)}
+.supportWeeklyReviewList strong{color:var(--silver-light)}
+
+.parentPlayerCheckinSummary{border-color:rgba(117,212,169,.14)!important}
+.parentCheckinResultGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.parentCheckinResultGrid>button,.parentCheckinResultGrid>div{
+ min-height:88px;padding:11px;border-radius:11px;text-align:left;
+ background:#191d1b;border:1px solid rgba(184,191,188,.08)
+}
+.parentCheckinResultGrid>button{width:100%;cursor:pointer}
+.parentCheckinResultGrid small,.parentCheckinResultGrid b,.parentCheckinResultGrid span{display:block}
+.parentCheckinResultGrid small{color:var(--forest-light);font-weight:900}
+.parentCheckinResultGrid b{margin:4px 0}
+.parentCheckinResultGrid span{color:var(--muted);line-height:1.4}
+
+@media(max-width:700px){
+ .supportDailyResult{grid-template-columns:1fr 1fr}
+ .supportDailyResult>div:first-child{grid-column:1/-1}
+ .playerCheckinRows>div{grid-template-columns:1fr 1fr}
+ .playerCheckinRows>div>div{grid-column:1/-1}
+ .parentCheckinResultGrid{grid-template-columns:1fr}
+}
+@media(max-width:420px){
+ .supportDailyResult{grid-template-columns:1fr}
+ .supportDailyResult>div:first-child{grid-column:auto}
+ .playerCheckinRows>div{grid-template-columns:1fr}
+ .playerCheckinRows>div>div{grid-column:auto}
+ .supportWeeklyReview,.supportWeeklyReviewList>div{grid-template-columns:48px 1fr}
+}
+
+
+/* Phase 72.3.26 — Coach Weekly Review */
+.coachWeeklyReviewHero{border-color:rgba(117,212,169,.18)!important}
+.coachReviewVisibilityExplainer{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 13px
+}
+.coachReviewVisibilityExplainer>div{
+ display:grid;grid-template-columns:34px 1fr;gap:3px 8px;align-items:start;
+ padding:11px;border-radius:12px;background:#1b201e;border:1px solid rgba(184,191,188,.08)
+}
+.coachReviewVisibilityExplainer>div>span{
+ grid-row:1/3;width:32px;height:32px;display:grid;place-items:center;border-radius:9px;
+ background:rgba(117,212,169,.08);color:var(--forest-light);font-weight:900
+}
+.coachReviewVisibilityExplainer b,.coachReviewVisibilityExplainer small{display:block}
+.coachReviewVisibilityExplainer small{color:var(--muted);line-height:1.4}
+
+.coachWeeklyReviewForm{border-color:rgba(117,212,169,.18)!important}
+.coachReviewRatingGrid{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0
+}
+.coachReviewRatingInput{
+ margin:0;padding:10px;border-radius:11px;background:rgba(255,255,255,.025);
+ border:1px solid rgba(184,191,188,.07)
+}
+.coachReviewRatingInput>span{display:block;font-weight:900;color:var(--silver-light);margin-bottom:5px}
+.coachReviewRatingInput select{width:100%}
+.coachReviewRatingInput small{display:block;margin-top:5px;color:var(--muted);line-height:1.35}
+
+.coachReviewNarrativeGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.coachWeeklyReviewForm textarea{
+ width:100%;margin-top:6px;resize:vertical;background:#1b201e;color:#fff;
+ border:1px solid var(--line);border-radius:11px;padding:11px;font:inherit
+}
+.coachWeeklyReviewForm textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(117,212,169,.08)}
+.coachMessageField{display:block;margin-top:8px}
+.coachShareToggle{
+ display:flex!important;align-items:flex-start;gap:10px;margin:12px 0;padding:12px!important;
+ border-radius:12px;border:1px solid rgba(184,191,188,.12);background:#191d1b;cursor:pointer
+}
+.coachShareToggle.shared{border-color:rgba(117,212,169,.35);background:rgba(117,212,169,.06)}
+.coachShareToggle input{width:20px;height:20px;flex:0 0 auto;margin-top:2px}
+.coachShareToggle b,.coachShareToggle small{display:block}
+.coachShareToggle small{margin-top:3px;color:var(--muted);line-height:1.4}
+.coachReviewPrivacySummary{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0 12px}
+.coachReviewPrivacySummary span{padding:9px;border-radius:9px;background:rgba(255,255,255,.025);border:1px solid rgba(184,191,188,.07)}
+.coachReviewPrivacySummary small,.coachReviewPrivacySummary b{display:block}
+.coachReviewPrivacySummary small{color:var(--muted)}
+.coachReviewSaveButton{width:100%}
+
+.coachReviewMeta{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.coachReviewMeta b,.coachReviewMeta small{display:block}
+.coachReviewMeta small{color:var(--muted);margin-top:2px}
+.coachReviewMeta>span{
+ padding:5px 7px;border-radius:999px;font-size:calc(8px * var(--ui-text-scale));font-weight:900;white-space:nowrap
+}
+.coachReviewMeta>span.shared{background:rgba(117,212,169,.08);border:1px solid rgba(117,212,169,.22);color:var(--forest-light)}
+.coachReviewMeta>span.parentOnly{background:rgba(184,191,188,.05);border:1px solid rgba(184,191,188,.13);color:var(--silver)}
+.coachReviewRatings{
+ display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0
+}
+.coachReviewRatings>div{padding:8px;border-radius:9px;text-align:center;background:rgba(255,255,255,.025);border:1px solid rgba(184,191,188,.07)}
+.coachReviewRatings small,.coachReviewRatings b{display:block}
+.coachReviewRatings small{color:var(--muted);font-size:calc(8px * var(--ui-text-scale))}
+.coachReviewRatings b{margin-top:3px}
+.coachReviewHistoryItem,.playerCoachReviewItem{padding:11px 0;border-top:1px solid rgba(184,191,188,.08)}
+.coachReviewHistoryItem:first-child,.playerCoachReviewItem:first-child{border-top:0}
+.coachReviewHistoryItem p,.playerCoachReviewItem p,.coachReviewParentNotes p{margin:6px 0;color:var(--muted)}
+.coachReviewHistoryItem p b,.playerCoachReviewItem p b,.coachReviewParentNotes p b{color:var(--silver-light)}
+.coachMessageToPlayer{padding:9px;border-radius:9px;background:rgba(117,212,169,.05);border:1px solid rgba(117,212,169,.1)}
+.parentCoachReviewCard,.playerCoachReviewCard{border-color:rgba(117,212,169,.15)!important}
+
+@media(max-width:800px){
+ .coachReviewVisibilityExplainer{grid-template-columns:1fr}
+ .coachReviewRatingGrid{grid-template-columns:1fr 1fr}
+ .coachReviewRatings{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:560px){
+ .coachReviewNarrativeGrid{grid-template-columns:1fr}
+ .coachReviewRatingGrid{grid-template-columns:1fr}
+ .coachReviewRatings{grid-template-columns:1fr 1fr}
+ .coachReviewMeta{flex-direction:column}
+ .coachReviewPrivacySummary{grid-template-columns:1fr}
+}
+
+
+/* Phase 72.3.27 — Universal Athlete Development Engine */
+.developmentBlueprintHero{
+ display:flex!important;justify-content:space-between;align-items:center;gap:14px;
+ border-color:rgba(117,212,169,.2)!important
+}
+.developmentScoreOrb{
+ width:104px;height:104px;flex:0 0 104px;border-radius:50%;display:grid;place-items:center;
+ background:radial-gradient(circle at 35% 30%,rgba(117,212,169,.19),rgba(23,107,74,.08) 55%,rgba(0,0,0,.15));
+ border:1px solid rgba(117,212,169,.27);box-shadow:inset 0 0 22px rgba(117,212,169,.05)
+}
+.developmentScoreOrb strong{font-size:calc(30px * var(--ui-text-scale));line-height:1}
+.developmentScoreOrb small{font-size:calc(7px * var(--ui-text-scale));color:var(--forest-light);font-weight:900}
+
+.developmentRoleRule{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.developmentRoleRule>div{
+ padding:10px;border-radius:11px;background:#1a1e1c;border:1px solid rgba(184,191,188,.08)
+}
+.developmentRoleRule small,.developmentRoleRule b,.developmentRoleRule span{display:block}
+.developmentRoleRule small{color:var(--forest-light);font-weight:900}
+.developmentRoleRule b{margin:3px 0}
+.developmentRoleRule span{color:var(--muted);line-height:1.4}
+
+.developmentModeTabs{
+ display:flex;gap:6px;overflow-x:auto;padding:4px 0 9px;scrollbar-width:none
+}
+.developmentModeTabs::-webkit-scrollbar{display:none}
+.developmentModeTabs button{
+ flex:0 0 auto;padding:9px 12px;border-radius:999px;background:#191d1b;border:1px solid rgba(184,191,188,.1);color:var(--muted);font-weight:850
+}
+.developmentModeTabs button.active{background:rgba(47,143,104,.16);border-color:rgba(117,212,169,.3);color:var(--text)}
+
+.adaptivePriorityCard{border-color:rgba(117,212,169,.18)!important}
+.adaptivePriorityGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.adaptivePriorityGrid>div{
+ position:relative;padding:13px;border-radius:12px;background:linear-gradient(180deg,#202522,#181c1a);
+ border:1px solid rgba(184,191,188,.08)
+}
+.adaptivePriorityGrid>div>span{
+ position:absolute;top:9px;right:9px;width:25px;height:25px;display:grid;place-items:center;border-radius:50%;
+ background:rgba(117,212,169,.08);color:var(--forest-light);font-weight:900
+}
+.adaptivePriorityGrid small{color:var(--forest-light);font-weight:900}
+.adaptivePriorityGrid h3{margin:5px 32px 6px 0}
+.adaptivePriorityGrid p{margin:5px 0;color:var(--muted);line-height:1.45}
+.adaptivePriorityGrid p b{color:var(--silver-light)}
+
+.seasonPhaseSelect{display:flex!important;align-items:center;gap:6px}
+.seasonPhaseSelect select{width:auto;min-width:142px}
+.blueprintPillarGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.blueprintPillarGrid>div{
+ padding:10px;border-radius:11px;background:rgba(255,255,255,.022);border:1px solid rgba(184,191,188,.07)
+}
+.blueprintPillarGrid>div.needsAttention{border-color:rgba(255,141,150,.22)}
+.blueprintPillarGrid>div.strength{border-color:rgba(117,212,169,.2)}
+.blueprintPillarGrid>div>div:first-child{display:flex;justify-content:space-between;gap:7px}
+.blueprintPillarGrid p{min-height:52px;color:var(--muted);line-height:1.4;font-size:calc(9px * var(--ui-text-scale))}
+.blueprintPillarGrid select{width:100%}
+
+.foundationGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.foundationGrid button{
+ min-height:88px;padding:10px;text-align:left;border-radius:11px;background:#191d1b;border:1px solid rgba(184,191,188,.08)
+}
+.foundationGrid button:disabled{opacity:1;cursor:default}
+.foundationGrid button.complete{background:rgba(117,212,169,.05);border-color:rgba(117,212,169,.18)}
+.foundationGrid button>span,.foundationGrid button>b,.foundationGrid button>small{display:block}
+.foundationGrid button>span{color:var(--forest-light);font-size:18px}
+.foundationGrid button>b{margin:3px 0}
+.foundationGrid button>small{color:var(--muted)}
+
+.skillTreeGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.skillTreeCard{
+ padding:11px;border-radius:12px;background:#1a1f1c;border:1px solid rgba(184,191,188,.08)
+}
+.skillTreeCard.needs-work{border-color:rgba(255,141,150,.22)}
+.skillTreeCard.consistent,.skillTreeCard.advanced{border-color:rgba(117,212,169,.2)}
+.skillTreeCard h3{margin:0}
+.skillTreeCard .sectionHead>span{font-weight:900;color:var(--forest-light)}
+.skillTreeCard label{display:block;margin-top:7px}
+.skillTreeCard textarea,.skillTreeCard input{width:100%}
+.skillTreeCard .whySkill{color:var(--muted);line-height:1.45}
+.skillTreeCard .whySkill b{color:var(--silver-light)}
+.skillTreeCard>a{display:inline-block;margin-top:8px;color:var(--forest-light);font-weight:800}
+
+.developmentProcessStats{margin-top:4px}
+.playerTrainingReflection textarea,.developmentMeetingForm textarea{width:100%;margin-top:5px}
+.reflectionRatingGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.trainingReflectionList{display:grid;gap:7px}
+.trainingReflectionList>div{
+ padding:10px;border-radius:10px;background:rgba(255,255,255,.022);border:1px solid rgba(184,191,188,.07)
+}
+.trainingReflectionList>div>div:first-child{display:flex;justify-content:space-between;gap:8px}
+.trainingReflectionList>div>div:nth-child(2){display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:7px 0}
+.trainingReflectionList span small,.trainingReflectionList span b{display:block}
+.trainingReflectionList span small{color:var(--muted)}
+.trainingReflectionList p{margin:4px 0;color:var(--muted)}
+.trainingReflectionList p b{color:var(--silver-light)}
+
+.developmentMeetingRow{
+ padding:11px 0;border-top:1px solid rgba(184,191,188,.08)
+}
+.developmentMeetingRow:first-child{border-top:0}
+.developmentMeetingRow>div{display:flex;justify-content:space-between;gap:8px}
+.developmentMeetingRow p{margin:5px 0;color:var(--muted)}
+.developmentMeetingRow p b{color:var(--silver-light)}
+
+.developmentJournal>div:last-child{display:grid}
+.developmentJournalRow{
+ display:grid;grid-template-columns:18px 1fr;gap:8px;padding:9px 0;border-top:1px solid rgba(184,191,188,.07)
+}
+.developmentJournalRow:first-child{border-top:0}
+.journalDot{width:9px;height:9px;border-radius:50%;background:var(--forest-light);margin-top:5px;box-shadow:0 0 0 4px rgba(117,212,169,.06)}
+.developmentJournalRow small,.developmentJournalRow b{display:block}
+.developmentJournalRow small{color:var(--forest-light);font-weight:800}
+.developmentJournalRow p{margin:3px 0;color:var(--muted)}
+
+.playerTodayCard{
+ margin:10px 0;padding:13px;border-radius:15px;background:linear-gradient(180deg,#202522,#181c1a);
+ border:1px solid rgba(117,212,169,.18)
+}
+.playerTodayGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.playerTodayGrid button{
+ position:relative;min-height:132px;padding:12px;text-align:left;border-radius:12px;
+ background:#171b19;border:1px solid rgba(184,191,188,.08)
+}
+.playerTodayGrid button>span{
+ position:absolute;right:9px;top:8px;width:25px;height:25px;border-radius:50%;display:grid;place-items:center;
+ background:rgba(117,212,169,.07);color:var(--forest-light);font-weight:900
+}
+.playerTodayGrid small,.playerTodayGrid b{display:block}
+.playerTodayGrid small{color:var(--forest-light);font-weight:900}
+.playerTodayGrid b{font-size:calc(13px * var(--ui-text-scale));margin:6px 28px 5px 0}
+.playerTodayGrid p{margin:0;color:var(--muted);line-height:1.4}
+
+.parentDevelopmentSnapshotGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.parentDevelopmentSnapshotGrid>div{
+ padding:10px;border-radius:10px;background:#191d1b;border:1px solid rgba(184,191,188,.08)
+}
+.parentDevelopmentSnapshotGrid small,.parentDevelopmentSnapshotGrid b,.parentDevelopmentSnapshotGrid span{display:block}
+.parentDevelopmentSnapshotGrid small{color:var(--forest-light);font-weight:900}
+.parentDevelopmentSnapshotGrid b{margin:4px 0}
+.parentDevelopmentSnapshotGrid span{color:var(--muted);line-height:1.4}
+
+.parentBlueprintGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.parentBlueprintGrid>div{padding:9px;border-radius:10px;background:#191d1b;border:1px solid rgba(184,191,188,.07)}
+.parentBlueprintGrid small,.parentBlueprintGrid b,.parentBlueprintGrid span{display:block}
+.parentBlueprintGrid span{color:var(--muted);margin-top:5px;line-height:1.35;font-size:calc(8px * var(--ui-text-scale))}
+.parentSkillTree{display:grid;gap:6px}
+.parentSkillTree>div{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:9px;border-radius:9px;background:#191d1b;border:1px solid rgba(184,191,188,.07)}
+.parentSkillTree b,.parentSkillTree small{display:block}
+.parentSkillTree small{color:var(--muted);margin-top:2px}
+.parentSkillTree>div>span{padding:5px 7px;border-radius:999px;border:1px solid rgba(184,191,188,.12);white-space:nowrap;font-weight:850}
+.parentSkillTree>div>span.needs-work{border-color:rgba(255,141,150,.24)}
+.parentSkillTree>div>span.consistent,.parentSkillTree>div>span.advanced{border-color:rgba(117,212,169,.24);color:var(--forest-light)}
+
+@media(max-width:850px){
+ .blueprintPillarGrid{grid-template-columns:1fr 1fr}
+ .foundationGrid{grid-template-columns:1fr 1fr}
+ .adaptivePriorityGrid{grid-template-columns:1fr}
+ .parentBlueprintGrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+ .developmentBlueprintHero{align-items:flex-start}
+ .developmentScoreOrb{width:78px;height:78px;flex-basis:78px}
+ .developmentRoleRule{grid-template-columns:1fr}
+ .skillTreeGrid{grid-template-columns:1fr}
+ .playerTodayGrid{grid-template-columns:1fr}
+ .parentDevelopmentSnapshotGrid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+ .developmentBlueprintHero{flex-direction:column}
+ .blueprintPillarGrid,.foundationGrid,.parentBlueprintGrid{grid-template-columns:1fr}
+ .reflectionRatingGrid{grid-template-columns:1fr}
+ .seasonPhaseSelect{align-items:flex-start;flex-direction:column}
+}
+
+
+/* Phase 72.3.28 — usability fixes, review completion, goal guide */
+.playerNameField{
+ grid-column:1/-1!important;
+ padding:11px!important;
+ border-radius:11px;
+ background:rgba(117,212,169,.055);
+ border:1px solid rgba(117,212,169,.18)
+}
+.playerNameField>span{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ color:var(--silver-light);font-weight:900
+}
+.playerNameField>span>b{
+ padding:3px 6px;border-radius:999px;
+ background:rgba(117,212,169,.08);border:1px solid rgba(117,212,169,.18);
+ color:var(--forest-light);font-size:calc(7px * var(--ui-text-scale));text-transform:uppercase
+}
+.playerNameField input{font-size:calc(12px * var(--ui-text-scale))!important}
+
+.weeklyReviewActions{
+ display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:10px
+}
+.weeklyReviewCollapsed{
+ display:flex!important;align-items:center;justify-content:space-between;gap:12px;
+ border-color:rgba(117,212,169,.16)!important
+}
+.weeklyReviewCollapsed>div:first-child{
+ display:flex;align-items:center;gap:10px;min-width:0
+}
+.weeklyReviewCollapsed small,.weeklyReviewCollapsed h2,.weeklyReviewCollapsed p{display:block}
+.weeklyReviewCollapsed h2{margin:2px 0!important}
+.weeklyReviewCollapsed p{margin:2px 0;color:var(--muted)}
+.weeklyReviewDoneIcon{
+ width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:11px;
+ background:rgba(117,212,169,.09);border:1px solid rgba(117,212,169,.18);
+ color:var(--forest-light);font-size:17px;font-weight:900
+}
+.coachReviewCollapsed{flex-wrap:wrap}
+.coachReviewCollapsed>.betaMessage{width:100%;margin:0}
+
+.createGoalCard{border-color:rgba(117,212,169,.16)!important}
+.goalQuickGuide{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0
+}
+.goalQuickGuide>div{
+ position:relative;min-height:82px;padding:10px 10px 10px 42px;border-radius:11px;
+ background:#191d1b;border:1px solid rgba(184,191,188,.08)
+}
+.goalQuickGuide>div>span{
+ position:absolute;left:10px;top:10px;width:24px;height:24px;display:grid;place-items:center;
+ border-radius:8px;background:rgba(117,212,169,.08);color:var(--forest-light);font-weight:900
+}
+.goalQuickGuide b,.goalQuickGuide small{display:block}
+.goalQuickGuide small{margin-top:4px;color:var(--muted);line-height:1.4}
+.goalFormula{
+ padding:10px 11px;margin:8px 0 11px;border-radius:10px;
+ background:rgba(117,212,169,.05);border:1px solid rgba(117,212,169,.13)
+}
+.goalFormula small,.goalFormula b,.goalFormula span{display:block}
+.goalFormula small{color:var(--forest-light);font-weight:900}
+.goalFormula b{margin:3px 0}
+.goalFormula span{color:var(--muted);line-height:1.4}
+.goalTypeHint{
+ display:block!important;margin-top:4px!important;color:var(--muted)!important;
+ font-size:calc(8px * var(--ui-text-scale))!important;line-height:1.35!important
+}
+
+@media(max-width:700px){
+ .weeklyReviewCollapsed{align-items:stretch;flex-direction:column}
+ .weeklyReviewCollapsed>button{width:100%}
+ .weeklyReviewActions{display:grid;grid-template-columns:1fr}
+ .goalQuickGuide{grid-template-columns:1fr}
+}
+
+
+/* Phase 72.3.30 — sport + position-specific competition statistics */
+.competitionStatsHead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin:18px 0 8px}
+.competitionStatsHead h2{margin:0!important}
+.competitionStatsHead p{margin:3px 0 0;color:var(--muted);line-height:1.4}
+.positionStatInputs label>span{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.positionStatInputs .customCompetitionStat>span{color:var(--forest-light)}
+.customCompetitionStat>span button{width:22px!important;height:22px!important;min-height:22px!important;padding:0!important;border-radius:7px!important;display:grid!important;place-items:center!important;font-size:14px!important}
+.competitionStatsEmpty{padding:11px;border-radius:11px;background:rgba(255,255,255,.022);border:1px dashed rgba(184,191,188,.15);margin-bottom:8px}
+.competitionStatsEmpty b,.competitionStatsEmpty span{display:block}
+.competitionStatsEmpty span{margin-top:3px;color:var(--muted)}
+.customCompetitionStatBuilder{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:9px 0 13px;padding:10px 11px;border-radius:11px;background:rgba(117,212,169,.045);border:1px solid rgba(117,212,169,.11)}
+.customCompetitionStatBuilder>div:first-child small,.customCompetitionStatBuilder>div:first-child b,.customCompetitionStatBuilder>div:first-child span{display:block}
+.customCompetitionStatBuilder>div:first-child small{color:var(--forest-light);font-weight:900}
+.customCompetitionStatBuilder>div:first-child span{margin-top:3px;color:var(--muted)}
+.customCompetitionStatBuilder>div:last-child{display:flex;gap:6px;align-items:center;min-width:min(330px,50%)}
+.customCompetitionStatBuilder input{min-width:0;flex:1}
+.competitionRoleHint{display:block!important;margin-top:4px!important;color:var(--muted)!important;font-size:calc(7px * var(--ui-text-scale))!important;line-height:1.35!important}
+.competitionDerivedNote{display:flex;gap:8px;align-items:flex-start;margin:8px 0 12px;padding:9px 10px;border-radius:10px;background:rgba(117,212,169,.045);border:1px solid rgba(117,212,169,.1)}
+.competitionDerivedNote b{white-space:nowrap;color:var(--forest-light)}
+.competitionDerivedNote span{color:var(--muted);line-height:1.4}
+@media(max-width:650px){
+ .competitionStatsHead{align-items:flex-start;flex-direction:column}
+ .customCompetitionStatBuilder{align-items:stretch;flex-direction:column}
+ .customCompetitionStatBuilder>div:last-child{min-width:0;width:100%}
+}
+
+
+/* Phase 72.3.31 — one shared analytics source across Player / Parent / Coach */
+.sharedAnalyticsRoleNotice{
+ display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 12px;border-radius:12px;
+ background:rgba(117,212,169,.045);border:1px solid rgba(117,212,169,.13)
+}
+.sharedAnalyticsRoleNotice>div b,.sharedAnalyticsRoleNotice>div small{display:block}
+.sharedAnalyticsRoleNotice>div small{margin-top:3px;color:var(--muted);line-height:1.4}
+.sharedAnalyticsIdentity{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0
+}
+.sharedAnalyticsIdentity>div{
+ padding:9px 10px;border-radius:10px;background:#191d1b;border:1px solid rgba(184,191,188,.08)
+}
+.sharedAnalyticsIdentity small,.sharedAnalyticsIdentity b{display:block}
+.sharedAnalyticsIdentity small{color:var(--forest-light);font-weight:900}
+.sharedAnalyticsIdentity b{margin-top:3px}
+.scorecardOverall em{
+ display:block;margin-top:5px;color:var(--muted);font-size:calc(7px * var(--ui-text-scale));
+ font-style:normal;line-height:1.35
+}
+@media(max-width:700px){
+ .sharedAnalyticsIdentity{grid-template-columns:1fr 1fr}
+ .sharedAnalyticsRoleNotice{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:430px){
+ .sharedAnalyticsIdentity{grid-template-columns:1fr}
+}
+
+
+/* =========================================================
+   Phase 72.3.32 — Analytics Cockpit
+   High-clarity instrument-panel presentation. Graphite / forest / silver.
+   ========================================================= */
+
+.analyticsCockpitHero{
+ display:flex!important;justify-content:space-between;align-items:center;gap:14px!important;
+ background:
+   linear-gradient(135deg,rgba(38,43,40,.98),rgba(22,27,24,.98) 62%,rgba(13,70,51,.62))!important;
+}
+.analyticsCockpitHero h1{letter-spacing:-.045em}
+.cockpitLiveBadge{
+ display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:8px 10px;border-radius:10px;
+ background:#151917;border:1px solid rgba(184,191,188,.14)
+}
+.cockpitLiveBadge>i{
+ width:9px;height:9px;border-radius:50%;background:var(--forest-light);
+ box-shadow:0 0 0 4px rgba(117,212,169,.08),0 0 14px rgba(117,212,169,.3)
+}
+.cockpitLiveBadge small,.cockpitLiveBadge b{display:block}
+.cockpitLiveBadge small{color:var(--muted);font-size:calc(7px * var(--ui-text-scale))}
+.cockpitLiveBadge b{font-size:calc(9px * var(--ui-text-scale));margin-top:2px}
+
+.cockpitIdentityStrip{margin-bottom:12px}
+.cockpitIdentityStrip>div{
+ border-radius:8px!important;
+ box-shadow:inset 0 1px 0 rgba(224,228,226,.035)
+}
+
+.cockpitPrimaryPanel,.cockpitSecondaryPanel,.cockpitTrendSection{
+ margin:12px 0 18px;padding:12px;border-radius:16px;
+ background:linear-gradient(180deg,rgba(19,23,21,.98),rgba(13,16,14,.98));
+ border:1px solid rgba(184,191,188,.12);
+ box-shadow:inset 0 1px 0 rgba(224,228,226,.035),0 16px 36px rgba(0,0,0,.18)
+}
+.cockpitPrimaryPanel{border-color:rgba(117,212,169,.19)}
+
+.cockpitOverallInstrument{
+ display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;
+ padding:12px;margin-bottom:10px;border-radius:13px;
+ background:linear-gradient(100deg,#202522,#171b19);
+ border:1px solid rgba(117,212,169,.12)
+}
+.cockpitScoreRing{
+ width:150px;height:150px;border-radius:50%;display:grid;place-items:center;padding:9px;
+ box-shadow:0 0 0 1px rgba(184,191,188,.08),0 0 28px rgba(47,143,104,.08)
+}
+.cockpitScoreRing>div{
+ width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;
+ background:radial-gradient(circle at 50% 42%,#202522,#0e110f 72%);
+ border:1px solid rgba(184,191,188,.13)
+}
+.cockpitScoreRing small{font-size:calc(7px * var(--ui-text-scale));letter-spacing:.12em;color:var(--forest-light);font-weight:900}
+.cockpitScoreRing strong{font-size:calc(48px * var(--ui-text-scale));line-height:.95;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+.cockpitScoreRing span{font-size:calc(9px * var(--ui-text-scale));color:var(--muted)}
+.cockpitOverallReadout small{color:var(--forest-light);font-weight:900;letter-spacing:.08em}
+.cockpitOverallReadout h2{font-size:calc(25px * var(--ui-text-scale));margin:4px 0!important}
+.cockpitOverallReadout p{max-width:520px;margin:0;color:var(--muted);line-height:1.45}
+.cockpitCoverage{display:flex;align-items:baseline;gap:6px;margin-top:9px}
+.cockpitCoverage b{font-size:calc(16px * var(--ui-text-scale));color:var(--silver-light)}
+.cockpitCoverage span{color:var(--muted)}
+
+.cockpitInstrumentGrid{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px
+}
+.cockpitInstrument{
+ min-width:0;padding:10px;border-radius:10px;background:#171b19;
+ border:1px solid rgba(184,191,188,.09);box-shadow:inset 0 1px 0 rgba(224,228,226,.025)
+}
+.cockpitInstrument.strong{border-color:rgba(117,212,169,.20)}
+.cockpitInstrument.attention{border-color:rgba(184,191,188,.19)}
+.cockpitInstrument.no-data{opacity:.76}
+.cockpitInstrumentTop{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.cockpitInstrumentTop>small{font-size:calc(7px * var(--ui-text-scale));font-weight:900;letter-spacing:.08em;color:var(--silver)}
+.cockpitStatusLamp{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.cockpitStatusLamp i{width:6px;height:6px;border-radius:50%;background:var(--silver-dark)}
+.cockpitInstrument.strong .cockpitStatusLamp i{background:var(--forest-light);box-shadow:0 0 9px rgba(117,212,169,.3)}
+.cockpitInstrument.building .cockpitStatusLamp i{background:var(--forest-soft)}
+.cockpitInstrument.watch .cockpitStatusLamp i{background:var(--silver)}
+.cockpitInstrument.attention .cockpitStatusLamp i{background:var(--silver-light)}
+.cockpitStatusLamp b{font-size:calc(6px * var(--ui-text-scale));text-transform:uppercase;color:var(--muted)}
+.cockpitInstrumentValue{display:flex;align-items:baseline;gap:4px;margin:9px 0 7px}
+.cockpitInstrumentValue strong{
+ font-size:calc(31px * var(--ui-text-scale));line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.045em
+}
+.cockpitInstrumentValue span{font-size:calc(7px * var(--ui-text-scale));color:var(--muted);font-weight:800}
+.cockpitGauge{height:5px;border-radius:999px;overflow:hidden;background:#0e110f;border:1px solid rgba(184,191,188,.06)}
+.cockpitGauge i{display:block;height:100%;background:linear-gradient(90deg,var(--forest-deep),var(--forest-light))}
+.cockpitInstrument p{margin:7px 0 0;color:var(--muted);font-size:calc(7px * var(--ui-text-scale));line-height:1.4}
+
+.cockpitFormula{margin-top:9px;border-top:1px solid rgba(184,191,188,.08);padding-top:8px}
+.cockpitFormula summary{cursor:pointer;color:var(--silver-light);font-weight:850}
+.cockpitFormula>div{padding:7px 1px 0}
+.cockpitFormula p{margin:4px 0;color:var(--muted);line-height:1.45}
+.cockpitFormula p b{color:var(--silver-light)}
+
+.cockpitQuickScan{margin:10px 0 18px}
+.cockpitSectionLabel{display:grid;grid-template-columns:auto 1fr auto;align-items:end;gap:7px;margin:0 2px 7px}
+.cockpitSectionLabel small{color:var(--forest-light);font-weight:900;letter-spacing:.1em}
+.cockpitSectionLabel b{font-size:calc(14px * var(--ui-text-scale))}
+.cockpitSectionLabel span{color:var(--muted);text-align:right}
+.cockpitQuickGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.cockpitQuickCard{
+ min-height:122px;padding:10px;border-radius:10px;background:linear-gradient(180deg,#202522,#151917);
+ border:1px solid rgba(184,191,188,.09)
+}
+.cockpitQuickCard small,.cockpitQuickCard strong,.cockpitQuickCard b,.cockpitQuickCard span{display:block}
+.cockpitQuickCard small{color:var(--silver);font-weight:900;letter-spacing:.08em}
+.cockpitQuickCard strong{
+ margin:7px 0 2px;font-size:calc(29px * var(--ui-text-scale));line-height:1;font-variant-numeric:tabular-nums
+}
+.cockpitQuickCard.positive strong{color:var(--forest-light)}
+.cockpitQuickCard.attention strong{color:var(--silver-light)}
+.cockpitQuickCard b{margin-top:4px}
+.cockpitQuickCard span{margin-top:4px;color:var(--muted);line-height:1.35}
+
+.cockpitSeasonCard{margin:0 0 8px!important}
+.cockpitSeasonMetrics>div{padding:9px;border-radius:8px;background:#171b19;border:1px solid rgba(184,191,188,.07)}
+.cockpitToolbar{
+ display:flex!important;align-items:end!important;justify-content:space-between!important;gap:10px!important;
+ margin:8px 0!important;padding:10px!important;border-radius:10px;background:#151917;border:1px solid rgba(184,191,188,.08)
+}
+.cockpitToolbar>div>small,.cockpitToolbar>label>small{display:block;margin-bottom:5px;color:var(--muted);font-weight:900;letter-spacing:.08em}
+.cockpitToolbar>label{margin:0;min-width:160px}
+.cockpitToolbar select{width:100%}
+.cockpitDataStrip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.cockpitDataStrip>div{padding:9px;border-radius:9px;background:#171b19;border:1px solid rgba(184,191,188,.08)}
+.cockpitDataStrip small,.cockpitDataStrip b,.cockpitDataStrip span{display:block}
+.cockpitDataStrip small{color:var(--silver);font-weight:900;letter-spacing:.07em}
+.cockpitDataStrip b{font-size:calc(19px * var(--ui-text-scale));margin:3px 0;font-variant-numeric:tabular-nums}
+.cockpitDataStrip span{color:var(--muted)}
+
+.cockpitTrendSection{padding:0;background:transparent;border:0;box-shadow:none}
+.cockpitTrendCard{overflow:hidden}
+.cockpitTrendCard>.sectionHead{padding-bottom:9px;border-bottom:1px solid rgba(184,191,188,.08)}
+.cockpitTrendCard>.sectionHead p{margin:3px 0 0;color:var(--muted)}
+.cockpitTrend{
+ padding:12px!important;margin:9px 0!important;border-radius:11px!important;background:#151917!important;
+ border:1px solid rgba(184,191,188,.08)!important
+}
+.cockpitTrendHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:9px}
+.cockpitTrendHeader small{color:var(--muted);font-weight:900;letter-spacing:.07em}
+.cockpitTrendHeader h3{margin:3px 0 0;font-size:calc(15px * var(--ui-text-scale))}
+.cockpitTrendHeader>strong{font-size:calc(19px * var(--ui-text-scale));font-variant-numeric:tabular-nums}
+.cockpitMetricReadouts{margin-top:7px}
+.cockpitMetricReadouts>span{background:#0f1210!important;border:1px solid rgba(184,191,188,.07)!important;border-radius:8px!important}
+.cockpitMetricReadouts small{letter-spacing:.08em}
+.cockpitEmpty{padding:16px;text-align:center}
+.cockpitEmpty b,.cockpitEmpty span{display:block}
+.cockpitEmpty span{margin-top:4px;color:var(--muted)}
+
+@media(max-width:1000px){
+ .cockpitInstrumentGrid{grid-template-columns:repeat(3,1fr)}
+ .cockpitQuickGrid,.cockpitDataStrip{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+ .analyticsCockpitHero{align-items:flex-start!important;flex-direction:column}
+ .cockpitLiveBadge{width:100%}
+ .cockpitOverallInstrument{grid-template-columns:1fr;text-align:center}
+ .cockpitScoreRing{margin:0 auto;width:136px;height:136px}
+ .cockpitCoverage{justify-content:center}
+ .cockpitInstrumentGrid{grid-template-columns:1fr 1fr}
+ .cockpitSectionLabel{grid-template-columns:1fr}
+ .cockpitSectionLabel span{text-align:left}
+ .cockpitToolbar{align-items:stretch!important;flex-direction:column}
+ .cockpitToolbar>label{width:100%}
+}
+@media(max-width:460px){
+ .cockpitInstrumentGrid,.cockpitQuickGrid,.cockpitDataStrip{grid-template-columns:1fr}
+ .cockpitInstrument{padding:11px}
+ .cockpitInstrumentValue strong{font-size:calc(36px * var(--ui-text-scale))}
+}

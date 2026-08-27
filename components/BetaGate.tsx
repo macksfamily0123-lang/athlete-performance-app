@@ -2,7 +2,7 @@
 
 import {useCallback,useEffect,useMemo,useState} from "react";
 import type {User} from "@supabase/supabase-js";
-import AthleteApp,{type BetaBridge,type BetaRole} from "./AthleteApp";
+import AthleteApp,{type BetaBridge,type BetaRole,type CoachWeeklyReview} from "./AthleteApp";
 import {betaConfigured,getSupabase} from "../lib/supabase";
 
 type AccessRow={
@@ -20,6 +20,17 @@ type BetaMember={
   display_name:string;
   role:BetaRole;
   active:boolean;
+};
+
+type BetaFeedbackRow={
+  id:number;
+  workspace_id:string;
+  user_id:string;
+  category:string;
+  message:string;
+  app_version:string|null;
+  page_url:string|null;
+  created_at:string;
 };
 
 type AthleteRow={
@@ -69,6 +80,7 @@ export default function BetaGate(){
   const [displayName,setDisplayName]=useState("");
   const [signupRole,setSignupRole]=useState<"Player"|"Parent">("Player");
   const [message,setMessage]=useState("");
+  const [signupComplete,setSignupComplete]=useState<{email:string;role:"Player"|"Parent"}|null>(null);
 
   const [showDisclaimer,setShowDisclaimer]=useState(false);
   const [showFeedback,setShowFeedback]=useState(false);
@@ -77,7 +89,11 @@ export default function BetaGate(){
   const [feedbackMessage,setFeedbackMessage]=useState("");
 
   const [showAdmin,setShowAdmin]=useState(false);
+  const [adminSection,setAdminSection]=useState<"accounts"|"feedback">("accounts");
   const [members,setMembers]=useState<BetaMember[]>([]);
+  const [feedbackInbox,setFeedbackInbox]=useState<BetaFeedbackRow[]>([]);
+  const [feedbackFilter,setFeedbackFilter]=useState("All");
+  const [feedbackInboxMessage,setFeedbackInboxMessage]=useState("");
   const [inviteEmail,setInviteEmail]=useState("");
   const [inviteName,setInviteName]=useState("");
   const [inviteRole,setInviteRole]=useState<BetaRole>("Coach");
@@ -165,12 +181,23 @@ export default function BetaGate(){
       if(error)setMessage(error.message);
       return;
     }
-    const {error}=await supabase.auth.signUp({
-      email:email.trim(),
+    const signupEmail=email.trim();
+    const {data,error}=await supabase.auth.signUp({
+      email:signupEmail,
       password,
       options:{data:{display_name:displayName.trim(),requested_role:signupRole}}
     });
-    setMessage(error?error.message:"Account created. Check your email if confirmation is enabled, then sign in. Players and Parents are activated automatically. Coach and Admin accounts require approval.");
+    if(error){
+      setMessage(error.message.toLowerCase().includes("rate limit")?"Too many verification emails were requested in a short period. Wait for the email limit to reset, then try again once.":error.message);
+      return;
+    }
+    if(!data.session){
+      setSignupComplete({email:signupEmail,role:signupRole});
+      setPassword("");
+      setMessage("");
+      return;
+    }
+    setMessage("Account created and signed in.");
   };
 
   const signOut=async()=>{
@@ -195,9 +222,16 @@ export default function BetaGate(){
     if(!supabase||!access)return;
     if(access.role==="Parent")return;
     const workspaceId=selectedCloudWorkspaceId||access.workspace_id;
+    let nextData={...data};
+    if(access.role!=="Player"){
+      const {data:existing,error:readError}=await supabase.from("workspace_state").select("data").eq("workspace_id",workspaceId).maybeSingle();
+      if(readError)throw readError;
+      const current=(existing?.data||{}) as Record<string,unknown>;
+      nextData={...nextData,readiness:Array.isArray(current.readiness)?current.readiness:[],weeklyReviews:Array.isArray(current.weeklyReviews)?current.weeklyReviews:[]};
+    }
     const {error}=await supabase.from("workspace_state").upsert({
       workspace_id:workspaceId,
-      data,
+      data:nextData,
       updated_by:access.user_id,
       updated_at:new Date().toISOString()
     },{onConflict:"workspace_id"});
@@ -212,6 +246,54 @@ export default function BetaGate(){
       p_workspace_id:workspaceId,
       p_notes:notes
     });
+    if(error)throw error;
+  };
+
+
+  const loadCoachWeeklyReviews=async():Promise<CoachWeeklyReview[]>=>{
+    if(!supabase||!access)return [];
+    const workspaceId=selectedCloudWorkspaceId||access.workspace_id;
+    const {data,error}=await supabase.from("coach_weekly_reviews")
+      .select("id,week_start,coach_name,performance,effort,attitude,teamwork,coachability,leadership,strengths,development_opportunity,leadership_opportunity,next_week_focus,coach_message,share_with_player,created_at,updated_at")
+      .eq("workspace_id",workspaceId)
+      .order("week_start",{ascending:false})
+      .order("updated_at",{ascending:false});
+    if(error)throw error;
+    return (data||[]).map((row:any)=>({
+      id:String(row.id),weekStart:String(row.week_start),coachName:String(row.coach_name||"Coach"),
+      performance:Number(row.performance||0),effort:Number(row.effort||0),attitude:Number(row.attitude||0),
+      teamwork:Number(row.teamwork||0),coachability:Number(row.coachability||0),leadership:Number(row.leadership||0),
+      strengths:String(row.strengths||""),developmentOpportunity:String(row.development_opportunity||""),
+      leadershipOpportunity:String(row.leadership_opportunity||""),nextWeekFocus:String(row.next_week_focus||""),
+      coachMessage:String(row.coach_message||""),shareWithPlayer:Boolean(row.share_with_player),
+      createdAt:row.created_at||undefined,updatedAt:row.updated_at||undefined
+    }));
+  };
+
+  const saveCoachWeeklyReview=async(review:CoachWeeklyReview)=>{
+    if(!supabase||!access)throw new Error("Sign in required.");
+    if(access.role!=="Coach")throw new Error("Only Coach accounts can save Coach weekly reviews.");
+    if(!selectedAthleteName)throw new Error("Open a linked athlete from Teams before creating a Coach review.");
+    const workspaceId=selectedCloudWorkspaceId||access.workspace_id;
+    const {error}=await supabase.from("coach_weekly_reviews").upsert({
+      workspace_id:workspaceId,
+      coach_user_id:access.user_id,
+      coach_name:access.display_name||access.email,
+      week_start:review.weekStart,
+      performance:review.performance,
+      effort:review.effort,
+      attitude:review.attitude,
+      teamwork:review.teamwork,
+      coachability:review.coachability,
+      leadership:review.leadership,
+      strengths:review.strengths,
+      development_opportunity:review.developmentOpportunity,
+      leadership_opportunity:review.leadershipOpportunity,
+      next_week_focus:review.nextWeekFocus,
+      coach_message:review.coachMessage,
+      share_with_player:review.shareWithPlayer,
+      updated_at:new Date().toISOString()
+    },{onConflict:"workspace_id,coach_user_id,week_start"});
     if(error)throw error;
   };
 
@@ -420,7 +502,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message:feedbackBody.trim(),
-      app_version:"72.3.21",
+      app_version:"72.3.33",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -437,7 +519,23 @@ export default function BetaGate(){
     setMembers((data||[]) as BetaMember[]);
   };
 
-  useEffect(()=>{if(showAdmin)void loadMembers()},[showAdmin]);
+  const loadFeedbackInbox=async()=>{
+    if(!supabase||access?.role!=="Admin")return;
+    setFeedbackInboxMessage("");
+    const {data,error}=await supabase.from("beta_feedback")
+      .select("id,workspace_id,user_id,category,message,app_version,page_url,created_at")
+      .order("created_at",{ascending:false})
+      .limit(200);
+    if(error){setFeedbackInboxMessage(error.message);return}
+    setFeedbackInbox((data||[]) as BetaFeedbackRow[]);
+  };
+
+  useEffect(()=>{if(showAdmin){void loadMembers();void loadFeedbackInbox()}},[showAdmin]);
+
+  const filteredFeedback=feedbackFilter==="All"?feedbackInbox:feedbackInbox.filter(x=>x.category===feedbackFilter);
+  const feedbackCategories=["All",...Array.from(new Set(feedbackInbox.map(x=>x.category)))];
+  const feedbackReporter=(userId:string)=>members.find(x=>x.user_id===userId);
+  const formatFeedbackDate=(value:string)=>new Date(value).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"});
 
   const createInvite=async()=>{
     if(!supabase||access?.role!=="Admin"||!inviteEmail.trim())return;
@@ -460,6 +558,15 @@ export default function BetaGate(){
     await loadMembers();
   };
 
+  const selectedAthleteSport=
+    access?.role==="Parent"
+      ?parentPlayers.find(x=>x.workspace_id===selectedCloudWorkspaceId)?.sport
+      :access?.role==="Player"
+      ?selfAthlete?.sport
+      :access?.role==="Coach"
+      ?teamMembers.find(x=>x.athlete?.workspace_id===selectedCloudWorkspaceId)?.athlete?.sport
+      :undefined;
+
   const bridge:BetaBridge|null=useMemo(()=>access&&user?{
     session:{
       role:access.role,
@@ -481,8 +588,11 @@ export default function BetaGate(){
     openBetaAdmin:access.role==="Admin"?()=>setShowAdmin(true):undefined,
     returnToCoachWorkspace:access.role==="Coach"&&selectedAthleteName?returnToCoachWorkspace:undefined,
     selectedAthleteName,
-    saveSharedNotes
-  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,selectedAthleteName]);
+    selectedAthleteSport,
+    saveSharedNotes,
+    loadCoachWeeklyReviews,
+    saveCoachWeeklyReview:access.role==="Coach"?saveCoachWeeklyReview:undefined
+  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,selectedAthleteName,selectedAthleteSport,selfAthlete,teamMembers]);
 
   if(!betaConfigured())return <div className="betaSetupShell"><div className="betaSetupCard">
     <div className="betaMark">BETA</div><h1>Beta backend needs configuration</h1>
@@ -492,6 +602,22 @@ export default function BetaGate(){
   </div></div>;
 
   if(loading)return <div className="betaSetupShell"><div className="betaSetupCard"><div className="betaMark">BETA</div><h1>Loading beta access…</h1></div></div>;
+
+  if(signupComplete&&!user)return <div className="betaAuthShell"><div className="betaAuthCard signupConfirmationCard">
+    <div className="signupMailIcon">✉</div>
+    <small className="signupConfirmationEyebrow">ONE MORE STEP</small>
+    <h1>Check your email</h1>
+    <p>We sent a verification email to <b>{signupComplete.email}</b>.</p>
+    <div className="signupConfirmationSteps">
+      <div><span>1</span><p>Open the verification email from Athlete Performance / Supabase.</p></div>
+      <div><span>2</span><p>Tap the <b>verification / confirmation link</b> in that email.</p></div>
+      <div><span>3</span><p>Return to the beta website and sign in with the email and password you just created.</p></div>
+    </div>
+    <div className="signupApprovalNote"><b>If your account also requires approval</b><span>Email verification confirms your email address. Coach or Admin access can still remain pending until it is approved.</span></div>
+    <p className="signupSpamTip">No email yet? Check Spam/Junk and give delivery a few minutes. Avoid repeatedly creating the account because verification-email rate limits can temporarily block new messages.</p>
+    <button className="betaPrimary" onClick={()=>{setSignupComplete(null);setAuthMode("signin");setEmail(signupComplete.email);setMessage("")}}>I Verified My Email · Go to Sign In</button>
+    <button className="signupSecondary" onClick={()=>{setSignupComplete(null);setAuthMode("signup");setMessage("")}}>Use a Different Email</button>
+  </div></div>;
 
   if(!user)return <div className="betaAuthShell"><div className="betaAuthCard">
     <div className="betaAuthBrand"><span>AP</span><div><small>ATHLETE PERFORMANCE</small><h1>{authMode==="signin"?"Beta sign in":"Create beta account"}</h1><p>Secure accounts with cloud-backed athlete data.</p></div></div>
@@ -507,14 +633,14 @@ export default function BetaGate(){
   </div></div>;
 
   if(!access||!access.active)return <div className="betaAuthShell"><div className="betaAuthCard">
-    <div className="betaMark">ACCESS</div><h1>Account is not active</h1>
-    <p>You are signed in as <b>{user.email}</b>, but this account is not active.</p>
-    <p>Players and Parents self-register. Coach and Admin accounts require approval.</p>
+    <div className="betaMark">ACCESS</div><h1>Account approval is pending</h1>
+    <p>You are signed in as <b>{user.email}</b>, but this account is not active yet.</p>
+    <p>If you just verified your email, that step is complete. Coach and Admin access may still require approval before the beta workspace opens.</p>
     <button className="betaPrimary" onClick={signOut}>Sign Out</button>
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · v72.3.21</div>
+    <div className="betaRibbon">BETA · v72.3.33</div>
 
     <AthleteApp betaBridge={bridge!}/>
 
@@ -595,17 +721,30 @@ export default function BetaGate(){
       <button className="betaPrimary" onClick={submitFeedback}>Send Feedback</button>
     </div></div>}
 
-    {showAdmin&&access.role==="Admin"&&<div className="betaModalOverlay"><div className="betaAdminCard">
-      <div className="sectionHead"><div><small>BETA ADMIN</small><h2>Account Access</h2></div><button onClick={()=>setShowAdmin(false)}>×</button></div>
-      <p className="coachGroupIntro">Players and Parents self-register. Use Admin approval primarily for Coach and Admin accounts.</p>
-      <div className="betaInviteGrid">
-        <label>Email<input type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="coach@example.com"/></label>
-        <label>Name<input value={inviteName} onChange={e=>setInviteName(e.target.value)} placeholder="Name"/></label>
-        <label>Role<select value={inviteRole} onChange={e=>setInviteRole(e.target.value as BetaRole)}>{roles.map(r=><option key={r}>{r}</option>)}</select></label>
-        <button className="betaPrimary" onClick={createInvite}>Approve / Invite</button>
-      </div>
-      {adminMessage&&<div className="betaMessage">{adminMessage}</div>}
-      <div className="betaMemberList">{members.map(m=><div key={m.user_id} className="betaMemberRow"><div><b>{m.display_name||m.email}</b><small>{m.email} · {m.role}</small></div><button onClick={()=>void setMemberActive(m,!m.active)}>{m.active?"Disable":"Enable"}</button></div>)}</div>
+    {showAdmin&&access.role==="Admin"&&<div className="betaModalOverlay"><div className="betaAdminCard betaAdminInboxCard">
+      <div className="sectionHead"><div><small>BETA ADMIN</small><h2>{adminSection==="accounts"?"Account Access":"Beta Feedback Inbox"}</h2></div><button onClick={()=>setShowAdmin(false)}>×</button></div>
+      <div className="betaAdminTabs"><button className={adminSection==="accounts"?"active":""} onClick={()=>setAdminSection("accounts")}>Accounts</button><button className={adminSection==="feedback"?"active":""} onClick={()=>{setAdminSection("feedback");void loadFeedbackInbox()}}>Feedback <span>{feedbackInbox.length}</span></button></div>
+
+      {adminSection==="accounts"?<>
+        <p className="coachGroupIntro">Players and Parents self-register. Use Admin approval primarily for Coach and Admin accounts.</p>
+        <div className="betaInviteGrid">
+          <label>Email<input type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="coach@example.com"/></label>
+          <label>Name<input value={inviteName} onChange={e=>setInviteName(e.target.value)} placeholder="Name"/></label>
+          <label>Role<select value={inviteRole} onChange={e=>setInviteRole(e.target.value as BetaRole)}>{roles.map(r=><option key={r}>{r}</option>)}</select></label>
+          <button className="betaPrimary" onClick={createInvite}>Approve / Invite</button>
+        </div>
+        {adminMessage&&<div className="betaMessage">{adminMessage}</div>}
+        <div className="betaMemberList">{members.map(m=><div key={m.user_id} className="betaMemberRow"><div><b>{m.display_name||m.email}</b><small>{m.email} · {m.role}</small></div><button onClick={()=>void setMemberActive(m,!m.active)}>{m.active?"Disable":"Enable"}</button></div>)}</div>
+      </>:<div className="feedbackInbox">
+        <div className="feedbackInboxToolbar"><div><small>REPORTS</small><b>{filteredFeedback.length} shown · {feedbackInbox.length} total</b></div><div><select aria-label="Filter feedback" value={feedbackFilter} onChange={e=>setFeedbackFilter(e.target.value)}>{feedbackCategories.map(x=><option key={x}>{x}</option>)}</select><button onClick={()=>void loadFeedbackInbox()}>Refresh</button></div></div>
+        {feedbackInboxMessage&&<div className="betaMessage">{feedbackInboxMessage}</div>}
+        {filteredFeedback.length===0?<div className="feedbackEmpty"><b>No feedback reports yet</b><span>Reports submitted with Report Problem will appear here.</span></div>:<div className="feedbackInboxList">{filteredFeedback.map(item=>{const reporter=feedbackReporter(item.user_id);return <article className="feedbackInboxItem" key={item.id}>
+          <div className="feedbackInboxTop"><div><span className="tag">{item.category}</span><b>{reporter?.display_name||reporter?.email||"Beta tester"}</b></div><time>{formatFeedbackDate(item.created_at)}</time></div>
+          <p>{item.message}</p>
+          <div className="feedbackInboxMeta"><span>{reporter?.email||"User ID: "+item.user_id.slice(0,8)+"…"}</span>{item.app_version&&<span>v{item.app_version}</span>}</div>
+          {item.page_url&&<a href={item.page_url} target="_blank" rel="noreferrer">Open reported page ↗</a>}
+        </article>})}</div>}
+      </div>}
     </div></div>}
   </div>;
 }
