@@ -6,7 +6,8 @@ type Sport="Baseball"|"Football"|"Ice Hockey"|"Basketball"|"Lacrosse"|"Wrestling
 type TestDef={id:string;name:string;category:string;unit:string;lowerBetter:boolean};
 type CustomTest=TestDef&{sport:Sport};
 type Result={id:number;testId:string;name:string;category:string;unit:string;value:number;date:string;sport:Sport};
-type Goal={id:number;title:string;progress:number;type:"Short-term"|"Mid-term"|"Long-term";category?:string;deadline?:string;target?:string;linkedTestId?:string;status?:"Active"|"Complete"|"Paused";notes?:string};
+type GoalCoachFeedback={id:number;date:string;coachName:string;kind:"Suggestion"|"Comment";text:string};
+type Goal={id:number;title:string;progress:number;type:"Short-term"|"Mid-term"|"Long-term";category?:string;deadline?:string;target?:string;linkedTestId?:string;status?:"Active"|"Complete"|"Paused";notes?:string;coachFeedback?:GoalCoachFeedback[]};
 type RoutineReference={title:string;url:string;source:string;section?:string;matchNote:string;sport:Sport;positions:string[];ageMin:number;ageMax:number;offIce:boolean;exerciseNames:string[];durationMinutes?:number;durationLabel?:string;thumbnailUrl?:string};
 type Workout={id:number;date:string;name:string;category:string;minutes:number;completed:boolean;sport:Sport;intensity?:"Easy"|"Moderate"|"Hard";rpe?:number;notes?:string;focus?:string;source?:"Generated"|"Verified Routine"|"Custom"|"Manual";exercises?:ProgramExercise[];referenceVideos?:RoutineReference[];supportVideos?:RoutineReference[];environment?:"Off-Ice";assignedByRole?:AccountRole};
 type Profile={name:string;position:string;team:string;season:string;height:string;weight:string;handedness:"Right"|"Left";age?:string;sport?:Sport};
@@ -32,6 +33,38 @@ type WeeklyPlanItem={day:string;focus:string;action:string;priority:"High"|"Medi
 type Tab="Home"|"Goals"|"Calendar"|"Testing"|"Analytics"|"Coach"|"Development"|"Competition"|"Roster";
 type WorkspaceRole="Athlete"|"Coach"|"Parent";
 type AccountRole="Player"|"Coach"|"Parent"|"Admin";
+type RolePermissionKey=
+ "editPlayerProfile"|"createPlayerGoal"|"updatePlayerGoal"|"goalFeedback"|
+ "playerDailyCheckIn"|"playerWeeklyReview"|"coachWeeklyReview"|
+ "manageDevelopmentPlan"|"practiceObservation"|"playerReflection"|
+ "writeTraining"|"writeTesting"|"writeCompetition"|"sharedNotes"|"adminOverride";
+const rolePermissions:Record<AccountRole,Record<RolePermissionKey,boolean>>={
+ Player:{
+  editPlayerProfile:true,createPlayerGoal:true,updatePlayerGoal:true,goalFeedback:false,
+  playerDailyCheckIn:true,playerWeeklyReview:true,coachWeeklyReview:false,
+  manageDevelopmentPlan:false,practiceObservation:false,playerReflection:true,
+  writeTraining:true,writeTesting:true,writeCompetition:true,sharedNotes:true,adminOverride:false
+ },
+ Coach:{
+  editPlayerProfile:false,createPlayerGoal:false,updatePlayerGoal:false,goalFeedback:true,
+  playerDailyCheckIn:false,playerWeeklyReview:false,coachWeeklyReview:true,
+  manageDevelopmentPlan:true,practiceObservation:true,playerReflection:false,
+  writeTraining:true,writeTesting:true,writeCompetition:true,sharedNotes:true,adminOverride:false
+ },
+ Parent:{
+  editPlayerProfile:false,createPlayerGoal:false,updatePlayerGoal:false,goalFeedback:false,
+  playerDailyCheckIn:false,playerWeeklyReview:false,coachWeeklyReview:false,
+  manageDevelopmentPlan:false,practiceObservation:false,playerReflection:false,
+  writeTraining:false,writeTesting:false,writeCompetition:false,sharedNotes:true,adminOverride:false
+ },
+ Admin:{
+  editPlayerProfile:true,createPlayerGoal:true,updatePlayerGoal:true,goalFeedback:true,
+  playerDailyCheckIn:true,playerWeeklyReview:true,coachWeeklyReview:true,
+  manageDevelopmentPlan:true,practiceObservation:true,playerReflection:true,
+  writeTraining:true,writeTesting:true,writeCompetition:true,sharedNotes:true,adminOverride:true
+ }
+};
+const canRole=(role:AccountRole,permission:RolePermissionKey)=>rolePermissions[role][permission];
 type TextSize="standard"|"comfortable"|"large"|"xlarge";
 export type BetaRole=AccountRole;
 type AccountSession={role:AccountRole;displayName:string;athleteId:string;linkedAthleteIds?:string[]};
@@ -49,6 +82,7 @@ export type BetaBridge={
  userId:string;
  email:string;
  workspaceId:string;
+ loginSessionKey?:string;
  session:AccountSession;
  loadState:()=>Promise<Record<string,unknown>|null>;
  saveState:(data:Record<string,unknown>)=>Promise<void>;
@@ -137,12 +171,12 @@ type TrainingBlock={id:number;name:string;startDate:string;endDate:string;focus:
 
 const pageHelp:Record<string,{title:string;purpose:string;primary:string}>={
  Home:{title:"Overview",purpose:"See what matters today and what to do next.",primary:"Review today"},
- Goals:{title:"Goals",purpose:"Set targets and track progress toward them.",primary:"Add or update a goal"},
+ Goals:{title:"Goals",purpose:"Review the Player's own goals and support progress without replacing Player ownership.",primary:"Review Player goals"},
  Calendar:{title:"Schedule",purpose:"See workouts, competitions, and important dates.",primary:"Plan training"},
  Testing:{title:"Testing",purpose:"Log results, track PRs, and measure improvement.",primary:"Log a test result"},
  Analytics:{title:"Progress",purpose:"Understand trends and overall development.",primary:"Review progress"},
  Coach:{title:"Readiness",purpose:"Check recovery and make better training decisions.",primary:"Complete readiness"},
- Development:{title:"Development",purpose:"Build skills, mental preparation, and training plans.",primary:"Choose a development tool"},
+ Development:{title:"Development",purpose:"Track priorities, skill progress, reflections, observations, and supporting needs.",primary:"Review the athlete development plan"},
  Competition:{title:"Competition",purpose:"Track games, matches, performance, and learning.",primary:"Review competition"},
  Roster:{title:"Roster",purpose:"Manage athletes and switch who you are viewing.",primary:"Select or edit a player"}
 };
@@ -777,7 +811,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  useEffect(()=>{
   let cancelled=false;
-  if(accountRole!=="Coach"||!betaBridge?.loadCoachRosterStates){
+  if(!["Coach","Admin"].includes(accountRole)||!betaBridge?.loadCoachRosterStates){
    setCoachCloudRoster([]);
    setCoachRosterCloudStatus("idle");
    return;
@@ -902,6 +936,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   {id:"roster",title:"Scan my roster",body:"The Coach Command Center shows who may need attention, why, and the recommended next action. Player Profile information is view-only.",tab:"Roster",button:"Open Coach Roster"},
   {id:"readiness",title:"Review Player readiness",body:"Players enter their own Daily Check-In. Your role is to review recovery context and use it to inform training decisions.",tab:"Coach",button:"Review Readiness"},
   {id:"development",title:"Review Development",body:"Development combines the athlete's stage, position priorities, Skill Tree, training plan, and development timeline.",tab:"Development",button:"Open Development"},
+  {id:"goals",title:"Support Player-owned Goals",body:"Goals must come from the Player. Coaches review existing goals and can add a Suggestion or Comment without creating, changing progress, pausing, completing, or deleting the goal.",tab:"Goals",button:"Open Player Goals"},
   {id:"observations",title:"Add a Practice Observation",body:"Use Coach Practice Observations to record what actually happened in practice or competition and connect it to the Skill Tree.",tab:"Development",button:"Open Observations"},
   {id:"review",title:"Complete Coach Weekly Review",body:"The Coach Weekly Review is your perspective. It stays separate from the Player's own Weekly Review and can be shared with the Player when appropriate.",tab:"Coach",button:"Open Coach Review"},
   {id:"finish",title:"Coach setup complete",body:"Your normal workflow is: scan roster → review the Player → understand the signal → take one development action → move to the next Player."}
@@ -1072,7 +1107,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const featureCatalog:{tab:Tab;group:"Overview"|"Plan"|"Train"|"Progress"|"More";title:string;description:string;how:string}[]=[
   {tab:"Home",group:"Overview",title:effectiveRole==="Player"?"Today":effectiveRole==="Parent"?"Parent Overview":"Overview",description:effectiveRole==="Player"?"Your simple starting point: Daily Check-In, next training, current focus, weekly status, and profile.":effectiveRole==="Parent"?"See the Player's schedule, recovery, progress, and support priorities in a view-focused dashboard.":"Current athlete status, priorities, and role-specific actions.",how:effectiveRole==="Player"?"Start here each day. Do the first unfinished action, then you are done.":effectiveRole==="Parent"?"Start here when you are not sure what to review.":"Use this as the starting point."},
-  {tab:"Goals",group:"Plan",title:effectiveRole==="Player"?"My Goals":"Goals",description:effectiveRole==="Player"?"Keep one or a few clear targets and update progress over time.":"Create and review short-, mid-, and long-term development goals.",how:"Open Plan, then Goals."},
+  {tab:"Goals",group:"Plan",title:effectiveRole==="Player"?"My Goals":"Goals",description:effectiveRole==="Player"?"Create and own one or a few clear targets, then update your progress over time.":effectiveRole==="Coach"?"Review Player-owned goals and add Coach suggestions or comments to an existing goal.":effectiveRole==="Parent"?"View the Player's own goals and understand what they are working toward.":"Review Player-owned goals without creating goals on the athlete's behalf.",how:"Open Plan, then Goals."},
   {tab:"Calendar",group:"Plan",title:effectiveRole==="Player"?"My Schedule":"Schedule",description:effectiveRole==="Player"?"See what training or competition is next.":"Review workouts, competitions, and important dates.",how:"Open Plan, then Schedule."},
   {tab:"Development",group:"Train",title:effectiveRole==="Player"?"My Development":effectiveRole==="Parent"?"Development Support":"Development",description:effectiveRole==="Player"?"See what you are working on next, your development stage, training plan, and skill progress.":effectiveRole==="Parent"?"Understand the athlete's current development step and how to support it without taking over coaching.":"Manage development priorities, Skill Tree, observations, training plan, and athlete development timeline.",how:effectiveRole==="Parent"?"Open More, then Development.":"Open Train, then Development."},
   {tab:"Coach",group:"Train",title:effectiveRole==="Parent"?"Recovery & Notes":effectiveRole==="Player"?"Daily Check-In":"Readiness & Coach Tools",description:effectiveRole==="Parent"?"Review Player-entered readiness, recovery tools, and shared support-team notes.":effectiveRole==="Player"?"Log sleep, energy, soreness, and stress. Start with the simple readiness result; open the details only when you want them.":"Review Player readiness, complete Coach Weekly Reviews, and use Coach planning tools.",how:effectiveRole==="Parent"?"Tap Recovery at the bottom.":effectiveRole==="Player"?"Open Train, then Daily Check-In.":"Open Train, then Readiness & Coach Tools."},
@@ -1100,6 +1135,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   {title:"How do I add a Practice Observation?",detail:"Open Development → Observations.",tab:"Development",subView:"Observations"},
   {title:"How do I complete a Coach Review?",detail:"Open Weekly Review.",tab:"Coach",subView:"Review"},
   {title:"How do I review Player analytics?",detail:"Open the shared Analytics Cockpit.",tab:"Analytics"},
+  {title:"How do I support a Player goal?",detail:"Open Goals to add a Coach Suggestion or Comment. The Player owns the goal itself.",tab:"Goals"},
   {title:"How do I review development priorities?",detail:"Open Development.",tab:"Development"}
  ]:effectiveRole==="Parent"?[
   ...(betaBridge?.openParentPlayers?[{title:"How do I switch between my Players?",detail:"Open My Players.",action:"players" as const}]:[]),
@@ -1144,15 +1180,15 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  
  const quickActions:QuickAction[]=[
-  {id:"home",label:"Go to Home",tab:"Home",keywords:["dashboard","home","summary"]},
-  {id:"goals",label:"Open Goals",tab:"Goals",keywords:["goal","target","deadline"]},
-  {id:"calendar",label:"Open Calendar",tab:"Calendar",keywords:["workout","schedule","training"]},
-  {id:"testing",label:"Open Testing",tab:"Testing",keywords:["test","pr","retest"]},
-  {id:"analytics",label:"Open Analytics",tab:"Analytics",keywords:["trend","report","scorecard"]},
-  {id:"coach",label:"Open Coach",tab:"Coach",keywords:["readiness","recommendation","recovery"]},
-  {id:"development",label:"Open Development",tab:"Development",keywords:["program","milestone","objective"]},
+  {id:"home",label:effectiveRole==="Player"?"Go to Today":"Go to Overview",tab:"Home",keywords:["dashboard","home","today","summary"]},
+  {id:"goals",label:effectiveRole==="Player"?"Open My Goals":"Open Goals",tab:"Goals",keywords:["goal","target","deadline"]},
+  {id:"calendar",label:effectiveRole==="Player"?"Open My Schedule":"Open Schedule",tab:"Calendar",keywords:["workout","schedule","training"]},
+  {id:"testing",label:effectiveRole==="Player"?"Open My Testing":"Open Testing",tab:"Testing",keywords:["test","pr","retest"]},
+  {id:"analytics",label:effectiveRole==="Player"?"Open My Progress":"Open Analytics",tab:"Analytics",keywords:["trend","report","scorecard","progress"]},
+  {id:"coach",label:effectiveRole==="Player"?"Open Daily Check-In":effectiveRole==="Parent"?"Open Recovery":"Open Readiness & Coach Tools",tab:"Coach",keywords:["readiness","recommendation","recovery"]},
+  {id:"development",label:effectiveRole==="Player"?"Open My Development":effectiveRole==="Parent"?"Open Development Support":"Open Development",tab:"Development",keywords:["development","milestone","priority","objective"]},
   {id:"competition",label:"Open Competition",tab:"Competition",keywords:["game","match","stats"]},
-  {id:"roster",label:"Open Roster",tab:"Roster",keywords:["athlete","backup","data"]}
+  {id:"roster",label:effectiveRole==="Coach"?"Open Coach Roster":"Open Roster",tab:"Roster",keywords:["athlete","backup","data"]}
  ];
  const filteredActions=quickActions.filter(a=>visibleTabs.includes(a.tab)).filter(a=>!commandQuery.trim()||(`${a.label} ${a.keywords.join(" ")}`).toLowerCase().includes(commandQuery.toLowerCase()));
  useEffect(()=>{
@@ -1177,17 +1213,17 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="sportSelectorBlock lockedProfileSport"><div className="sportSelectorHead"><small>PROFILE SPORT</small><span>Locked to this athlete</span></div><div className="lockedSportDisplay"><button className="sel lockedSportButton" type="button" disabled aria-label={`${sport} is locked to this athlete profile`}>{sport}</button><span>Sport changes only through <b>Edit Profile</b>.</span></div></div>
    {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>{guideSteps.find(x=>x.id===guideWaitingFor)?.complete?"Complete this step and the guide will continue automatically.":"Explore this feature, then return to the guide when you're ready."}</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
    <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Review, support, and communicate":effectiveRole==="Player"?"Keep today simple: check in, train, improve":"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{effectiveRole==="Parent"?(parentPageHelp[tab]?.title||roleNavLabel(tab)):effectiveRole==="Player"?(playerPageHelp[tab]?.title||roleNavLabel(tab)):pageHelp[tab]?.title||tab}</small><b>{effectiveRole==="Parent"?(parentPageHelp[tab]?.purpose||""):effectiveRole==="Player"?(playerPageHelp[tab]?.purpose||""):pageHelp[tab]?.purpose||""}</b></div><span>{effectiveRole==="Parent"?(parentPageHelp[tab]?.primary||""):effectiveRole==="Player"?(playerPageHelp[tab]?.primary||""):pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
-   {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home accountRole={effectiveRole} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/></>:<Home accountRole={effectiveRole} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest}/>)} 
-   {tab==="Goals"&&<Goals goals={goals} setGoals={setGoals}/>}
-   {tab==="Calendar"&&(effectiveRole==="Parent"?<ParentSchedule sport={sport} workouts={workouts} competitions={competitions} seasonEvents={seasonEvents} setTab={setTab}/>:<Calendar sport={sport} workouts={workouts} setWorkouts={setWorkouts} profile={profile} seasonEvents={seasonEvents} setSeasonEvents={setSeasonEvents} trainingBlocks={trainingBlocks} setTrainingBlocks={setTrainingBlocks} competitions={competitions}/>)} 
-   {tab==="Testing"&&<Testing sport={sport} library={[...definitions(sport),...custom.filter(x=>x.sport===sport)]} custom={custom} setCustom={setCustom} results={results} setResults={setResults} testTargets={testTargets} setTestTargets={setTestTargets}/>} 
-   {tab==="Analytics"&&(effectiveRole==="Parent"?<ParentProgress sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} setTab={setTab}/>:<AnalyticsHub accountRole={effectiveRole} setTab={setTab} setDev={setDev} setGoals={setGoals} setWorkouts={setWorkouts} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions} reportNotes={reportNotes} setReportNotes={setReportNotes}/>)} 
-   {tab==="Coach"&&((effectiveRole==="Coach"||effectiveRole==="Admin")?<CoachHub athleteId={betaBridge?.workspaceId||activeAthleteId} accountRole={effectiveRole} authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} coachWeeklyReviews={coachWeeklyReviews} setCoachWeeklyReviews={setCoachWeeklyReviews} saveCoachWeeklyReview={betaBridge?.saveCoachWeeklyReview} canWriteCoachReview={accountRole==="Coach"&&Boolean(betaBridge?.selectedAthleteName)} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} competitions={competitions} coachNotes={coachNotes} setCoachNotes={setCoachNotes}/>:effectiveRole==="Player"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Player" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes}/>:effectiveRole==="Parent"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Parent" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes}/>:null)} 
+   {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home accountRole={effectiveRole} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/></>:<Home accountRole={effectiveRole} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/>)} 
+   {tab==="Goals"&&<Goals viewRole={effectiveRole} actualRole={accountRole} authorName={accountSession.displayName} goals={goals} setGoals={setGoals}/>}
+   {tab==="Calendar"&&(effectiveRole==="Parent"?<ParentSchedule sport={sport} workouts={workouts} competitions={competitions} seasonEvents={seasonEvents} setTab={setTab}/>:<Calendar accountRole={effectiveRole} sport={sport} workouts={workouts} setWorkouts={setWorkouts} profile={profile} seasonEvents={seasonEvents} setSeasonEvents={setSeasonEvents} trainingBlocks={trainingBlocks} setTrainingBlocks={setTrainingBlocks} competitions={competitions}/>)} 
+   {tab==="Testing"&&<Testing accountRole={effectiveRole} sport={sport} library={[...definitions(sport),...custom.filter(x=>x.sport===sport)]} custom={custom} setCustom={setCustom} results={results} setResults={setResults} testTargets={testTargets} setTestTargets={setTestTargets}/>} 
+   {tab==="Analytics"&&(effectiveRole==="Parent"?<ParentProgress sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} setTab={setTab}/>:<AnalyticsHub accountRole={effectiveRole} actualAccountRole={accountRole} setTab={setTab} setDev={setDev} setGoals={setGoals} setWorkouts={setWorkouts} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions} reportNotes={reportNotes} setReportNotes={setReportNotes}/>)} 
+   {tab==="Coach"&&((effectiveRole==="Coach"||effectiveRole==="Admin")?<CoachHub athleteId={betaBridge?.workspaceId||activeAthleteId} accountRole={effectiveRole} authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} coachWeeklyReviews={coachWeeklyReviews} setCoachWeeklyReviews={setCoachWeeklyReviews} saveCoachWeeklyReview={betaBridge?.saveCoachWeeklyReview} canWriteCoachReview={(accountRole==="Coach"&&Boolean(betaBridge?.selectedAthleteName))||accountRole==="Admin"} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} competitions={competitions} coachNotes={coachNotes} setCoachNotes={setCoachNotes}/>:effectiveRole==="Player"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Player" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes}/>:effectiveRole==="Parent"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Parent" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes}/>:null)} 
    
-   {tab==="Development"&&(effectiveRole==="Parent"?<ParentDevelopment sport={sport} profile={profile} dev={dev} program={program} milestones={milestones} developmentSystem={developmentSystem} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} goals={goals} workouts={workouts} results={results} competitions={competitions} setTab={setTab}/>:<DevelopmentHub accountRole={effectiveRole} sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} goals={goals} workouts={workouts} program={program} setProgram={setProgram} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} competitions={competitions} milestones={milestones} setMilestones={setMilestones} developmentSystem={developmentSystem} setDevelopmentSystem={setDevelopmentSystem} setWorkouts={setWorkouts}/>)} 
+   {tab==="Development"&&(effectiveRole==="Parent"?<ParentDevelopment sport={sport} profile={profile} dev={dev} program={program} milestones={milestones} developmentSystem={developmentSystem} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} goals={goals} workouts={workouts} results={results} competitions={competitions} setTab={setTab}/>:<DevelopmentHub accountRole={effectiveRole} setTab={setTab} sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} goals={goals} workouts={workouts} program={program} setProgram={setProgram} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} competitions={competitions} milestones={milestones} setMilestones={setMilestones} developmentSystem={developmentSystem} setDevelopmentSystem={setDevelopmentSystem} setWorkouts={setWorkouts}/>)} 
    
    
-   {tab==="Competition"&&(effectiveRole==="Parent"?<ParentCompetition sport={sport} profile={profile} competitions={competitions} setTab={setTab}/>:<Competition sport={sport} competitions={competitions} setCompetitions={setCompetitions} profile={profile}/>)} 
+   {tab==="Competition"&&(effectiveRole==="Parent"?<ParentCompetition sport={sport} profile={profile} competitions={competitions} setTab={setTab}/>:<Competition accountRole={effectiveRole} sport={sport} competitions={competitions} setCompetitions={setCompetitions} profile={profile}/>)} 
    
    {tab==="Roster"&&(effectiveRole==="Coach"||effectiveRole==="Admin")&&<>{effectiveRole==="Admin"&&<AdminBetaHealth cloudStatus={cloudStatus} lastSaved={cloudLastSavedAt} error={cloudErrorMessage} pending={pendingCloudSave} workspaceId={betaBridge?.workspaceId||""} selectedAthlete={betaBridge?.selectedAthleteName||profile.name} cloudLoaded={!betaBridge||cloudReadyWorkspaceRef.current===betaBridge.workspaceId}/>}<Roster accountRole={effectiveRole} sport={sport} profile={profile} roster={roster} setRoster={setRoster} activeAthleteId={activeAthleteId} switchAthlete={switchAthlete} setTab={setTab} setEditProfileRequest={setEditProfileRequest} goals={goals} currentWorkouts={workouts} currentResults={results} currentDev={dev} currentReadiness={readiness} currentCompetitions={competitions} currentDevelopmentSystem={developmentSystem} currentTestTargets={testTargets} currentCoachWeeklyReviews={coachWeeklyReviews} cloudSelectedAthleteName={betaBridge?.selectedAthleteName} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/>{effectiveRole==="Admin"&&<DataCenter profile={profile} sport={sport} roster={roster} activeAthleteId={activeAthleteId} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} coachNotes={coachNotes} competitions={competitions} reportNotes={reportNotes} developmentSystem={developmentSystem} setProfile={setProfile} setGoals={setGoals} setWorkouts={setWorkouts} setResults={setResults} setDev={setDev} setProgram={setProgram} setReadiness={setReadiness} setCoachNotes={setCoachNotes} setCompetitions={setCompetitions} setReportNotes={setReportNotes} setDevelopmentSystem={setDevelopmentSystem} setRoster={setRoster} setActiveAthleteId={setActiveAthleteId} setSport={setSport}/>}</>} 
    
@@ -1306,9 +1342,41 @@ function RoleLogin({profile,activeAthleteId,roster,onLogin}:{profile:Profile;act
 }
 
 
+
+function RolePermissionAuditPanel(){
+ const rows:{label:string;key:RolePermissionKey}[]=[
+  {label:"Edit Player Profile",key:"editPlayerProfile"},
+  {label:"Create / Update Player Goal",key:"createPlayerGoal"},
+  {label:"Coach Goal Feedback",key:"goalFeedback"},
+  {label:"Player Daily Check-In",key:"playerDailyCheckIn"},
+  {label:"Player Weekly Review",key:"playerWeeklyReview"},
+  {label:"Coach Weekly Review",key:"coachWeeklyReview"},
+  {label:"Manage Development Plan",key:"manageDevelopmentPlan"},
+  {label:"Practice Observation",key:"practiceObservation"},
+  {label:"Player Reflection",key:"playerReflection"},
+  {label:"Training Records",key:"writeTraining"},
+  {label:"Testing Records",key:"writeTesting"},
+  {label:"Competition Records",key:"writeCompetition"}
+ ];
+ const roles:AccountRole[]=["Player","Coach","Parent","Admin"];
+ return <div className="card rolePermissionAuditPanel">
+  <div className="sectionHead"><div><small>PHASE 72.3.48 · PERMISSION AUDIT</small><h2>Role Ownership Matrix</h2><p>One source of truth now drives the main write permissions. Admin is the explicit full-access override.</p></div><span className="tag">AUDITED</span></div>
+  <div className="rolePermissionTable">
+   <div className="rolePermissionHeader"><b>Action</b>{roles.map(role=><b key={role}>{role}</b>)}</div>
+   {rows.map(row=><div className="rolePermissionRow" key={row.key}><span>{row.label}</span>{roles.map(role=><span className={canRole(role,row.key)?"allow":"deny"} key={role}>{canRole(role,row.key)?"✓":"—"}</span>)}</div>)}
+  </div>
+  <div className="rolePermissionNotes">
+   <span><b>Goals:</b> Player-owned. Coach adds suggestions/comments. Admin override.</span>
+   <span><b>Development Plan:</b> Coach/Admin managed. Player participates through reflections and review.</span>
+   <span><b>Parent:</b> Support/read role with Shared Notes as the main write pathway.</span>
+  </div>
+ </div>;
+}
+
 function AdminHome({profile,sport,roster}:{profile:Profile;sport:Sport;roster:AthleteRecord[]}){
- return <><div className="hero adminHero"><small>ADMIN WORKSPACE</small><h1>Owner / Admin Control</h1><p>Full app access with role-preview controls for testing every workspace.</p></div>
+ return <><div className="adminFullAccessBanner"><span className="tag">ADMIN FULL ACCESS</span><div><b>Administrative override is active</b><p>Admin can select any athlete and create, correct, or manage profile data, goals, readiness, Player reviews, Coach reviews, testing, training records, competition data, development records, and reports.</p></div></div><div className="hero adminHero"><small>ADMIN WORKSPACE</small><h1>Owner / Admin Control</h1><p>Full app access with role-preview controls for testing every workspace.</p></div>
  <div className="adminAccessGrid"><div className="card"><small>ACTIVE ATHLETE</small><h2>{profile.name}</h2><p>{sport}{profile.position?" · "+profile.position:""}</p></div><div className="card"><small>ROSTER</small><h2>{Math.max(1,roster.length)} athlete{Math.max(1,roster.length)===1?"":"s"}</h2><p>Full roster and athlete-data access.</p></div><div className="card"><small>ACCESS LEVEL</small><h2>Full</h2><p>Coach, Player, Parent, roster, data, and administration tools.</p></div></div>
+ <RolePermissionAuditPanel/>
  <div className="card adminInfoCard"><h2>Admin Testing</h2><p>Use <b>Test View</b> in the top bar to preview exactly what a Coach, Player, or Parent can see. Return to <b>Admin</b> to restore unrestricted access.</p></div></>;
 }
 
@@ -1502,9 +1570,11 @@ function ParentDevelopment({sport,profile,dev,program,milestones,developmentSyst
  const activeGoals=goals.filter(g=>(g.status||"Active")!=="Complete");
  const lowestPillar=developmentPillars.map(p=>({pillar:p,score:developmentSystem.pillarRatings[p]||3})).sort((a,b)=>a.score-b.score)[0];
  const needsWorkSkills=sportSkillTrees[sport].filter(name=>developmentSystem.skillProgress[name]?.level==="Needs Work");
+ const parentPlanPrimary=dev.find(d=>d.status!=="Complete"&&d.notes?.includes("[ADP_PRIMARY]"));
+ const parentPlanSecondary=dev.find(d=>d.status!=="Complete"&&d.notes?.includes("[ADP_SECONDARY]"));
  const parentStage=developmentStageForAge(Number(profile.age||0));
  const parentPositionPriorities=positionSkillPriorities(sport,profile.position).filter(name=>sportSkillTrees[sport].includes(name));
- const parentNextSkill=parentPositionPriorities.find(name=>developmentSystem.skillProgress[name]?.level!=="Advanced")||parentPositionPriorities[0]||sportSkillTrees[sport][0];
+ const parentNextSkill=parentPlanPrimary?.title||parentPositionPriorities.find(name=>developmentSystem.skillProgress[name]?.level!=="Advanced")||parentPositionPriorities[0]||sportSkillTrees[sport][0];
  const parentCurrentLevel=progressionLevelFromSkill(developmentSystem.skillProgress[parentNextSkill]?.level);
  const parentNextLevel=nextProgressionLevel(parentCurrentLevel,parentStage);
 
@@ -1567,9 +1637,9 @@ function ParentDevelopment({sport,profile,dev,program,milestones,developmentSyst
    <div className="card parentStageSupportCard">
     <div className="sectionHead"><div><small>AGE + POSITION DEVELOPMENT</small><h2>{profile.position||sport} · {parentStage} Stage</h2><p>{stageMessage[parentStage].parent}</p></div><span className="tag">AGE {profile.age||"—"}</span></div>
     <div className="parentStageSupportGrid">
-     <div><small>NEXT DEVELOPMENT STEP</small><b>{parentNextSkill}</b><span>{parentCurrentLevel} → {parentNextLevel}</span></div>
-     <div><small>WHAT THAT MEANS</small><p>{progressionExpectation(parentStage,parentNextLevel)}</p></div>
-     <div><small>BEST PARENT SUPPORT</small><p>{stageMessage[parentStage].parent}</p></div>
+     <div><small>PRIMARY DEVELOPMENT PRIORITY</small><b>{parentNextSkill}</b><span>{parentCurrentLevel} → {parentNextLevel}</span></div>
+     <div><small>WHAT THAT MEANS</small><p>{parentPlanPrimary?.target||progressionExpectation(parentStage,parentNextLevel)}</p>{parentPlanSecondary&&<span>Secondary: {parentPlanSecondary.title}</span>}</div>
+     <div><small>BEST PARENT SUPPORT</small><p>{stageMessage[parentStage].parent}</p>{parentPlanPrimary?.dueDate&&<span>Next review: {friendlyDate(parentPlanPrimary.dueDate)}</span>}</div>
     </div>
    </div>
 
@@ -1661,10 +1731,237 @@ function ParentCompetition({sport,profile,competitions,setTab}:{sport:Sport;prof
  </>;
 }
 
-function AnalyticsHub({accountRole,setTab,setDev,setGoals,setWorkouts,sport,profile,goals,workouts,results,dev,program,readiness,competitions,reportNotes,setReportNotes}:{accountRole:AccountRole;setTab:React.Dispatch<React.SetStateAction<Tab>>;setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;setGoals:React.Dispatch<React.SetStateAction<Goal[]>>;setWorkouts:React.Dispatch<React.SetStateAction<Workout[]>>;sport:Sport;profile:Profile;goals:Goal[];workouts:Workout[];results:Result[];dev:DevelopmentItem[];program:TrainingProgram|null;readiness:ReadinessLog[];competitions:CompetitionLog[];reportNotes:ReportNote[];setReportNotes:React.Dispatch<React.SetStateAction<ReportNote[]>>}){
+
+function PlayerProgressSimple({sport,profile,results,goals,workouts,readiness,competitions,onDetails,setTab}:{sport:Sport;profile:Profile;results:Result[];goals:Goal[];workouts:Workout[];readiness:ReadinessLog[];competitions:CompetitionLog[];onDetails:()=>void;setTab:React.Dispatch<React.SetStateAction<Tab>>}){
+ const rows=results.filter(r=>r.sport===sport).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+ const groups=[...new Map(rows.map(r=>[r.testId,r])).values()];
+ const summaries=groups.map(g=>{
+  const entries=rows.filter(x=>x.testId===g.testId).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+  const def=definitions(sport).find(x=>x.id===g.testId)||({lowerBetter:g.unit==="sec"} as TestDef);
+  const baseline=entries[0]?.value??0,current=entries[entries.length-1]?.value??0;
+  const imp=entries.length>1?improvement(baseline,current,def.lowerBetter):0;
+  return {name:g.name,count:entries.length,imp,current,unit:g.unit};
+ });
+ const improving=summaries.filter(x=>x.count>1&&x.imp>0).sort((a,b)=>b.imp-a.imp);
+ const declining=summaries.filter(x=>x.count>1&&x.imp<0).sort((a,b)=>a.imp-b.imp);
+ const sportWorkouts=workouts.filter(w=>w.sport===sport);
+ const completed=sportWorkouts.filter(w=>w.completed).length;
+ const training=sportWorkouts.length?Math.round(completed/sportWorkouts.length*100):0;
+ const goalProgress=goals.length?Math.round(goals.reduce((sum,g)=>sum+g.progress,0)/goals.length):0;
+ const recentReadiness=readiness.slice(0,7);
+ const readinessScore=recentReadiness.length?Math.round(recentReadiness.reduce((sum,r)=>sum+readinessScoreV2(r,Number(profile.age||0)),0)/recentReadiness.length):0;
+ const comps=competitions.filter(c=>c.sport===sport);
+ const competition=comps.length?Math.round(comps.reduce((sum,c)=>sum+c.rating,0)/comps.length*10):0;
+ const testing=Math.min(100,summaries.length*15+(improving.length?25:0));
+ const instruments=[
+  {label:"Testing",value:testing,available:summaries.length>0},
+  {label:"Training",value:training,available:sportWorkouts.length>0},
+  {label:"Goals",value:goalProgress,available:goals.length>0},
+  {label:"Readiness",value:readinessScore,available:recentReadiness.length>0},
+  {label:"Competition",value:competition,available:comps.length>0}
+ ];
+ const overall=Math.round(instruments.reduce((sum,x)=>sum+x.value,0)/5);
+ const status=overall>=80?"Strong":overall>=60?"Building":overall>=40?"Watch":"Attention";
+ const lowest=instruments.filter(x=>x.available).slice().sort((a,b)=>a.value-b.value)[0];
+ const thisWeekDone=sportWorkouts.filter(w=>w.completed&&new Date(w.date).getTime()>=Date.now()-7*86400000).length;
+ const activeGoals=goals.filter(g=>(g.status||"Active")!=="Complete");
+ const movingGoals=activeGoals.filter(g=>g.progress>=25).length;
+ const topImprovement=improving[0];
+ const whyText=declining[0]
+  ?`${declining[0].name} is the clearest repeated-test area moving backward right now.`
+  :lowest
+  ?`${lowest.label} is currently the lowest available part of your progress summary.`
+  :"Keep logging the same tests, training, goals, readiness, and competitions to make your progress picture stronger.";
+
+ return <div className="playerProgressSimple">
+  <div className="hero playerProgressHero"><div><small>PLAYER · MY PROGRESS</small><h1>How am I developing?</h1><p>Start with the simple answer. Open Detailed Progress only when you want the full numbers.</p></div><div className={"playerProgressScore "+status.toLowerCase()}><strong>{overall}</strong><span>/100</span><b>{status}</b></div></div>
+
+  <div className="playerProgressSnapshot">
+   <div className="playerProgressMain">
+    <small>OVERALL</small><h2>{status}</h2><p>{overall>=80?"Your current development signals are strong. Keep doing the things that are working.":overall>=60?"You are building. Keep the routine consistent and focus on the clearest next step.":overall>=40?"Some areas are moving well and some need more attention. Focus on one thing at a time.":"You need more data or one area needs attention. Use the next step below rather than chasing every number."}</p>
+   </div>
+   <div className="playerProgressHighlight good"><small>IMPROVING</small><b>{topImprovement?.name||"Build a repeat-test trend"}</b><span>{topImprovement?`+${topImprovement.imp}% from baseline`:"Repeat the same test to see real change."}</span></div>
+   <div className="playerProgressHighlight watch"><small>KEEP WORKING ON</small><b>{lowest?.label||"Build your baseline"}</b><span>{lowest?`${lowest.value}/100 current summary`:"More consistent data will reveal the next priority."}</span></div>
+  </div>
+
+  <div className="playerProgressSimpleGrid">
+   <button onClick={()=>setTab("Goals")}><small>GOALS</small><b>{movingGoals} of {activeGoals.length||0}</b><span>{activeGoals.length?"moving forward":"No active goals yet"}</span></button>
+   <button onClick={()=>setTab("Calendar")}><small>THIS WEEK</small><b>{thisWeekDone}</b><span>workouts completed</span></button>
+   <button onClick={()=>setTab("Coach")}><small>READINESS</small><b>{readinessScore?`${readinessScore}/100`:"No data"}</b><span>{readinessScore?readinessStatus(readinessScore):"Complete Daily Check-In"}</span></button>
+   <button onClick={()=>setTab("Testing")}><small>TESTING</small><b>{summaries.length}</b><span>measures tracked</span></button>
+  </div>
+
+  <details className="playerWhyCard">
+   <summary>Why is this my current progress summary?</summary>
+   <p>{whyText}</p>
+   <p>The detailed score still uses the same five areas as the Coach and Parent analytics: Testing, Training, Goals, Readiness, and Competition.</p>
+  </details>
+
+  <button className="featureAction playerDetailedButton" onClick={onDetails}>See Detailed Progress</button>
+ </div>;
+}
+
+function AthleteDevelopmentPlanCard({accountRole,sport,profile,dev,setDev,results,readiness,goals,workouts,developmentSystem,coachWeeklyReviews,weeklyReviews}:{accountRole:AccountRole;sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];readiness:ReadinessLog[];goals:Goal[];workouts:Workout[];developmentSystem:DevelopmentSystemState;coachWeeklyReviews:CoachWeeklyReview[];weeklyReviews:WeeklyReview[]}){
+ const canManage=canRole(accountRole,"manageDevelopmentPlan");
+ const [editing,setEditing]=useState(false);
+ const planItems=dev.filter(d=>d.status!=="Complete"&&(d.notes?.includes("[ADP_PRIMARY]")||d.notes?.includes("[ADP_SECONDARY]")));
+ const otherOpen=dev.filter(d=>d.status!=="Complete"&&!planItems.includes(d)).sort((a,b)=>({High:0,Medium:1,Low:2}[a.priority||"Medium"])-({High:0,Medium:1,Low:2}[b.priority||"Medium"]));
+ const stage=developmentStageForAge(Number(profile.age||0));
+ const positionPriorities=positionSkillPriorities(sport,profile.position).filter(name=>sportSkillTrees[sport].includes(name));
+ const fallbackSkill=positionPriorities.find(name=>developmentSystem.skillProgress[name]?.level!=="Advanced")||positionPriorities[0]||sportSkillTrees[sport][0];
+ const fallbackSecondary=positionPriorities.find(name=>name!==fallbackSkill)||sportSkillTrees[sport].find(name=>name!==fallbackSkill)||"Overall Development";
+ const primary=planItems.find(d=>d.notes?.includes("[ADP_PRIMARY]"))||otherOpen[0];
+ const secondary=planItems.find(d=>d.notes?.includes("[ADP_SECONDARY]"))||otherOpen.find(d=>d.id!==primary?.id);
+ const primaryTitle=primary?.title||fallbackSkill;
+ const secondaryTitle=secondary?.title||fallbackSecondary;
+ const currentLevel=progressionLevelFromSkill(developmentSystem.skillProgress[primaryTitle]?.level);
+ const nextLevel=nextProgressionLevel(currentLevel,stage);
+ const primaryTarget=primary?.target||progressionExpectation(stage,nextLevel);
+ const secondaryTarget=secondary?.target||`Build reliable ${secondaryTitle.toLowerCase()} habits that support the primary priority.`;
+ const latestObservation=developmentSystem.practiceObservations.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id)[0];
+ const latestReflection=developmentSystem.trainingReflections.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id)[0];
+ const latestCoach=coachWeeklyReviews.slice().sort((a,b)=>b.weekStart.localeCompare(a.weekStart))[0];
+ const latestPlayer=weeklyReviews.slice().sort((a,b)=>b.weekStart.localeCompare(a.weekStart))[0];
+
+ const testRows=results.filter(r=>r.sport===sport).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+ const testGroups=[...new Map(testRows.map(r=>[r.testId,r])).values()];
+ const trends=testGroups.map(g=>{
+  const rows=testRows.filter(x=>x.testId===g.testId).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+  const def=definitions(sport).find(x=>x.id===g.testId)||({lowerBetter:g.unit==="sec"} as TestDef);
+  return {name:g.name,imp:rows.length>1?improvement(rows[0].value,rows[rows.length-1].value,def.lowerBetter):0,count:rows.length};
+ }).filter(x=>x.count>1).sort((a,b)=>Math.abs(b.imp)-Math.abs(a.imp));
+ const strongestTrend=trends[0];
+
+ const evidence=[
+  strongestTrend?`${strongestTrend.name}: ${strongestTrend.imp>=0?"+":""}${strongestTrend.imp}% from baseline`:null,
+  latestObservation?`Coach observation: ${latestObservation.skill} · ${latestObservation.level}`:null,
+  latestCoach?.developmentOpportunity?`Coach review: ${latestCoach.developmentOpportunity}`:null,
+  latestPlayer?.focus?`Player focus: ${latestPlayer.focus}`:null,
+  latestReflection?.needsWork?`Player reflection: ${latestReflection.needsWork}`:null
+ ].filter(Boolean).slice(0,4) as string[];
+
+ const latestReadiness=readiness[0];
+ const readinessNow=latestReadiness?readinessScoreV2(latestReadiness,Number(profile.age||0)):0;
+ const activeGoal=goals.filter(g=>(g.status||"Active")!=="Complete").sort((a,b)=>a.progress-b.progress)[0];
+ const completed14=workouts.filter(w=>w.sport===sport&&w.completed&&new Date(w.date).getTime()>=Date.now()-14*86400000).length;
+ const planStatus=readinessNow>0&&readinessNow<60?"Recovery attention":primary?.progress&&primary.progress>=75?"On Track":primary?.progress&&primary.progress>=35?"Building":"Developing";
+ const progress=primary?.progress||0;
+ const defaultReview=(()=>{const d=new Date();d.setDate(d.getDate()+28);return localDate(d)})();
+ const reviewDate=primary?.dueDate||defaultReview;
+
+ const [primaryDraft,setPrimaryDraft]=useState(primaryTitle);
+ const [primaryTargetDraft,setPrimaryTargetDraft]=useState(primaryTarget);
+ const [primaryProgressDraft,setPrimaryProgressDraft]=useState(String(progress));
+ const [secondaryDraft,setSecondaryDraft]=useState(secondaryTitle);
+ const [secondaryTargetDraft,setSecondaryTargetDraft]=useState(secondaryTarget);
+ const [reviewDraft,setReviewDraft]=useState(reviewDate);
+
+ useEffect(()=>{
+  setPrimaryDraft(primaryTitle);setPrimaryTargetDraft(primaryTarget);setPrimaryProgressDraft(String(progress));
+  setSecondaryDraft(secondaryTitle);setSecondaryTargetDraft(secondaryTarget);setReviewDraft(reviewDate);
+ },[primary?.id,secondary?.id,primaryTitle,secondaryTitle,primaryTarget,secondaryTarget,reviewDate,progress]);
+
+ const savePlan=()=>{
+  if(!canManage)return;
+  const now=Date.now();
+  const primaryItem:DevelopmentItem={
+   id:planItems.find(d=>d.notes?.includes("[ADP_PRIMARY]"))?.id||now,
+   title:primaryDraft.trim()||fallbackSkill,category:"Athlete Development Plan",target:primaryTargetDraft.trim()||progressionExpectation(stage,nextLevel),
+   dueDate:reviewDraft,status:"In Progress",priority:"High",progress:Math.max(0,Math.min(100,Number(primaryProgressDraft)||0)),
+   notes:`[ADP_PRIMARY] ${sport} · ${profile.position||"Athlete"} · ${stage}`
+  };
+  const secondaryItem:DevelopmentItem={
+   id:planItems.find(d=>d.notes?.includes("[ADP_SECONDARY]"))?.id||now+1,
+   title:secondaryDraft.trim()||fallbackSecondary,category:"Athlete Development Plan",target:secondaryTargetDraft.trim()||`Support ${primaryItem.title}`,
+   dueDate:reviewDraft,status:"In Progress",priority:"Medium",progress:secondary?.progress||0,
+   notes:`[ADP_SECONDARY] ${sport} · ${profile.position||"Athlete"} · ${stage}`
+  };
+  setDev(rows=>{
+   const keep=rows.filter(d=>!d.notes?.includes("[ADP_PRIMARY]")&&!d.notes?.includes("[ADP_SECONDARY]"));
+   return [primaryItem,secondaryItem,...keep];
+  });
+  setEditing(false);
+ };
+
+ return <section className="athleteDevelopmentPlanCard">
+  <div className="athletePlanHeader">
+   <div><small>ATHLETE DEVELOPMENT PLAN</small><h2>{profile.name} · {stage} Stage</h2><p>One shared development direction built from priorities, testing, observations, reflections, readiness, and goals.</p></div>
+   <div className="athletePlanHeaderActions"><span className={"athletePlanStatus "+planStatus.toLowerCase().replaceAll(" ","-")}>{planStatus}</span>{canManage&&<button onClick={()=>setEditing(x=>!x)}>{editing?"Cancel":"Update Plan"}</button>}</div>
+  </div>
+
+  {!editing?<>
+   <div className="athletePlanPriorityGrid">
+    <div className="primary"><small>PRIMARY DEVELOPMENT PRIORITY</small><h3>{primaryTitle}</h3><div className="athletePlanProgress"><i style={{width:`${progress}%`}}/><span>{progress}%</span></div><p>{primaryTarget}</p></div>
+    <div><small>SECONDARY PRIORITY</small><h3>{secondaryTitle}</h3><p>{secondaryTarget}</p></div>
+    <div><small>CURRENT → TARGET</small><h3>{currentLevel} → {nextLevel}</h3><p>{progressionExpectation(stage,nextLevel)}</p></div>
+    <div><small>NEXT REVIEW</small><h3>{friendlyDate(reviewDate)}</h3><p>Reassess the evidence and decide whether to continue, progress, or change the priority.</p></div>
+   </div>
+
+   <div className="athletePlanEvidenceGrid">
+    <div><small>WHY THIS IS THE FOCUS</small>{evidence.length?evidence.map((x,i)=><span key={i}>{x}</span>):<span>More testing, observations, and reflections will strengthen the evidence.</span>}</div>
+    <div><small>SUPPORTING CONTEXT</small><span>Readiness: {readinessNow?`${readinessNow}/100`:"No recent data"}</span><span>14-day completed training: {completed14}</span><span>{activeGoal?`Goal needing movement: ${activeGoal.title} · ${activeGoal.progress}%`:"No active goal needs attention"}</span></div>
+   </div>
+  </>:<div className="athletePlanEditor">
+   <div className="two">
+    <label>Primary priority<input value={primaryDraft} onChange={e=>setPrimaryDraft(e.target.value)} /></label>
+    <label>Primary progress<input type="number" min="0" max="100" value={primaryProgressDraft} onChange={e=>setPrimaryProgressDraft(e.target.value)} /></label>
+    <label>Primary target<textarea rows={3} value={primaryTargetDraft} onChange={e=>setPrimaryTargetDraft(e.target.value)} /></label>
+    <label>Next review date<input type="date" value={reviewDraft} onChange={e=>setReviewDraft(e.target.value)} /></label>
+    <label>Secondary priority<input value={secondaryDraft} onChange={e=>setSecondaryDraft(e.target.value)} /></label>
+    <label>Secondary target<textarea rows={3} value={secondaryTargetDraft} onChange={e=>setSecondaryTargetDraft(e.target.value)} /></label>
+   </div>
+   <div className="athletePlanEditorNote"><b>Coach owns development direction.</b><span>This does not change Player Profile identity information and does not generate practice plans.</span></div>
+   <button className="featureAction" onClick={savePlan}>Save Athlete Development Plan</button>
+  </div>}
+ </section>;
+}
+
+function PlayerDevelopmentSimple({sport,profile,dev,setDev,results,readiness,goals,workouts,developmentSystem,coachWeeklyReviews,weeklyReviews,setTab,onDetails}:{sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];readiness:ReadinessLog[];goals:Goal[];workouts:Workout[];developmentSystem:DevelopmentSystemState;coachWeeklyReviews:CoachWeeklyReview[];weeklyReviews:WeeklyReview[];setTab:React.Dispatch<React.SetStateAction<Tab>>;onDetails:()=>void}){
+ const stage=developmentStageForAge(Number(profile.age||0));
+ const positionPriorities=positionSkillPriorities(sport,profile.position).filter(name=>sportSkillTrees[sport].includes(name));
+ const planPrimary=dev.find(d=>d.status!=="Complete"&&d.notes?.includes("[ADP_PRIMARY]"));
+ const nextSkill=planPrimary?.title||positionPriorities.find(name=>developmentSystem.skillProgress[name]?.level!=="Advanced")||positionPriorities[0]||sportSkillTrees[sport][0];
+ const current=progressionLevelFromSkill(developmentSystem.skillProgress[nextSkill]?.level);
+ const next=nextProgressionLevel(current,stage);
+ const target=planPrimary?.target||progressionExpectation(stage,next);
+ const latestObservation=developmentSystem.practiceObservations.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id)[0];
+ const latestReflection=developmentSystem.trainingReflections.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id)[0];
+ const why=latestObservation&&latestObservation.skill===nextSkill
+  ?`Your Coach's latest observation on ${nextSkill} is ${latestObservation.level}.`
+  :latestReflection?.needsWork
+  ?`Your latest reflection says "${latestReflection.needsWork}" needs work.`
+  :planPrimary?.notes?.includes("[ADP_PRIMARY]")
+  ?"This is the primary priority in your Athlete Development Plan."
+  :`Your age, sport, position, and Skill Tree make ${nextSkill} a useful next progression.`;
+
+ return <div className="playerDevelopmentSimple">
+  <div className="hero playerDevelopmentHero"><div><small>PLAYER · MY DEVELOPMENT</small><h1>What am I working on next?</h1><p>Keep the main idea simple. Your full development record is still available when you want more detail.</p></div><span className="tag">{stage.toUpperCase()} STAGE</span></div>
+
+  <div className="playerDevelopmentFocusCard">
+   <small>CURRENT FOCUS</small><h2>{nextSkill}</h2>
+   <div className="playerDevelopmentPath"><span>{current}</span><i>→</i><b>{next}</b></div>
+   <p>{target}</p>
+   <details><summary>Why is this my focus?</summary><p>{why}</p></details>
+  </div>
+
+  <AthleteDevelopmentPlanCard accountRole="Player" sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} readiness={readiness} goals={goals} workouts={workouts} developmentSystem={developmentSystem} coachWeeklyReviews={coachWeeklyReviews} weeklyReviews={weeklyReviews}/>
+
+  <div className="playerDevelopmentQuickActions">
+   <button onClick={()=>setTab("Testing")}>My Testing</button>
+   <button onClick={()=>setTab("Analytics")}>My Progress</button>
+   <button onClick={()=>setTab("Goals")}>My Goals</button>
+  </div>
+
+  <button className="featureAction playerDetailedButton" onClick={onDetails}>See Full Development Record</button>
+ </div>;
+}
+
+function AnalyticsHub({accountRole,actualAccountRole,setTab,setDev,setGoals,setWorkouts,sport,profile,goals,workouts,results,dev,program,readiness,competitions,reportNotes,setReportNotes}:{accountRole:AccountRole;actualAccountRole:AccountRole;setTab:React.Dispatch<React.SetStateAction<Tab>>;setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;setGoals:React.Dispatch<React.SetStateAction<Goal[]>>;setWorkouts:React.Dispatch<React.SetStateAction<Workout[]>>;sport:Sport;profile:Profile;goals:Goal[];workouts:Workout[];results:Result[];dev:DevelopmentItem[];program:TrainingProgram|null;readiness:ReadinessLog[];competitions:CompetitionLog[];reportNotes:ReportNote[];setReportNotes:React.Dispatch<React.SetStateAction<ReportNote[]>>}){
  const [showReport,setShowReport]=useState(false);
- return <><Analytics accountRole={accountRole} setTab={setTab} setDev={setDev} setGoals={setGoals} setWorkouts={setWorkouts} sport={sport} profile={profile} results={results} goals={goals} workouts={workouts} readiness={readiness} competitions={competitions}/>
- <div className="card compactTools"><div className="sectionHead"><div><h2>Performance Report</h2><small>Exports, print, grade, and share tools</small></div><button className="featureAction" onClick={()=>setShowReport(x=>!x)}>{showReport?"Hide Report":"Open Report"}</button></div></div>
+ const [showPlayerDetails,setShowPlayerDetails]=useState(false);
+ if(accountRole==="Player"&&!showPlayerDetails)return <PlayerProgressSimple sport={sport} profile={profile} results={results} goals={goals} workouts={workouts} readiness={readiness} competitions={competitions} setTab={setTab} onDetails={()=>setShowPlayerDetails(true)}/>;
+ return <><div className={accountRole==="Player"?"playerDetailedBackBar":""}>{accountRole==="Player"&&<button onClick={()=>setShowPlayerDetails(false)}>← Back to My Progress</button>}</div><Analytics accountRole={accountRole} actualAccountRole={actualAccountRole} setTab={setTab} setDev={setDev} setGoals={setGoals} setWorkouts={setWorkouts} sport={sport} profile={profile} results={results} goals={goals} workouts={workouts} readiness={readiness} competitions={competitions}/>
+ <div className="card compactTools"><div className="sectionHead"><div><h2>{accountRole==="Player"?"Detailed Progress Report":"Performance Report"}</h2><small>{accountRole==="Player"?"Optional exports, print, grade, and share tools":"Exports, print, grade, and share tools"}</small></div><button className="featureAction" onClick={()=>setShowReport(x=>!x)}>{showReport?"Hide Report":"Open Report"}</button></div></div>
  {showReport&&<Reports sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions} reportNotes={reportNotes} setReportNotes={setReportNotes}/>}</>;
 }
 
@@ -1672,7 +1969,7 @@ function CoachHub({athleteId,accountRole,authorName,saveSharedNotes,coachWeeklyR
  const requestedMode=typeof window!=="undefined"?sessionStorage.getItem("coachHubMode"):null;
  const [mode,setMode]=useState<"Readiness"|"Review"|"Plan">(requestedMode==="Review"||requestedMode==="Plan"?requestedMode:"Readiness");
  useEffect(()=>{try{sessionStorage.removeItem("coachHubMode")}catch{}},[]);
- return <><div className="simpleSectionNav"><button className={mode==="Readiness"?"active":""} onClick={()=>setMode("Readiness")}>Readiness</button><button className={mode==="Review"?"active":""} onClick={()=>setMode("Review")}>Weekly Review</button><button className={mode==="Plan"?"active":""} onClick={()=>setMode("Plan")}>Coach Plan</button></div>
+ return <><div className="simpleSectionNav"><button className={mode==="Readiness"?"active":""} onClick={()=>setMode("Readiness")}>Readiness</button><button className={mode==="Review"?"active":""} onClick={()=>setMode("Review")}>Weekly Review</button><button className={mode==="Plan"?"active":""} onClick={()=>setMode("Plan")}>Development Signals</button></div>
  {mode==="Readiness"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole={accountRole} authorName={authorName} saveSharedNotes={saveSharedNotes}/>:mode==="Review"?<CoachWeeklyReviewPanel athleteId={athleteId} profile={profile} coachName={authorName} reviews={coachWeeklyReviews} setReviews={setCoachWeeklyReviews} saveReview={saveCoachWeeklyReview} canWrite={canWriteCoachReview}/>:<SmartCoach sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions}/>}</>;
 }
 
@@ -1750,7 +2047,7 @@ function CoachWeeklyReviewPanel({athleteId,profile,coachName,reviews,setReviews,
    <div><span>3</span><b>Coach chooses Player sharing</b><small>Turn on Share with Player when the review is appropriate for direct athlete feedback.</small></div>
   </div>
 
-  {!canWrite&&<div className="card playerOnlyNotice"><span className="tag">READ-ONLY DEMO</span><h2>Select a linked athlete as a Coach</h2><p>The Coach review form becomes writable when a Coach opens an athlete from the Coach's team. Admin preview remains read-only.</p></div>}
+  {!canWrite&&<div className="card playerOnlyNotice"><span className="tag">READ-ONLY DEMO</span><h2>Select a linked athlete as a Coach</h2><p>The Coach review form becomes writable when a Coach opens a linked athlete. Admin has full-access override for review creation and correction.</p></div>}
 
   {reviewOpen?<div className="card coachWeeklyReviewForm">
    <div className="sectionHead"><div><small>WEEK OF {friendlyDate(weekStart).toUpperCase()}</small><h2>{existing?"Update Coach Review":"Create Coach Review"}</h2><p>Use the ratings as conversation starters, not permanent labels.</p></div><span className="tag">1–5 SCALE</span></div>
@@ -1819,8 +2116,8 @@ function UniversalDevelopmentSystem({accountRole,sport,profile,dev,goals,workout
  const [observationContext,setObservationContext]=useState<"Practice"|"Game"|"Training">("Practice");
  const [observationNote,setObservationNote]=useState("");
  const [observationNext,setObservationNext]=useState("");
- const canPlan=accountRole==="Coach"||accountRole==="Admin";
- const canReflect=accountRole==="Player";
+ const canPlan=canRole(accountRole,"manageDevelopmentPlan")&&canRole(accountRole,"practiceObservation");
+ const canReflect=canRole(accountRole,"playerReflection");
  const age=Number(profile.age||0);
  const ageMode=developmentStageForAge(age);
  const skillNames=sportSkillTrees[sport];
@@ -2056,14 +2353,18 @@ function UniversalDevelopmentSystem({accountRole,sport,profile,dev,goals,workout
  </div>;
 }
 
-function DevelopmentHub({accountRole,sport,profile,dev,setDev,results,goals,workouts,program,setProgram,readiness,weeklyReviews,coachWeeklyReviews,competitions,milestones,setMilestones,developmentSystem,setDevelopmentSystem,setWorkouts}:{accountRole:AccountRole;sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];goals:Goal[];workouts:Workout[];program:TrainingProgram|null;setProgram:React.Dispatch<React.SetStateAction<TrainingProgram|null>>;readiness:ReadinessLog[];weeklyReviews:WeeklyReview[];coachWeeklyReviews:CoachWeeklyReview[];competitions:CompetitionLog[];milestones:Milestone[];setMilestones:React.Dispatch<React.SetStateAction<Milestone[]>>;developmentSystem:DevelopmentSystemState;setDevelopmentSystem:React.Dispatch<React.SetStateAction<DevelopmentSystemState>>;setWorkouts:any}){
+function DevelopmentHub({accountRole,setTab,sport,profile,dev,setDev,results,goals,workouts,program,setProgram,readiness,weeklyReviews,coachWeeklyReviews,competitions,milestones,setMilestones,developmentSystem,setDevelopmentSystem,setWorkouts}:{accountRole:AccountRole;setTab:React.Dispatch<React.SetStateAction<Tab>>;sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];goals:Goal[];workouts:Workout[];program:TrainingProgram|null;setProgram:React.Dispatch<React.SetStateAction<TrainingProgram|null>>;readiness:ReadinessLog[];weeklyReviews:WeeklyReview[];coachWeeklyReviews:CoachWeeklyReview[];competitions:CompetitionLog[];milestones:Milestone[];setMilestones:React.Dispatch<React.SetStateAction<Milestone[]>>;developmentSystem:DevelopmentSystemState;setDevelopmentSystem:React.Dispatch<React.SetStateAction<DevelopmentSystemState>>;setWorkouts:any}){
  const [showProgram,setShowProgram]=useState(false);
  const [showMental,setShowMental]=useState(false);
- return <><UniversalDevelopmentSystem accountRole={accountRole} sport={sport} profile={profile} dev={dev} goals={goals} workouts={workouts} results={results} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} competitions={competitions} milestones={milestones} developmentSystem={developmentSystem} setDevelopmentSystem={setDevelopmentSystem}/>
- <Development sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} goals={goals} workouts={workouts} program={program} readiness={readiness} competitions={competitions} milestones={milestones} setMilestones={setMilestones}/>
+ const [showPlayerDevelopmentDetails,setShowPlayerDevelopmentDetails]=useState(false);
+ if(accountRole==="Player"&&!showPlayerDevelopmentDetails)return <PlayerDevelopmentSimple sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} readiness={readiness} goals={goals} workouts={workouts} developmentSystem={developmentSystem} coachWeeklyReviews={coachWeeklyReviews} weeklyReviews={weeklyReviews} setTab={setTab} onDetails={()=>setShowPlayerDevelopmentDetails(true)}/>;
+ return <>{accountRole==="Player"&&<div className="playerDetailedBackBar"><button onClick={()=>setShowPlayerDevelopmentDetails(false)}>← Back to My Development</button></div>}
+ {(accountRole==="Coach"||accountRole==="Admin")&&<AthleteDevelopmentPlanCard accountRole={accountRole} sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} readiness={readiness} goals={goals} workouts={workouts} developmentSystem={developmentSystem} coachWeeklyReviews={coachWeeklyReviews} weeklyReviews={weeklyReviews}/>}
+ <UniversalDevelopmentSystem accountRole={accountRole} sport={sport} profile={profile} dev={dev} goals={goals} workouts={workouts} results={results} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} competitions={competitions} milestones={milestones} developmentSystem={developmentSystem} setDevelopmentSystem={setDevelopmentSystem}/>
+ <Development accountRole={accountRole} sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} goals={goals} workouts={workouts} program={program} readiness={readiness} competitions={competitions} milestones={milestones} setMilestones={setMilestones}/>
  <div className="card mentalTrainingLauncher"><div className="sectionHead"><div><span className="tag">MENTAL PERFORMANCE</span><h2>Mental Preparation & Rehearsal</h2><small>Breathing, visualization, cue words, and a simple pre-performance routine</small></div><button className="featureAction" onClick={()=>setShowMental(x=>!x)}>{showMental?"Close":"Start"}</button></div></div>
  {showMental&&<MentalTraining sport={sport} profile={profile}/>}
- <div className="card compactTools"><div className="sectionHead"><div><h2>Training Program</h2><small>Weekly program builder and sessions</small></div><button className="featureAction" onClick={()=>setShowProgram(x=>!x)}>{showProgram?"Hide Program":"Open Program"}</button></div></div>
+ <div className="card compactTools"><div className="sectionHead"><div><h2>Training Program</h2><small>Supporting training sessions connected to athlete development priorities</small></div><button className="featureAction" onClick={()=>setShowProgram(x=>!x)}>{showProgram?"Hide Program":"Open Program"}</button></div></div>
  {showProgram&&<Program accountRole={accountRole} sport={sport} profile={profile} dev={dev} results={results} readiness={readiness} program={program} setProgram={setProgram} setWorkouts={setWorkouts}/>}</>;
 }
 
@@ -2149,12 +2450,190 @@ function MentalTraining({sport,profile}:{sport:Sport;profile:Profile}){
  </div>;
 }
 
-function Home({accountRole,sport,setSport,goals,workouts,results,profile,setProfile,onProfileSaved,readiness,competitions,dev,program,weeklyReviews,setWeeklyReviews,coachWeeklyReviews,developmentSystem,testTargets,workspaceRole,onboardingDismissed,setOnboardingDismissed,setTab,editProfileRequest}:{accountRole:AccountRole;sport:Sport;setSport:React.Dispatch<React.SetStateAction<Sport>>;goals:Goal[];workouts:Workout[];results:Result[];profile:Profile;setProfile:React.Dispatch<React.SetStateAction<Profile>>;onProfileSaved?:()=>void;readiness:ReadinessLog[];competitions:CompetitionLog[];dev:DevelopmentItem[];program:TrainingProgram|null;weeklyReviews:WeeklyReview[];setWeeklyReviews:React.Dispatch<React.SetStateAction<WeeklyReview[]>>;coachWeeklyReviews:CoachWeeklyReview[];developmentSystem:DevelopmentSystemState;testTargets:TestTarget[];workspaceRole:WorkspaceRole;onboardingDismissed:boolean;setOnboardingDismissed:React.Dispatch<React.SetStateAction<boolean>>;setTab:React.Dispatch<React.SetStateAction<Tab>>;editProfileRequest:number}){
+
+function CoachHomeDevelopmentDashboard({roster,status,selectedAthleteName,selectAthlete,setTab,openTeams}:{roster:CoachCloudAthleteState[];status:"idle"|"loading"|"ready"|"error";selectedAthleteName?:string;selectAthlete?:((workspaceId:string)=>void);setTab:React.Dispatch<React.SetStateAction<Tab>>;openTeams?:()=>void}){
+ const currentWeek=mondayOfWeek();
+ const rows=roster.map(c=>{
+  const raw=(c.data||{}) as any;
+  const profile=(raw.profile||{}) as Partial<Profile>;
+  const athleteSport=(profile.sport&&sports.includes(profile.sport as Sport)?profile.sport:c.sport||"Ice Hockey") as Sport;
+  const age=Number(profile.age||0);
+  const readinessRows=(Array.isArray(raw.readiness)?raw.readiness:[]) as ReadinessLog[];
+  const recentReadiness=readinessRows.slice(0,7);
+  const readinessScore=recentReadiness.length?Math.round(recentReadiness.reduce((sum,r)=>sum+readinessScoreV2(r,age),0)/recentReadiness.length):0;
+  const development=(Array.isArray(raw.development)?raw.development:[]) as DevelopmentItem[];
+  const primaryPlan=development.find(d=>d.status!=="Complete"&&d.notes?.includes("[ADP_PRIMARY]"));
+  const planNeedsReview=!primaryPlan||Boolean(primaryPlan.dueDate&&primaryPlan.dueDate<=today());
+
+  const athleteGoals=(Array.isArray(raw.goals)?raw.goals:[]) as Goal[];
+  const activeGoals=athleteGoals.filter(g=>(g.status||"Active")!=="Complete");
+  const goalsNeedFeedback=activeGoals.filter(g=>(g.coachFeedback||[]).length===0).length;
+
+  const normalized=raw.developmentSystem?normalizeDevelopmentSystem(raw.developmentSystem):createDefaultDevelopmentSystem();
+  const latestObservation=normalized.practiceObservations.slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id)[0];
+  const observationDue=!(latestObservation&&latestObservation.date>=currentWeek);
+
+  let reviewMarker="";
+  try{reviewMarker=localStorage.getItem(`coachReviewWeek:${c.workspaceId}`)||""}catch{}
+  const coachReviewDue=reviewMarker!==currentWeek;
+
+  const targets=(Array.isArray(raw.testTargets)?raw.testTargets:[]) as TestTarget[];
+  const dueTargets=targets.filter(t=>t.sport===athleteSport&&t.retestDate&&t.retestDate<=today());
+  const results=(Array.isArray(raw.results)?raw.results:[]) as Result[];
+  const sportResults=results.filter(r=>r.sport===athleteSport);
+  const testGroups=[...new Map(sportResults.map(r=>[r.testId,r])).values()];
+  const staleOrSingle=testGroups.find(g=>{
+   const testRows=sportResults.filter(r=>r.testId===g.testId).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+   if(testRows.length===1)return true;
+   const last=testRows[testRows.length-1]?.date;
+   return Boolean(last&&new Date(last).getTime()<Date.now()-30*86400000);
+  });
+  const retestDue=dueTargets.length>0||Boolean(staleOrSingle);
+
+  const declining=testGroups.map(g=>{
+   const testRows=sportResults.filter(r=>r.testId===g.testId).sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id);
+   if(testRows.length<2)return null;
+   const def=definitions(athleteSport).find(x=>x.id===g.testId)||({lowerBetter:g.unit==="sec"} as TestDef);
+   const imp=improvement(testRows[0].value,testRows[testRows.length-1].value,def.lowerBetter);
+   return imp<0?{name:g.name,imp}:null;
+  }).filter(Boolean).sort((a:any,b:any)=>a.imp-b.imp)[0] as {name:string;imp:number}|undefined;
+
+  const reasons:string[]=[];
+  let points=0;
+  if(readinessScore>0&&readinessScore<60){reasons.push(`Readiness ${readinessScore}/100`);points+=6}
+  else if(readinessScore>0&&readinessScore<70){reasons.push(`Readiness watch ${readinessScore}/100`);points+=2}
+  if(planNeedsReview){reasons.push(primaryPlan?"Development Plan review due":"Development Plan not set");points+=4}
+  if(goalsNeedFeedback){reasons.push(`${goalsNeedFeedback} Player goal${goalsNeedFeedback===1?"":"s"} need Coach feedback`);points+=3}
+  if(coachReviewDue){reasons.push("Coach Weekly Review due");points+=3}
+  if(observationDue){reasons.push("Practice Observation due");points+=2}
+  if(retestDue){reasons.push("Retest follow-up due");points+=2}
+  if(declining){reasons.push(`${declining.name} trend down ${Math.abs(declining.imp)}%`);points+=4}
+
+  let nextAction="Review development progress";
+  let nextTab:Tab="Development";
+  let nextSubView:string|undefined;
+  if(readinessScore>0&&readinessScore<60){nextAction="Review readiness and recovery context";nextTab="Coach";nextSubView="Readiness"}
+  else if(planNeedsReview){nextAction=primaryPlan?"Review Athlete Development Plan":"Create Athlete Development Plan";nextTab="Development"}
+  else if(goalsNeedFeedback){nextAction="Review Player goals and add Coach feedback";nextTab="Goals"}
+  else if(coachReviewDue){nextAction="Complete Coach Weekly Review";nextTab="Coach";nextSubView="Review"}
+  else if(observationDue){nextAction="Add a Practice Observation";nextTab="Development";nextSubView="Observations"}
+  else if(retestDue){nextAction="Review retest timing";nextTab="Testing"}
+  else if(declining){nextAction=`Review ${declining.name} trend`;nextTab="Analytics"}
+
+  return {
+   workspaceId:c.workspaceId,name:profile.name||c.name,sport:athleteSport,position:profile.position||c.position||"",
+   readinessScore,readinessAvailable:recentReadiness.length>0,planNeedsReview,goalsNeedFeedback,
+   coachReviewDue,observationDue,retestDue,points,reasons,nextAction,nextTab,nextSubView,
+   primaryFocus:primaryPlan?.title||"Development Plan not set"
+  };
+ }).sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name));
+
+ const needingAttention=rows.filter(x=>x.points>=4).length;
+ const lowReadiness=rows.filter(x=>x.readinessAvailable&&x.readinessScore<60).length;
+ const planReviews=rows.filter(x=>x.planNeedsReview).length;
+ const goalFeedback=rows.reduce((sum,x)=>sum+x.goalsNeedFeedback,0);
+ const reviewsDue=rows.filter(x=>x.coachReviewDue).length;
+ const retestsDue=rows.filter(x=>x.retestDue).length;
+ const observationsDue=rows.filter(x=>x.observationDue).length;
+ const nextPlayer=rows[0];
+
+ const openPlayer=(row:typeof rows[number],tab:Tab=row.nextTab,subView?:string)=>{
+  if(tab==="Coach"&&subView){try{sessionStorage.setItem("coachHubMode",subView)}catch{}}
+  if(tab==="Development"&&subView){try{sessionStorage.setItem("developmentView",subView)}catch{}}
+  if(selectAthlete)selectAthlete(row.workspaceId);
+  window.setTimeout(()=>setTab(tab),120);
+ };
+
+ return <section className="coachHomeCommandCenterV2">
+  <div className="coachHomeV2Head">
+   <div><small>COACH DEVELOPMENT COMMAND CENTER 2.0</small><h1>Coach Home</h1><p>Start with the athletes who need development attention. This dashboard supports athlete development; it does not build practice plans.</p></div>
+   <div className="coachHomeV2Actions">{openTeams&&<button onClick={openTeams}>Teams</button>}<button className="featureAction" onClick={()=>setTab("Roster")}>Open Full Command Center</button></div>
+  </div>
+
+  <div className="coachHomeV2Metrics">
+   <div><small>PLAYERS</small><b>{rows.length}</b><span>managed athletes</span></div>
+   <div><small>NEED ATTENTION</small><b>{needingAttention}</b><span>review priority</span></div>
+   <div><small>LOW READINESS</small><b>{lowReadiness}</b><span>under 60</span></div>
+   <div><small>PLAN REVIEWS</small><b>{planReviews}</b><span>due / missing</span></div>
+   <div><small>GOAL FEEDBACK</small><b>{goalFeedback}</b><span>Player goals</span></div>
+   <div><small>COACH REVIEWS</small><b>{reviewsDue}</b><span>due</span></div>
+   <div><small>RETESTS</small><b>{retestsDue}</b><span>follow-up</span></div>
+   <div><small>OBSERVATIONS</small><b>{observationsDue}</b><span>due this week</span></div>
+  </div>
+
+  {status==="loading"&&<div className="card coachHomeCloudMessage">Loading Coach roster…</div>}
+  {status==="error"&&<div className="card coachHomeCloudMessage"><b>Coach roster could not load.</b><span>Open Teams or the full Command Center and retry.</span></div>}
+  {status!=="loading"&&rows.length===0&&<div className="card coachHomeEmpty"><small>START HERE</small><h2>No managed Players yet</h2><p>Open Teams, create or select a team, and have Players join with the invite code. Coach Home will then prioritize development needs across the roster.</p>{openTeams&&<button className="featureAction" onClick={openTeams}>Open Teams</button>}</div>}
+
+  {nextPlayer&&<div className="coachReviewNext">
+   <div className="coachReviewNextHead"><div><small>WHO SHOULD I REVIEW NEXT?</small><h2>{nextPlayer.name}</h2><p>{nextPlayer.sport}{nextPlayer.position?` · ${nextPlayer.position}`:""}{selectedAthleteName===nextPlayer.name?" · currently selected":""}</p></div><span className="tag">{nextPlayer.points} PRIORITY POINTS</span></div>
+   <div className="coachReviewNextBody">
+    <div><small>WHY</small>{nextPlayer.reasons.length?nextPlayer.reasons.slice(0,4).map((x,i)=><span key={i}>• {x}</span>):<span>• No urgent warning; keep the development record current.</span>}</div>
+    <div><small>NEXT BEST ACTION</small><b>{nextPlayer.nextAction}</b><span>Current focus: {nextPlayer.primaryFocus}</span></div>
+   </div>
+   <div className="coachReviewNextActions"><button onClick={()=>openPlayer(nextPlayer,"Goals")}>Player Goals</button><button onClick={()=>openPlayer(nextPlayer,"Analytics")}>Progress</button><button onClick={()=>openPlayer(nextPlayer,"Development")}>Development</button><button className="featureAction" onClick={()=>openPlayer(nextPlayer,nextPlayer.nextTab,nextPlayer.nextSubView)}>Do Next Action</button></div>
+  </div>}
+
+  {rows.length>0&&<div className="coachHomePriorityQueue">
+   <div className="sectionHead"><div><small>DEVELOPMENT PRIORITY QUEUE</small><h2>Next Players to Review</h2></div><span className="tag">{Math.min(5,rows.length)} SHOWN</span></div>
+   {rows.slice(0,5).map((row,index)=><div className={"coachHomePriorityRow "+(row.points>=6?"high":row.points>=3?"medium":"current")} key={row.workspaceId}>
+    <span className="coachQueueNumber">{index+1}</span>
+    <div><b>{row.name}</b><small>{row.sport}{row.position?` · ${row.position}`:""}</small></div>
+    <div><small>WHY</small><b>{row.reasons[0]||"Development record current"}</b></div>
+    <div><small>NEXT</small><b>{row.nextAction}</b></div>
+    <button onClick={()=>openPlayer(row,row.nextTab,row.nextSubView)}>Review</button>
+   </div>)}
+  </div>}
+
+  <div className="coachHomeWorkflow">
+   <div className="sectionHead"><div><small>FAST ATHLETE REVIEW</small><h2>7-step development check</h2></div><span className="tag">NO PRACTICE PLANNING</span></div>
+   <div className="coachHomeWorkflowSteps">
+    <span><b>1</b><small>Readiness</small></span>
+    <span><b>2</b><small>Player Goals</small></span>
+    <span><b>3</b><small>Testing Trends</small></span>
+    <span><b>4</b><small>Development Plan</small></span>
+    <span><b>5</b><small>Practice Observations</small></span>
+    <span><b>6</b><small>Coach Weekly Review</small></span>
+    <span><b>7</b><small>Next Development Action</small></span>
+   </div>
+  </div>
+ </section>;
+}
+
+function Home({accountRole,sport,setSport,goals,workouts,results,profile,setProfile,onProfileSaved,readiness,competitions,dev,program,weeklyReviews,setWeeklyReviews,coachWeeklyReviews,developmentSystem,testTargets,workspaceRole,onboardingDismissed,setOnboardingDismissed,setTab,editProfileRequest,openCoachTeams,coachSelectedAthleteName,loginSessionKey,coachCloudRoster,coachRosterCloudStatus,selectCoachRosterAthlete}:{accountRole:AccountRole;sport:Sport;setSport:React.Dispatch<React.SetStateAction<Sport>>;goals:Goal[];workouts:Workout[];results:Result[];profile:Profile;setProfile:React.Dispatch<React.SetStateAction<Profile>>;onProfileSaved?:()=>void;readiness:ReadinessLog[];competitions:CompetitionLog[];dev:DevelopmentItem[];program:TrainingProgram|null;weeklyReviews:WeeklyReview[];setWeeklyReviews:React.Dispatch<React.SetStateAction<WeeklyReview[]>>;coachWeeklyReviews:CoachWeeklyReview[];developmentSystem:DevelopmentSystemState;testTargets:TestTarget[];workspaceRole:WorkspaceRole;onboardingDismissed:boolean;setOnboardingDismissed:React.Dispatch<React.SetStateAction<boolean>>;setTab:React.Dispatch<React.SetStateAction<Tab>>;editProfileRequest:number;openCoachTeams?:()=>void;coachSelectedAthleteName?:string;loginSessionKey?:string;coachCloudRoster?:CoachCloudAthleteState[];coachRosterCloudStatus?:"idle"|"loading"|"ready"|"error";selectCoachRosterAthlete?:((workspaceId:string)=>void)}){
  const [editingProfile,setEditingProfile]=useState(false);
+ const [roleSetupDismissed,setRoleSetupDismissed]=useState(false);
+ const [coachSetupVisited,setCoachSetupVisited]=useState<Record<string,boolean>>({});
+ const roleSetupDismissKey=accountRole==="Coach"
+  ?`coachHomeSetupDismissed:${loginSessionKey||"current-login"}`
+  :`homeSetupDismissed:${accountRole}`;
+ const coachSetupVisitKey="coachHomeSetupVisited";
+ useEffect(()=>{
+  if(accountRole==="Coach"){
+   try{setRoleSetupDismissed(sessionStorage.getItem(roleSetupDismissKey)==="1")}catch{setRoleSetupDismissed(false)}
+   try{const raw=localStorage.getItem(coachSetupVisitKey);setCoachSetupVisited(raw?JSON.parse(raw):{})}catch{setCoachSetupVisited({})}
+  }else{
+   try{setRoleSetupDismissed(localStorage.getItem(roleSetupDismissKey)==="1")}catch{setRoleSetupDismissed(false)}
+  }
+ },[accountRole,roleSetupDismissKey]);
+ const dismissRoleSetup=()=>{
+  setRoleSetupDismissed(true);
+  try{
+   if(accountRole==="Coach")sessionStorage.setItem(roleSetupDismissKey,"1");
+   else localStorage.setItem(roleSetupDismissKey,"1");
+  }catch{}
+ };
+ const markCoachSetupVisited=(key:string)=>{
+  setCoachSetupVisited(current=>{
+   const next={...current,[key]:true};
+   try{localStorage.setItem(coachSetupVisitKey,JSON.stringify(next))}catch{}
+   return next;
+  });
+ };
  const [profileDraft,setProfileDraft]=useState<Profile>({...profile});
  const [sportDraft,setSportDraft]=useState<Sport>(sport);
  const [profileSaveError,setProfileSaveError]=useState("");
- const canEditProfile=accountRole==="Player"||accountRole==="Admin";
+ const canEditProfile=canRole(accountRole,"editPlayerProfile");
  const beginProfileEdit=()=>{
   if(!canEditProfile)return;
   setProfileDraft({...profile});
@@ -2281,14 +2760,28 @@ function Home({accountRole,sport,setSport,goals,workouts,results,profile,setProf
   Boolean(profile.handedness)
  ];
  const profileCompletion=Math.round(profileChecks.filter(Boolean).length/profileChecks.length*100);
- const setupSteps=[
-  {label:canEditProfile?"Complete athlete profile":"Review athlete profile",done:canEditProfile?profileCompletion===100:true,tab:"Home" as Tab,target:"profile"},
-  {label:"Create a goal",done:goals.length>0,tab:"Goals" as Tab,target:"goals"},
-  {label:"Log a performance test",done:rs.length>0,tab:"Testing" as Tab,target:"testing"},
-  {label:"Schedule a workout",done:ws.length>0,tab:"Calendar" as Tab,target:"calendar"},
-  ...(accountRole==="Player"?[{label:"Complete readiness check-in",done:readiness.length>0,tab:"Coach" as Tab,target:"readiness"}]:[])
+ type HomeSetupStep={key:string;label:string;done:boolean;tab?:Tab;target?:string;action?:()=>void};
+ const playerSetupSteps:HomeSetupStep[]=[
+  {key:"profile",label:"Complete my Player Profile",done:profileCompletion===100,tab:"Home",target:"profile"},
+  {key:"readiness",label:"Complete my first Daily Check-In",done:readiness.length>0,tab:"Coach",target:"readiness"},
+  {key:"schedule",label:"Find or schedule my first workout",done:ws.length>0,tab:"Calendar",target:"calendar"},
+  {key:"goal",label:"Create one clear goal",done:goals.length>0,tab:"Goals",target:"goals"}
  ];
- const setupPct=Math.round(setupSteps.filter(x=>x.done).length/setupSteps.length*100);
+ const coachSetupSteps:HomeSetupStep[]=[
+  {key:"teams",label:coachSelectedAthleteName?`Athlete selected: ${coachSelectedAthleteName}`:"Open Coach Teams and select an athlete",done:Boolean(coachSelectedAthleteName),action:()=>{
+    markCoachSetupVisited("teams");
+    if(openCoachTeams)openCoachTeams();
+    else setTab("Roster");
+  }},
+  {key:"roster",label:"Review the Coach Command Center",done:Boolean(coachSetupVisited.roster),action:()=>{markCoachSetupVisited("roster");setTab("Roster")}},
+  {key:"readiness",label:"Learn where to review Player readiness",done:Boolean(coachSetupVisited.readiness),action:()=>{markCoachSetupVisited("readiness");try{sessionStorage.setItem("coachHubMode","Readiness")}catch{};setTab("Coach")}},
+  {key:"development",label:"Review the Athlete Development Plan",done:Boolean(coachSetupVisited.development),action:()=>{markCoachSetupVisited("development");setTab("Development")}},
+  {key:"goals",label:"Review Player-owned goals and feedback",done:Boolean(coachSetupVisited.goals),action:()=>{markCoachSetupVisited("goals");setTab("Goals")}},
+  {key:"observation",label:"Learn Coach Practice Observations",done:Boolean(coachSetupVisited.observation)||developmentSystem.practiceObservations.length>0,action:()=>{markCoachSetupVisited("observation");try{sessionStorage.setItem("developmentView","Observations")}catch{};setTab("Development")}},
+  {key:"review",label:"Learn the Coach Weekly Review",done:Boolean(coachSetupVisited.review)||coachWeeklyReviews.length>0,action:()=>{markCoachSetupVisited("review");try{sessionStorage.setItem("coachHubMode","Review")}catch{};setTab("Coach")}}
+ ];
+ const setupSteps:HomeSetupStep[]=accountRole==="Coach"?coachSetupSteps:accountRole==="Player"?playerSetupSteps:[];
+ const setupPct=setupSteps.length?Math.round(setupSteps.filter(x=>x.done).length/setupSteps.length*100):100;
  useEffect(()=>{
   if(editProfileRequest<=0||!canEditProfile)return;
   setProfileDraft({...profile});
@@ -2301,11 +2794,13 @@ function Home({accountRole,sport,setSport,goals,workouts,results,profile,setProf
   },140);
  },[editProfileRequest]);
 
- const goToSetupItem=(tab:Tab,target:string)=>{
-  setTab(tab);
-  if(target==="profile"&&canEditProfile)beginProfileEdit();
-  window.setTimeout(()=>{
-   const el=document.getElementById(`setup-${target}`);
+ const goToSetupItem=(step:HomeSetupStep)=>{
+  if(step.action){step.action();return}
+  if(!step.tab)return;
+  setTab(step.tab);
+  if(step.target==="profile"&&canEditProfile)beginProfileEdit();
+  if(step.target)window.setTimeout(()=>{
+   const el=document.getElementById(`setup-${step.target}`);
    if(el){el.scrollIntoView({behavior:"smooth",block:"center"});(el as HTMLElement).focus({preventScroll:true});}
   },180);
  };
@@ -2385,6 +2880,16 @@ const signals:PerformanceSignal[]=[
   :{title:"See My Progress",detail:"Review what is improving",tab:"Analytics" as Tab};
  const playerGreeting=(()=>{const h=new Date().getHours();return h<12?"Good morning":h<17?"Good afternoon":"Good evening"})();
 
+ const roleSetupCard=setupSteps.length>0&&!roleSetupDismissed&&setupPct<100&&<div className={"onboardingCard roleHomeSetupCard "+accountRole.toLowerCase()}><div className="sectionHead"><div><small>{accountRole==="Coach"?"COACH WORKSPACE SETUP":"PLAYER SETUP"}</small><h2>{accountRole==="Coach"?"Get Your Coach Workspace Ready":"Finish Player Setup"}</h2><p>{accountRole==="Coach"?"This setup teaches the Coach workflow only. If it is incomplete, dismissing it hides it for this login only; it returns the next time you sign in. You will review athlete development information, but you will not edit Player Profile identity or complete Player-owned check-ins/reviews.":"This setup only covers the Player's own profile, Daily Check-In, schedule, and first goal."}</p></div><button aria-label={`Dismiss ${accountRole} setup`} title={accountRole==="Coach"?"Hide until next login":"Dismiss setup"} onClick={dismissRoleSetup}>×</button></div><div className="setupMeter"><div className="progress"><i style={{width:`${setupPct}%`}}/></div><b>{setupPct}%</b></div><div className="setupSteps">{setupSteps.map(x=>x.done?<span className="done" key={x.key}>✓ {x.label}</span>:<button type="button" className="setupStepLink" key={x.key} onClick={()=>goToSetupItem(x)}><span>○ {x.label}</span><b>Open →</b></button>)}</div>{accountRole==="Coach"&&<div className="coachSetupBoundary"><span>Coach setup is separate from Player and Parent setup.</span><b>Coach develops the athlete · Player owns their profile/check-ins · Parent supports the athlete.</b></div>}</div>;
+
+ if(accountRole==="Coach"){
+  return <><div className="activeAthleteBanner"><small>COACH WORKSPACE</small><b>{coachSelectedAthleteName||"No Player selected"}</b><span>{coachSelectedAthleteName?`${sport}${profile.position?` · ${profile.position}`:""}`:"Select a Player from Teams or the Command Center"}</span></div>
+   {roleSetupCard}
+   <CoachHomeDevelopmentDashboard roster={coachCloudRoster||[]} status={coachRosterCloudStatus||"idle"} selectedAthleteName={coachSelectedAthleteName} selectAthlete={selectCoachRosterAthlete} setTab={setTab} openTeams={openCoachTeams}/>
+  </>;
+ }
+
+
 
  return <><div className="activeAthleteBanner"><small>ACTIVE ATHLETE</small><b>{profile.name}</b><span>{sport}{profile.position?" · "+profile.position:""}</span></div>
 
@@ -2409,7 +2914,7 @@ const signals:PerformanceSignal[]=[
   <div className="playerSimpleActions"><button onClick={()=>setTab("Goals")}>My Goals</button><button onClick={()=>setTab("Analytics")}>My Progress</button><button onClick={()=>setTab("Development")}>My Development</button></div>
  </section>}
 
- {!onboardingDismissed&&setupPct<100&&<div className="onboardingCard"><div className="sectionHead"><div><small>GETTING STARTED</small><h2>Finish Your Setup</h2></div><button aria-label="Dismiss onboarding" onClick={()=>setOnboardingDismissed(true)}>×</button></div><div className="setupMeter"><div className="progress"><i style={{width:`${setupPct}%`}}/></div><b>{setupPct}%</b></div><div className="setupSteps">{setupSteps.map(x=>x.done?<span className="done" key={x.label}>✓ {x.label}</span>:<button type="button" className="setupStepLink" key={x.label} onClick={()=>goToSetupItem(x.tab,x.target)}><span>○ {x.label}</span><b>Open →</b></button>)}</div></div>}
+ {roleSetupCard}
 
  
 
@@ -2502,7 +3007,7 @@ const signals:PerformanceSignal[]=[
  </div>}
 
  <div className="sectionDivider"><span><i/>Weekly Review</span></div>
- {accountRole==="Player"?(weeklyReviewOpen?<div className="card weeklyReview setupAnchor" id="setup-weekly-review" tabIndex={-1}><div className="sectionHead"><div><h2>My Weekly Review</h2><small>Player-only reflection · Parents and Coaches can see the saved result</small></div><span>Week of {friendlyDate(weekStart)}</span></div><div className="two"><label>Biggest Win<input value={wins} onChange={e=>setWins(e.target.value)} placeholder="What went well?"/></label><label>Main Challenge<input value={challenges} onChange={e=>setChallenges(e.target.value)} placeholder="What held you back?"/></label><label>Next Week Focus<input value={focus} onChange={e=>setFocus(e.target.value)} placeholder="One priority for next week"/></label><label>Week Rating<select value={rating} onChange={e=>setRating(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}/10</option>)}</select></label></div><div className="weeklyReviewActions">{currentReview&&<button onClick={()=>{clearWeeklyReviewFields();setWeeklyReviewOpen(false)}}>Cancel</button>}<button className="primary" onClick={saveReview}>{currentReview?"Update My Weekly Review":"Save My Weekly Review"}</button></div></div>:<div className="card weeklyReviewCollapsed setupAnchor" id="setup-weekly-review" tabIndex={-1}><div><span className="weeklyReviewDoneIcon">✓</span><div><small>{currentReview?"WEEKLY REVIEW COMPLETE":"WEEKLY REVIEW"}</small><h2>{currentReview?`Week of ${friendlyDate(currentReview.weekStart)}`:`Week of ${friendlyDate(weekStart)}`}</h2><p>{currentReview?`${currentReview.rating}/10${currentReview.focus?` · Next focus: ${currentReview.focus}`:""}`:"Ready when you are."}</p></div></div><button className="featureAction" onClick={openWeeklyReview}>{currentReview?"View / Edit Review":"Start Weekly Review"}</button></div>):<div className="card playerOnlyNotice"><span className="tag">PLAYER-ENTERED</span><h2>Weekly Review Results</h2><p>Only the Player can complete or change a weekly review. This view shows the Player's saved reflections to linked Coaches and Admin views.</p>{currentReview?<div className="supportWeeklyReview"><div className="reviewRating">{currentReview.rating}<small>/10</small></div><div><b>Week of {friendlyDate(currentReview.weekStart)}</b><span><strong>Biggest win:</strong> {currentReview.wins||"—"}</span><span><strong>Main challenge:</strong> {currentReview.challenges||"—"}</span><span><strong>Next focus:</strong> {currentReview.focus||"—"}</span></div></div>:<p className="muted">The Player has not completed this week's review yet.</p>}</div>}
+ {canRole(accountRole,"playerWeeklyReview")?(weeklyReviewOpen?<div className="card weeklyReview setupAnchor" id="setup-weekly-review" tabIndex={-1}><div className="sectionHead"><div><h2>{accountRole==="Admin"?"Player Weekly Review · Admin Override":"My Weekly Review"}</h2><small>{accountRole==="Admin"?"Admin full-access correction/edit mode":"Player-only reflection · Parents and Coaches can see the saved result"}</small></div><span>Week of {friendlyDate(weekStart)}</span></div><div className="two"><label>Biggest Win<input value={wins} onChange={e=>setWins(e.target.value)} placeholder="What went well?"/></label><label>Main Challenge<input value={challenges} onChange={e=>setChallenges(e.target.value)} placeholder="What held you back?"/></label><label>Next Week Focus<input value={focus} onChange={e=>setFocus(e.target.value)} placeholder="One priority for next week"/></label><label>Week Rating<select value={rating} onChange={e=>setRating(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}/10</option>)}</select></label></div><div className="weeklyReviewActions">{currentReview&&<button onClick={()=>{clearWeeklyReviewFields();setWeeklyReviewOpen(false)}}>Cancel</button>}<button className="primary" onClick={saveReview}>{accountRole==="Admin"?(currentReview?"Update Player Weekly Review":"Save Player Weekly Review"):(currentReview?"Update My Weekly Review":"Save My Weekly Review")}</button></div></div>:<div className="card weeklyReviewCollapsed setupAnchor" id="setup-weekly-review" tabIndex={-1}><div><span className="weeklyReviewDoneIcon">✓</span><div><small>{currentReview?"WEEKLY REVIEW COMPLETE":"WEEKLY REVIEW"}</small><h2>{currentReview?`Week of ${friendlyDate(currentReview.weekStart)}`:`Week of ${friendlyDate(weekStart)}`}</h2><p>{currentReview?`${currentReview.rating}/10${currentReview.focus?` · Next focus: ${currentReview.focus}`:""}`:"Ready when you are."}</p></div></div><button className="featureAction" onClick={openWeeklyReview}>{currentReview?"View / Edit Review":"Start Weekly Review"}</button></div>):<div className="card playerOnlyNotice"><span className="tag">PLAYER-ENTERED</span><h2>Weekly Review Results</h2><p>Only the Player can complete or change a weekly review. This view shows the Player's saved reflections to linked Coaches and Admin views.</p>{currentReview?<div className="supportWeeklyReview"><div className="reviewRating">{currentReview.rating}<small>/10</small></div><div><b>Week of {friendlyDate(currentReview.weekStart)}</b><span><strong>Biggest win:</strong> {currentReview.wins||"—"}</span><span><strong>Main challenge:</strong> {currentReview.challenges||"—"}</span><span><strong>Next focus:</strong> {currentReview.focus||"—"}</span></div></div>:<p className="muted">The Player has not completed this week's review yet.</p>}</div>}
 
  <div className="card"><h2>Recent Weekly Reviews</h2>{weeklyReviews.length===0?<p>No weekly reviews yet.</p>:weeklyReviews.slice(0,5).map(r=><div className="reviewRow" key={r.id}><div className="reviewRating">{r.rating}<small>/10</small></div><div><b>Week of {friendlyDate(r.weekStart)}</b><small>{r.wins?"Win: "+r.wins:""}{r.focus?" · Next: "+r.focus:""}</small></div></div>)}</div>
  </>;
@@ -2511,31 +3016,77 @@ const signals:PerformanceSignal[]=[
 const goalTypeLabel=(value:Goal["type"])=>value==="Short-term"?"Short-term (1–4 weeks)":value==="Mid-term"?"Mid-term (1–3 months)":"Long-term (3–12 months)";
 const goalTypeWindow=(value:Goal["type"])=>value==="Short-term"?"A small change you can work on now.":value==="Mid-term"?"A larger development target for the next training block.":"A season-level or major development target.";
 
-function Goals({goals,setGoals}:{goals:Goal[];setGoals:any}){
+function Goals({viewRole,actualRole,authorName,goals,setGoals}:{viewRole:AccountRole;actualRole:AccountRole;authorName:string;goals:Goal[];setGoals:React.Dispatch<React.SetStateAction<Goal[]>>}){
+ const canOwnGoals=(viewRole===actualRole)&&canRole(actualRole,"createPlayerGoal")&&canRole(actualRole,"updatePlayerGoal");
+ const canCoachFeedback=(viewRole===actualRole)&&canRole(actualRole,"goalFeedback");
  const [title,setTitle]=useState(""),[type,setType]=useState<Goal["type"]>("Short-term"),[category,setCategory]=useState("Performance"),[deadline,setDeadline]=useState(""),[target,setTarget]=useState(""),[notes,setNotes]=useState("");
+ const [feedbackDrafts,setFeedbackDrafts]=useState<Record<number,string>>({});
+ const [feedbackKinds,setFeedbackKinds]=useState<Record<number,"Suggestion"|"Comment">>({});
  const active=goals.filter(g=>(g.status||"Active")!=="Complete"),complete=goals.filter(g=>(g.status||"Active")==="Complete");
  const avg=goals.length?Math.round(goals.reduce((a,g)=>a+g.progress,0)/goals.length):0;
 
  const add=()=>{
-  if(!title.trim())return;
-  setGoals((g:Goal[])=>[{id:Date.now(),title:title.trim(),progress:0,type,category,deadline,target:target.trim(),status:"Active",notes:notes.trim()},...g]);
+  if(!canOwnGoals||!title.trim())return;
+  setGoals(g=>[{id:Date.now(),title:title.trim(),progress:0,type,category,deadline,target:target.trim(),status:"Active",notes:notes.trim(),coachFeedback:[]},...g]);
   setTitle("");setDeadline("");setTarget("");setNotes("");
  };
+ const update=(id:number,patch:Partial<Goal>)=>{
+  if(!canOwnGoals)return;
+  setGoals(x=>x.map(g=>g.id===id?{...g,...patch}:g));
+ };
+ const remove=(id:number)=>{
+  if(!canOwnGoals)return;
+  setGoals(x=>x.filter(g=>g.id!==id));
+ };
+ const addCoachFeedback=(goalId:number)=>{
+  if(!canCoachFeedback)return;
+  const text=(feedbackDrafts[goalId]||"").trim();
+  if(!text)return;
+  const kind=feedbackKinds[goalId]||"Suggestion";
+  const item:GoalCoachFeedback={id:Date.now(),date:today(),coachName:authorName||"Coach",kind,text};
+  setGoals(rows=>rows.map(goal=>{
+   if(goal.id!==goalId)return goal;
+   const existing=goal.coachFeedback||[];
+   if(existing.some(x=>x.kind===kind&&x.text===text&&x.coachName===item.coachName))return goal;
+   return {...goal,coachFeedback:[item,...existing]};
+  }));
+  setFeedbackDrafts(x=>({...x,[goalId]:""}));
+ };
 
- const update=(id:number,patch:Partial<Goal>)=>setGoals((x:Goal[])=>x.map(g=>g.id===id?{...g,...patch}:g));
- const remove=(id:number)=>setGoals((x:Goal[])=>x.filter(g=>g.id!==id));
-
- 
  const activeGoalRows=goals.filter(x=>(x.status||"Active")!=="Complete");
  const completedGoalRows=goals.filter(x=>x.progress>=100||(x.status||"")==="Complete");
  const overdueGoals=activeGoalRows.filter(x=>x.deadline&&x.deadline<today());
  const closeGoals=activeGoalRows.filter(x=>x.progress>=70);
  const goalMomentum=goals.length?Math.round(goals.reduce((a,x)=>a+x.progress,0)/goals.length):0;
-
  const measurableGoals=goals.filter(x=>Boolean(x.target)).length;
  const datedGoals=goals.filter(x=>Boolean(x.deadline)).length;
  const goalQuality=goals.length?Math.round(((measurableGoals/goals.length)*50)+((datedGoals/goals.length)*50)):0;
-return <><div className="hero"><small>GOALS</small><h1>Goals</h1><p>Turn outcomes into measurable, time-bound development targets.</p></div>
+
+ const roleMessage=viewRole==="Player"
+  ?{tag:"PLAYER-OWNED",title:"These are your goals",body:"You create the goal, decide what matters, and update your progress. Coaches can support you with suggestions or comments, but they cannot create or change the goal for you."}
+  :viewRole==="Coach"
+  ?{tag:"PLAYER-OWNED GOALS",title:"Coach supports the Player's goals",body:"Review the Player's goals, ask useful questions, and add a suggestion or comment. Goal creation, progress, status, and deletion stay with the Player."}
+  :viewRole==="Parent"
+  ?{tag:"PLAYER-OWNED GOALS",title:"Support without taking ownership",body:"These goals come from the Player. Use them to understand what the athlete is working toward and support the habits around the goal."}
+  :{tag:"ADMIN FULL ACCESS",title:"Admin override is active",body:"Goals normally belong to the Player. Admin can create, correct, update progress, pause, complete, delete, and add feedback when administrative intervention is required."};
+
+ const renderFeedback=(goal:Goal)=>{
+  const rows=goal.coachFeedback||[];
+  return <div className="goalCoachFeedback">
+   <div className="goalFeedbackHead"><small>COACH SUGGESTIONS & COMMENTS</small><span>{rows.length||"None yet"}</span></div>
+   {rows.length>0&&<div className="goalFeedbackList">{rows.slice(0,8).map(item=><div className="goalFeedbackItem" key={item.id}><span className={"tag "+item.kind.toLowerCase()}>{item.kind}</span><div><b>{item.coachName}</b><small>{friendlyDate(item.date)}</small><p>{item.text}</p></div></div>)}</div>}
+   {canCoachFeedback&&<div className="goalFeedbackComposer">
+    <label>Type<select value={feedbackKinds[goal.id]||"Suggestion"} onChange={e=>setFeedbackKinds(x=>({...x,[goal.id]:e.target.value as "Suggestion"|"Comment"}))}><option>Suggestion</option><option>Comment</option></select></label>
+    <label>Coach feedback<textarea rows={2} value={feedbackDrafts[goal.id]||""} onChange={e=>setFeedbackDrafts(x=>({...x,[goal.id]:e.target.value}))} placeholder="Ask a question, reinforce progress, or suggest an approach without replacing the Player's goal."/></label>
+    <button className="featureAction" onClick={()=>addCoachFeedback(goal.id)}>Add Coach Feedback</button>
+   </div>}
+  </div>;
+ };
+
+ return <><div className="hero"><small>{viewRole==="Player"?"MY GOALS":"GOALS"}</small><h1>{viewRole==="Player"?"My Goals":"Player Goals"}</h1><p>{viewRole==="Player"?"Set goals that matter to you and track your own progress.":"Review the athlete's Player-owned short-, mid-, and long-term development goals."}</p></div>
+
+ <div className={"goalOwnershipNotice "+viewRole.toLowerCase()}><span className="tag">{roleMessage.tag}</span><div><h2>{roleMessage.title}</h2><p>{roleMessage.body}</p></div></div>
+
  <details className="simpleDisclosure advancedTools"><summary><div><b>Goal Insights</b><small>Quality, momentum, completion, and overdue analysis</small></div><span>Open</span></summary><div className="simpleDisclosureBody"><div className="goalQuality"><div><small>GOAL QUALITY</small><b>{goalQuality}%</b><span>measurable + time-bound</span></div><div className="progress"><i style={{width:`${goalQuality}%`}}/></div></div>
  <div className="goalIntelligence">
   <div><small>GOAL MOMENTUM</small><b>{goalMomentum}%</b><span>average progress</span></div>
@@ -2543,17 +3094,15 @@ return <><div className="hero"><small>GOALS</small><h1>Goals</h1><p>Turn outcome
   <div><small>COMPLETED</small><b>{completedGoalRows.length}</b><span>total goals</span></div>
   <div><small>OVERDUE</small><b>{overdueGoals.length}</b><span>needs review</span></div>
  </div>
- 
-
  <div className="grid three">
   <div className="stat"><small>Active Goals</small><b>{active.length}</b></div>
   <div className="stat"><small>Completed</small><b>{complete.length}</b></div>
   <div className="stat"><small>Average Progress</small><b>{avg}%</b></div>
  </div>
-
  </div></details>
- <div className="card setupAnchor createGoalCard" id="setup-goals" tabIndex={-1}>
-  <div className="sectionHead"><div><h2>Create Goal</h2><small>Keep it clear, measurable, and tied to a timeframe.</small></div></div>
+
+ {canOwnGoals?<div className="card setupAnchor createGoalCard" id="setup-goals" tabIndex={-1}>
+  <div className="sectionHead"><div><small>{viewRole==="Admin"?"ADMIN OVERRIDE · PLAYER GOAL":"PLAYER GOAL"}</small><h2>{viewRole==="Admin"?"Create / Correct Player Goal":"Create My Goal"}</h2><p>{viewRole==="Admin"?"Admin has full access. Use this only when a Player goal requires administrative creation or correction.":"Your Coach can support this goal after you create it, but the goal starts with you."}</p></div></div>
   <div className="goalQuickGuide">
    <div><span>1</span><b>Choose a timeframe</b><small>Short 1–4 weeks · Mid 1–3 months · Long 3–12 months</small></div>
    <div><span>2</span><b>Make it measurable</b><small>What exactly should improve or be completed?</small></div>
@@ -2567,40 +3116,43 @@ return <><div className="hero"><small>GOALS</small><h1>Goals</h1><p>Turn outcome
    <label>Deadline<input type="date" value={deadline} onChange={e=>setDeadline(e.target.value)}/></label>
   </div>
   <label>Target / success criteria<input value={target} onChange={e=>setTarget(e.target.value)} placeholder="e.g. Improve from 1.85 sec to 1.78 sec"/></label>
-  <label>Notes<input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="What actions will help achieve this goal?"/></label>
-  <button className="primary" onClick={add}>Add Goal</button>
- </div>
+  <label>My notes<input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="What actions do I think will help me achieve this goal?"/></label>
+  <button className="primary" onClick={add}>{viewRole==="Admin"?"Create Goal · Admin Override":"Create My Goal"}</button>
+ </div>:<div className="card goalReadOnlyOwnership"><span className="tag">NO GOAL CREATION</span><h2>{viewRole==="Coach"?"Wait for the Player to create the goal":viewRole==="Parent"?"Player creates the goal":"Player ownership protected"}</h2><p>{viewRole==="Coach"?"Once a Player goal exists, you can add a Suggestion or Comment directly on that goal.":viewRole==="Parent"?"You can review goals and support the athlete, but the Player creates and updates them.":"This view does not create or alter Player goals."}</p></div>}
 
- <div className="card"><h2>Active Goals</h2>{active.length===0?<p>No active goals.</p>:active.map(g=><div className="goalCard" key={g.id}>
+ <div className="card"><h2>Active Goals</h2>{active.length===0?<div className="goalEmptyState"><b>No active Player goals yet.</b><p>{canOwnGoals?"Create a goal when you have something meaningful you want to work toward.":canCoachFeedback?"The Coach cannot create one for the Player. Discuss a possible goal, then let the Player record it in their account.":"The Player has not created an active goal yet."}</p></div>:active.map(g=><div className="goalCard playerOwnedGoalCard" key={g.id}>
   <div className="row"><div><span className="tag">{g.category||"Performance"}</span><h2>{g.title}</h2><small>{goalTypeLabel(g.type)}{g.deadline?" · Due "+g.deadline:""}{g.target?" · Target: "+g.target:""}</small></div><strong>{g.progress}%</strong></div>
-  <input type="range" min="0" max="100" value={g.progress} onChange={e=>update(g.id,{progress:+e.target.value})}/>
-  <div className="progress"><i style={{width:`${g.progress}%`}}/></div>
-  {g.notes&&<p>{g.notes}</p>}
-  <div className="goalActions"><button onClick={()=>update(g.id,{status:"Paused"})}>Pause</button><button className="primary" onClick={()=>update(g.id,{status:"Complete",progress:100})}>Mark Complete</button><button onClick={()=>remove(g.id)}>Delete</button></div>
+  {canOwnGoals?<input aria-label={`Progress for ${g.title}`} type="range" min="0" max="100" value={g.progress} onChange={e=>update(g.id,{progress:+e.target.value})}/>:<div className="goalReadOnlyProgress"><div className="progress"><i style={{width:`${g.progress}%`}}/></div><small>Progress is updated by the Player.</small></div>}
+  {canOwnGoals&&<div className="progress"><i style={{width:`${g.progress}%`}}/></div>}
+  {g.notes&&<div className="playerGoalNote"><small>PLAYER NOTES</small><p>{g.notes}</p></div>}
+  {renderFeedback(g)}
+  {canOwnGoals&&<div className="goalActions"><button onClick={()=>update(g.id,{status:"Paused"})}>Pause</button><button className="primary" onClick={()=>update(g.id,{status:"Complete",progress:100})}>Mark Complete</button><button onClick={()=>remove(g.id)}>Delete</button></div>}
  </div>)}</div>
 
- {goals.some(g=>(g.status||"Active")==="Paused")&&<div className="card"><h2>Paused Goals</h2>{goals.filter(g=>(g.status||"Active")==="Paused").map(g=><div className="goalCard compact" key={g.id}><div><b>{g.title}</b><small>{g.category||"Performance"} · {g.progress}%</small></div><button onClick={()=>update(g.id,{status:"Active"})}>Resume</button></div>)}</div>}
+ {goals.some(g=>(g.status||"Active")==="Paused")&&<div className="card"><h2>Paused Goals</h2>{goals.filter(g=>(g.status||"Active")==="Paused").map(g=><div className="goalCard compact playerOwnedGoalCard" key={g.id}><div><b>{g.title}</b><small>{g.category||"Performance"} · {g.progress}%</small></div>{canOwnGoals&&<button onClick={()=>update(g.id,{status:"Active"})}>Resume</button>}{!canOwnGoals&&<span className="tag">PLAYER PAUSED</span>}{renderFeedback(g)}</div>)}</div>}
 
- <details className="simpleDisclosure advancedTools"><summary><div><b>Completed Goals</b><small>Past goal history</small></div><span>Open</span></summary><div className="simpleDisclosureBody"><div className="card"><h2>Completed Goals</h2>{complete.length===0?<p>No completed goals yet.</p>:complete.slice(0,10).map(g=><div className="goalCard compact doneGoal" key={g.id}><div><b>{g.title}</b><small>{g.category||"Performance"}{g.deadline?" · "+g.deadline:""}</small></div><span>✓ Complete</span></div>)}</div></div></details>
+ <details className="simpleDisclosure advancedTools"><summary><div><b>Completed Goals</b><small>Past goal history</small></div><span>Open</span></summary><div className="simpleDisclosureBody"><div className="card"><h2>Completed Goals</h2>{complete.length===0?<p>No completed goals yet.</p>:complete.slice(0,10).map(g=><div className="goalCard compact doneGoal playerOwnedGoalCard" key={g.id}><div><b>{g.title}</b><small>{g.category||"Performance"}{g.deadline?" · "+g.deadline:""}</small></div><span>✓ Complete</span>{renderFeedback(g)}</div>)}</div></div></details>
  </>;
 }
 
-function Calendar({sport,workouts,setWorkouts,profile,seasonEvents,setSeasonEvents,trainingBlocks,setTrainingBlocks,competitions}:{sport:Sport;workouts:Workout[];setWorkouts:any;profile:Profile;seasonEvents:SeasonEvent[];setSeasonEvents:React.Dispatch<React.SetStateAction<SeasonEvent[]>>;trainingBlocks:TrainingBlock[];setTrainingBlocks:React.Dispatch<React.SetStateAction<TrainingBlock[]>>;competitions:CompetitionLog[]}){
+function Calendar({accountRole,sport,workouts,setWorkouts,profile,seasonEvents,setSeasonEvents,trainingBlocks,setTrainingBlocks,competitions}:{accountRole:AccountRole;sport:Sport;workouts:Workout[];setWorkouts:any;profile:Profile;seasonEvents:SeasonEvent[];setSeasonEvents:React.Dispatch<React.SetStateAction<SeasonEvent[]>>;trainingBlocks:TrainingBlock[];setTrainingBlocks:React.Dispatch<React.SetStateAction<TrainingBlock[]>>;competitions:CompetitionLog[]}){
+ const canWriteTraining=canRole(accountRole,"writeTraining");
  const [date,setDate]=useState(today()),[name,setName]=useState("Sport Workout"),[cat,setCat]=useState("Conditioning"),[minutes,setMinutes]=useState("45"),[intensity,setIntensity]=useState<"Easy"|"Moderate"|"Hard">("Moderate"),[focusNote,setFocusNote]=useState("");
  const [eventDate,setEventDate]=useState(today()),[eventTitle,setEventTitle]=useState(""),[eventType,setEventType]=useState<SeasonEvent["eventType"]>("Game"),[priority,setPriority]=useState<SeasonEvent["priority"]>("Normal"),[eventNotes,setEventNotes]=useState("");
  const [blockName,setBlockName]=useState(""),[startDate,setStartDate]=useState(today()),[endDate,setEndDate]=useState(today()),[focus,setFocus]=useState("Speed"),[target,setTarget]=useState("");
 
  const rows=workouts.filter(w=>w.sport===sport).sort((a,b)=>a.date.localeCompare(b.date));
  const addWorkout=()=>{
+   if(!canWriteTraining)return;
    const item:Workout={id:Date.now(),date,name,category:cat,minutes:+minutes,completed:false,sport,intensity,focus:focusNote.trim(),source:"Manual"};
    setWorkouts((x:Workout[])=>[item,...x]);
    setFocusNote("");
  };
- const completeWorkout=(id:number,rpe:number,notes:string)=>setWorkouts((x:Workout[])=>x.map(a=>a.id===id?{...a,completed:true,rpe,notes}:a));
- const reopenWorkout=(id:number)=>setWorkouts((x:Workout[])=>x.map(a=>a.id===id?{...a,completed:false}:a));
+ const completeWorkout=(id:number,rpe:number,notes:string)=>{if(!canWriteTraining)return;setWorkouts((x:Workout[])=>x.map(a=>a.id===id?{...a,completed:true,rpe,notes}:a))};
+ const reopenWorkout=(id:number)=>{if(!canWriteTraining)return;setWorkouts((x:Workout[])=>x.map(a=>a.id===id?{...a,completed:false}:a))};
 
- const addEvent=()=>{if(!eventTitle.trim())return;setSeasonEvents(x=>[...x,{id:Date.now(),date:eventDate,title:eventTitle.trim(),eventType,priority,notes:eventNotes.trim()}].sort((a,b)=>a.date.localeCompare(b.date)));setEventTitle("");setEventNotes("")};
- const addBlock=()=>{if(!blockName.trim())return;setTrainingBlocks(x=>[...x,{id:Date.now(),name:blockName.trim(),startDate,endDate,focus,target:target.trim(),completed:false}].sort((a,b)=>a.startDate.localeCompare(b.startDate)));setBlockName("");setTarget("")};
+ const addEvent=()=>{if(!canWriteTraining||!eventTitle.trim())return;setSeasonEvents(x=>[...x,{id:Date.now(),date:eventDate,title:eventTitle.trim(),eventType,priority,notes:eventNotes.trim()}].sort((a,b)=>a.date.localeCompare(b.date)));setEventTitle("");setEventNotes("")};
+ const addBlock=()=>{if(!canWriteTraining||!blockName.trim())return;setTrainingBlocks(x=>[...x,{id:Date.now(),name:blockName.trim(),startDate,endDate,focus,target:target.trim(),completed:false}].sort((a,b)=>a.startDate.localeCompare(b.startDate)));setBlockName("");setTarget("")};
 
  const upcoming=seasonEvents.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
  const sportComps=competitions.filter(c=>c.sport===sport);
@@ -2695,7 +3247,8 @@ function WorkoutLogCard({workout,onComplete,onReopen}:{workout:Workout;onComplet
  {workout.completed?<div className="completedWorkout"><span>RPE {workout.rpe||"—"}/10</span>{workout.notes&&<p>{workout.notes}</p>}<button onClick={()=>onReopen(workout.id)}>Reopen</button></div>:<div className="completeWorkoutForm"><label>Session RPE<select value={rpe} onChange={e=>setRpe(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}/10</option>)}</select></label><label>Session Notes<input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="What went well? Any soreness or changes?"/></label><button className="primary" onClick={()=>onComplete(workout.id,Number(rpe),notes.trim())}>Complete Workout</button></div>}</div>
 }
 
-function Testing({sport,library,custom,setCustom,results,setResults,testTargets,setTestTargets}:{sport:Sport;library:TestDef[];custom:CustomTest[];setCustom:any;results:Result[];setResults:any;testTargets:TestTarget[];setTestTargets:React.Dispatch<React.SetStateAction<TestTarget[]>>}){
+function Testing({accountRole,sport,library,custom,setCustom,results,setResults,testTargets,setTestTargets}:{accountRole:AccountRole;sport:Sport;library:TestDef[];custom:CustomTest[];setCustom:any;results:Result[];setResults:any;testTargets:TestTarget[];setTestTargets:React.Dispatch<React.SetStateAction<TestTarget[]>>}){
+ const canWriteTesting=canRole(accountRole,"writeTesting");
  const [id,setId]=useState(library[0]?.id||""),[category,setCategory]=useState(""),[unit,setUnit]=useState(""),[value,setValue]=useState(""),[open,setOpen]=useState(false);
  const [name,setName]=useState(""),[newCat,setNewCat]=useState("Speed"),[newUnit,setNewUnit]=useState("sec"),[lower,setLower]=useState(true);
  const [target,setTarget]=useState(""),[retestDate,setRetestDate]=useState(""),[targetNotes,setTargetNotes]=useState("");
@@ -2713,6 +3266,7 @@ function Testing({sport,library,custom,setCustom,results,setResults,testTargets,
  const protocol=t?testProtocols[t.name]:undefined;
 
  const save=()=>{
+  if(!canWriteTesting)return;
   if(t&&value.trim()&&!isNaN(Number(value))){
    const n=Number(value),date=today();
    setResults((r:Result[])=>{
@@ -2724,7 +3278,7 @@ function Testing({sport,library,custom,setCustom,results,setResults,testTargets,
  };
 
  const saveTarget=()=>{
-  if(!t)return;
+  if(!canWriteTesting||!t)return;
   const item:TestTarget={id:`${sport}-${t.id}`,testId:t.id,sport,target:target.trim(),retestDate,notes:targetNotes.trim()};
   setTestTargets(x=>[item,...x.filter(a=>!(a.testId===t.id&&a.sport===sport))]);
  };
@@ -2795,7 +3349,7 @@ return <><div className="hero"><small>PERFORMANCE TESTING</small><h1>Performance
  {open&&<div className="overlay"><div className="modal"><div className="sectionHead"><h2>Create Custom Test</h2><button onClick={()=>setOpen(false)}>×</button></div><label>Test name<input value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Shot speed"/></label><label>Category<select value={newCat} onChange={e=>setNewCat(e.target.value)}>{categories.map(x=><option key={x}>{x}</option>)}</select></label><label>Unit of Measure<select value={newUnit} onChange={e=>setNewUnit(e.target.value)}>{units.map(x=><option key={x}>{x}</option>)}</select></label><label>Better result<select value={lower?"lower":"higher"} onChange={e=>setLower(e.target.value==="lower")}><option value="lower">Lower is better</option><option value="higher">Higher is better</option></select></label><button className="primary" onClick={()=>{if(name.trim()){const x={id:`custom-${Date.now()}`,name:name.trim(),category:newCat,unit:newUnit,lowerBetter:lower,sport};setCustom((c:CustomTest[])=>[...c,x]);setId(x.id);setOpen(false);setName("")}}}>Save Custom Test</button></div></div>}</>
 }
 
-function Analytics({sport,profile,results,goals,workouts,readiness,competitions,accountRole="Parent",setTab,setDev,setGoals,setWorkouts}:{sport:Sport;profile:Profile;results:Result[];goals:Goal[];workouts:Workout[];readiness:ReadinessLog[];competitions:CompetitionLog[];accountRole?:AccountRole;setTab?:React.Dispatch<React.SetStateAction<Tab>>;setDev?:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;setGoals?:React.Dispatch<React.SetStateAction<Goal[]>>;setWorkouts?:React.Dispatch<React.SetStateAction<Workout[]>>}){
+function Analytics({sport,profile,results,goals,workouts,readiness,competitions,accountRole="Parent",actualAccountRole=accountRole,setTab,setDev,setGoals,setWorkouts}:{sport:Sport;profile:Profile;results:Result[];goals:Goal[];workouts:Workout[];readiness:ReadinessLog[];competitions:CompetitionLog[];accountRole?:AccountRole;actualAccountRole?:AccountRole;setTab?:React.Dispatch<React.SetStateAction<Tab>>;setDev?:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;setGoals?:React.Dispatch<React.SetStateAction<Goal[]>>;setWorkouts?:React.Dispatch<React.SetStateAction<Workout[]>>}){
  const [range,setRange]=useState("All"),[categoryFilter,setCategoryFilter]=useState("All");
  const [intelligenceMessage,setIntelligenceMessage]=useState("");
  const cutoff=range==="30 Days"?Date.now()-30*86400000:range==="90 Days"?Date.now()-90*86400000:range==="1 Year"?Date.now()-365*86400000:0;
@@ -2858,7 +3412,10 @@ function Analytics({sport,profile,results,goals,workouts,readiness,competitions,
   {label:"Competition",value:competitionScore,display:sportComps.length?`${competitionScore}`:"—"}
  ];
  const seasonMomentum=Math.round(seasonMetrics.reduce((a,m)=>a+m.value,0)/seasonMetrics.length);
- const canCreateActions=accountRole!=="Parent"&&Boolean(setDev&&setGoals&&setWorkouts);
+ const writeAsCurrentRole=accountRole===actualAccountRole;
+ const canCreateDevelopmentActions=writeAsCurrentRole&&canRole(actualAccountRole,"manageDevelopmentPlan")&&Boolean(setDev);
+ const canAddTrainingFocus=writeAsCurrentRole&&canRole(actualAccountRole,"writeTraining")&&Boolean(setWorkouts);
+ const canCreatePlayerGoal=writeAsCurrentRole&&canRole(actualAccountRole,"createPlayerGoal")&&Boolean(setGoals);
  const prioritySignal=declining[0]
   ?{title:declining[0].g.name,category:"Testing",why:`${declining[0].g.name} is ${Math.abs(declining[0].imp)}% below its filtered baseline.`,action:`Use a focused ${declining[0].g.name.toLowerCase()} development block, keep technique quality high, then retest consistently.`,testId:declining[0].g.testId}
   :readinessScore>0&&readinessScore<60
@@ -2870,13 +3427,13 @@ function Analytics({sport,profile,results,goals,workouts,readiness,competitions,
   :{title:"Build a Baseline",category:"Development",why:"There is not enough repeated data yet to rank a specific performance priority.",action:"Keep logging training, readiness, and repeated tests so the development engine has stronger evidence.",testId:""};
 
  const createDevelopmentPriority=(signal=prioritySignal)=>{
-  if(!setDev)return;
+  if(!canCreateDevelopmentActions||!setDev)return;
   const item:DevelopmentItem={id:Date.now(),title:signal.title,category:signal.category,target:signal.action,dueDate:"",status:"Not Started",priority:signal.category==="Recovery"?"High":"Medium",progress:0,notes:`Created from Analytics: ${signal.why}`};
   setDev(x=>x.some(d=>d.status!=="Complete"&&d.title===item.title&&d.notes===item.notes)?x:[item,...x]);
   setIntelligenceMessage(`Development priority ready: ${signal.title}`);
  };
  const createIntelligenceGoal=(signal=prioritySignal)=>{
-  if(!setGoals)return;
+  if(!canCreatePlayerGoal||!setGoals)return;
   const d=new Date();d.setDate(d.getDate()+28);
   const deadline=localDate(d);
   const item:Goal={id:Date.now(),title:`Improve ${signal.title}`,progress:0,type:"Short-term",category:signal.category,deadline,target:signal.action,linkedTestId:signal.testId||undefined,status:"Active",notes:`Created from Analytics: ${signal.why}`};
@@ -2884,7 +3441,7 @@ function Analytics({sport,profile,results,goals,workouts,readiness,competitions,
   setIntelligenceMessage(`Short-term goal ready: Improve ${signal.title}`);
  };
  const addIntelligenceWorkout=(signal=prioritySignal)=>{
-  if(!setWorkouts)return;
+  if(!canAddTrainingFocus||!setWorkouts)return;
   const d=new Date();d.setDate(d.getDate()+1);
   const item:Workout={id:Date.now(),date:localDate(d),name:`Development Focus · ${signal.title}`,category:"Development",minutes:30,completed:false,sport,intensity:"Moderate",notes:signal.action,focus:signal.title,source:"Manual",assignedByRole:accountRole};
   setWorkouts(x=>[item,...x]);
@@ -2949,11 +3506,12 @@ function Analytics({sport,profile,results,goals,workouts,readiness,competitions,
    <div><small>WHY</small><p>{prioritySignal.why}</p></div>
    <div><small>RECOMMENDED NEXT STEP</small><p>{prioritySignal.action}</p></div>
   </div>
-  {canCreateActions?<div className="developmentIntelActions">
-   <button onClick={()=>{createDevelopmentPriority();setTab?.("Development")}}>Create Development Priority</button>
-   <button onClick={()=>{createIntelligenceGoal();setTab?.("Goals")}}>Create Short-Term Goal</button>
-   <button className="featureAction" onClick={()=>{addIntelligenceWorkout();setTab?.("Calendar")}}>Add Training Focus</button>
-  </div>:<div className="developmentIntelReadOnly"><b>Read-only support view</b><span>Parents see the same signal and recommendation without changing the Player/Coach development plan.</span></div>}
+  {(canCreateDevelopmentActions||canCreatePlayerGoal||canAddTrainingFocus||accountRole==="Coach")?<div className="developmentIntelActions">
+   {canCreateDevelopmentActions&&<button onClick={()=>{createDevelopmentPriority();setTab?.("Development")}}>Create Development Priority</button>}
+   {canCreatePlayerGoal&&<button onClick={()=>{createIntelligenceGoal();setTab?.("Goals")}}>{accountRole==="Admin"?"Create Goal · Admin Override":"Create My Short-Term Goal"}</button>}
+   {accountRole==="Coach"&&actualAccountRole==="Coach"&&<button onClick={()=>setTab?.("Goals")}>Review Player Goals</button>}
+   {canAddTrainingFocus&&<button className="featureAction" onClick={()=>{addIntelligenceWorkout();setTab?.("Calendar")}}>Add Training Focus</button>}
+  </div>:<div className="developmentIntelReadOnly"><b>Read-only support view</b><span>{accountRole==="Parent"?"Parents can review the same signal and support the Player without changing Player-owned goals or Coach-managed development direction.":"This role sees the same signal and recommendation without creating a Player goal."}</span></div>}
   {intelligenceMessage&&<div className="developmentIntelMessage">{intelligenceMessage}</div>}
  </section>
 
@@ -3010,13 +3568,15 @@ function exportResults(rows:Result[]){
  const body=rows.map(r=>[r.date,r.name,r.category,r.unit,r.value,r.sport].map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
  const blob=new Blob([header+"\n"+body],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="test-results.csv";a.click();URL.revokeObjectURL(url);
 }
-function Development({sport,profile,dev,setDev,results,goals,workouts,program,readiness,competitions,milestones,setMilestones}:{sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];goals:Goal[];workouts:Workout[];program:TrainingProgram|null;readiness:ReadinessLog[];competitions:CompetitionLog[];milestones:Milestone[];setMilestones:React.Dispatch<React.SetStateAction<Milestone[]>>}){
+function Development({accountRole,sport,profile,dev,setDev,results,goals,workouts,program,readiness,competitions,milestones,setMilestones}:{accountRole:AccountRole;sport:Sport;profile:Profile;dev:DevelopmentItem[];setDev:React.Dispatch<React.SetStateAction<DevelopmentItem[]>>;results:Result[];goals:Goal[];workouts:Workout[];program:TrainingProgram|null;readiness:ReadinessLog[];competitions:CompetitionLog[];milestones:Milestone[];setMilestones:React.Dispatch<React.SetStateAction<Milestone[]>>}){
  const [title,setTitle]=useState(""),[category,setCategory]=useState("Skill"),[target,setTarget]=useState(""),[dueDate,setDueDate]=useState(""),[priority,setPriority]=useState<"High"|"Medium"|"Low">("Medium"),[linkedGoalId,setLinkedGoalId]=useState(""),[devNotes,setDevNotes]=useState("");
  const [milestoneTitle,setMilestoneTitle]=useState(""),[milestoneDetail,setMilestoneDetail]=useState(""),[milestoneCategory,setMilestoneCategory]=useState("Personal");
+ const canManageObjectives=canRole(accountRole,"manageDevelopmentPlan");
+ const canManagePersonalMilestones=accountRole==="Player"||accountRole==="Admin";
 
- const add=()=>{if(!title.trim())return;setDev(x=>[...x,{id:Date.now(),title:title.trim(),category,target,dueDate,status:"Not Started",priority,progress:0,linkedGoalId:linkedGoalId?Number(linkedGoalId):undefined,notes:devNotes.trim()}]);setTitle("");setTarget("");setDueDate("");setLinkedGoalId("");setDevNotes("")};
- const update=(id:number,patch:Partial<DevelopmentItem>)=>setDev(x=>x.map(i=>i.id===id?{...i,...patch}:i));
- const remove=(id:number)=>setDev(x=>x.filter(i=>i.id!==id));
+ const add=()=>{if(!canManageObjectives||!title.trim())return;setDev(x=>[...x,{id:Date.now(),title:title.trim(),category,target,dueDate,status:"Not Started",priority,progress:0,linkedGoalId:linkedGoalId?Number(linkedGoalId):undefined,notes:devNotes.trim()}]);setTitle("");setTarget("");setDueDate("");setLinkedGoalId("");setDevNotes("")};
+ const update=(id:number,patch:Partial<DevelopmentItem>)=>{if(!canManageObjectives)return;setDev(x=>x.map(i=>i.id===id?{...i,...patch}:i))};
+ const remove=(id:number)=>{if(!canManageObjectives)return;setDev(x=>x.filter(i=>i.id!==id))};
  const complete=dev.filter(i=>i.status==="Complete").length;
 
  const sportResults=results.filter(r=>r.sport===sport);
@@ -3046,7 +3606,7 @@ function Development({sport,profile,dev,setDev,results,goals,workouts,program,re
  const earned=achievements.filter(a=>a.earned).length;
 
  const addMilestone=()=>{
-  if(!milestoneTitle.trim())return;
+  if(!canManagePersonalMilestones||!milestoneTitle.trim())return;
   setMilestones(x=>[{id:Date.now(),date:today(),title:milestoneTitle.trim(),detail:milestoneDetail.trim(),category:milestoneCategory},...x]);
   setMilestoneTitle("");setMilestoneDetail("");
  };
@@ -3059,27 +3619,27 @@ function Development({sport,profile,dev,setDev,results,goals,workouts,program,re
   <div className="stat"><small>High Priority</small><b>{highPriorityOpen}</b></div>
  </div>
 
- <div className="card"><h2>Add Development Objective</h2><div className="two">
+ {canManageObjectives?<div className="card"><h2>Add Development Objective</h2><div className="two">
   <label>Objective<input value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. Improve first-step quickness"/></label>
   <label>Category<select value={category} onChange={e=>setCategory(e.target.value)}><option>Skill</option><option>Strength</option><option>Speed</option><option>Conditioning</option><option>Technique</option><option>Game Performance</option></select></label>
   <label>Target<input value={target} onChange={e=>setTarget(e.target.value)} placeholder="e.g. 5% improvement"/></label>
   <label>Target Date<input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)}/></label>
   <label>Priority<select value={priority} onChange={e=>setPriority(e.target.value as "High"|"Medium"|"Low")}><option>High</option><option>Medium</option><option>Low</option></select></label>
   <label>Linked Goal<select value={linkedGoalId} onChange={e=>setLinkedGoalId(e.target.value)}><option value="">No linked goal</option>{goals.filter(g=>(g.status||"Active")!=="Complete").map(g=><option value={g.id} key={g.id}>{g.title}</option>)}</select></label>
- </div><label>Development Notes<input value={devNotes} onChange={e=>setDevNotes(e.target.value)} placeholder="Coaching cues, technique notes, or plan"/></label><button onClick={add}>Add Objective</button></div>
+ </div><label>Development Notes<input value={devNotes} onChange={e=>setDevNotes(e.target.value)} placeholder="Coaching cues, technique notes, or plan"/></label><button onClick={add}>Add Objective</button></div>:<div className="card developmentOwnershipNotice"><span className="tag">COACH-MANAGED</span><h2>Development priorities are managed by the Coach</h2><p>Players can review priorities, complete reflections, and discuss what they are learning. Coaches manage formal development objectives; Admin has full override.</p></div>}
 
  <div className="card"><h2>Objectives</h2>{dev.length===0?<p>No development objectives yet.</p>:dev.map(i=>{const linked=goals.find(g=>g.id===i.linkedGoalId);const progress=i.status==="Complete"?100:(i.progress||0);return <div className={"developmentCard "+(i.priority||"Medium").toLowerCase()} key={i.id}>
   <div className="sectionHead"><div><span className="tag">{i.priority||"Medium"} Priority</span><h2>{i.title}</h2><small>{i.category}{i.target?" · "+i.target:""}{i.dueDate?" · Due "+i.dueDate:""}</small></div><strong>{progress}%</strong></div>
   {linked&&<p className="linkedGoal">Linked goal: <b>{linked.title}</b></p>}
   {i.notes&&<p>{i.notes}</p>}
-  <input type="range" min="0" max="100" value={progress} disabled={i.status==="Complete"} onChange={e=>update(i.id,{progress:+e.target.value,status:+e.target.value>0?"In Progress":"Not Started"})}/>
+  {canManageObjectives?<input type="range" min="0" max="100" value={progress} disabled={i.status==="Complete"} onChange={e=>update(i.id,{progress:+e.target.value,status:+e.target.value>0?"In Progress":"Not Started"})}/>:<div className="developmentReadOnlyProgress"><small>Progress is managed by Coach/Admin.</small></div>}
   <div className="progress"><i style={{width:`${progress}%`}}/></div>
-  <div className="goalActions"><button onClick={()=>update(i.id,{status:"In Progress"})}>In Progress</button><button className="primary" onClick={()=>update(i.id,{status:"Complete",progress:100})}>Complete</button><button onClick={()=>remove(i.id)}>Delete</button></div>
+  {canManageObjectives&&<div className="goalActions"><button onClick={()=>update(i.id,{status:"In Progress"})}>In Progress</button><button className="primary" onClick={()=>update(i.id,{status:"Complete",progress:100})}>Complete</button><button onClick={()=>remove(i.id)}>Delete</button></div>}
  </div>})}</div>
 
  <details className="simpleDisclosure advancedTools"><summary><div><b>More Development Tools</b><small>Achievements, milestones, and performance snapshot</small></div><span>Open</span></summary><div className="simpleDisclosureBody"><div className="card"><div className="sectionHead"><h2>Achievements</h2><span>{earned}/{achievements.length} earned</span></div><div className="achievementGrid">{achievements.map(a=><div className={"achievement "+(a.earned?"earned":"")} key={a.id}><div className="achievementIcon">{a.earned?"✓":"○"}</div><div><b>{a.title}</b><small>{a.category} · {a.description}</small><div className="progress"><i style={{width:`${Math.round(a.progress)}%`}}/></div><small>{Math.round(a.progress)}%</small></div></div>)}</div></div>
 
- <div className="card"><h2>Add Personal Milestone</h2><div className="two"><label>Milestone<input value={milestoneTitle} onChange={e=>setMilestoneTitle(e.target.value)} placeholder="e.g. Made varsity roster"/></label><label>Category<select value={milestoneCategory} onChange={e=>setMilestoneCategory(e.target.value)}><option>Personal</option><option>Team</option><option>Testing</option><option>Training</option><option>Competition</option><option>Development</option></select></label></div><label>Details<input value={milestoneDetail} onChange={e=>setMilestoneDetail(e.target.value)} placeholder="Why this matters"/></label><button className="primary" onClick={addMilestone}>Save Milestone</button></div>
+ {canManagePersonalMilestones&&<div className="card"><h2>{accountRole==="Admin"?"Add / Correct Personal Milestone":"Add Personal Milestone"}</h2><div className="two"><label>Milestone<input value={milestoneTitle} onChange={e=>setMilestoneTitle(e.target.value)} placeholder="e.g. Made varsity roster"/></label><label>Category<select value={milestoneCategory} onChange={e=>setMilestoneCategory(e.target.value)}><option>Personal</option><option>Team</option><option>Testing</option><option>Training</option><option>Competition</option><option>Development</option></select></label></div><label>Details<input value={milestoneDetail} onChange={e=>setMilestoneDetail(e.target.value)} placeholder="Why this matters"/></label><button className="primary" onClick={addMilestone}>Save Milestone</button></div>}
 
  <div className="card"><h2>Milestone Timeline</h2>{milestones.length===0?<p>No personal milestones saved yet.</p>:milestones.map(m=><div className="timelineRow" key={m.id}><div className="timelineDot"/><div><span className="tag">{m.category}</span><b>{m.title}</b><small>{m.date}{m.detail?" · "+m.detail:""}</small></div><button onClick={()=>setMilestones(x=>x.filter(a=>a.id!==m.id))}>Delete</button></div>)}</div>
 
@@ -3973,7 +4533,7 @@ function Readiness({sport,profile,readiness,setReadiness,weeklyReviews,coachNote
  const [meditationLength,setMeditationLength]=useState<"3"|"5"|"10">("5");
  const [meditationStep,setMeditationStep]=useState(0);
  const saveReadiness=()=>{
-  if(accountRole!=="Player")return;
+  if(!canRole(accountRole,"playerDailyCheckIn"))return;
   const item:ReadinessLog={id:Date.now(),date:today(),sleep:Number(sleep)||0,soreness:Number(soreness)||0,energy:Number(energy)||0,stress:Number(stress)||0,notes};
   setReadiness(x=>[item,...x.filter(r=>r.date!==item.date)]);
   setNotes("");
@@ -4161,12 +4721,12 @@ function Readiness({sport,profile,readiness,setReadiness,weeklyReviews,coachNote
   </div>}
  </div>
 
- {accountRole==="Player"?<div className="card setupAnchor" id="setup-readiness" tabIndex={-1}><div className="sectionHead"><div><span className="tag">PLAYER ONLY</span><h2>My Daily Check-In</h2><small>Your answers are shared with linked Parents and Coaches after you save.</small></div></div><div className="two">
+ {canRole(accountRole,"playerDailyCheckIn")?<div className="card setupAnchor" id="setup-readiness" tabIndex={-1}><div className="sectionHead"><div><span className="tag">{accountRole==="Admin"?"ADMIN OVERRIDE":"PLAYER ONLY"}</span><h2>{accountRole==="Admin"?"Player Daily Check-In":"My Daily Check-In"}</h2><small>{accountRole==="Admin"?"Admin can create or correct Player readiness data when needed.":"Your answers are shared with linked Parents and Coaches after you save."}</small></div></div><div className="two">
   <label>Sleep (hours)<select value={sleep} onChange={e=>setSleep(e.target.value)}>{["4","5","6","7","8","9","10","11","12"].map(x=><option key={x}>{x}</option>)}</select></label>
   <label>Energy (1–10)<select value={energy} onChange={e=>setEnergy(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}</option>)}</select></label>
   <label>Soreness (1–10)<select value={soreness} onChange={e=>setSoreness(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}</option>)}</select></label>
   <label>Stress (1–10)<select value={stress} onChange={e=>setStress(e.target.value)}>{Array.from({length:10},(_,i)=>String(i+1)).map(x=><option key={x}>{x}</option>)}</select></label>
- </div><label>Notes<input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Sleep quality, soreness location, school stress, etc."/></label><button className="primary" onClick={saveReadiness}>Save My Daily Check-In</button></div>:<div className="card playerOnlyNotice" id="setup-readiness" tabIndex={-1}><span className="tag">PLAYER-ENTERED</span><h2>Daily Check-In Results</h2><p>Only {profile.name||"the Player"} can submit or change sleep, energy, soreness, stress, and check-in notes. Linked Parents and Coaches can review the saved results here.</p>{todayLog?<div className="supportDailyResult"><div><small>DATE</small><b>{friendlyDate(todayLog.date)}</b></div><div><small>SLEEP</small><b>{todayLog.sleep} h</b></div><div><small>ENERGY</small><b>{todayLog.energy}/10</b></div><div><small>SORENESS</small><b>{todayLog.soreness}/10</b></div><div><small>STRESS</small><b>{todayLog.stress}/10</b></div></div>:<p className="muted">No Player check-in has been submitted for today.</p>}{todayLog?.notes&&<div className="supportCheckinNote"><small>PLAYER NOTE</small><p>{todayLog.notes}</p></div>}</div>}
+ </div><label>Notes<input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Sleep quality, soreness location, school stress, etc."/></label><button className="primary" onClick={saveReadiness}>{accountRole==="Admin"?"Save Player Check-In · Admin Override":"Save My Daily Check-In"}</button></div>:<div className="card playerOnlyNotice" id="setup-readiness" tabIndex={-1}><span className="tag">PLAYER-ENTERED</span><h2>Daily Check-In Results</h2><p>Only {profile.name||"the Player"} can submit or change sleep, energy, soreness, stress, and check-in notes. Linked Parents and Coaches can review the saved results here.</p>{todayLog?<div className="supportDailyResult"><div><small>DATE</small><b>{friendlyDate(todayLog.date)}</b></div><div><small>SLEEP</small><b>{todayLog.sleep} h</b></div><div><small>ENERGY</small><b>{todayLog.energy}/10</b></div><div><small>SORENESS</small><b>{todayLog.soreness}/10</b></div><div><small>STRESS</small><b>{todayLog.stress}/10</b></div></div>:<p className="muted">No Player check-in has been submitted for today.</p>}{todayLog?.notes&&<div className="supportCheckinNote"><small>PLAYER NOTE</small><p>{todayLog.notes}</p></div>}</div>}
  <div className="card"><h2>7-Day Readiness Trend</h2>{recent.length?<div className="readinessBars">{recent.slice().reverse().map(r=>{const v=calc(r);return <div key={r.id}><i style={{height:`${v}%`}}/><small>{r.date.slice(5)}</small><b>{v}</b></div>})}</div>:<p>{accountRole==="Player"?"Complete your daily check-ins to build a recovery trend.":"Player check-ins will build the recovery trend here."}</p>}</div>
  <div className="card playerCheckinHistory"><div className="sectionHead"><div><h2>Recent Player Check-Ins</h2><small>Read-only history for Parents, Coaches, and support views</small></div><span className="tag">{recent.length} RECENT</span></div>{recent.length===0?<p>No Player check-ins yet.</p>:<div className="playerCheckinRows">{recent.map(r=><div key={r.id}><div><b>{friendlyDate(r.date)}</b><small>Readiness {calc(r)}/100</small></div><span><small>Sleep</small><b>{r.sleep}h</b></span><span><small>Energy</small><b>{r.energy}/10</b></span><span><small>Soreness</small><b>{r.soreness}/10</b></span><span><small>Stress</small><b>{r.stress}/10</b></span>{r.notes&&<p>{r.notes}</p>}</div>)}</div>}</div>
  <div className="card playerWeeklyReviewResults"><div className="sectionHead"><div><h2>Player Weekly Reviews</h2><small>Player-entered reflection · visible to linked Parents and Coaches</small></div><span className="tag">{weeklyReviews.length} REVIEW{weeklyReviews.length===1?"":"S"}</span></div>{weeklyReviews.length===0?<p>No Player weekly reviews yet.</p>:<div className="supportWeeklyReviewList">{weeklyReviews.slice(0,5).map(r=><div key={r.id}><div className="reviewRating">{r.rating}<small>/10</small></div><div><b>Week of {friendlyDate(r.weekStart)}</b><span><strong>Win:</strong> {r.wins||"—"}</span><span><strong>Challenge:</strong> {r.challenges||"—"}</span><span><strong>Next focus:</strong> {r.focus||"—"}</span></div></div>)}</div>}</div>
@@ -4189,7 +4749,8 @@ function Readiness({sport,profile,readiness,setReadiness,weeklyReviews,coachNote
  </div>
  </>;
 }
-function Competition({sport,competitions,setCompetitions,profile}:{sport:Sport;competitions:CompetitionLog[];setCompetitions:React.Dispatch<React.SetStateAction<CompetitionLog[]>>;profile:Profile}){
+function Competition({accountRole,sport,competitions,setCompetitions,profile}:{accountRole:AccountRole;sport:Sport;competitions:CompetitionLog[];setCompetitions:React.Dispatch<React.SetStateAction<CompetitionLog[]>>;profile:Profile}){
+ const canWriteCompetition=canRole(accountRole,"writeCompetition");
  const [date,setDate]=useState(today()),[opponent,setOpponent]=useState(""),[eventType,setEventType]=useState("Game"),[result,setResult]=useState(""),[minutes,setMinutes]=useState(""),[rating,setRating]=useState("7"),[notes,setNotes]=useState("");
  const [location,setLocation]=useState(""),[role,setRole]=useState(profile.position||""),[keyWin,setKeyWin]=useState(""),[improveNext,setImproveNext]=useState(""),[confidence,setConfidence]=useState("7");
  const [customStatName,setCustomStatName]=useState("");
@@ -4216,6 +4777,7 @@ function Competition({sport,competitions,setCompetitions,profile}:{sport:Sport;c
  const removeCustomStat=(label:string)=>setStats(x=>x.filter(st=>st.label!==label));
 
  const save=()=>{
+  if(!canWriteCompetition)return;
   if(!opponent.trim()&&!result.trim()&&!notes.trim())return;
   const item:CompetitionLog={
    id:Date.now(),date,opponent:opponent.trim()||"Competition",eventType,result:result.trim(),minutes,
@@ -4433,7 +4995,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.40","good"],
+  ["App Version","72.3.51 RC2","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],
@@ -4473,9 +5035,21 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
   setName("");setAge("");setPosition("");setTeam("");setHeight("");setWeight("");
  };
 
- const activate=(a:AthleteRecord)=>switchAthlete(a);
+ const activate=(a:AthleteRecord)=>{
+  if(a.id.startsWith("cloud:")&&selectCoachRosterAthlete){
+   selectCoachRosterAthlete(a.id.slice(6));
+   return;
+  }
+  switchAthlete(a);
+ };
  const editAthlete=(a:AthleteRecord)=>{
   if(!canManageProfiles)return;
+  if(a.id.startsWith("cloud:")&&selectCoachRosterAthlete){
+   selectCoachRosterAthlete(a.id.slice(6));
+   setTab("Home");
+   window.setTimeout(()=>setEditProfileRequest(x=>x+1),180);
+   return;
+  }
   switchAthlete(a);
   setTab("Home");
   window.setTimeout(()=>setEditProfileRequest(x=>x+1),80);
@@ -4497,8 +5071,8 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
   };
  });
  const localAll=[currentRecord,...roster.filter(x=>x.id!=="primary")];
- const all=accountRole==="Coach"&&cloudRecords.length?cloudRecords:localAll;
- const isSelectedCoachRecord=(a:{id:string;name:string})=>accountRole==="Coach"&&cloudRecords.length?Boolean(cloudSelectedAthleteName&&a.name===cloudSelectedAthleteName):a.id===activeAthleteId;
+ const all=(accountRole==="Coach"||accountRole==="Admin")&&cloudRecords.length?cloudRecords:localAll;
+ const isSelectedCoachRecord=(a:{id:string;name:string})=>(accountRole==="Coach"||accountRole==="Admin")&&cloudRecords.length?Boolean(cloudSelectedAthleteName&&a.name===cloudSelectedAthleteName):a.id===activeAthleteId;
 
  type CoachRosterAnalytics={
   id:string;name:string;sport:Sport;position:string;team:string;
@@ -4508,6 +5082,7 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
   testsCount:number;workoutsDone:number;competitionsCount:number;
   topTrend:string;topTrendValue:number|null;attention:string;focus:string;
   reviewStatus:"Complete"|"Due"|"Check";observationStatus:"Current"|"Due";lastObservation:string;
+  planReviewDue:boolean;planStatus:string;goalsNeedFeedback:number;
   retestName:string;retestReason:string;nextCompetition:string;nextCompetitionDate:string;
   nextAction:string;nextActionTab:Tab;nextActionSubView?:string;attentionPoints:number;
   developmentStage:DevelopmentStage;nextProgression:string;
@@ -4583,6 +5158,8 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
   const training=sportWorkouts.length?Math.round(workoutsDone/sportWorkouts.length*100):0;
 
   const athleteGoals=snap.goals||[];
+  const activeAthleteGoals=athleteGoals.filter(g=>(g.status||"Active")!=="Complete");
+  const goalsNeedFeedback=activeAthleteGoals.filter(g=>(g.coachFeedback||[]).length===0).length;
   const goalScore=athleteGoals.length?Math.round(athleteGoals.reduce((sum,g)=>sum+g.progress,0)/athleteGoals.length):0;
 
   const recentReadiness=(snap.readiness||[]).slice(0,7);
@@ -4600,6 +5177,9 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
   const status:CoachRosterAnalytics["status"]=score>=80?"Strong":score>=60?"Building":score>=40?"Watch":"Attention";
 
   const openDev=(snap.development||[]).filter(d=>d.status!=="Complete").sort((x,y)=>({High:0,Medium:1,Low:2}[x.priority||"Medium"])-({High:0,Medium:1,Low:2}[y.priority||"Medium"]));
+  const primaryDevelopmentPlan=openDev.find(d=>d.notes?.includes("[ADP_PRIMARY]"));
+  const planReviewDue=!primaryDevelopmentPlan||Boolean(primaryDevelopmentPlan.dueDate&&primaryDevelopmentPlan.dueDate<=today());
+  const planStatus=!primaryDevelopmentPlan?"Missing":planReviewDue?"Review Due":"Current";
   const normalizedDevelopment=normalizeDevelopmentSystem(snap.developmentSystem);
   const athleteStage=developmentStageForAge(athleteAge);
   const coachPositionPriorities=positionSkillPriorities(athleteSport,a.position).filter(name=>sportSkillTrees[athleteSport].includes(name));
@@ -4654,18 +5234,22 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
   let nextActionTab:Tab="Development";
   let nextActionSubView:string|undefined;
   if(readyScore>0&&readyScore<60){nextAction="Review recovery before the next hard session";nextActionTab="Coach";nextActionSubView="Readiness"}
+  else if(planReviewDue){nextAction=primaryDevelopmentPlan?"Review Athlete Development Plan":"Create Athlete Development Plan";nextActionTab="Development"}
+  else if(goalsNeedFeedback){nextAction="Review Player goals and add Coach feedback";nextActionTab="Goals"}
   else if(declining[0]){nextAction=`Review ${declining[0].name} trend`;nextActionTab="Analytics"}
-  else if(reviewStatus==="Due"){nextAction="Complete this week's Coach Review";nextActionTab="Coach";nextActionSubView="Review"}
+  else if(reviewStatus!=="Complete"){nextAction="Complete this week's Coach Review";nextActionTab="Coach";nextActionSubView="Review"}
   else if(observationStatus==="Due"){nextAction="Add a Practice Observation";nextActionTab="Development";nextActionSubView="Observations"}
   else if(retestName){nextAction=`Retest ${retestName}`;nextActionTab="Testing"}
-  else if(competitionSoon){nextAction=`Prepare for ${nextCompetition}`;nextActionTab="Competition"}
+  else if(competitionSoon){nextAction=`Review ${nextCompetition} development context`;nextActionTab="Competition"}
 
   const attentionPoints=
    (status==="Attention"?5:status==="Watch"?3:0)+
    (readyScore>0&&readyScore<60?5:readyScore>0&&readyScore<70?2:0)+
+   (planReviewDue?4:0)+
+   (goalsNeedFeedback?Math.min(4,goalsNeedFeedback*2):0)+
    (declining[0]?4:0)+
-   (reviewStatus==="Due"?2:0)+
-   (observationStatus==="Due"?1:0)+
+   (reviewStatus!=="Complete"?3:0)+
+   (observationStatus==="Due"?2:0)+
    (retestName?2:0)+
    (competitionSoon?1:0);
 
@@ -4676,6 +5260,7 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
    readinessAvailable:recentReadiness.length>0,competitionAvailable:comps.length>0,
    testsCount:testRows.length,workoutsDone,competitionsCount:comps.length,
    topTrend,topTrendValue,attention,focus,reviewStatus,observationStatus,lastObservation,
+   planReviewDue,planStatus,goalsNeedFeedback,
    retestName,retestReason,nextCompetition,nextCompetitionDate,nextAction,nextActionTab,nextActionSubView,attentionPoints,
    developmentStage:athleteStage,nextProgression
   };
@@ -4694,6 +5279,8 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
  const coachAvgSharedScore=coachRosterAnalytics.length?Math.round(coachRosterAnalytics.reduce((sum,x)=>sum+x.score,0)/coachRosterAnalytics.length):0;
  const coachLowReadiness=coachRosterAnalytics.filter(x=>x.readinessAvailable&&x.readiness<60).length;
  const coachReviewChecks=coachRosterAnalytics.filter(x=>x.reviewStatus!=="Complete").length;
+ const coachPlanReviewsDue=coachRosterAnalytics.filter(x=>x.planReviewDue).length;
+ const coachGoalFeedbackDue=coachRosterAnalytics.reduce((sum,x)=>sum+x.goalsNeedFeedback,0);
  const coachObservationDue=coachRosterAnalytics.filter(x=>x.observationStatus==="Due").length;
  const coachRetestQueue=coachRosterAnalytics.filter(x=>Boolean(x.retestName)).sort((a,b)=>(a.retestReason.startsWith("Scheduled")?0:1)-(b.retestReason.startsWith("Scheduled")?0:1));
  const coachUpcomingCompetitions=coachRosterAnalytics.filter(x=>x.nextCompetitionDate&&new Date(x.nextCompetitionDate).getTime()-Date.now()<=7*86400000).length;
@@ -4752,24 +5339,26 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
 
  useEffect(()=>{if(!summaries.some(x=>x.id===compareA))setCompareA(activeAthleteId);if(compareB&&!summaries.some(x=>x.id===compareB))setCompareB("")},[roster.length,activeAthleteId]);
 
- return <><div className="hero"><small>ROSTER</small><h1>Roster</h1><p>{canManageProfiles?"Admin athlete management, quick switching, and side-by-side comparison.":"Coach athlete view, quick switching, and side-by-side comparison. Player profile information is read-only."}</p></div>
+ return <><div className="hero"><small>ROSTER</small><h1>Roster</h1><p>{canManageProfiles?"Admin full-access athlete management, cloud switching, corrections, and side-by-side comparison.":"Coach athlete view, quick switching, and side-by-side comparison. Player profile information is read-only."}</p></div>
  {!canManageProfiles&&<div className="coachRosterReadOnlyNotice"><span>🔒</span><div><small>PROFILE OWNERSHIP</small><b>Coaches cannot edit Player profiles</b><p>Use the roster to select athletes and review development data. Profile corrections must be made by the Player or Admin.</p></div></div>}
  
  
 
  {!canManageProfiles&&<section className="coachCommandCenter">
   <div className="coachCommandHead">
-   <div><small>COACH COMMAND CENTER</small><h2>This Week</h2><p>Scan the roster, handle the highest-priority athletes first, then move through reviews, observations, retests, and competition prep.</p></div>
+   <div><small>COACH COMMAND CENTER</small><h2>This Week</h2><p>Scan the roster, handle the highest-priority development needs first, then move through goals, plan reviews, observations, Coach reviews, and retesting. Practice planning stays outside this app.</p></div>
    <div className="coachCommandCloudStatus"><span className="tag">{friendlyDate(mondayOfWeek())} WEEK</span><span className={"coachCloudRosterState "+coachRosterCloudStatus}>{coachRosterCloudStatus==="ready"?`Cloud roster · ${coachCloudRoster.length}`:coachRosterCloudStatus==="loading"?"Loading cloud roster…":coachRosterCloudStatus==="error"?"Cloud roster issue":"Local roster"}</span></div>
   </div>
 
-  <div className="coachWeeklyDashboard">
+  <div className="coachWeeklyDashboard coachWeeklyDashboardV2">
    <div><small>PLAYERS</small><b>{coachRosterAnalytics.length}</b><span>managed roster</span></div>
    <div><small>NEED ATTENTION</small><b>{coachAttentionCount}</b><span>Watch / Attention</span></div>
-   <div><small>REVIEW CHECKS</small><b>{coachReviewChecks}</b><span>due or verify</span></div>
-   <div><small>RETESTS</small><b>{coachRetestQueue.length}</b><span>testing follow-up</span></div>
    <div><small>LOW READINESS</small><b>{coachLowReadiness}</b><span>under 60</span></div>
-   <div><small>COMPETITIONS</small><b>{coachUpcomingCompetitions}</b><span>next 7 days</span></div>
+   <div><small>PLAN REVIEWS</small><b>{coachPlanReviewsDue}</b><span>due / missing</span></div>
+   <div><small>GOAL FEEDBACK</small><b>{coachGoalFeedbackDue}</b><span>Player-owned goals</span></div>
+   <div><small>COACH REVIEWS</small><b>{coachReviewChecks}</b><span>due / verify</span></div>
+   <div><small>RETESTS</small><b>{coachRetestQueue.length}</b><span>testing follow-up</span></div>
+   <div><small>OBSERVATIONS</small><b>{coachObservationDue}</b><span>due this week</span></div>
   </div>
 
   <div className="coachCommandColumns">
@@ -4791,14 +5380,15 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
   </div>
 
   {reviewPlayer&&<div className="coachPlayerWorkflow" id="coach-player-workflow">
-   <div className="coachWorkflowHead"><div><small>2-MINUTE PLAYER REVIEW</small><h2>{reviewPlayer.name}</h2><p>{reviewPlayer.sport}{reviewPlayer.position?` · ${reviewPlayer.position}`:""} · Performance {reviewPlayer.score}/100 · {reviewPlayer.status}</p></div><button onClick={()=>setReviewPlayerId("")}>Close</button></div>
-   <div className="coachWorkflowSteps">
-    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Coach","Readiness")}><span>1</span><small>READINESS</small><b>{reviewPlayer.readinessAvailable?`${reviewPlayer.readiness}/100`:"No data"}</b><em>Review recovery</em></button>
-    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Analytics")}><span>2</span><small>ANALYTICS</small><b>{reviewPlayer.score}/100</b><em>{reviewPlayer.attention}</em></button>
-    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Development")}><span>3</span><small>DEVELOPMENT</small><b>{reviewPlayer.focus}</b><em>Review priority</em></button>
-    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Coach","Review")}><span>4</span><small>COACH REVIEW</small><b>{reviewPlayer.reviewStatus}</b><em>Weekly perspective</em></button>
-    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Development","Observations")}><span>5</span><small>OBSERVATION</small><b>{reviewPlayer.observationStatus}</b><em>{reviewPlayer.lastObservation}</em></button>
-    <button className="nextAction" onClick={()=>openCoachAthlete(reviewPlayer.id,reviewPlayer.nextActionTab,reviewPlayer.nextActionSubView)}><span>6</span><small>NEXT ACTION</small><b>{reviewPlayer.nextAction}</b><em>Act on the clearest signal</em></button>
+   <div className="coachWorkflowHead"><div><small>FAST ATHLETE DEVELOPMENT REVIEW</small><h2>{reviewPlayer.name}</h2><p>{reviewPlayer.sport}{reviewPlayer.position?` · ${reviewPlayer.position}`:""} · Performance {reviewPlayer.score}/100 · {reviewPlayer.status}</p></div><button onClick={()=>setReviewPlayerId("")}>Close</button></div>
+   <div className="coachWorkflowSteps coachWorkflowStepsV2">
+    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Coach","Readiness")}><span>1</span><small>READINESS</small><b>{reviewPlayer.readinessAvailable?`${reviewPlayer.readiness}/100`:"No data"}</b><em>Recovery context</em></button>
+    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Goals")}><span>2</span><small>PLAYER GOALS</small><b>{reviewPlayer.goalsNeedFeedback?`${reviewPlayer.goalsNeedFeedback} need feedback`:"Current"}</b><em>Player owns the goals</em></button>
+    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Analytics")}><span>3</span><small>TESTING TRENDS</small><b>{reviewPlayer.score}/100</b><em>{reviewPlayer.attention}</em></button>
+    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Development")}><span>4</span><small>DEVELOPMENT PLAN</small><b>{reviewPlayer.planStatus}</b><em>{reviewPlayer.focus}</em></button>
+    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Development","Observations")}><span>5</span><small>OBSERVATIONS</small><b>{reviewPlayer.observationStatus}</b><em>{reviewPlayer.lastObservation}</em></button>
+    <button onClick={()=>openCoachAthlete(reviewPlayer.id,"Coach","Review")}><span>6</span><small>COACH REVIEW</small><b>{reviewPlayer.reviewStatus}</b><em>Weekly perspective</em></button>
+    <button className="nextAction" onClick={()=>openCoachAthlete(reviewPlayer.id,reviewPlayer.nextActionTab,reviewPlayer.nextActionSubView)}><span>7</span><small>NEXT ACTION</small><b>{reviewPlayer.nextAction}</b><em>Act on the clearest development signal</em></button>
    </div>
   </div>}
  </section>}
@@ -5114,42 +5704,40 @@ function SmartCoach({sport,profile,goals,workouts,results,dev,program,readiness,
  const order={High:0,Medium:1,Low:2};recs.sort((a,b)=>order[a.priority]-order[b.priority]);
 
  const score=Math.max(0,Math.min(100,Math.round(goalProgress*.25+consistency*.25+(avgReadiness||70)*.25+(grouped.length?25:12))));
- const todayPlan=risk==="High"
-   ?["Recovery / mobility","Low-intensity skill work","No extra conditioning"]
-   :risk==="Moderate"
-   ?["Keep planned quality work","Reduce optional volume","Recheck readiness tomorrow"]
-   :["Proceed with planned training","Push quality on priority objective","Recover well after session"];
+ const topPriority=openDev[0]?.title||"General athlete development";
+ const supportNeeds=[
+  avgReadiness>0&&avgReadiness<60?`Recovery: readiness is ${avgReadiness}/100; protect sleep, recovery routines, and training quality.`:null,
+  previousLoad>0&&loadChange>30?`Load context: recent training load is ${loadChange}% above the prior week.`:null,
+  consistency<60&&sw.length>=3?`Consistency: ${done} of ${sw.length} saved workouts are complete.`:null,
+  declining?`Testing: ${declining.name} is ${Math.abs(declining.imp)}% below baseline.`:null,
+  openDev[0]?`Development priority: ${openDev[0].title}.`:null
+ ].filter(Boolean) as string[];
 
- 
- const topPriority=openDev[0]?.title||"General athletic development";
- const weeklyPlan:WeeklyPlanItem[]=[
-  {day:"Day 1",focus:"Quality",action:risk==="High"?"Recovery + technical work":`Primary session: ${topPriority}`,priority:risk==="High"?"Low":"High"},
-  {day:"Day 2",focus:"Recovery",action:"Mobility, sleep, hydration, easy skill work",priority:"Medium"},
-  {day:"Day 3",focus:"Development",action:declining?`Address ${declining.name}`:`Continue ${topPriority}`,priority:"High"},
-  {day:"Day 4",focus:"Recovery",action:"Low load or complete rest based on readiness",priority:"Medium"},
-  {day:"Day 5",focus:"Competition Prep",action:sc.length?"Review recent competition notes":"Skill quality + confidence work",priority:"Medium"}
- ];
-return <><div className="sectionDivider"><span><i/>Coach Recommendations</span></div><div className="hero"><small>COACHING PLAN</small><h1>Smart Coach</h1><p>{profile.name} · {sport}{profile.position?" · "+profile.position:""} · Readiness, training load, goals, testing, and competition in one coaching view.</p></div>
+ return <><div className="sectionDivider"><span><i/>Coach Development Signals</span></div><div className="hero"><small>PLAYER DEVELOPMENT SUPPORT</small><h1>Coach Development Signals</h1><p>{profile.name} · {sport}{profile.position?" · "+profile.position:""} · Use athlete data to understand development needs. This view does not build practices.</p></div>
 
- <div className="coachHero"><div><small>COACH PLAN INDICATOR</small><strong>{score}</strong><span>/100</span></div><div><b>{score>=80?"Strong Momentum":score>=60?"Good Base — Keep Building":"Focus Needed"}</b><p>This is a Coach planning indicator based on goals, training consistency, readiness, and testing activity. It is separate from the shared Analytics Performance Score.</p></div></div>
+ <div className="coachHero"><div><small>DEVELOPMENT CONTEXT</small><strong>{score}</strong><span>/100</span></div><div><b>{score>=80?"Strong Current Signals":score>=60?"Useful Development Picture":"More Evidence Needed"}</b><p>This is a Coach context indicator based on goals, training consistency, readiness, and testing activity. It is not a practice-plan score and is separate from the shared Analytics Performance Score.</p></div></div>
 
  <div className="grid three">
-  <div className="stat"><small>7-Day Load</small><b>{currentLoad}</b><span>AU</span></div>
+  <div className="stat"><small>7-Day Load Context</small><b>{currentLoad}</b><span>AU</span></div>
   <div className="stat"><small>Load Change</small><b className={loadChange>25?"bad":"good"}>{previousLoad?(loadChange>=0?"+":"")+loadChange+"%":"—"}</b></div>
-  <div className="stat"><small>Training Risk</small><b className={risk==="High"?"bad":risk==="Low"?"good":""}>{risk}</b></div>
+  <div className="stat"><small>Recovery Attention</small><b className={risk==="High"?"bad":risk==="Low"?"good":""}>{risk}</b></div>
  </div>
 
- <div className="card coachPrescription"><div className="sectionHead"><h2>Today's Training Prescription</h2><span className={"tag "+risk.toLowerCase()}>{risk} Risk</span></div>{todayPlan.map(x=><div className="prescriptionRow" key={x}>✓ {x}</div>)}</div>
+ <div className="card coachDevelopmentFocus"><div className="sectionHead"><div><small>CURRENT ATHLETE DIRECTION</small><h2>{topPriority}</h2></div><span className={"tag "+risk.toLowerCase()}>{risk} RECOVERY ATTENTION</span></div>
+  <p>Use these signals to support the athlete's Development Plan, conversations, observations, and reassessment. Practice design stays with the Coach's preferred planning tools.</p>
+ </div>
+
+ <div className="card coachSupportNeeds"><div className="sectionHead"><div><small>SUPPORTING NEEDS</small><h2>What may need attention around development</h2></div></div>
+  {supportNeeds.length?supportNeeds.map((x,i)=><div className="supportNeedRow" key={i}><span>•</span><p>{x}</p></div>):<p>No major supporting need is flagged. Continue observing the athlete and keep the Development Plan current.</p>}
+ </div>
 
  <div className="grid three"><div className="stat"><small>Goal Progress</small><b>{goalProgress}%</b></div><div className="stat"><small>Training Consistency</small><b>{consistency}%</b></div><div className="stat"><small>7-Day Readiness</small><b>{avgReadiness||"—"}</b></div></div>
 
- 
- <div className="card"><div className="sectionHead"><h2>Weekly Coaching Plan</h2><span className="tag">{risk} Risk</span></div><div className="weeklyPlan">{weeklyPlan.map(x=><div className="weeklyPlanRow" key={x.day}><span>{x.day}</span><div><b>{x.focus}</b><small>{x.action}</small></div><em className={x.priority.toLowerCase()}>{x.priority}</em></div>)}</div></div>
- <div className="card"><h2>Recommended Next Actions</h2><div className="recommendationList">{recs.map(r=><div className={"recommendation "+r.priority.toLowerCase()} key={r.id}><div className="recPriority">{r.priority}</div><div><span className="tag">{r.category}</span><h2>{r.title}</h2><p><b>Why:</b> {r.reason}</p><p><b>Next step:</b> {r.action}</p></div></div>)}</div></div>
+ <div className="card"><h2>Recommended Development Actions</h2><div className="recommendationList">{recs.map(r=><div className={"recommendation "+r.priority.toLowerCase()} key={r.id}><div className="recPriority">{r.priority}</div><div><span className="tag">{r.category}</span><h2>{r.title}</h2><p><b>Why:</b> {r.reason}</p><p><b>Development step:</b> {r.action}</p></div></div>)}</div></div>
 
- <div className="grid twoCards"><div className="card"><h2>What Is Improving</h2>{improving?<><b>{improving.name}</b><p>{improving.imp}% improvement from baseline.</p></>:<p>Log repeated tests to identify your strongest trend.</p>}</div><div className="card"><h2>What Needs Attention</h2>{declining?<><b>{declining.name}</b><p>{Math.abs(declining.imp)}% below baseline.</p></>:<p>No declining repeated-test trend detected.</p>}</div></div>
+ <div className="grid twoCards"><div className="card"><h2>What Is Improving</h2>{improving?<><b>{improving.name}</b><p>{improving.imp}% improvement from baseline.</p></>:<p>Log repeated tests to identify a measurable trend.</p>}</div><div className="card"><h2>What Needs Attention</h2>{declining?<><b>{declining.name}</b><p>{Math.abs(declining.imp)}% below baseline.</p></>:<p>No declining repeated-test trend detected.</p>}</div></div>
 
- <div className="card"><h2>Coach Checklist</h2><div className="coachChecklist"><span>✓ Keep tests consistent.</span><span>✓ Use readiness before high-intensity training.</span><span>✓ Watch week-to-week training-load spikes.</span><span>✓ Link workouts to the highest-priority development objective.</span><span>✓ Review competition notes before changing the plan.</span></div></div></>;
+ <div className="card"><h2>Coach Development Checklist</h2><div className="coachChecklist"><span>✓ Keep the Athlete Development Plan current.</span><span>✓ Observe the priority in practice or competition.</span><span>✓ Compare Coach observations with the Player's own reflection.</span><span>✓ Use readiness as context around development.</span><span>✓ Retest consistently before changing a priority based on one result.</span><span>✓ Let external coaching tools handle practice design.</span></div></div></>;
 }
 
 function TrendChart({values,lower}:{values:number[];lower:boolean}){const w=520,h=150,p=24,min=Math.min(...values),max=Math.max(...values),span=max-min||1;const pts=values.map((v,i)=>`${p+i*((w-2*p)/Math.max(1,values.length-1))},${h-p-((v-min)/span)*(h-2*p)}`).join(" ");return <svg className="chart" viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Performance trend"><line x1={p} y1={h-p} x2={w-p} y2={h-p} stroke="currentColor" opacity=".2"/><polyline points={pts} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>{values.map((v,i)=>{const x=p+i*((w-2*p)/Math.max(1,values.length-1)),y=h-p-((v-min)/span)*(h-2*p);return <circle key={i} cx={x} cy={y} r="5" fill="currentColor"/>})}</svg>}

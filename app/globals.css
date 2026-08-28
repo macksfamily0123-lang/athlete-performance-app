@@ -4001,3 +4001,452 @@ input,select,textarea{min-height:42px}
  .playerWeekStrip{grid-template-columns:1fr 1fr}
  .playerSimpleActions{grid-template-columns:1fr}
 }
+
+
+/* =========================================================
+   Phase 72.3.42 + 72.3.43 Combined
+   Player Progress / Development Simplification
+   + Athlete Development Plan
+   ========================================================= */
+
+/* Player Progress — simple first, detail second */
+.playerProgressSimple,.playerDevelopmentSimple{display:grid;gap:10px}
+.playerProgressHero,.playerDevelopmentHero{
+ display:flex;align-items:center;justify-content:space-between;gap:14px;
+ padding:17px!important;min-height:0!important;
+ background:linear-gradient(135deg,#202522,#171b19 72%,#103628)!important;
+ border-color:rgba(117,212,169,.16)!important
+}
+.playerProgressHero h1,.playerDevelopmentHero h1{margin:3px 0!important}
+.playerProgressHero p,.playerDevelopmentHero p{margin:0;color:var(--muted);max-width:720px}
+.playerProgressScore{
+ min-width:105px;padding:10px;border-radius:12px;text-align:center;
+ background:#171b19;border:1px solid rgba(184,191,188,.1)
+}
+.playerProgressScore strong{font-size:calc(28px * var(--ui-text-scale));line-height:1}
+.playerProgressScore span{color:var(--muted);margin-left:2px}
+.playerProgressScore b{display:block;margin-top:4px;color:var(--forest-light)}
+.playerProgressScore.watch b,.playerProgressScore.attention b{color:var(--silver-light)}
+
+.playerProgressSnapshot{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:7px}
+.playerProgressSnapshot>div{
+ padding:11px;border-radius:11px;background:#1c211e;border:1px solid rgba(184,191,188,.08);min-width:0
+}
+.playerProgressSnapshot small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.playerProgressSnapshot h2{margin:3px 0!important}
+.playerProgressSnapshot p,.playerProgressSnapshot span{color:var(--muted);line-height:1.4}
+.playerProgressHighlight b,.playerProgressHighlight span{display:block}
+.playerProgressHighlight b{margin-top:5px;font-size:calc(12px * var(--ui-text-scale))}
+.playerProgressHighlight span{margin-top:4px}
+.playerProgressHighlight.good{border-color:rgba(117,212,169,.12)}
+.playerProgressHighlight.watch{border-color:rgba(184,191,188,.15)}
+
+.playerProgressSimpleGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.playerProgressSimpleGrid button{
+ text-align:left;padding:10px;border-radius:9px;background:#171b19;border:1px solid rgba(184,191,188,.08);min-width:0
+}
+.playerProgressSimpleGrid button:hover{border-color:rgba(117,212,169,.16)}
+.playerProgressSimpleGrid small,.playerProgressSimpleGrid b,.playerProgressSimpleGrid span{display:block}
+.playerProgressSimpleGrid small{color:var(--muted);font-weight:900;letter-spacing:.06em}
+.playerProgressSimpleGrid b{margin-top:3px;font-size:calc(14px * var(--ui-text-scale))}
+.playerProgressSimpleGrid span{margin-top:2px;color:var(--muted)}
+
+.playerWhyCard{
+ padding:10px 11px;border-radius:10px;background:#171b19;border:1px solid rgba(117,212,169,.09)
+}
+.playerWhyCard summary{cursor:pointer;color:var(--forest-light);font-weight:850}
+.playerWhyCard p{color:var(--muted);line-height:1.45}
+.playerDetailedButton{width:100%}
+.playerDetailedBackBar{margin-bottom:8px}
+.playerDetailedBackBar:empty{display:none}
+.playerDetailedBackBar button{width:100%;text-align:left}
+
+/* Player Development */
+.playerDevelopmentFocusCard{
+ padding:15px;border-radius:14px;background:linear-gradient(135deg,#222824,#193326);
+ border:1px solid rgba(117,212,169,.19)
+}
+.playerDevelopmentFocusCard>small{color:var(--forest-light);font-weight:900;letter-spacing:.08em}
+.playerDevelopmentFocusCard h2{margin:4px 0 8px!important;font-size:calc(23px * var(--ui-text-scale))}
+.playerDevelopmentFocusCard>p{color:var(--muted);line-height:1.45}
+.playerDevelopmentFocusCard details{margin-top:9px;padding-top:8px;border-top:1px solid rgba(184,191,188,.08)}
+.playerDevelopmentFocusCard summary{cursor:pointer;color:var(--forest-light);font-weight:850}
+.playerDevelopmentPath{display:flex;align-items:center;gap:8px}
+.playerDevelopmentPath span,.playerDevelopmentPath b{
+ padding:6px 9px;border-radius:8px;background:#171b19;border:1px solid rgba(184,191,188,.08)
+}
+.playerDevelopmentPath b{color:var(--forest-light)}
+.playerDevelopmentPath i{font-style:normal;color:var(--muted)}
+.playerDevelopmentQuickActions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+
+/* Central Athlete Development Plan */
+.athleteDevelopmentPlanCard{
+ margin:10px 0;padding:14px;border-radius:15px;
+ background:linear-gradient(135deg,#232925,#191e1b 68%,#103428);
+ border:1px solid rgba(117,212,169,.19)
+}
+.athletePlanHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.athletePlanHeader small{color:var(--forest-light);font-weight:900;letter-spacing:.08em}
+.athletePlanHeader h2{margin:3px 0!important;font-size:calc(21px * var(--ui-text-scale))}
+.athletePlanHeader p{margin:0;color:var(--muted);line-height:1.45;max-width:750px}
+.athletePlanHeaderActions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.athletePlanStatus{
+ display:inline-flex;padding:5px 8px;border-radius:999px;background:#171b19;border:1px solid rgba(184,191,188,.1);
+ font-size:calc(7px * var(--ui-text-scale));font-weight:900;letter-spacing:.05em
+}
+.athletePlanStatus.on-track{color:var(--forest-light);border-color:rgba(117,212,169,.17)}
+.athletePlanStatus.recovery-attention{color:var(--silver-light);border-style:dashed}
+
+.athletePlanPriorityGrid{display:grid;grid-template-columns:1.35fr 1fr 1fr .8fr;gap:7px;margin-top:10px}
+.athletePlanPriorityGrid>div{
+ padding:10px;border-radius:10px;background:rgba(10,13,11,.44);border:1px solid rgba(184,191,188,.08);min-width:0
+}
+.athletePlanPriorityGrid>div.primary{border-color:rgba(117,212,169,.15)}
+.athletePlanPriorityGrid small{display:block;color:var(--forest-light);font-weight:900;letter-spacing:.06em}
+.athletePlanPriorityGrid h3{margin:4px 0!important;white-space:normal}
+.athletePlanPriorityGrid p{margin:4px 0 0;color:var(--muted);line-height:1.4}
+.athletePlanProgress{
+ display:flex;align-items:center;gap:7px;height:7px;margin:8px 0 10px;border-radius:999px;background:rgba(184,191,188,.08);position:relative
+}
+.athletePlanProgress i{height:100%;border-radius:999px;background:var(--forest-light);max-width:100%}
+.athletePlanProgress span{position:absolute;right:0;top:-16px;color:var(--muted);font-size:calc(6px * var(--ui-text-scale))}
+
+.athletePlanEvidenceGrid{display:grid;grid-template-columns:1.25fr 1fr;gap:7px;margin-top:7px}
+.athletePlanEvidenceGrid>div{padding:9px;border-radius:9px;background:#171b19;border:1px solid rgba(184,191,188,.07)}
+.athletePlanEvidenceGrid small,.athletePlanEvidenceGrid span{display:block}
+.athletePlanEvidenceGrid small{color:var(--forest-light);font-weight:900;letter-spacing:.06em;margin-bottom:4px}
+.athletePlanEvidenceGrid span{padding:3px 0;color:var(--muted);line-height:1.35}
+
+.athletePlanEditor{margin-top:10px;padding-top:10px;border-top:1px solid rgba(184,191,188,.08)}
+.athletePlanEditorNote{
+ display:flex;gap:8px;align-items:center;justify-content:space-between;margin:8px 0;padding:8px;border-radius:8px;
+ background:#171b19;border:1px solid rgba(117,212,169,.09)
+}
+.athletePlanEditorNote span{color:var(--muted)}
+
+/* Coach development support, not practice planning */
+.coachDevelopmentFocus,.coachSupportNeeds{border-color:rgba(117,212,169,.12)!important}
+.coachDevelopmentFocus p{color:var(--muted);line-height:1.45}
+.supportNeedRow{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-top:1px solid rgba(184,191,188,.07)}
+.supportNeedRow:first-of-type{border-top:0}
+.supportNeedRow>span{color:var(--forest-light);font-weight:900}
+.supportNeedRow p{margin:0;color:var(--muted);line-height:1.4}
+
+/* Parent sees the same plan in support language */
+.parentStageSupportGrid>div span{margin-top:5px}
+
+@media(max-width:1000px){
+ .athletePlanPriorityGrid{grid-template-columns:1fr 1fr}
+ .playerProgressSnapshot{grid-template-columns:1fr 1fr}
+ .playerProgressMain{grid-column:1/-1}
+}
+@media(max-width:760px){
+ .playerProgressHero,.playerDevelopmentHero,.athletePlanHeader{align-items:flex-start;flex-direction:column}
+ .playerProgressScore{width:100%;box-sizing:border-box}
+ .playerProgressSimpleGrid{grid-template-columns:1fr 1fr}
+ .athletePlanPriorityGrid,.athletePlanEvidenceGrid{grid-template-columns:1fr}
+ .athletePlanHeaderActions{justify-content:flex-start}
+ .athletePlanEditorNote{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:480px){
+ .playerProgressSnapshot,.playerProgressSimpleGrid,.playerDevelopmentQuickActions{grid-template-columns:1fr}
+}
+
+
+/* =========================================================
+   Phase 72.3.44 — Role-Specific Home Setup
+   ========================================================= */
+.roleHomeSetupCard .sectionHead p{
+ margin:4px 0 0;color:var(--muted);line-height:1.4;max-width:760px
+}
+.roleHomeSetupCard.coach{
+ border-color:rgba(117,212,169,.18)!important;
+ background:linear-gradient(135deg,#202522,#171b19 72%,#103528)!important
+}
+.roleHomeSetupCard.coach .sectionHead small{
+ color:var(--forest-light);font-weight:900;letter-spacing:.08em
+}
+.coachSetupBoundary{
+ margin-top:9px;padding:8px 9px;border-radius:9px;background:#171b19;
+ border:1px solid rgba(117,212,169,.09)
+}
+.coachSetupBoundary span,.coachSetupBoundary b{display:block}
+.coachSetupBoundary span{color:var(--muted)}
+.coachSetupBoundary b{margin-top:3px;color:var(--forest-light);line-height:1.35}
+@media(max-width:700px){
+ .roleHomeSetupCard .sectionHead{align-items:flex-start}
+}
+
+
+/* =========================================================
+   Phase 72.3.45 — Player-Owned Goals + Coach Feedback
+   ========================================================= */
+.goalOwnershipNotice{
+ display:flex;align-items:flex-start;gap:10px;margin:10px 0;padding:11px;border-radius:12px;
+ background:#171b19;border:1px solid rgba(117,212,169,.12)
+}
+.goalOwnershipNotice>div{min-width:0}
+.goalOwnershipNotice h2{margin:0 0 3px!important}
+.goalOwnershipNotice p{margin:0;color:var(--muted);line-height:1.45}
+.goalOwnershipNotice.player{border-color:rgba(117,212,169,.18)}
+.goalOwnershipNotice.coach{background:linear-gradient(135deg,#1d221f,#17251f)}
+.goalReadOnlyOwnership{
+ border-color:rgba(184,191,188,.1)!important;
+ background:#171b19!important
+}
+.goalReadOnlyOwnership p{color:var(--muted);line-height:1.45}
+.playerOwnedGoalCard{border-color:rgba(117,212,169,.08)!important}
+.goalReadOnlyProgress{display:grid;gap:5px;margin:8px 0}
+.goalReadOnlyProgress small{color:var(--muted)}
+.playerGoalNote{
+ margin:8px 0;padding:8px;border-radius:8px;background:#171b19;border:1px solid rgba(184,191,188,.07)
+}
+.playerGoalNote small{color:var(--forest-light);font-weight:900;letter-spacing:.06em}
+.playerGoalNote p{margin:4px 0 0;color:var(--muted);line-height:1.4}
+.goalCoachFeedback{
+ margin-top:9px;padding-top:9px;border-top:1px solid rgba(184,191,188,.08)
+}
+.goalFeedbackHead{
+ display:flex;align-items:center;justify-content:space-between;gap:8px
+}
+.goalFeedbackHead small{color:var(--forest-light);font-weight:900;letter-spacing:.06em}
+.goalFeedbackHead span{color:var(--muted)}
+.goalFeedbackList{display:grid;gap:6px;margin-top:7px}
+.goalFeedbackItem{
+ display:grid;grid-template-columns:auto 1fr;gap:8px;padding:8px;border-radius:8px;
+ background:#171b19;border:1px solid rgba(184,191,188,.07)
+}
+.goalFeedbackItem .tag.suggestion{border-color:rgba(117,212,169,.15);color:var(--forest-light)}
+.goalFeedbackItem .tag.comment{border-color:rgba(184,191,188,.12);color:var(--silver)}
+.goalFeedbackItem b,.goalFeedbackItem small{display:block}
+.goalFeedbackItem small{margin-top:2px;color:var(--muted)}
+.goalFeedbackItem p{margin:4px 0 0;color:var(--muted);line-height:1.4}
+.goalFeedbackComposer{
+ display:grid;grid-template-columns:150px 1fr auto;gap:7px;align-items:end;margin-top:8px;
+ padding:8px;border-radius:9px;background:rgba(117,212,169,.035);border:1px solid rgba(117,212,169,.09)
+}
+.goalFeedbackComposer label{margin:0}
+.goalFeedbackComposer textarea{min-height:56px}
+.goalEmptyState{padding:10px;border-radius:9px;background:#171b19}
+.goalEmptyState b,.goalEmptyState p{display:block}
+.goalEmptyState p{margin:4px 0 0;color:var(--muted);line-height:1.4}
+
+@media(max-width:760px){
+ .goalOwnershipNotice{flex-direction:column}
+ .goalFeedbackComposer{grid-template-columns:1fr}
+ .goalFeedbackComposer button{width:100%}
+}
+
+
+/* =========================================================
+   Phase 72.3.46 — Admin Full Access
+   ========================================================= */
+.adminFullAccessBanner{
+ display:flex;align-items:flex-start;gap:10px;margin:0 0 10px;padding:12px;border-radius:12px;
+ background:linear-gradient(135deg,#222824,#173527);
+ border:1px solid rgba(117,212,169,.2)
+}
+.adminFullAccessBanner>div{min-width:0}
+.adminFullAccessBanner b{display:block;font-size:calc(13px * var(--ui-text-scale))}
+.adminFullAccessBanner p{margin:4px 0 0;color:var(--muted);line-height:1.45}
+.goalOwnershipNotice.admin{
+ border-color:rgba(117,212,169,.22);
+ background:linear-gradient(135deg,#202522,#173126)
+}
+.goalOwnershipNotice.admin .tag{color:var(--forest-light)}
+.adminViewPicker small::after{
+ content:" · Admin controls return when Preview role = Admin";
+ color:var(--muted);font-weight:500
+}
+@media(max-width:700px){
+ .adminFullAccessBanner{flex-direction:column}
+ .adminViewPicker small::after{display:none}
+}
+
+
+/* =========================================================
+   Phase 72.3.48 + 72.3.49
+   Role Permission Audit + Coach Development Command Center 2.0
+   ========================================================= */
+
+.developmentOwnershipNotice{
+ border-color:rgba(117,212,169,.13)!important;background:#171b19!important
+}
+.developmentOwnershipNotice p{color:var(--muted);line-height:1.45}
+.developmentReadOnlyProgress{margin:8px 0;color:var(--muted)}
+
+/* Admin permission audit */
+.rolePermissionAuditPanel{overflow:hidden}
+.rolePermissionAuditPanel .sectionHead p{margin:3px 0 0;color:var(--muted)}
+.rolePermissionTable{margin-top:10px;border:1px solid rgba(184,191,188,.08);border-radius:10px;overflow:hidden}
+.rolePermissionHeader,.rolePermissionRow{
+ display:grid;grid-template-columns:minmax(190px,1.7fr) repeat(4,minmax(70px,.6fr));align-items:center
+}
+.rolePermissionHeader{background:#171b19}
+.rolePermissionHeader>*{padding:8px;border-right:1px solid rgba(184,191,188,.06)}
+.rolePermissionRow{border-top:1px solid rgba(184,191,188,.06)}
+.rolePermissionRow>*{padding:7px 8px;border-right:1px solid rgba(184,191,188,.05)}
+.rolePermissionRow span:not(:first-child){text-align:center;font-weight:900}
+.rolePermissionRow .allow{color:var(--forest-light)}
+.rolePermissionRow .deny{color:var(--muted)}
+.rolePermissionNotes{display:grid;gap:4px;margin-top:8px;color:var(--muted)}
+.rolePermissionNotes b{color:var(--text)}
+
+/* Coach Home */
+.coachHomeCommandCenterV2{display:grid;gap:9px}
+.coachHomeV2Head{
+ display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px;border-radius:15px;
+ background:linear-gradient(135deg,#222824,#1a1f1c 66%,#10372a);
+ border:1px solid rgba(117,212,169,.18)
+}
+.coachHomeV2Head small{color:var(--forest-light);font-weight:900;letter-spacing:.08em}
+.coachHomeV2Head h1{margin:3px 0!important}
+.coachHomeV2Head p{margin:0;color:var(--muted);line-height:1.45;max-width:760px}
+.coachHomeV2Actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+.coachHomeV2Metrics{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:6px
+}
+.coachHomeV2Metrics>div{
+ min-width:0;padding:9px;border-radius:10px;background:#191e1b;border:1px solid rgba(184,191,188,.08)
+}
+.coachHomeV2Metrics small,.coachHomeV2Metrics b,.coachHomeV2Metrics span{display:block}
+.coachHomeV2Metrics small{color:var(--forest-light);font-weight:900;letter-spacing:.055em}
+.coachHomeV2Metrics b{margin-top:3px;font-size:calc(18px * var(--ui-text-scale))}
+.coachHomeV2Metrics span{margin-top:2px;color:var(--muted)}
+
+.coachReviewNext{
+ padding:13px;border-radius:14px;background:linear-gradient(135deg,#202622,#17251f);
+ border:1px solid rgba(117,212,169,.18)
+}
+.coachReviewNextHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.coachReviewNextHead small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.coachReviewNextHead h2{margin:3px 0!important;font-size:calc(22px * var(--ui-text-scale))}
+.coachReviewNextHead p{margin:0;color:var(--muted)}
+.coachReviewNextBody{display:grid;grid-template-columns:1.15fr 1fr;gap:7px;margin-top:9px}
+.coachReviewNextBody>div{
+ padding:9px;border-radius:9px;background:#171b19;border:1px solid rgba(184,191,188,.07)
+}
+.coachReviewNextBody small,.coachReviewNextBody span,.coachReviewNextBody b{display:block}
+.coachReviewNextBody small{color:var(--forest-light);font-weight:900;letter-spacing:.06em;margin-bottom:4px}
+.coachReviewNextBody span{padding:2px 0;color:var(--muted);line-height:1.35}
+.coachReviewNextBody b{margin-bottom:3px}
+.coachReviewNextActions{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+
+.coachHomePriorityQueue{
+ padding:11px;border-radius:13px;background:#1c211e;border:1px solid rgba(184,191,188,.08)
+}
+.coachHomePriorityRow{
+ display:grid;grid-template-columns:34px 1fr 1.2fr 1.2fr auto;align-items:center;gap:7px;padding:8px 0;
+ border-top:1px solid rgba(184,191,188,.07)
+}
+.coachHomePriorityRow:first-of-type{border-top:0}
+.coachHomePriorityRow>div small,.coachHomePriorityRow>div b{display:block}
+.coachHomePriorityRow>div small{color:var(--muted)}
+.coachHomePriorityRow>div b{margin-top:2px}
+.coachHomePriorityRow.high .coachQueueNumber{border-color:rgba(117,212,169,.25);color:var(--forest-light)}
+.coachHomePriorityRow.medium .coachQueueNumber{border-color:rgba(184,191,188,.15)}
+.coachHomeCloudMessage,.coachHomeEmpty{color:var(--muted)}
+.coachHomeCloudMessage b,.coachHomeCloudMessage span{display:block}
+.coachHomeEmpty small{color:var(--forest-light);font-weight:900}
+.coachHomeEmpty h2{margin:4px 0!important}
+.coachHomeEmpty p{line-height:1.45}
+
+.coachHomeWorkflow{
+ padding:11px;border-radius:13px;background:#171b19;border:1px solid rgba(117,212,169,.08)
+}
+.coachHomeWorkflowSteps{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.coachHomeWorkflowSteps span{
+ display:grid;gap:3px;padding:8px;border-radius:8px;background:#1f2421;border:1px solid rgba(184,191,188,.07)
+}
+.coachHomeWorkflowSteps b{
+ display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
+ background:#143e2e;color:var(--forest-light)
+}
+.coachHomeWorkflowSteps small{line-height:1.25}
+
+.coachWeeklyDashboardV2{grid-template-columns:repeat(4,1fr)!important}
+.coachWorkflowStepsV2{grid-template-columns:repeat(7,1fr)!important}
+
+/* Role ownership callouts */
+.roleOwnershipAuditBadge{
+ display:inline-flex;padding:4px 7px;border-radius:999px;border:1px solid rgba(117,212,169,.12);
+ color:var(--forest-light);font-size:calc(7px * var(--ui-text-scale));font-weight:900
+}
+
+@media(max-width:1050px){
+ .coachHomeV2Metrics{grid-template-columns:repeat(2,1fr)}
+ .coachHomeWorkflowSteps{grid-template-columns:repeat(4,1fr)}
+ .coachWeeklyDashboardV2{grid-template-columns:repeat(2,1fr)!important}
+ .coachWorkflowStepsV2{grid-template-columns:repeat(4,1fr)!important}
+}
+@media(max-width:760px){
+ .coachHomeV2Head,.coachReviewNextHead{flex-direction:column}
+ .coachHomeV2Actions{width:100%;justify-content:flex-start}
+ .coachHomeV2Actions button{flex:1}
+ .coachReviewNextBody{grid-template-columns:1fr}
+ .coachReviewNextActions{grid-template-columns:1fr 1fr}
+ .coachHomePriorityRow{grid-template-columns:30px 1fr auto}
+ .coachHomePriorityRow>div:nth-of-type(2),.coachHomePriorityRow>div:nth-of-type(3){grid-column:2/-1}
+ .rolePermissionTable{overflow:auto}
+ .rolePermissionHeader,.rolePermissionRow{min-width:620px}
+}
+@media(max-width:480px){
+ .coachHomeV2Metrics,.coachReviewNextActions,.coachHomeWorkflowSteps{grid-template-columns:1fr}
+ .coachWeeklyDashboardV2,.coachWorkflowStepsV2{grid-template-columns:1fr!important}
+}
+
+
+/* =========================================================
+   Phase 72.3.51 — Beta RC2 Reliability Hardening
+   ========================================================= */
+
+.betaOfflineBanner{
+ position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:8px;
+ padding:7px 10px;background:#2a2117;border-bottom:1px solid rgba(255,255,255,.12);
+ color:var(--text);font-size:calc(8px * var(--ui-text-scale))
+}
+.betaOfflineBanner b{color:var(--silver-light)}
+.betaOfflineBanner span{color:var(--muted)}
+
+.betaCrashShell{
+ min-height:70vh;display:grid;place-items:center;padding:20px;background:var(--bg)
+}
+.betaCrashCard{
+ width:min(620px,100%);padding:20px;border-radius:16px;background:var(--panel);
+ border:1px solid rgba(117,212,169,.18)
+}
+.betaCrashCard h1{margin:7px 0!important}
+.betaCrashCard p{color:var(--muted);line-height:1.5}
+.betaCrashActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.betaCrashActions button{flex:1;min-width:150px}
+.betaCrashCard details{margin-top:12px;padding:10px;border-radius:9px;background:#171b19}
+.betaCrashCard summary{cursor:pointer;color:var(--forest-light);font-weight:800}
+.betaCrashCard pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted)}
+
+.betaDiagnosticNotice{
+ margin:8px 0;padding:9px;border-radius:9px;background:#171b19;
+ border:1px solid rgba(117,212,169,.09)
+}
+.betaDiagnosticNotice b,.betaDiagnosticNotice span{display:block}
+.betaDiagnosticNotice b{color:var(--forest-light)}
+.betaDiagnosticNotice span{margin-top:3px;color:var(--muted);line-height:1.4}
+
+.betaFeedbackSeed{
+ margin:8px 0;padding:8px;border-radius:8px;background:#171b19;border:1px solid rgba(184,191,188,.08)
+}
+.betaFeedbackSeed summary{cursor:pointer;font-weight:800}
+.betaFeedbackSeed pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);font-size:11px}
+
+.betaReliabilityStatus{
+ display:flex;align-items:flex-start;gap:9px;margin-bottom:10px;padding:9px;border-radius:9px;
+ background:#171b19;border:1px solid rgba(117,212,169,.09)
+}
+.betaReliabilityStatus b,.betaReliabilityStatus span{display:block}
+.betaReliabilityStatus span{margin-top:2px;color:var(--muted)}
+
+@media(max-width:600px){
+ .betaOfflineBanner{align-items:flex-start;flex-direction:column}
+ .betaCrashActions{flex-direction:column}
+ .betaCrashActions button{width:100%}
+}

@@ -1,4 +1,4 @@
-# Athlete Performance App — Phase 72.3.41
+# Athlete Performance App — Phase 72.3.51 Beta RC2
 
 ## Simplified navigation
 
@@ -1428,3 +1428,508 @@ The full feature map is still available below Quick Help, but it only contains f
 - Coach Weekly Review remains separate and secure.
 
 No new Supabase migration is required for Phase 72.3.41.
+
+
+## Phase 72.3.42 + 72.3.43 — Combined Player Development Upgrade
+
+This single download combines:
+
+- **72.3.42 — Player Progress + Development Simplification**
+- **72.3.43 — Athlete Development Plan + Priority Tracking**
+
+The product direction remains athlete development and the support around that development. It does **not** become a team-practice planning product.
+
+### Player → My Progress
+Players now see a simple progress summary first:
+- Overall Performance status
+- strongest improving repeated-test trend
+- clearest area to keep working on
+- Goals
+- workouts completed this week
+- Readiness
+- Testing coverage
+- a **Why?** explanation
+
+The full shared Analytics Cockpit remains available through **See Detailed Progress**.
+
+The detailed calculations are unchanged. Player, Parent, and Coach still share the same underlying athlete data.
+
+### Player → My Development
+Players now see a simple development view first:
+- Foundation / Build / Performance stage
+- Current Focus
+- current progression level
+- next progression level
+- clear target
+- **Why is this my focus?**
+- Athlete Development Plan
+- quick links to My Testing, My Progress, and My Goals
+
+The full Blueprint, Skill Tree, observations, timeline, reflections, mental preparation, and supporting training tools remain available through **See Full Development Record**.
+
+### Athlete Development Plan
+A central shared development record now shows:
+- Primary Development Priority
+- Secondary Priority
+- Current → Target progression
+- progress percentage
+- Next Review date
+- evidence supporting the priority
+- readiness context
+- recent training context
+- an active Goal needing movement
+
+Evidence can include:
+- repeated testing trends
+- Coach Practice Observations
+- Coach Weekly Review
+- Player Weekly Review
+- Player Training Reflections
+
+No external normative benchmarks are invented.
+
+### Coach Development Plan controls
+Coach and Admin can update:
+- Primary Priority
+- Primary Target
+- Primary progress %
+- Secondary Priority
+- Secondary Target
+- Next Review date
+
+The plan is stored using the existing athlete Development data already saved in `workspace_state`; no new table is introduced.
+
+Coach still **cannot edit Player Profile identity information**.
+
+### Parent support
+Parent Development Support now reads the same Athlete Development Plan and translates it into:
+- Primary Development Priority
+- Current → Target progression
+- Secondary Priority
+- Next Review
+- Best Parent Support
+
+Parent remains support-focused and does not control the Coach-owned development direction.
+
+### Coach tools stay development-focused
+The old **Coach Plan** label is now **Development Signals**.
+
+The previous weekly coaching/practice-plan style output was removed from Smart Coach. The replacement focuses on:
+- development context
+- recovery context
+- training-load context
+- supporting needs
+- measurable trends
+- recommended Development actions
+- Player / Coach evidence
+
+The page explicitly states that practice design belongs in the Coach's preferred external planning tools.
+
+### Role principle
+- **Player:** understand what I am working on and why.
+- **Coach:** understand development evidence and manage development direction.
+- **Parent:** understand how to support the athlete.
+- **Admin:** oversee beta reliability and correct administrative data when necessary.
+
+No new Supabase migration is required for Phase 72.3.43.
+
+
+## Phase 72.3.44 — Role-Specific Home Setup
+
+This phase fixes the Home-page onboarding so a Coach no longer sees a Player-style **Finish Your Setup** checklist.
+
+### Coach Home setup
+Coach now gets **COACH WORKSPACE SETUP / Finish Coach Setup** with Coach-only orientation:
+- Open Coach Teams and select an athlete
+- Review Coach Command Center
+- Learn where to review Player readiness
+- Review Athlete Development Plan
+- Learn Coach Practice Observations
+- Learn Coach Weekly Review
+
+The Coach setup explicitly reinforces role boundaries:
+- Coach develops the athlete
+- Player owns Player Profile identity, Daily Check-In, and Player Weekly Review
+- Parent supports the athlete
+
+The Coach setup does not ask the Coach to:
+- complete or edit Player Profile fields
+- create the Player's Daily Check-In
+- complete the Player Weekly Review
+- follow Parent setup tasks
+
+### Player Home setup
+Player gets a separate **PLAYER SETUP / Finish Player Setup** checklist:
+- Complete Player Profile
+- Complete first Daily Check-In
+- Find or schedule first workout
+- Create one clear goal
+
+### Parent
+Parent continues to use the dedicated Parent setup/help flow and does not inherit the Coach or Player Home setup card.
+
+### Setup persistence
+Home setup dismissal and Coach orientation progress are stored separately from the other role experiences so the Coach checklist no longer reuses the generic Player setup.
+
+No new Supabase migration is required for Phase 72.3.44.
+
+
+## Phase 72.3.45 — Player-Owned Goals + Coach Feedback
+
+This phase makes goal ownership explicit.
+
+### Goal ownership
+Only the **Player** can:
+- create a goal
+- change goal progress
+- pause / resume a goal
+- mark a goal complete
+- delete a goal
+
+Goals must originate from the Player.
+
+### Coach role
+Coach can:
+- review existing Player goals
+- see goal progress, target, timeframe, Player notes, and status
+- add a **Suggestion**
+- add a **Comment**
+
+Coach cannot:
+- create a Player goal
+- change Player goal progress
+- pause / resume a goal
+- mark a Player goal complete
+- delete a Player goal
+
+Coach feedback is attached to the existing goal and is visible to the Player and other supported read views.
+
+### Parent role
+Parent remains view/support focused:
+- can see Player goals
+- can see Coach suggestions/comments
+- cannot create or change Player goals
+
+### Admin
+Admin can review the goal record but direct goal creation/editing remains Player-owned.
+
+### Analytics → Action
+The Development Intelligence Loop no longer lets a Coach create a short-term Player goal.
+- Player can choose **Create My Short-Term Goal**
+- Coach gets **Review Player Goals**
+- Coach can then add feedback to an existing goal
+
+A direct guard also prevents Analytics goal creation unless the real signed-in account is a Player. Admin role preview cannot create a Player goal.
+
+### Coach setup + Help
+Coach-specific setup now includes:
+- **Review Player-owned goals and feedback**
+
+Coach Help includes:
+- **How do I support a Player goal?**
+
+Both explain that the Player owns the goal while the Coach supports it through suggestions and comments.
+
+### Persistence
+Coach goal feedback is stored inside the existing Goal record in `workspace_state`.
+No new Supabase migration is required for Phase 72.3.45.
+
+
+## Phase 72.3.46 — Admin Full Access
+
+Admin is now a true administrative override account.
+
+### Admin can select and manage any athlete
+Admin Roster loads athlete cloud workspaces across the beta environment. Admin can switch to an athlete and manage that athlete's saved cloud state.
+
+### Admin full-access controls
+In **Admin** view, Admin can:
+- create / edit / correct Player Profile information
+- create, update, pause, complete, delete, or correct Player goals
+- add goal feedback
+- create or correct Player Daily Check-In / readiness data
+- create or correct Player Weekly Reviews
+- create or correct Coach Weekly Reviews
+- manage Testing data
+- manage Training / Calendar records
+- manage Competition records
+- manage Athlete Development Plan and development records
+- add Coach-style Practice Observations
+- add Player-style training reflections when administrative correction is needed
+- manage roster / athlete data
+- use Data & Backup tools
+- use Beta Admin / diagnostics
+
+### Normal role rules do not change
+- Player still owns goals during normal Player use.
+- Coach still cannot create or alter Player goals.
+- Parent remains support/read-focused.
+- Coach still cannot edit Player Profile identity data.
+
+Admin is the explicit exception.
+
+### Role Preview
+Admin's **Preview role** selector is still a simulation tool. When Preview role is set to Player, Coach, or Parent, the interface intentionally resembles that role. Switch Preview role back to **Admin** to expose the full Admin override controls.
+
+### Cloud / RLS
+Migration `004_admin_full_access.sql`:
+- lets Admin access any athlete workspace
+- lets Admin write any athlete `workspace_state`
+- lets Admin create/update/delete Coach Weekly Reviews
+- preserves Coach, Parent, and Player policies
+- safely ensures `coach_weekly_reviews` exists even if migration 003 was not previously installed
+
+This phase **does require migration 004**.
+
+
+## Phase 72.3.47 — Coach Setup Returns Each Login Until Complete
+
+Coach Home keeps the temporary **Coach Workspace Setup** card, but its dismissal behavior is now login-scoped.
+
+### New behavior
+If Coach setup is incomplete:
+- it appears on Coach Home after login
+- Coach may dismiss it for the current login
+- navigating around the app during that same login does not bring it back
+- refreshing during the same authenticated login does not intentionally reset the dismissal
+- after the Coach signs out and signs in again, the incomplete setup card appears again
+- once all Coach setup steps are complete, the card no longer appears
+
+The Coach card states that dismissal hides it for the current login only.
+
+### What counts as Coach setup
+The Coach-specific checklist remains:
+- Open Coach Teams and select an athlete
+- Review Coach Command Center
+- Learn Player readiness
+- Review Athlete Development Plan
+- Review Player-owned goals and feedback
+- Learn Coach Practice Observations
+- Learn Coach Weekly Review
+
+The setup never asks a Coach to perform Player or Parent-owned tasks.
+
+### Technical behavior
+The app uses the authenticated Supabase login instance (`last_sign_in_at`) only as a non-sensitive setup-session key. Coach dismissal is stored in session storage for that login instance. No password, token, or credential is stored.
+
+### Admin full-access preservation
+This phase also corrects the Beta bridge so Admin receives the cloud athlete roster/select functions and Coach Weekly Review save bridge required by Phase 72.3.46 full-access behavior.
+
+### Database
+Phase 72.3.47 introduces **no new migration**.
+
+Migration `004_admin_full_access.sql` from Phase 72.3.46 remains required if it has not already been applied.
+
+
+## Phase 72.3.48 + 72.3.49 — Combined Role Audit + Coach Command Center 2.0
+
+This single update combines the planned Phase 72.3.48 and Phase 72.3.49.
+
+# Phase 72.3.48 — Full Role & Permission Audit
+
+A centralized `rolePermissions` matrix now defines the primary ownership/write rules.
+
+### Player
+Player can:
+- edit own Player Profile
+- create and update own goals
+- complete own Daily Check-In
+- complete own Player Weekly Review
+- add Player training reflections
+- log/support own Training, Testing, and Competition records
+- use Shared Notes
+
+Player cannot:
+- manage the formal Athlete Development Plan / Development Objectives
+- add Coach Practice Observations
+- create Coach Weekly Reviews
+
+### Coach
+Coach can:
+- review Player Profile read-only
+- add Suggestion / Comment to existing Player-owned goals
+- create Coach Weekly Review
+- manage Athlete Development Plan / formal Development Objectives
+- add Practice Observations
+- assign/support Training
+- log Testing and Competition records
+- use Shared Notes
+
+Coach cannot:
+- edit Player Profile identity fields
+- create, update, pause, complete, or delete Player goals
+- submit Player Daily Check-In
+- submit Player Weekly Review
+- submit Player training reflections as the Player
+
+### Parent
+Parent remains a support/read role.
+Parent cannot:
+- edit Player Profile
+- create/change Player goals
+- submit Player Daily Check-In
+- submit Player Weekly Review
+- create Coach Weekly Review
+- manage Athlete Development Plan
+- add Practice Observations
+- change Training / Testing / Competition records
+
+Parent's main write pathway remains Shared Notes / support communication.
+
+### Admin
+Admin remains the explicit full-access override.
+
+### Secondary-path audit
+Permission guards now cover:
+- Home profile editing
+- Goals
+- Daily Check-In
+- Player Weekly Review
+- formal Development Objectives
+- Analytics → Development Priority
+- Analytics → Player Goal
+- Analytics → Training Focus
+- Training / Calendar writes
+- Testing writes
+- Competition writes
+
+The Player can still participate in development through reflections, goals, testing, training, and conversations while formal Coach development direction remains Coach/Admin managed.
+
+### Admin permission matrix
+Admin Home now includes a visible Role Ownership Matrix so the intended role boundaries can be checked in-app.
+
+### Automated permission tests
+New test command:
+`npm run test:roles`
+
+It audits the role permission matrix and key UI/save guards.
+
+# Phase 72.3.49 — Coach Development Command Center 2.0
+
+Coach Home is now a dedicated development workspace instead of a Player-style athlete dashboard.
+
+### Coach Home summary
+Coach Home shows:
+- Players
+- Need Attention
+- Low Readiness
+- Development Plan Reviews due / missing
+- Player Goals needing Coach feedback
+- Coach Weekly Reviews due
+- Retests due
+- Practice Observations due
+
+### Who should I review next?
+Coach Home ranks athletes using development-support signals including:
+- low readiness
+- missing / due Athlete Development Plan
+- Player goals with no Coach feedback
+- Coach Weekly Review due
+- Practice Observation due
+- retest follow-up
+- declining repeated-test trend
+
+The highest-priority athlete appears in **Who Should I Review Next?** with:
+- WHY
+- current development focus
+- NEXT BEST ACTION
+- quick links to Player Goals, Progress, Development, and the recommended action
+
+### 7-step athlete development review
+The Coach workflow is now:
+
+1. Readiness
+2. Player Goals
+3. Testing Trends
+4. Development Plan
+5. Practice Observations
+6. Coach Weekly Review
+7. Next Development Action
+
+The same priority signals are also added to the full Coach Command Center in Roster.
+
+### No practice planner
+Coach Home and Coach Command Center explicitly remain focused on athlete development. They do not generate practice plans.
+
+### Coach Workspace Setup
+The incomplete Coach setup behavior from 72.3.47 is preserved:
+- appears on every new login while incomplete
+- dismissal hides it for that login
+- returns on the next login if still incomplete
+- disappears once completed
+
+The card is now labeled **Get Your Coach Workspace Ready**.
+
+### Automated regression tests
+New test command:
+`npm run test:regression`
+
+Run both suites with:
+`npm test`
+
+### Database
+No new migration is introduced in 72.3.48/72.3.49.
+
+Migration `004_admin_full_access.sql` remains included and required if it has not already been applied.
+
+
+## Phase 72.3.50 — Beta Release Candidate 1
+
+The major feature set is frozen for beta testing.
+
+Run the full release gate with:
+
+`npm run release:check`
+
+A beta build should only be promoted after the role audit, regression suite,
+TypeScript typecheck, and Next.js production build all pass.
+
+No new migration is introduced in 72.3.50.
+
+
+## Phase 72.3.51 — Beta RC2 Reliability Hardening
+
+This phase keeps the major feature set frozen and focuses on beta reliability.
+
+### Runtime recovery
+A React error boundary now surrounds the authenticated Athlete app.
+If an unexpected render/runtime error occurs, the user gets:
+- a clear beta recovery screen
+- Reload App
+- Report This Error
+- optional technical details
+
+The recovery screen does not claim that cloud data was deleted.
+
+### Online / offline awareness
+The beta shell now listens for browser online/offline changes.
+When offline, a visible banner explains that cloud saves will retry after the connection returns.
+
+### Better beta feedback
+Report Problem automatically includes:
+- app version
+- signed-in role
+- selected athlete
+- sport
+- online/offline state
+- page path
+
+The feedback modal explicitly tells the beta tester what diagnostic context is included.
+Passwords and authentication tokens are not included.
+
+### Settings reliability status
+The Settings panel includes a compact beta reliability status for cloud save state,
+last successful save, and pending retry-copy state.
+
+### Automated reliability tests
+New:
+`npm run test:reliability`
+
+Full test:
+`npm test`
+
+Release gate:
+`npm run release:check`
+
+No new Supabase migration is introduced in Phase 72.3.51.
+Migration 004 remains required if it has not already been applied.

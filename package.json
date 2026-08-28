@@ -1,11 +1,17 @@
 {
   "name": "athlete-performance-app",
-  "version": "72.3.41",
+  "version": "72.3.51",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:roles": "node scripts/role-permission-audit.mjs",
+    "test:regression": "node scripts/regression-check.mjs",
+    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:typecheck",
+    "test:typecheck": "tsc --noEmit",
+    "release:check": "npm test && npm run build",
+    "test:reliability": "node scripts/reliability-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",

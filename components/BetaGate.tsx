@@ -3,6 +3,7 @@
 import {useCallback,useEffect,useMemo,useState} from "react";
 import type {User} from "@supabase/supabase-js";
 import AthleteApp,{type BetaBridge,type BetaRole,type CoachWeeklyReview} from "./AthleteApp";
+import BetaErrorBoundary from "./BetaErrorBoundary";
 import {betaConfigured,getSupabase} from "../lib/supabase";
 
 type AccessRow={
@@ -87,6 +88,8 @@ export default function BetaGate(){
   const [feedbackType,setFeedbackType]=useState("Bug");
   const [feedbackBody,setFeedbackBody]=useState("");
   const [feedbackMessage,setFeedbackMessage]=useState("");
+  const [feedbackSeed,setFeedbackSeed]=useState("");
+  const [isOnline,setIsOnline]=useState(true);
 
   const [showAdmin,setShowAdmin]=useState(false);
   const [adminSection,setAdminSection]=useState<"accounts"|"feedback">("accounts");
@@ -172,6 +175,14 @@ export default function BetaGate(){
     navigator.serviceWorker.register("/sw.js").catch(()=>{});
   },[]);
 
+  useEffect(()=>{
+    const sync=()=>setIsOnline(navigator.onLine);
+    sync();
+    window.addEventListener("online",sync);
+    window.addEventListener("offline",sync);
+    return()=>{window.removeEventListener("online",sync);window.removeEventListener("offline",sync)};
+  },[]);
+
   const submitAuth=async()=>{
     if(!supabase)return;
     setMessage("");
@@ -223,7 +234,7 @@ export default function BetaGate(){
     if(access.role==="Parent")return;
     const workspaceId=selectedCloudWorkspaceId||access.workspace_id;
     let nextData={...data};
-    if(access.role!=="Player"){
+    if(access.role==="Coach"){
       const {data:existing,error:readError}=await supabase.from("workspace_state").select("data").eq("workspace_id",workspaceId).maybeSingle();
       if(readError)throw readError;
       const current=(existing?.data||{}) as Record<string,unknown>;
@@ -272,8 +283,9 @@ export default function BetaGate(){
 
   const saveCoachWeeklyReview=async(review:CoachWeeklyReview)=>{
     if(!supabase||!access)throw new Error("Sign in required.");
-    if(access.role!=="Coach")throw new Error("Only Coach accounts can save Coach weekly reviews.");
-    if(!selectedAthleteName)throw new Error("Open a linked athlete from Teams before creating a Coach review.");
+    if(!["Coach","Admin"].includes(access.role))throw new Error("Coach or Admin account required.");
+    if(access.role==="Coach"&&!selectedAthleteName)throw new Error("Open a linked athlete from Teams before creating a Coach review.");
+    if(access.role==="Admin"&&!selectedCloudWorkspaceId)throw new Error("Select an athlete from Admin Roster before creating or correcting a Coach review.");
     const workspaceId=selectedCloudWorkspaceId||access.workspace_id;
     const {error}=await supabase.from("coach_weekly_reviews").upsert({
       workspace_id:workspaceId,
@@ -298,25 +310,35 @@ export default function BetaGate(){
   };
 
   const loadCoachRosterStates=async()=>{
-    if(!supabase||access?.role!=="Coach")return [];
-    const {data:coachTeams,error:teamError}=await supabase
-      .from("teams")
-      .select("id")
-      .eq("coach_user_id",access.user_id);
-    if(teamError)throw teamError;
-    const teamIds=(coachTeams||[]).map((x:any)=>String(x.id));
-    if(!teamIds.length)return [];
+    if(!supabase||!access||!["Coach","Admin"].includes(access.role))return [];
 
-    const {data:members,error:memberError}=await supabase
-      .from("team_members")
-      .select("athlete_id,athlete:athletes!team_members_athlete_id_fkey(id,workspace_id,display_name,sport,position,team_name,linked_user_id)")
-      .in("team_id",teamIds);
-    if(memberError)throw memberError;
+    let uniqueAthletes:any[]=[];
+    if(access.role==="Admin"){
+      const {data:athletes,error:athleteError}=await supabase
+        .from("athletes")
+        .select("id,workspace_id,display_name,sport,position,team_name,linked_user_id")
+        .order("display_name");
+      if(athleteError)throw athleteError;
+      uniqueAthletes=Array.from(new Map((athletes||[]).map((a:any)=>[String(a.workspace_id),a])).values()) as any[];
+    }else{
+      const {data:coachTeams,error:teamError}=await supabase
+        .from("teams")
+        .select("id")
+        .eq("coach_user_id",access.user_id);
+      if(teamError)throw teamError;
+      const teamIds=(coachTeams||[]).map((x:any)=>String(x.id));
+      if(!teamIds.length)return [];
 
-    const athleteRows=(members||[])
-      .map((row:any)=>row.athlete)
-      .filter(Boolean);
-    const uniqueAthletes=Array.from(new Map(athleteRows.map((a:any)=>[String(a.workspace_id),a])).values()) as any[];
+      const {data:members,error:memberError}=await supabase
+        .from("team_members")
+        .select("athlete_id,athlete:athletes!team_members_athlete_id_fkey(id,workspace_id,display_name,sport,position,team_name,linked_user_id)")
+        .in("team_id",teamIds);
+      if(memberError)throw memberError;
+
+      const athleteRows=(members||[]).map((row:any)=>row.athlete).filter(Boolean);
+      uniqueAthletes=Array.from(new Map(athleteRows.map((a:any)=>[String(a.workspace_id),a])).values()) as any[];
+    }
+
     const workspaceIds=uniqueAthletes.map((a:any)=>String(a.workspace_id)).filter(Boolean);
     if(!workspaceIds.length)return [];
 
@@ -343,8 +365,8 @@ export default function BetaGate(){
   };
 
   const selectCoachRosterAthlete=(workspaceId:string)=>{
-    if(access?.role!=="Coach")return;
-    const athlete=teamMembers.find(x=>x.athlete?.workspace_id===workspaceId)?.athlete;
+    if(!access||!["Coach","Admin"].includes(access.role))return;
+    const athlete=access.role==="Coach"?teamMembers.find(x=>x.athlete?.workspace_id===workspaceId)?.athlete:null;
     setSelectedCloudWorkspaceId(workspaceId);
     if(athlete?.display_name)setSelectedAthleteName(athlete.display_name);
     else{
@@ -552,19 +574,43 @@ export default function BetaGate(){
   // ------------------------------------------------------------
   // Feedback / Admin
   // ------------------------------------------------------------
+  const feedbackContext=()=>{
+    const athlete=selectedAthleteName||selfAthlete?.display_name||"Not selected";
+    const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
+    return [
+      "Beta diagnostic context",
+      "Version: 72.3.51 RC2",
+      `Role: ${access?.role||"Unknown"}`,
+      `Athlete: ${athlete}`,
+      `Sport: ${sport}`,
+      `Network: ${navigator.onLine?"Online":"Offline"}`,
+      `Page: ${window.location.pathname}`
+    ].join("\n");
+  };
+
+  const openFeedbackWithContext=(seed="")=>{
+    setFeedbackSeed(seed);
+    if(seed&&!feedbackBody.trim())setFeedbackBody(seed);
+    setFeedbackMessage("");
+    setShowFeedback(true);
+  };
+
   const submitFeedback=async()=>{
     if(!supabase||!access||!feedbackBody.trim())return;
     setFeedbackMessage("");
+    const diagnostic=feedbackContext();
+    const message=[feedbackBody.trim(),diagnostic].filter(Boolean).join("\n\n---\n");
     const {error}=await supabase.from("beta_feedback").insert({
       workspace_id:selectedCloudWorkspaceId||access.workspace_id,
       user_id:access.user_id,
       category:feedbackType,
-      message:feedbackBody.trim(),
-      app_version:"72.3.41",
+      message,
+      app_version:"72.3.51",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
     setFeedbackBody("");
+    setFeedbackSeed("");
     setFeedbackMessage("Feedback sent. Thank you.");
   };
 
@@ -636,12 +682,13 @@ export default function BetaGate(){
     userId:user.id,
     email:access.email,
     workspaceId:selectedCloudWorkspaceId||access.workspace_id,
+    loginSessionKey:user.last_sign_in_at||user.id,
     loadState:loadCloudState,
     saveState:saveCloudState,
-    loadCoachRosterStates:access.role==="Coach"?loadCoachRosterStates:undefined,
-    selectCoachRosterAthlete:access.role==="Coach"?selectCoachRosterAthlete:undefined,
+    loadCoachRosterStates:["Coach","Admin"].includes(access.role)?loadCoachRosterStates:undefined,
+    selectCoachRosterAthlete:["Coach","Admin"].includes(access.role)?selectCoachRosterAthlete:undefined,
     onSignOut:signOut,
-    openFeedback:()=>setShowFeedback(true),
+    openFeedback:()=>openFeedbackWithContext(),
     openParentPlayers:access.role==="Parent"?()=>setShowParentPlayers(true):undefined,
     openPlayerJoinTeam:access.role==="Player"?()=>setShowPlayerJoinTeam(true):undefined,
     openCoachTeams:access.role==="Coach"?()=>setShowTeams(true):undefined,
@@ -651,7 +698,7 @@ export default function BetaGate(){
     selectedAthleteSport,
     saveSharedNotes,
     loadCoachWeeklyReviews,
-    saveCoachWeeklyReview:access.role==="Coach"?saveCoachWeeklyReview:undefined
+    saveCoachWeeklyReview:["Coach","Admin"].includes(access.role)?saveCoachWeeklyReview:undefined
   }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,selectedAthleteName,selectedAthleteSport,selfAthlete,teamMembers]);
 
   if(!betaConfigured())return <div className="betaSetupShell"><div className="betaSetupCard">
@@ -700,9 +747,12 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · v72.3.41</div>
+    <div className="betaRibbon">BETA · RC2 · v72.3.51</div>
+    {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
-    <AthleteApp betaBridge={bridge!}/>
+    <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>
+      <AthleteApp betaBridge={bridge!}/>
+    </BetaErrorBoundary>
 
     {access.role==="Parent"&&selectedAthleteName&&<div className="parentViewingBanner"><small>PARENT VIEWING</small><b>{selectedAthleteName}</b><span>Parent tools for this player.</span></div>}
     {access.role==="Coach"&&selectedAthleteName&&<div className="coachViewingBanner"><small>COACH VIEWING</small><b>{selectedAthleteName}</b><span>Changes are saving to this player's cloud workspace.</span></div>}
@@ -777,6 +827,8 @@ export default function BetaGate(){
       <div className="sectionHead"><div><small>BETA FEEDBACK</small><h2>Report a problem</h2></div><button onClick={()=>setShowFeedback(false)}>×</button></div>
       <label>Type<select value={feedbackType} onChange={e=>setFeedbackType(e.target.value)}><option>Bug</option><option>Confusing</option><option>Feature Request</option><option>Other</option></select></label>
       <label>What happened?<textarea rows={5} value={feedbackBody} onChange={e=>setFeedbackBody(e.target.value)} placeholder="Tell us what you expected and what happened instead."/></label>
+      <div className="betaDiagnosticNotice"><b>Automatic beta context will be included</b><span>Version, account role, selected athlete, sport, online/offline status, and page path. No password or authentication token is included.</span></div>
+      {feedbackSeed&&<details className="betaFeedbackSeed"><summary>Captured error details</summary><pre>{feedbackSeed}</pre></details>}
       {feedbackMessage&&<div className="betaMessage">{feedbackMessage}</div>}
       <button className="betaPrimary" onClick={submitFeedback}>Send Feedback</button>
     </div></div>}
