@@ -297,6 +297,64 @@ export default function BetaGate(){
     if(error)throw error;
   };
 
+  const loadCoachRosterStates=async()=>{
+    if(!supabase||access?.role!=="Coach")return [];
+    const {data:coachTeams,error:teamError}=await supabase
+      .from("teams")
+      .select("id")
+      .eq("coach_user_id",access.user_id);
+    if(teamError)throw teamError;
+    const teamIds=(coachTeams||[]).map((x:any)=>String(x.id));
+    if(!teamIds.length)return [];
+
+    const {data:members,error:memberError}=await supabase
+      .from("team_members")
+      .select("athlete_id,athlete:athletes!team_members_athlete_id_fkey(id,workspace_id,display_name,sport,position,team_name,linked_user_id)")
+      .in("team_id",teamIds);
+    if(memberError)throw memberError;
+
+    const athleteRows=(members||[])
+      .map((row:any)=>row.athlete)
+      .filter(Boolean);
+    const uniqueAthletes=Array.from(new Map(athleteRows.map((a:any)=>[String(a.workspace_id),a])).values()) as any[];
+    const workspaceIds=uniqueAthletes.map((a:any)=>String(a.workspace_id)).filter(Boolean);
+    if(!workspaceIds.length)return [];
+
+    const {data:states,error:stateError}=await supabase
+      .from("workspace_state")
+      .select("workspace_id,data,updated_at")
+      .in("workspace_id",workspaceIds);
+    if(stateError)throw stateError;
+    const stateMap=new Map((states||[]).map((row:any)=>[String(row.workspace_id),row]));
+
+    return uniqueAthletes.map((athlete:any)=>{
+      const row:any=stateMap.get(String(athlete.workspace_id));
+      return {
+        athleteId:String(athlete.id),
+        workspaceId:String(athlete.workspace_id),
+        name:String(athlete.display_name||"Player"),
+        sport:String(athlete.sport||"Ice Hockey"),
+        position:String(athlete.position||""),
+        team:String(athlete.team_name||""),
+        data:(row?.data||null) as Record<string,unknown>|null,
+        updatedAt:row?.updated_at||undefined
+      };
+    });
+  };
+
+  const selectCoachRosterAthlete=(workspaceId:string)=>{
+    if(access?.role!=="Coach")return;
+    const athlete=teamMembers.find(x=>x.athlete?.workspace_id===workspaceId)?.athlete;
+    setSelectedCloudWorkspaceId(workspaceId);
+    if(athlete?.display_name)setSelectedAthleteName(athlete.display_name);
+    else{
+      void loadCoachRosterStates().then(rows=>{
+        const found=rows.find((x:any)=>x.workspaceId===workspaceId);
+        if(found?.name)setSelectedAthleteName(found.name);
+      }).catch(()=>{});
+    }
+  };
+
   // ------------------------------------------------------------
   // Parent: multiple players
   // ------------------------------------------------------------
@@ -502,7 +560,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message:feedbackBody.trim(),
-      app_version:"72.3.33",
+      app_version:"72.3.41",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -580,6 +638,8 @@ export default function BetaGate(){
     workspaceId:selectedCloudWorkspaceId||access.workspace_id,
     loadState:loadCloudState,
     saveState:saveCloudState,
+    loadCoachRosterStates:access.role==="Coach"?loadCoachRosterStates:undefined,
+    selectCoachRosterAthlete:access.role==="Coach"?selectCoachRosterAthlete:undefined,
     onSignOut:signOut,
     openFeedback:()=>setShowFeedback(true),
     openParentPlayers:access.role==="Parent"?()=>setShowParentPlayers(true):undefined,
@@ -640,7 +700,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · v72.3.33</div>
+    <div className="betaRibbon">BETA · v72.3.41</div>
 
     <AthleteApp betaBridge={bridge!}/>
 

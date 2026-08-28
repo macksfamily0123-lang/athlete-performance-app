@@ -1,4 +1,4 @@
-# Athlete Performance App — Phase 72.3.33
+# Athlete Performance App — Phase 72.3.41
 
 ## Simplified navigation
 
@@ -897,3 +897,534 @@ The Analytics Cockpit component was missing its final function-closing brace imm
 No Analytics calculations or cockpit features were removed. The shared Player / Parent / Coach analytics design remains intact.
 
 No Supabase migration is required for Phase 72.3.33.
+
+
+## Phase 72.3.34 — Parent Player Support Toolkit
+
+Adds a dedicated Parent support layer while preserving the rule that Parents support the athlete without taking over coaching or Player-owned check-ins/reviews.
+
+### Parent Home
+A new **How can I support today?** card translates current athlete context into a practical Parent support action.
+
+It can use:
+- latest Player Daily Check-In readiness
+- upcoming training
+- latest Coach Weekly Review focus
+- upcoming competition
+
+The card emphasizes:
+- Ask
+- Help
+- Avoid
+
+### Parent Development → Support
+Support is now the default Parent Development view.
+
+It includes:
+- Best Support Right Now
+- current readiness context
+- next training
+- active goals
+- skills needing work
+- an athlete-centered conversation prompt
+- before-practice support
+- after-practice support
+- competition-day support
+- recovery support
+- Coach alignment
+- Development Meeting Parent-support action
+- healthy Parent/Coach boundaries
+
+### Parent Development Activity
+The Parent can now read a combined development activity feed containing:
+- Player Training Reflections
+- Development Meetings
+- Player Weekly Reviews
+- Coach Weekly Reviews
+- Milestones
+
+This closes an earlier visibility gap while keeping the Parent experience read-only.
+
+### Permissions
+This update does not allow Parents to:
+- submit Player Daily Check-Ins
+- submit Player Weekly Reviews
+- edit Coach Weekly Reviews
+- edit Development Blueprint ratings
+- edit Skill Tree statuses
+- change the Player training plan
+
+Shared Notes remain the existing Parent write pathway.
+
+No new Supabase migration is required for Phase 72.3.34.
+
+
+## Phase 72.3.35 — Development Intelligence Loop
+
+This is the combined intelligence upgrade that connects athlete data to practical development actions.
+
+### 1. Analytics → Action
+The Analytics Cockpit now includes a **Development Intelligence Loop**:
+- identifies the clearest current signal
+- explains why it matters
+- gives a recommended next step
+- Player / Coach / Admin can create:
+  - a Development Priority
+  - a Short-Term Goal
+  - a scheduled Training Focus
+- Parent sees the same intelligence in read-only support mode.
+
+### 2. Readiness 2.0
+A shared readiness formula is now used across the app:
+- Sleep 25%
+- Energy 25%
+- Soreness 25%
+- Stress 25%
+
+Improvements:
+- sleep contribution uses age-based sleep targets
+- 1/10 soreness and stress now correctly map to the best component score
+- the theoretical maximum is 100/100
+- component scores are shown individually
+- Main Limiter is identified
+- recent 3-entry trend is shown
+- 7-day average uses the same central formula
+- Program Generator, Analytics, Coach Plan, Reports, Home, Parent Support, Development, and Roster summaries now use the same readiness calculation.
+
+The score remains a training/recovery decision aid, not a medical diagnosis.
+
+### 3. Better Performance Benchmarks
+Detailed Analytics trends now show:
+- Baseline
+- Current
+- Personal Best
+- Change from Baseline
+- Distance from Personal Best
+
+No invented age/sport normative standards are added.
+
+### 4. Coach Practice Observations
+Development now has an **Observations** view.
+
+Coach / Admin can record:
+- Practice / Game / Training context
+- sport skill
+- observed skill level
+- behavior-based observation
+- next action
+
+Saving an observation:
+- adds it to development history
+- updates the Skill Tree status
+- can feed Adaptive Development priorities.
+
+Player sees Coach-entered observations read-only.
+
+### 5. Player ↔ Coach Weekly Review Comparison
+Development Journal now includes **Weekly Review Alignment**.
+
+It displays Player and available Coach perspectives side by side and produces a conversation prompt. Differences are presented as useful discussion opportunities—not as a right/wrong score.
+
+Parent Activity includes a Parent-oriented version that encourages helping the Player and Coach communicate rather than choosing a side.
+
+### 6. One Athlete Development Timeline
+Development now has a **Timeline** view combining:
+- completed workouts
+- performance tests
+- competitions
+- Player training reflections
+- Coach practice observations
+- Player Weekly Reviews
+- Coach Weekly Reviews
+- development meetings
+- completed goals
+- milestones
+
+Parent Development → Activity now uses a comparable read-only timeline.
+
+### 7. Parent Support Integration
+The Phase 72.3.34 Parent Player Support Toolkit is preserved and now receives Coach observations and the expanded athlete timeline.
+
+### Persistence
+Practice observations are stored in the existing per-athlete `developmentSystem` / `workspace_state` structure.
+
+Data schema is now `1.3`.
+Portable backup envelope is now version `17.0`.
+
+No new Supabase migration is required for Phase 72.3.35.
+
+
+## Phase 72.3.36 — Player Profile Ownership & Coach Read-Only
+
+Player identity/profile information is no longer editable from the Coach experience.
+
+### Profile ownership
+- **Player:** can edit their own Player Profile.
+- **Coach:** view-only Player Profile.
+- **Parent:** view-only Player information.
+- **Admin:** can edit/correct Player Profile information.
+
+Protected profile fields:
+- Player Name
+- Age
+- Sport
+- Position
+- Team
+- Season
+- Height
+- Weight
+- Handedness
+
+### Coach Home
+The Coach sees the Player Profile summary with a **VIEW ONLY** badge instead of Edit Profile.
+
+A **Request Profile Update** action sends the Coach to Shared Notes so a correction can be communicated without changing identity data directly.
+
+### Coach Roster
+Coach Roster still allows athlete selection, switching, summaries, and comparison tools.
+
+Coach Roster no longer exposes:
+- Add Player profile form
+- Edit Profile
+- Remove Player
+- Data & Backup / restore tools
+
+Those profile-administration controls are Admin-only.
+
+### Admin
+Admin retains profile correction, Add Player, Remove Player, and Data & Backup tools.
+
+### Guided setup
+Coach role no longer opens the Player profile editor during guided setup. Coach setup explains that Player profile identity is read-only.
+
+No new Supabase migration is required for Phase 72.3.36.
+
+
+## Phase 72.3.37 — Coach Roster Analytics Quick Scan
+
+The Coach Roster is redesigned for fast multi-athlete review.
+
+Each Player card now shows:
+- Player name, sport, position, and team
+- shared Performance Score
+- Strong / Building / Watch / Attention status
+- Data Coverage out of 5
+- Testing
+- Training
+- Goals
+- Readiness
+- Competition
+- top positive testing trend
+- first area to check
+- current Development Focus
+
+The five primary scores use the same core calculations as the shared Analytics Cockpit.
+
+Coach can sort by:
+- Attention
+- Performance
+- Readiness
+- Name
+
+Every card includes:
+- Select Player / Open Overview
+- Open Analytics
+
+The older duplicate Coach roster list is removed from the Coach experience. Team Overview and Compare Athletes remain available under optional tools.
+
+Phase 72.3.36 profile ownership remains unchanged: Coach is view-only for Player profile information.
+
+No new Supabase migration is required for Phase 72.3.37.
+
+
+## Phase 72.3.38 — Coach Command Center & Weekly Workflow
+
+This phase turns the Coach Roster from a passive analytics list into a weekly action workflow.
+
+### Coach Command Center
+The Coach Roster now begins with a weekly dashboard showing:
+- Players
+- Need Attention
+- Review Checks
+- Retests
+- Low Readiness
+- Competitions in the next 7 days
+
+### Coach Attention Queue
+Players are prioritized using current development signals such as:
+- Watch / Attention Analytics status
+- low readiness
+- declining repeated-test trends
+- Coach Review status
+- stale Practice Observations
+- retesting needs
+- upcoming competition context
+
+Each queue row explains **why** the Player is surfaced and shows the recommended **next Coach action**.
+
+### Coach Review status
+The Roster shows:
+- Complete — current-week Coach Review is known
+- Due — a previous local/current review marker exists, but the current week is not complete
+- Check — the Roster cannot safely confirm current-week completion yet
+
+The app stores a lightweight local current-week marker when a Coach Weekly Review is loaded or saved. Secure Coach Review content remains in `coach_weekly_reviews`; it is not copied into `workspace_state`.
+
+### Practice Observation reminders
+Each Player card shows whether a Coach Practice Observation is:
+- Current — observation exists this week
+- Due — no observation this week
+
+The latest observation summary is available in the 2-minute Player Review workflow.
+
+### Retest Queue
+The Coach Command Center identifies:
+- explicitly scheduled retests that are due
+- tests with only one result
+- repeated tests not updated in roughly 30 days
+
+The Coach can jump directly to Testing for that Player.
+
+### Upcoming Competition context
+Player workflow status includes the next saved upcoming competition when available and counts competitions occurring in the next 7 days.
+
+### 2-Minute Player Review
+`Review Player` opens a six-step workflow:
+1. Readiness
+2. Analytics
+3. Development
+4. Coach Review
+5. Practice Observation
+6. Next Action
+
+Buttons deep-link to the correct Coach or Development sub-view when applicable.
+
+### Next Coach Action
+Every Coach Player card now includes one recommended next action derived from the clearest current signal.
+
+### Existing permissions preserved
+- Player edits own profile
+- Coach profile information remains view-only
+- Parent profile information remains view-only
+- Admin can correct/manage Player profile information
+
+No new Supabase migration is required for Phase 72.3.38.
+
+
+## Phase 72.3.39 + 72.3.40 — Combined Upgrade
+
+This download combines **Beta Hardening & Cloud Reliability** with **Age + Position-Specific Development Progressions**.
+
+### Beta Hardening & Cloud Reliability
+- Failed cloud saves keep a local retry copy.
+- Sync status now shows Cloud ready / Saving / Sync issue · Retry.
+- Tapping a sync issue retries the preserved payload.
+- The app retries a pending save when the browser comes back online.
+- Last successful cloud save is tracked for Admin diagnostics.
+- Admin Roster includes Beta Health & Diagnostics:
+  - app version
+  - cloud connection state
+  - cloud workspace loaded
+  - selected athlete
+  - workspace identifier (shortened)
+  - last successful save
+  - retry-copy state
+- Coach Command Center can preload all linked team athlete `workspace_state` records through the secure Coach relationship and use those cloud snapshots for roster analytics.
+- Coach cloud roster status is visible in the Command Center.
+- Key duplicate-entry protections were added for Testing, Competition, Practice Observations, and Analytics-created Development/Goal actions.
+- Additional mobile overflow and layout safeguards were added.
+- Existing role rules remain intact.
+
+### Cloud-first Coach Roster
+The Beta bridge now exposes:
+- `loadCoachRosterStates()`
+- `selectCoachRosterAthlete(workspaceId)`
+
+The Coach roster uses cloud snapshots when available instead of depending only on browser-local athlete copies.
+
+No service-role key or secret is exposed to the browser. Existing Supabase RLS remains the security boundary.
+
+### Age + Position-Specific Development Progressions
+The Development Engine now classifies athletes into:
+- Foundation — generally age 12 and under
+- Build — generally age 13–15
+- Performance — generally age 16+
+
+The stage changes **how the app recommends progressing a skill**, not whether the athlete is good or bad.
+
+### Five-step progression language
+The intelligence layer now translates the existing Skill Tree into:
+- Learn
+- Developing
+- Consistent
+- Game Ready
+- Advanced
+
+Existing stored Coach Skill Tree statuses remain unchanged:
+- Needs Work
+- Developing
+- Consistent
+- Advanced
+
+The new progression language is a recommendation layer; it does not silently auto-promote stored Coach ratings.
+
+### Position-specific priorities
+All eight sports receive position/role-aware priority logic.
+
+Examples include:
+- Ice Hockey Goaltender vs Center vs Defense vs Wing
+- Soccer Goalkeeper vs Defender vs Midfielder vs Forward
+- Basketball Guard vs Frontcourt
+- Football QB / receiver / line / defense
+- Baseball Pitcher / Catcher / field positions
+- Lacrosse Goalie / Defense / Faceoff / field
+- Figure Skating Singles / Pairs / Ice Dance / Synchronized
+- Wrestling
+
+### Personalized Development card
+Development → Blueprint now shows:
+- athlete age and stage
+- position-specific priority skills
+- current next skill
+- current progression level
+- recommended next progression level
+- what successful progression should look like
+- position-relevant testing emphasis
+
+### Skill Tree
+Position-priority skills are highlighted and show the recommended next progression target.
+
+### Coach Roster
+Each Coach Player analytics card now displays:
+- Foundation / Build / Performance stage
+- next age/position progression
+
+### Parent Support
+Parent Development → Support translates the same progression into simple support language:
+- the athlete's stage
+- next development step
+- what it means
+- the best Parent role at that stage
+
+No new Supabase migration is required for this combined Phase 72.3.40 upgrade.
+
+
+## Phase 72.3.41 — Role-Specific Experience + Player Simple Mode
+
+This phase fixes two usability problems at the same time:
+
+1. The Player account was becoming too dense.
+2. Setup and Help needed to teach the exact role being used.
+
+### Player Simple Mode
+The Player Home page is now a **Today-first** experience.
+
+It prioritizes:
+- one clear Start Here / Next action
+- today's Daily Check-In result
+- next training
+- current development focus
+- Foundation / Build / Performance stage
+- weekly workout count
+- 7-day check-in count
+- Weekly Review status
+- fast links to My Goals, My Progress, and My Development
+
+Dense Coach-style dashboard panels are hidden from the normal Player Home experience. The underlying data and calculations are preserved.
+
+Player-facing labels are simpler:
+- Overview → Today
+- Readiness → Daily Check-In
+- Analytics → My Progress
+- Development → My Development
+- Goals → My Goals
+
+### Player setup
+Player setup now teaches only:
+1. Player Profile
+2. Daily Check-In
+3. Schedule / first workout
+4. one clear Goal
+5. Weekly Review
+6. My Progress
+
+It no longer walks the Player through Coach/Admin-oriented concepts.
+
+### Coach setup
+Coach setup now teaches:
+1. Teams
+2. Coach Roster / Command Center
+3. Player readiness
+4. Development
+5. Practice Observations
+6. Coach Weekly Review
+
+Player Profile identity remains view-only.
+
+### Parent setup
+Parent setup now teaches:
+1. My Players
+2. Parent Overview
+3. Schedule
+4. Recovery
+5. Progress
+6. Development Support
+
+It does not ask Parents to create Player goals, testing results, workouts, Daily Check-Ins, or Player Weekly Reviews.
+
+### Admin setup
+Admin setup focuses on:
+- Beta Admin
+- Roster + Diagnostics
+- role previews
+
+### Role-specific Help
+Help is now task-based and role-aware.
+
+Player Help includes:
+- What should I do today?
+- Daily Check-In
+- next workout
+- goals
+- testing
+- Weekly Review
+- My Progress
+- My Development
+- Join Team when available
+
+Coach Help includes:
+- Teams
+- select a Player
+- who needs attention
+- readiness
+- Practice Observations
+- Coach Review
+- Player analytics
+- development priorities
+
+Parent Help includes:
+- switch Players
+- schedule
+- recovery
+- progress
+- development support
+- competition
+- support-team communication
+
+Admin Help includes:
+- beta accounts
+- role testing
+- diagnostics
+- athlete-data management
+
+The full feature map is still available below Quick Help, but it only contains features accessible to the current role.
+
+### Permissions preserved
+- Player edits own Player Profile.
+- Coach Player Profile remains view-only.
+- Parent remains view/support focused.
+- Admin can correct/manage Player Profile information.
+- Player Daily Check-In and Player Weekly Review remain Player-entered.
+- Coach Weekly Review remains separate and secure.
+
+No new Supabase migration is required for Phase 72.3.41.
