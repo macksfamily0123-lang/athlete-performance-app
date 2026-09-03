@@ -1,6 +1,6 @@
 {
   "name": "athlete-performance-app",
-  "version": "72.3.51",
+  "version": "72.3.63",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,10 +8,21 @@
     "start": "next start",
     "test:roles": "node scripts/role-permission-audit.mjs",
     "test:regression": "node scripts/regression-check.mjs",
-    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:typecheck",
+    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy",
     "test:typecheck": "tsc --noEmit",
     "release:check": "npm test && npm run build",
-    "test:reliability": "node scripts/reliability-check.mjs"
+    "test:reliability": "node scripts/reliability-check.mjs",
+    "test:coach-invite": "node scripts/coach-invite-check.mjs",
+    "test:family": "node scripts/family-junior-check.mjs",
+    "test:shared-support": "node scripts/shared-support-check.mjs",
+    "test:junior-goals": "node scripts/junior-goal-check.mjs",
+    "test:family-reliability": "node scripts/family-reliability-check.mjs",
+    "test:admin-preview": "node scripts/admin-preview-check.mjs",
+    "test:junior-more": "node scripts/junior-more-check.mjs",
+    "test:connections": "node scripts/connection-setup-check.mjs",
+    "test:beta-readiness": "node scripts/beta-release-readiness-check.mjs",
+    "test:player-more-cloud": "node scripts/player-more-cloud-check.mjs",
+    "test:visual-hierarchy": "node scripts/visual-hierarchy-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",

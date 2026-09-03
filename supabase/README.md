@@ -72,3 +72,109 @@ Only the Coach manages the Team roster. Parent accounts retain Parent-view acces
 - Team Invite Codes can only link a Player's own athlete or a Parent-linked athlete.
 - Coaches can access athlete cloud data only for players who joined one of their Teams.
 - Parents can read linked athlete cloud data, but the Parent app remains read-only.
+
+
+## Phase 72.3.53 — Family accounts
+
+Apply:
+`migrations/005_family_accounts_junior_player.sql`
+
+### Parent-managed minor
+A Parent can create a Player without creating a child login.
+The athlete is marked `account_management = 'Parent'`.
+
+The Parent can explicitly open a Parent-managed Player session. The application uses
+`parent_save_managed_player_state(...)`, which only merges Player-owned data and preserves Coach-owned development information.
+
+### Player Access Code
+A Parent may generate/rotate a Player Access Code with:
+`parent_rotate_player_claim_code(...)`.
+
+A new Player signup can include that code. The signup trigger links the auth user to the existing athlete workspace instead of creating a duplicate.
+
+A fresh existing Player account can use:
+`player_claim_parent_managed_athlete(...)`.
+
+If that Player account already has connected or meaningful athlete data, the RPC refuses an automatic merge so Admin can resolve the records safely.
+
+### Junior Player Mode
+Junior Player Mode is an application presentation layer for age 10 and under.
+It does not create a separate database record or separate development history.
+
+
+## Phase 72.3.54 — Parent support scheduling/results
+
+Apply after migration 005:
+
+`migrations/006_parent_support_scheduling_results.sql`
+
+This adds `parent_save_support_data(uuid,jsonb)`.
+
+The function is `security definer` and validates the authenticated Parent ↔ Player relationship before writing.
+
+It merges only:
+- Parent-tagged `workouts`
+- Parent-tagged `competitions` where `entryKind = "Score"`
+
+It preserves non-Parent workout/competition entries and does not alter normal workspace RLS policies.
+
+
+## Phase 72.3.57 — Family reliability
+
+Apply `migrations/007_family_reliability_admin_diagnostics.sql` as the only new migration for this combined release. It also installs/retains the Parent support scheduling/results RPC from migration 006, so migration 006 does not need to be rerun.
+
+Adds:
+- `athletes.parent_link_code`
+- `player_rotate_parent_link_code()`
+- `parent_link_existing_player(text)`
+- `admin_family_diagnostics()`
+- `admin_repair_family_account(uuid,text)`
+
+Parent Connection Codes allow a Player-owned athlete to add a Parent later without creating a duplicate athlete.
+
+Admin repair operations are deliberately conservative and do not merge/delete athlete records.
+
+
+## Phase 72.3.58 live-test correction
+
+No migration 008 is required.
+
+The packaged migration 007 now contains the qualified diagnostics query used during live testing:
+
+`select athlete_row.*`
+`from public.athletes athlete_row`
+`order by lower(athlete_row.display_name),athlete_row.created_at`
+
+If the corrected migration 007 has already been applied to the live Supabase project, no database action is required for v72.3.58.
+
+
+## Phase 72.3.60 + 72.3.61 — migration 008
+
+New migration:
+
+`supabase/migrations/008_connection_setup_reliability.sql`
+
+Adds:
+- `parent_connection_status()`
+- `player_connection_status()`
+- `coach_team_connection_status(uuid)`
+- same-Parent duplicate protection in `parent_create_managed_athlete(...)`
+
+The status functions return relationship counts/status only. They do not expose Player Access Codes, Parent Connection Codes, Coach invite codes, or Parent identities to Coach accounts.
+
+Migration 008 is idempotent for repeated schema deployment, but an already-working beta database only needs to run it once.
+
+
+## Phase 72.3.62
+
+Install after migration 008:
+
+`009_player_more_cloud_test_athletes.sql`
+
+It adds:
+- `athletes.beta_test`
+- `admin_create_test_athlete(...)`
+- Admin test-aware Family diagnostics
+- schema-cache reload notification
+
+Admin test athletes are cloud-persistent sandbox athletes. They do not automatically create or impersonate a real Player login, Parent, or Coach relationship.

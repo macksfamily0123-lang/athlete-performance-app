@@ -1,4 +1,4 @@
-# Athlete Performance App — Phase 72.3.51 Beta RC2
+# Athlete Performance App — Phase 72.3.63 Beta RC14
 
 ## Simplified navigation
 
@@ -1933,3 +1933,484 @@ Release gate:
 
 No new Supabase migration is introduced in Phase 72.3.51.
 Migration 004 remains required if it has not already been applied.
+
+
+## Phase 72.3.52 — Coach Roster Invites + Team Management
+
+Coach Roster is now the primary, obvious location for adding Players to a Coach's team.
+
+### Coach → Roster
+The top of Coach Roster now includes:
+- **Invite Player**
+- **Manage Teams**
+
+A clear Add Players card explains that:
+- Coach sends the team invite
+- Player or Parent creates/signs in to their own account
+- Player retains ownership of Player Profile, goals, Daily Check-In, and Player Weekly Review
+- the team connection lets the Coach review/support development
+
+### Invite Player flow
+Invite Player opens a dedicated invite-first Coach modal:
+1. Select a team
+2. Copy Invite Message or Copy Code Only
+3. Send it to the Player or Parent
+4. Player/Parent signs in and chooses Join Team
+5. Player appears in Coach Roster
+
+The copied invite message includes the current beta website origin automatically.
+
+### Manage Teams
+Manage Teams remains available for:
+- creating teams
+- switching teams
+- viewing team membership
+- regenerating invite codes
+- opening linked athletes
+- removing a Player from a Coach team
+
+### Important beta limitation
+This phase does **not** pretend to send direct email invitations.
+The current beta invite is a secure team-code sharing workflow.
+Direct email/link invitation tracking can be added later if needed.
+
+### Coach Home + Help
+Coach Home keeps a Teams & Invites shortcut.
+Coach Help now includes **How do I invite a Player?**
+Coach setup sends Coaches to Roster for Player invitations and team management.
+
+### Database
+No new Supabase migration is introduced in Phase 72.3.52.
+Migration 004 remains required if not already applied.
+
+
+## Phase 72.3.53 — Family Accounts + Junior Player Experience
+
+This phase adds one-athlete family account linking and a simplified Player experience for younger athletes.
+
+### One athlete record
+The Player is the center of the relationship model:
+
+Parent account → athlete workspace ← Player login
+Coach team → athlete workspace
+
+The Parent and Coach do not create separate copies of the athlete.
+
+### Parent-managed Players
+A Parent can add a Player with:
+- name
+- age
+- sport
+- position
+- team
+
+The new Player starts as **Parent Managed**. A separate child login is not required.
+
+From **My Players**, the Parent can:
+- Open Parent View
+- Open Junior Player / Player View
+- connect the Player to a Coach team
+- optionally create a Player Access Code for a future Player login
+
+### Junior Player Mode
+For Players age **10 and under**, Junior Player Mode turns on automatically.
+
+It keeps the underlying features/data while simplifying the presentation:
+- Today-first Home
+- one next action at a time
+- My Goal
+- My Training
+- How I Feel
+- How I'm Doing
+- My Skills
+- My Tests
+- Games
+- large buttons and short language
+- simplified goal creation
+- emoji/easy-choice Daily Check-In
+- advanced analytics/setup panels hidden from the Junior interface
+
+### Parent-managed Player data safety
+When a Parent opens a Parent-managed Player session, the browser presents the Player experience, but cloud saves go through the restricted
+`parent_save_managed_player_state` RPC.
+
+That RPC can save Player-owned information while preserving Coach-owned information such as:
+- formal Development Plan/Objectives
+- Practice Observations
+- Coach Weekly Reviews
+- Coach-managed testing targets/direction
+
+### Giving the Player a login later
+A Parent can choose **Give Player Login Access**.
+
+The app generates a Player Access Code. The Player can:
+- enter it during Player signup, or
+- use Player Connections to link an already-created fresh Player account
+
+The login is attached to the **existing athlete workspace**, preserving the Player's history and Parent relationship.
+
+### Duplicate protection
+An existing Player account may only claim a Parent-managed athlete automatically when its provisional athlete record is still unused.
+If it already has connected or meaningful development data, the secure claim RPC stops and directs the family to Admin instead of silently merging records.
+
+### Coach linking
+Coach linking is unchanged:
+Coach → Roster → Invite Player → team code.
+
+A Parent can use the Coach's team code for any linked child. The Coach is connected through team membership to that same athlete workspace.
+
+### Database
+Phase 72.3.53 adds:
+`supabase/migrations/005_family_accounts_junior_player.sql`
+
+Migration 005 must be applied after the existing beta foundation/migrations.
+Do not rerun older migrations if they have already completed successfully.
+
+
+## Phase 72.3.54 — Junior UX + Shared Scheduling & Competition Results
+
+### Junior Home bug fix
+The Junior Player **How am I doing?** action in the top greeting card is now:
+- forest green
+- pointer/click enabled
+- mobile-safe
+- wired directly to Junior Progress / How I'm Doing
+
+### Parent workout scheduling
+Parent → Schedule now includes a dedicated **Schedule a Workout** support card.
+
+A Parent may add:
+- date
+- workout name
+- category
+- duration
+- intensity
+- optional focus/note
+
+The workout is tagged `assignedByRole: "Parent"`.
+
+This is a narrow support permission. Parent still cannot broadly manage Coach training programming, formal Development Plans, Practice Observations, or Coach reviews.
+
+### Parent competition results
+Parent → Competition now includes **Add Competition Score / Result**.
+
+A Parent may enter:
+- date
+- event type
+- opponent/event
+- score/result
+- optional location
+
+These are factual result-only entries tagged:
+- `enteredByRole: "Parent"`
+- `entryKind: "Score"`
+
+Parent score-only entries do not create a Player performance rating or reflection.
+
+### Coach access
+Coach already has full training and competition write permissions. Phase 72.3.54 also makes them easier to find from Coach Home with:
+- **Schedule Workout**
+- **Add Competition Result**
+
+### Competition analytics safety
+A Parent score-only result stores rating `0` as "not rated."
+All progress, analytics, reporting, recommendations, and competition rating summaries now exclude unrated score-only entries so no false `0/10` signal is created.
+
+### Server-side Parent support restriction
+New migration:
+`supabase/migrations/006_parent_support_scheduling_results.sql`
+
+The `parent_save_support_data(...)` RPC:
+- requires a Parent account
+- requires an existing Parent ↔ Player link
+- accepts only Parent-tagged workouts
+- accepts only Parent-tagged score/result competition entries
+- preserves Coach/Player/Admin workout records
+- preserves Coach/Player/Admin competition records
+- does not grant unrestricted `workspace_state` write access
+
+No practice-plan generator was added.
+
+
+## Phase 72.3.55 — Junior Goal Entry Fix
+
+Junior Player Goal pages now put a clearly visible goal-entry card directly under the page header.
+
+The Junior form includes:
+- My goal
+- Goal type/category
+- How the Player will know they achieved it
+- Optional note/reminder
+- A large forest-green **Save My Goal** button
+
+The form is intentionally shown whenever the active view is Junior Player mode. This also covers a Parent-managed Junior Player session, where the Parent may help type while the saved goal remains Player-owned.
+
+No database migration is required for 72.3.55. Migration 006 from 72.3.54 remains the latest migration.
+
+
+## Phase 72.3.57 — Family Reliability + Admin Diagnostics + Junior Polish
+
+This is a **single combined release**. It already includes the Phase 72.3.56 Junior Goal build hotfix, so 72.3.56 does not need to be installed separately.
+
+### Family account reliability
+
+The existing Parent-first flow remains:
+
+Parent creates Player → Parent-managed Player → Player gets a login later → same athlete record and same history.
+
+Phase 72.3.57 also adds the opposite flow:
+
+Player already has an account → Player creates a Parent Connection Code → Parent enters the code in My Players → Parent connects to the same athlete record.
+
+This connection:
+- does not create a duplicate athlete
+- does not transfer Player ownership to Parent
+- does not change Coach/team links
+- does not merge unrelated athlete records
+
+### Admin Family & Account Diagnostics
+
+Beta Admin now includes a **Family** tab that checks:
+- Player login connection
+- Parent connections
+- Coach/team connections
+- Parent Managed vs Player Managed
+- workspace state
+- Player login/workspace alignment
+- stale Player Access Codes
+- relationship inconsistencies
+
+Safe Admin repair actions include:
+- sync a valid Player login to its athlete workspace
+- correct Parent Managed / Player Managed status when the underlying relationships make that safe
+- clear a stale Player Access Code
+- restore Parent-managed Player Access
+- create a missing workspace-state row
+
+There is **no automatic athlete merge**. Complex duplicate-data situations remain manual-review items.
+
+### Cloud-save reliability
+
+The header now makes cloud state explicit:
+- Saved
+- Saving
+- Waiting for connection
+- Save failed / Retry
+
+If the device is offline, the current payload is stored as a local retry copy and automatically retried when the connection returns.
+
+### Junior Player mobile polish
+
+Junior Mode now includes:
+- a clear `← Today` route from every non-Home page
+- larger touch targets
+- 16px minimum mobile form text
+- simplified header controls
+- hidden advanced context controls
+- retained Parent View button for Parent-managed Juniors
+- retained Junior Goal Entry
+- retained green `How am I doing?` action
+
+### Shared Development Communication
+
+The same athlete development picture is now translated by role:
+
+- Player: **What am I working on?**
+- Coach: **What does this Player need next?**
+- Parent: **How can I help this week?**
+
+The role permissions do not change. Player goals remain Player-owned; Coach formal development direction remains Coach/Admin-owned; Parent remains a support role.
+
+### Database
+
+New migration:
+
+`supabase/migrations/007_family_reliability_admin_diagnostics.sql`
+
+For this combined download, run migration 007 as the only new migration. It also installs/retains the Parent support scheduling/results RPC from migration 006, so 006 does not need to be rerun.
+
+
+## Phase 72.3.58 — Persistent Admin Preview Controls
+
+This release fixes the Admin role-preview trap found during live testing.
+
+### Fixed
+When an Admin previewed Player—especially a Junior Player—the Junior interface hid the normal context bar. That also hid the role-preview dropdown, making it difficult to switch back to Admin, Coach, or Parent.
+
+Admin accounts now have a dedicated **ADMIN TEST MODE** bar that remains visible while previewing:
+- Admin
+- Coach
+- Player
+- Parent
+- Junior Player (automatic when the selected Player is age 10 or younger)
+
+The persistent bar includes:
+- Athlete selector
+- Preview role selector
+- Return to Admin button while previewing another role
+- Beta Admin button
+
+It remains visible even when Junior Mode intentionally hides the normal context bar.
+
+### Live-test SQL correction included
+Migration 007 in this source package also includes the corrected qualified athlete query:
+
+`select athlete_row.* ... order by lower(athlete_row.display_name)`
+
+This fixes the `display_name is ambiguous` diagnostics error discovered during live testing.
+
+No new database migration is introduced in v72.3.58. If migration 005 and the corrected migration 007 are already installed in Supabase, no database command is required for this release.
+
+
+## Phase 72.3.59 — Junior More / All Features Fix
+
+Fixed the Junior Player `More → Search All Features` bug that blurred the screen without showing any menu.
+
+Cause:
+- Junior CSS intentionally hid `.commandPalette`
+- the command overlay still opened
+- the result was a blurred overlay with no visible options
+
+Fix:
+- Junior Mode now has a dedicated child-friendly **See All My Features** palette
+- the palette remains visible while the overlay is open
+- labels use Junior language:
+  - Today
+  - My Goal
+  - Training
+  - How I'm Doing
+  - How I Feel
+  - My Skills
+  - My Tests
+  - Games
+- search uses Junior-friendly text
+- buttons use large mobile touch targets
+- advanced Junior tools remain hidden
+
+Preserved:
+- Persistent Admin Test Mode bar from v72.3.58
+- Junior Goal Entry
+- green How Am I Doing action
+- Back to Today
+- Parent/Coach workout scheduling and competition results
+- Family diagnostics
+- role permissions
+
+No database migration is required.
+
+
+## Combined Phase 72.3.60 + 72.3.61 — Connections & Beta Reliability
+
+This single build contains the next two planned updates.
+
+### Phase 72.3.60 — Connections & Account Setup Cleanup
+
+The account/athlete relationship is now much clearer for Player, Parent, Coach, and Admin users.
+
+Parent → My Players:
+- clearly chooses **Create New Player** or **Connect Existing Player**
+- explains when each path should be used
+- shows Player Login / Parent / Coach connection status per athlete
+- keeps Parent-managed Junior Players on one athlete record
+- makes Coach Team connection use an existing Player
+- prevents same-Parent accidental duplicate creation in both the UI and database
+
+Player → Connections:
+- new connection summary for Player Login, Parent, Coach, and Team status
+- recommends the next connection action
+- Parent invitation explicitly tells the Parent to use **Connect Existing Player**
+- Coach team joining explicitly connects the Coach to the existing athlete
+- Parent-created Player recovery is moved into a secondary recovery section so it is not confused with normal connection setup
+
+Coach → Roster / Invite Player:
+- explains that the Coach connects to an existing Player rather than creating another Player
+- roster rows show Player-login and Parent-connection status
+- no Parent identities are exposed to Coach accounts
+
+Admin:
+- Accounts now explicitly explains that **Accounts are logins, not all athletes**
+- Parent-managed Junior Players remain visible in Family even when they do not have a Player login
+- Family diagnostics includes connection guidance and a safe **View Athlete** action
+
+### Phase 72.3.61 — Beta Reliability & Connection Hardening
+
+- new migration 008 adds role-gated relationship-summary RPCs
+- connection actions are protected from double-submit while a request is running
+- invalid/expired connection codes get plain-language error messages
+- network/schema setup failures get clearer guidance
+- Parent/Player/Coach connection status refreshes after successful changes
+- duplicate protection is scoped to the signed-in Parent's own family
+- no automatic athlete merge or delete behavior was added
+- all prior Junior, Family, Admin Preview, cloud retry, role permission, and development features are retained
+
+### Database update
+
+Run only:
+
+`supabase/migrations/008_connection_setup_reliability.sql`
+
+Do not rerun earlier migrations when upgrading an already-working v72.3.59 database.
+
+
+## Phase 72.3.62 — Player More + Cloud Test Athlete Hotfix
+
+This hotfix fixes two live beta issues.
+
+### Player More navigation
+For a regular Player, `More` previously jumped straight to Competition when Competition was the only direct tab in that group. That bypassed the More sheet and made `Search All Features` unreachable.
+
+`More` now always opens the Player More sheet. Competition is still available, and Search All Features remains accessible.
+
+### Admin test athletes now persist in the cloud
+Admin-created beta test Players were previously local browser/Codespace records. A new Codespace uses a different browser origin, so those local test profiles could disappear even though the real Supabase athlete records were safe.
+
+In secure beta mode, Admin → Roster → Create Cloud Test Player now creates the test athlete in Supabase with a dedicated cloud workspace. The test athlete persists across:
+- refreshes
+- new Codespaces
+- browsers
+- devices
+- app updates
+
+Cloud test athletes do not automatically get a Player login, Parent, or Coach relationship. Family diagnostics identifies them as `Admin Test` and does not incorrectly flag the intentionally missing Player login as an account problem.
+
+Existing local-only test athletes are not automatically converted or merged.
+
+New migration: `009_player_more_cloud_test_athletes.sql`.
+
+
+## Phase 72.3.63 — Visual Hierarchy & Navigation Cleanup
+
+This is a combined release built on Phase 72.3.62, so it includes:
+- Player More navigation hotfix
+- cloud-persistent Admin test athletes
+- migration 009
+- all prior connection/family/Junior/Admin fixes
+
+### Visual cleanup
+The interface now emphasizes scanability instead of equal-weight text.
+
+Changes include:
+- larger page titles
+- larger section headings
+- readable body/form text
+- smaller helper/eyebrow text
+- stronger graphite panel contrast
+- stronger forest-green primary actions
+- softer silver secondary controls
+- larger metric values
+- clearer active navigation state
+- simpler navigation sheets
+- more whitespace between topics
+- shorter top-of-page guidance copy
+- stronger mobile typography
+- larger Junior Player text and actions
+
+No development features or role permissions were removed.
+
+### Database
+No new database migration was added for the visual cleanup.
+
+This combined ZIP still includes migration:
+`009_player_more_cloud_test_athletes.sql`
+
+Run migration 009 only if it has not already been installed.

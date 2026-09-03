@@ -134,3 +134,221 @@ The release gate in the app is:
 
 Run the complete Codespaces release gate before beta deployment:
 `npm run release:check`
+
+
+## 72.3.52 Beta RC3 artifact tests
+
+- Role permission audit: 37/37 passed
+- Regression suite: 25/25 passed
+- Reliability suite: 15/15 passed
+- Coach invite / team discoverability suite: 20/20 passed
+- Targeted TypeScript syntax / TS2367 checks: passed
+
+Run in Codespaces before deployment:
+`npm run release:check`
+
+
+## 72.3.53 Beta RC4 artifact tests
+
+Passed in artifact environment:
+- Role & permission audit: **37 / 37**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior Player suite: **41 / 41**
+- Targeted TSX parser checks: **passed**
+- TS2367 impossible-comparison check: **passed**
+- duplicate JSX attribute check: **passed**
+
+The source artifact does not include `node_modules`, so the complete Next.js production build must be run in Codespaces.
+
+Run:
+`npm run release:check`
+
+Phase 72.3.53 introduces migration:
+`supabase/migrations/005_family_accounts_junior_player.sql`
+
+
+## 72.3.54 Beta RC5 artifact tests
+
+Passed in artifact environment:
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior Player suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Targeted TSX parser / TS2367 checks: **passed**
+- Additional targeted TypeScript checks: **passed**
+
+The source ZIP does not include `node_modules`, so the complete Next.js release gate must be run in Codespaces:
+
+`npm run release:check`
+
+New migration:
+`supabase/migrations/006_parent_support_scheduling_results.sql`
+
+
+## 72.3.55 Beta RC6 artifact tests
+
+Added dedicated Junior Goal Entry checks covering visible inputs, ownership, Parent-managed Player compatibility, mobile/touch visibility, and save behavior.
+
+The complete Next.js production gate still needs to be run in Codespaces with:
+
+`npm run release:check`
+
+No new migration is required for 72.3.55.
+
+### 72.3.55 artifact verification results
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior Player suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Junior Goal Entry suite: **26 / 26**
+- Targeted TypeScript parser / TS2367 / duplicate JSX attribute checks: **passed**
+
+A complete Next.js `npm run release:check` still needs to run in Codespaces after `npm install`.
+
+
+## 72.3.56 Beta RC7 build hotfix
+Regression coverage now checks the exact standard-goal button handler that caused the Codespaces build failure.
+No new database migration.
+
+
+## 72.3.57 Beta RC8 artifact checks
+
+Passed in artifact environment:
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Junior Goal suite: **27 / 27**
+- Family reliability / beta hardening suite: **75 / 75**
+- Targeted AthleteApp/BetaGate TSX parser/type checks: **passed**
+
+The source ZIP does not contain `node_modules`, so Codespaces must run:
+
+`npm run release:check`
+
+New migration:
+`supabase/migrations/007_family_reliability_admin_diagnostics.sql`
+
+
+## 72.3.58 Beta RC9 artifact checks
+
+Passed:
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Junior Goal suite: **27 / 27**
+- Family reliability / beta hardening suite: **75 / 75**
+- Persistent Admin Preview suite: **29 / 29**
+- Targeted AthleteApp/BetaGate TypeScript checks: **passed**
+
+The complete Next.js production build still needs to run in Codespaces with:
+
+`npm run release:check`
+
+No new database migration is required for v72.3.58.
+
+
+## 72.3.59 Beta RC10 artifact checks
+
+Passed:
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Junior Goal suite: **27 / 27**
+- Family reliability / beta hardening suite: **75 / 75**
+- Persistent Admin Preview suite: **29 / 29**
+- Junior More / All Features suite: **32 / 32**
+- Targeted AthleteApp/BetaGate TypeScript checks: **passed**
+
+Complete Next.js build still needs to run in Codespaces with:
+
+`npm run release:check`
+
+No new migration.
+
+
+## 72.3.61 Beta RC12 combined update artifact checks
+
+Automated suites:
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Junior Goal suite: **27 / 27**
+- Family reliability / beta hardening suite: **75 / 75**
+- Persistent Admin Preview suite: **29 / 29**
+- Junior More / All Features suite: **32 / 32**
+- Connections & Account Setup suite: **32 / 32**
+- Combined Beta Readiness suite: **36 / 36**
+
+Targeted TypeScript parser checks for `AthleteApp.tsx` and `BetaGate.tsx` pass with only expected missing-dependency/type-environment messages in the artifact container.
+
+The full Next.js production build must still be confirmed in Codespaces with:
+
+`npm run release:check`
+
+
+## 72.3.62 Beta RC13 artifact checks
+
+Passed:
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Junior Goal suite: **27 / 27**
+- Family reliability / beta hardening suite: **75 / 75**
+- Persistent Admin Preview suite: **29 / 29**
+- Junior More / All Features suite: **32 / 32**
+- Connections & account setup suite: **32 / 32**
+- Combined beta readiness suite: **36 / 36**
+- Player More / cloud athlete suite: **35 / 35**
+- Targeted AthleteApp/BetaGate TypeScript checks: **passed**
+
+Complete Next.js production build still needs to run in Codespaces with:
+
+`npm run release:check`
+
+New database migration: `009_player_more_cloud_test_athletes.sql`.
+
+
+## 72.3.63 Beta RC14 artifact checks
+
+Passed:
+- Role & permission audit: **41 / 41**
+- Regression suite: **25 / 25**
+- Reliability suite: **15 / 15**
+- Coach invite suite: **20 / 20**
+- Family + Junior suite: **41 / 41**
+- Junior/shared-support suite: **42 / 42**
+- Junior Goal suite: **27 / 27**
+- Family reliability / beta hardening suite: **75 / 75**
+- Persistent Admin Preview suite: **29 / 29**
+- Junior More / All Features suite: **32 / 32**
+- Connections & account setup suite: **32 / 32**
+- Combined beta readiness suite: **36 / 36**
+- Player More / cloud athlete suite: **35 / 35**
+- Visual hierarchy / navigation suite: **30 / 30**
+- Targeted AthleteApp/BetaGate TypeScript checks: **passed**
+- CSS brace integrity: **passed**
+
+Complete Next.js production build still needs to run in Codespaces with:
+
+`npm run release:check`

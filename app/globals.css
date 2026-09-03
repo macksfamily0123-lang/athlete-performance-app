@@ -4450,3 +4450,1578 @@ input,select,textarea{min-height:42px}
  .betaCrashActions{flex-direction:column}
  .betaCrashActions button{width:100%}
 }
+
+
+/* =========================================================
+   Phase 72.3.52 — Coach Roster Invites + Team Management
+   ========================================================= */
+
+.coachRosterHeroV2{
+ display:flex;align-items:flex-start;justify-content:space-between;gap:14px
+}
+.coachRosterPrimaryActions{
+ display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;min-width:235px
+}
+.coachRosterPrimaryActions button{min-width:110px}
+
+.coachRosterInviteGuide{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ margin:10px 0;padding:12px;border-radius:13px;
+ background:linear-gradient(135deg,#202622,#173126);
+ border:1px solid rgba(117,212,169,.17)
+}
+.coachRosterInviteGuide>div:first-child{display:flex;align-items:flex-start;gap:10px;min-width:0}
+.coachRosterInviteIcon{
+ display:flex;align-items:center;justify-content:center;flex:0 0 34px;width:34px;height:34px;
+ border-radius:10px;background:#143e2e;color:var(--forest-light);font-size:20px;font-weight:900
+}
+.coachRosterInviteGuide small{display:block;color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.coachRosterInviteGuide b{display:block;margin-top:2px;font-size:calc(13px * var(--ui-text-scale))}
+.coachRosterInviteGuide p{margin:4px 0 0;color:var(--muted);line-height:1.4}
+.coachRosterInviteGuideActions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.coachCommandCloudStatus button{margin-top:5px;width:100%}
+
+.coachTeamsRosterModal{width:min(820px,94vw)!important}
+.coachTeamModeTabs{
+ display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0 12px;padding:5px;
+ border-radius:10px;background:#171b19;border:1px solid rgba(184,191,188,.07)
+}
+.coachTeamModeTabs button{border-color:transparent}
+.coachTeamModeTabs button.active{
+ background:#1f352a;border-color:rgba(117,212,169,.17);color:var(--forest-light)
+}
+
+.coachInviteExplanation{
+ display:flex;align-items:flex-start;gap:9px;padding:10px;border-radius:10px;
+ background:#171b19;border:1px solid rgba(117,212,169,.09);margin-bottom:10px
+}
+.coachInviteExplanation>span{
+ display:flex;align-items:center;justify-content:center;width:25px;height:25px;flex:0 0 25px;
+ border-radius:50%;background:#143e2e;color:var(--forest-light);font-weight:900
+}
+.coachInviteExplanation b,.coachInviteExplanation p{display:block}
+.coachInviteExplanation p{margin:3px 0 0;color:var(--muted);line-height:1.4}
+
+.coachInviteNoTeam{
+ padding:13px;border-radius:12px;background:#1b201d;border:1px solid rgba(184,191,188,.08)
+}
+.coachInviteNoTeam h3{margin:5px 0!important}
+.coachInviteNoTeam p{color:var(--muted)}
+
+.coachInvitePrimaryCard{
+ margin-top:9px;padding:14px;border-radius:14px;text-align:center;
+ background:linear-gradient(135deg,#223229,#163c2c);
+ border:1px solid rgba(117,212,169,.22)
+}
+.coachInvitePrimaryCard small{display:block;color:var(--forest-light);font-weight:900;letter-spacing:.08em}
+.coachInvitePrimaryCard strong{
+ display:block;margin:7px 0;font-size:calc(28px * var(--ui-text-scale));letter-spacing:.12em
+}
+.coachInvitePrimaryCard p{margin:0;color:var(--muted);line-height:1.4}
+.coachInviteButtons{
+ display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:11px
+}
+
+.coachInviteSteps{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0
+}
+.coachInviteSteps>div{
+ padding:9px;border-radius:9px;background:#171b19;border:1px solid rgba(184,191,188,.07)
+}
+.coachInviteSteps span{
+ display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
+ background:#143e2e;color:var(--forest-light);font-weight:900
+}
+.coachInviteSteps b,.coachInviteSteps small{display:block}
+.coachInviteSteps b{margin-top:5px}
+.coachInviteSteps small{margin-top:3px;color:var(--muted);line-height:1.3}
+.coachInviteJoinedList{margin-top:10px}
+.coachInviteJoinedList .sectionHead{margin-bottom:5px}
+
+@media(max-width:760px){
+ .coachRosterHeroV2,.coachRosterInviteGuide{flex-direction:column}
+ .coachRosterPrimaryActions,.coachRosterInviteGuideActions{width:100%;justify-content:stretch}
+ .coachRosterPrimaryActions button,.coachRosterInviteGuideActions button{flex:1}
+ .coachInviteSteps{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+ .coachTeamModeTabs,.coachInviteButtons,.coachInviteSteps{grid-template-columns:1fr}
+}
+
+
+/* =========================================================
+   Phase 72.3.53 — Family Accounts + Junior Player Experience
+   ========================================================= */
+
+.playerAccessSignup{
+ margin:10px 0;padding:11px;border-radius:11px;background:#171b19;
+ border:1px solid rgba(117,212,169,.12)
+}
+.playerAccessSignup small,.playerAccessSignup b,.playerAccessSignup p{display:block}
+.playerAccessSignup small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.playerAccessSignup b{margin-top:3px}
+.playerAccessSignup p{margin:4px 0 8px;color:var(--muted);line-height:1.4}
+.playerAccessSignup label span{color:var(--muted);font-weight:600}
+
+.parentManagedPlayerBanner{
+ position:sticky;top:0;z-index:9997;display:flex;align-items:center;justify-content:center;gap:8px;
+ padding:7px 10px;background:#173126;border-bottom:1px solid rgba(117,212,169,.18)
+}
+.parentManagedPlayerBanner small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.parentManagedPlayerBanner b{color:var(--text)}
+.parentManagedPlayerBanner span{color:var(--muted)}
+
+.parentFamilyCard{width:min(900px,95vw)!important}
+.parentPlayerCreate{
+ display:grid;grid-template-columns:1.2fr .6fr 1fr 1fr 1fr auto;gap:7px;align-items:end
+}
+.familyOwnershipGuide{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0
+}
+.familyOwnershipGuide>div{
+ padding:9px;border-radius:10px;background:#171b19;border:1px solid rgba(184,191,188,.07)
+}
+.familyOwnershipGuide span{
+ display:flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;
+ background:#143e2e;color:var(--forest-light);font-weight:900
+}
+.familyOwnershipGuide b,.familyOwnershipGuide small{display:block}
+.familyOwnershipGuide b{margin-top:5px}
+.familyOwnershipGuide small{margin-top:3px;color:var(--muted);line-height:1.35}
+
+.familyPlayerList{display:grid;gap:8px}
+.familyPlayerList article{
+ padding:10px;border-radius:11px;background:#1b201d;border:1px solid rgba(184,191,188,.08)
+}
+.familyPlayerList article.active{border-color:rgba(117,212,169,.25)}
+.familyPlayerIdentity{display:flex;justify-content:space-between;gap:9px;align-items:flex-start}
+.familyPlayerIdentity b,.familyPlayerIdentity small{display:block}
+.familyPlayerIdentity small{margin-top:2px;color:var(--muted)}
+.familyManagementBadge{
+ flex:0 0 auto;padding:4px 7px;border-radius:999px;font-size:11px;font-weight:900;
+ background:#242a27;color:var(--muted)
+}
+.familyManagementBadge.parent{background:#173126;color:var(--forest-light)}
+.familyPlayerActions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+
+.playerConnectionsCard{width:min(640px,94vw)!important}
+.playerFamilyClaim,.playerTeamConnect{
+ padding:11px;border-radius:11px;background:#171b19;border:1px solid rgba(184,191,188,.08)
+}
+.playerTeamConnect{margin-top:10px}
+.playerFamilyClaim small,.playerFamilyClaim h3,.playerFamilyClaim p,
+.playerTeamConnect small,.playerTeamConnect h3,.playerTeamConnect p{display:block}
+.playerFamilyClaim small,.playerTeamConnect small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.playerFamilyClaim h3,.playerTeamConnect h3{margin:3px 0!important}
+.playerFamilyClaim p,.playerTeamConnect p{margin:4px 0 8px;color:var(--muted);line-height:1.4}
+
+.parentReturnButton{border-color:rgba(117,212,169,.24)!important;color:var(--forest-light)!important}
+
+/* Junior Player mode: simplify what is shown without changing the underlying data model. */
+.app[data-junior="true"] .sportSelectorBlock,
+.app[data-junior="true"] .playerOptionalHome,
+.app[data-junior="true"] .homeAdvancedDetail,
+.app[data-junior="true"] .playerProfileCard,
+.app[data-junior="true"] .advancedTools{
+ display:none!important
+}
+.app[data-junior="true"] .workspaceGuide{
+ background:#171b19;border-color:rgba(117,212,169,.10)
+}
+.app[data-junior="true"] .pageGuide{
+ padding:9px 11px;border-radius:11px
+}
+.app[data-junior="true"] button{
+ min-height:44px
+}
+.juniorHomeHero{
+ background:linear-gradient(135deg,#1d2722,#153426)!important;
+ border-color:rgba(117,212,169,.17)!important
+}
+.juniorHomeHero h1{font-size:clamp(25px,6vw,38px)!important}
+.app[data-junior="true"] .playerPrimaryTask{
+ padding:16px;border-radius:16px
+}
+.app[data-junior="true"] .playerPrimaryTask h2{font-size:clamp(21px,5vw,30px)}
+.app[data-junior="true"] .playerPrimaryTask .featureAction{font-size:calc(15px * var(--ui-text-scale));min-height:52px}
+.app[data-junior="true"] .playerSimpleGrid{
+ grid-template-columns:1fr!important
+}
+.app[data-junior="true"] .playerSimpleGrid button{
+ padding:14px;text-align:left;border-radius:14px
+}
+.app[data-junior="true"] .playerSimpleGrid b{font-size:calc(17px * var(--ui-text-scale))}
+.juniorWinsStrip{
+ display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px
+}
+.juniorWinsStrip button{
+ padding:13px;border-radius:14px;background:#1b211e;border:1px solid rgba(117,212,169,.10)
+}
+.juniorWinsStrip span{display:block;font-size:24px;color:var(--forest-light)}
+.juniorWinsStrip b,.juniorWinsStrip small{display:block}
+.juniorWinsStrip b{margin-top:4px}
+.juniorWinsStrip small{margin-top:3px;color:var(--muted);line-height:1.3}
+
+.juniorBottomNav button b{font-size:11px}
+.juniorBottomNav button span{font-size:19px}
+
+.juniorGoalHero{
+ background:linear-gradient(135deg,#202622,#173126)!important;
+ border-color:rgba(117,212,169,.16)!important
+}
+.juniorGoalCard{border-color:rgba(117,212,169,.16)!important}
+.juniorGoalBuilder{display:grid;gap:10px}
+.juniorGoalBuilder label{font-size:calc(14px * var(--ui-text-scale));font-weight:800}
+.juniorGoalBuilder input,.juniorGoalBuilder select{min-height:48px;font-size:calc(14px * var(--ui-text-scale))}
+.juniorGoalHelp{
+ display:flex;align-items:center;gap:9px;padding:9px;border-radius:10px;background:#171b19
+}
+.juniorGoalHelp span{font-size:22px;color:var(--forest-light)}
+.juniorGoalHelp p{margin:0;color:var(--muted)}
+.juniorBigAction{min-height:54px!important;font-size:calc(16px * var(--ui-text-scale))!important}
+
+.juniorReadinessHero{
+ background:linear-gradient(135deg,#202622,#173126)!important;
+ border-color:rgba(117,212,169,.16)!important
+}
+.juniorCheckinCard{border-color:rgba(117,212,169,.16)!important}
+.juniorCheckin{display:grid;gap:13px}
+.juniorCheckin>label{font-size:calc(14px * var(--ui-text-scale));font-weight:800}
+.juniorCheckin select,.juniorCheckin input{min-height:48px;font-size:calc(14px * var(--ui-text-scale))}
+.juniorFeelingQuestion>b{display:block;margin-bottom:7px;font-size:calc(14px * var(--ui-text-scale))}
+.juniorFeelingQuestion>div{
+ display:grid;grid-template-columns:repeat(4,1fr);gap:7px
+}
+.juniorFeelingQuestion button{
+ padding:10px 6px;border-radius:12px;background:#1a1f1c;border:1px solid rgba(184,191,188,.08)
+}
+.juniorFeelingQuestion button.active{
+ background:#173126;border-color:rgba(117,212,169,.28)
+}
+.juniorFeelingQuestion button span,.juniorFeelingQuestion button b{display:block}
+.juniorFeelingQuestion button span{font-size:26px}
+.juniorFeelingQuestion button b{margin-top:4px;font-size:12px}
+
+.app[data-junior="true"] .readinessV2Panel,
+.app[data-junior="true"] .readinessBars,
+.app[data-junior="true"] .playerCheckinHistory,
+.app[data-junior="true"] .playerWeeklyReviewResults{
+ display:none!important
+}
+.app[data-junior="true"] .readinessHero{
+ margin-top:8px
+}
+.app[data-junior="true"] .readinessHero>div:first-child{display:none}
+.app[data-junior="true"] .readinessHero>div:last-child b{
+ font-size:calc(20px * var(--ui-text-scale))
+}
+
+@media(max-width:850px){
+ .parentPlayerCreate{grid-template-columns:1fr 1fr}
+ .parentPlayerCreate button{grid-column:1/-1}
+ .familyOwnershipGuide{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+ .parentManagedPlayerBanner{align-items:flex-start;flex-direction:column}
+ .familyPlayerIdentity{flex-direction:column}
+ .familyPlayerActions{flex-direction:column}
+ .familyPlayerActions button{width:100%}
+ .juniorWinsStrip{grid-template-columns:1fr}
+ .juniorFeelingQuestion>div{grid-template-columns:1fr 1fr}
+}
+
+
+/* =========================================================
+   Phase 72.3.54 — Junior UX + Shared Scheduling / Results
+   ========================================================= */
+
+.juniorHomeHero .juniorProgressButton{
+ position:relative;
+ z-index:3;
+ pointer-events:auto!important;
+ cursor:pointer!important;
+ min-height:50px!important;
+ padding:0 16px!important;
+ background:linear-gradient(180deg,var(--forest-soft),var(--forest-deep))!important;
+ border:1px solid rgba(117,212,169,.34)!important;
+ color:#fff!important;
+ box-shadow:0 8px 22px rgba(13,70,51,.28);
+ font-weight:900!important
+}
+.juniorHomeHero .juniorProgressButton:hover,
+.juniorHomeHero .juniorProgressButton:focus-visible{
+ transform:translateY(-1px);
+ border-color:rgba(117,212,169,.55)!important
+}
+
+.parentScheduleWorkoutCard,
+.parentCompetitionResultCard{
+ margin:10px 0;
+ border-color:rgba(117,212,169,.15)!important;
+ background:linear-gradient(135deg,#202522,#18251f)!important
+}
+.parentScheduleWorkoutCard .sectionHead p,
+.parentCompetitionResultCard .sectionHead p{
+ margin:3px 0 0;
+ color:var(--muted);
+ line-height:1.4
+}
+.parentScheduleWorkoutButton,
+.parentCompetitionResultButton{
+ min-height:48px;
+ margin-top:8px;
+ background:linear-gradient(180deg,var(--forest-soft),var(--forest-deep))!important;
+ color:#fff!important;
+ font-weight:900!important
+}
+.parentScheduleWorkoutButton:disabled,
+.parentCompetitionResultButton:disabled{
+ opacity:.48;
+ cursor:not-allowed
+}
+
+[data-role="Coach"] .coachReviewNextActions button{
+ min-height:42px
+}
+
+@media(max-width:700px){
+ .juniorHomeHero .juniorProgressButton{width:100%!important}
+ .parentScheduleWorkoutCard .two,
+ .parentCompetitionResultCard .two{grid-template-columns:1fr!important}
+}
+
+/* =========================================================
+   Phase 72.3.55 — Junior Goal Entry Fix
+   ========================================================= */
+.juniorGoalEntryCard{
+ margin:10px 0 14px!important;
+ padding:16px!important;
+ border:1px solid rgba(117,212,169,.28)!important;
+ background:linear-gradient(135deg,#202a24,#173326)!important;
+ box-shadow:0 10px 28px rgba(13,70,51,.20)
+}
+.juniorGoalEntryHead{
+ display:flex;
+ gap:12px;
+ align-items:flex-start;
+ margin-bottom:12px
+}
+.juniorGoalEntryIcon{
+ display:grid;
+ place-items:center;
+ width:42px;
+ min-width:42px;
+ height:42px;
+ border-radius:13px;
+ background:rgba(117,212,169,.12);
+ border:1px solid rgba(117,212,169,.22);
+ color:var(--forest-light);
+ font-size:22px
+}
+.juniorGoalEntryHead small{color:var(--forest-light);font-weight:900;letter-spacing:.08em}
+.juniorGoalEntryHead h2{margin:2px 0 4px!important;font-size:clamp(20px,5vw,28px)!important}
+.juniorGoalEntryHead p{margin:0;color:var(--muted);line-height:1.4}
+.juniorGoalInputArea label{
+ display:grid!important;
+ gap:6px!important;
+ font-size:calc(15px * var(--ui-text-scale))!important;
+ font-weight:900!important
+}
+.juniorGoalInputArea input,
+.juniorGoalInputArea select{
+ display:block!important;
+ width:100%!important;
+ min-height:52px!important;
+ padding:12px 13px!important;
+ border:1px solid rgba(117,212,169,.20)!important;
+ background:#151a17!important;
+ color:var(--text)!important;
+ border-radius:12px!important;
+ opacity:1!important;
+ visibility:visible!important;
+ pointer-events:auto!important
+}
+.juniorGoalInputArea input:focus,
+.juniorGoalInputArea select:focus{
+ outline:2px solid rgba(117,212,169,.35)!important;
+ outline-offset:1px
+}
+.juniorSaveGoalButton{
+ width:100%!important;
+ min-height:54px!important;
+ background:linear-gradient(180deg,var(--forest-soft),var(--forest-deep))!important;
+ color:#fff!important;
+ font-size:calc(16px * var(--ui-text-scale))!important;
+ font-weight:900!important;
+ pointer-events:auto!important
+}
+.juniorSaveGoalButton:disabled{opacity:.48!important;cursor:not-allowed!important}
+@media(max-width:700px){
+ .juniorGoalEntryCard{padding:13px!important}
+ .juniorGoalInputArea{grid-template-columns:1fr!important}
+}
+
+
+/* =========================================================
+   Phase 72.3.57 — Family Reliability + Admin Diagnostics
+   + Junior Mobile Polish + Cloud Save Clarity
+   ========================================================= */
+
+/* Cloud save status: Saved / Saving / Waiting / Failed */
+.cloudStatus.waiting{
+ border-color:rgba(214,178,82,.30)!important;
+ background:#2b2719!important
+}
+.cloudStatus.error{
+ border-color:rgba(221,115,115,.30)!important
+}
+.cloudSyncNotice{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ padding:9px 16px;
+ border-bottom:1px solid var(--line);
+ background:#181d1a;
+ position:relative;
+ z-index:16
+}
+.cloudSyncNotice>div{display:flex;align-items:center;gap:10px;min-width:0}
+.cloudSyncNotice>div>span{
+ width:30px;height:30px;border-radius:50%;
+ display:grid;place-items:center;
+ flex:0 0 auto;
+ background:#243027;
+ color:var(--forest-light);
+ font-weight:900
+}
+.cloudSyncNotice b,.cloudSyncNotice small{display:block}
+.cloudSyncNotice b{font-size:13px}
+.cloudSyncNotice small{margin-top:2px;color:var(--muted);line-height:1.3}
+.cloudSyncNotice button{
+ min-height:38px;
+ padding:0 12px;
+ white-space:nowrap
+}
+.cloudSyncNotice.waiting{background:#242217}
+.cloudSyncNotice.waiting>div>span{background:#39331b;color:#e0c16e}
+.cloudSyncNotice.error{background:#281d1d}
+.cloudSyncNotice.error>div>span{background:#3b2424;color:#e59b9b}
+.cloudSyncNotice button:disabled{opacity:.45;cursor:not-allowed}
+
+/* Player-first family linking */
+.familyConnectExisting,
+.playerParentConnect{
+ margin:12px 0;
+ padding:14px;
+ border-radius:14px;
+ border:1px solid rgba(117,212,169,.16);
+ background:linear-gradient(135deg,#1d2420,#17251e)
+}
+.familyConnectExisting small,
+.playerParentConnect small{
+ color:var(--forest-light);
+ font-weight:900;
+ letter-spacing:.07em
+}
+.familyConnectExisting h3,
+.playerParentConnect h3{margin:4px 0}
+.familyConnectExisting p,
+.playerParentConnect p{margin:4px 0 10px;color:var(--muted);line-height:1.45}
+.familyConnectExisting{
+ display:grid;
+ grid-template-columns:1.5fr 1fr auto;
+ gap:10px;
+ align-items:end
+}
+.familyConnectExisting>div{align-self:center}
+.familyConnectExisting button,
+.playerParentConnect button{min-height:46px}
+
+/* Admin family diagnostics */
+.familyDiagnostics{display:grid;gap:12px}
+.familyDiagnosticsIntro{
+ display:flex;
+ justify-content:space-between;
+ gap:12px;
+ align-items:flex-start;
+ padding:14px;
+ border:1px solid rgba(117,212,169,.13);
+ border-radius:14px;
+ background:#191f1b
+}
+.familyDiagnosticsIntro small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.familyDiagnosticsIntro h3{margin:4px 0}
+.familyDiagnosticsIntro p{margin:4px 0 0;color:var(--muted);line-height:1.45;max-width:760px}
+.familyDiagnosticsIntro button{min-height:42px;white-space:nowrap}
+
+.familyDiagnosticMetrics{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px
+}
+.familyDiagnosticMetrics>div{
+ padding:12px;
+ border:1px solid var(--line);
+ border-radius:12px;
+ background:#1b201d
+}
+.familyDiagnosticMetrics small,.familyDiagnosticMetrics b{display:block}
+.familyDiagnosticMetrics small{color:var(--muted);font-size:11px;font-weight:900}
+.familyDiagnosticMetrics b{margin-top:3px;font-size:24px}
+
+.familyDiagnosticToolbar{
+ display:flex;
+ align-items:end;
+ justify-content:space-between;
+ gap:10px
+}
+.familyDiagnosticToolbar label{max-width:220px}
+.familyDiagnosticToolbar span{color:var(--muted);font-size:12px}
+
+.familyDiagnosticList{display:grid;gap:10px}
+.familyDiagnosticRow{
+ padding:14px;
+ border:1px solid var(--line);
+ border-radius:14px;
+ background:#1b201d
+}
+.familyDiagnosticRow.needsAttention{border-color:rgba(214,178,82,.18)}
+.familyDiagnosticRow.healthy{border-color:rgba(117,212,169,.14)}
+.familyDiagnosticTop{
+ display:flex;
+ align-items:flex-start;
+ justify-content:space-between;
+ gap:10px
+}
+.familyDiagnosticTop b,.familyDiagnosticTop small{display:block}
+.familyDiagnosticTop b{font-size:17px}
+.familyDiagnosticTop small{margin-top:3px;color:var(--muted)}
+.familyIssueBadge,.familyHealthyBadge{
+ padding:5px 8px;border-radius:999px;
+ font-size:11px;font-weight:900;white-space:nowrap
+}
+.familyIssueBadge{background:#332d1d;color:#e0c16e;border:1px solid rgba(224,193,110,.18)}
+.familyHealthyBadge{background:#183125;color:var(--forest-light);border:1px solid rgba(117,212,169,.18)}
+
+.familyRelationshipGrid{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:7px;
+ margin-top:10px
+}
+.familyRelationshipGrid>div{
+ padding:9px;
+ border-radius:10px;
+ background:#171b19;
+ border:1px solid rgba(255,255,255,.045);
+ min-width:0
+}
+.familyRelationshipGrid small,.familyRelationshipGrid b,.familyRelationshipGrid span{display:block}
+.familyRelationshipGrid small{font-size:10px;color:var(--muted);font-weight:900}
+.familyRelationshipGrid b{margin-top:3px;font-size:13px}
+.familyRelationshipGrid span{
+ margin-top:2px;
+ color:var(--muted);
+ font-size:11px;
+ overflow:hidden;
+ text-overflow:ellipsis;
+ white-space:nowrap
+}
+
+.familyIssueList{
+ display:grid;
+ gap:5px;
+ margin-top:10px
+}
+.familyIssueList>div{
+ display:flex;
+ gap:7px;
+ align-items:flex-start;
+ padding:7px 8px;
+ border-radius:9px;
+ background:#262218
+}
+.familyIssueList span{
+ width:18px;height:18px;border-radius:50%;
+ display:grid;place-items:center;
+ flex:0 0 auto;
+ background:#43391f;color:#e0c16e;font-weight:900;font-size:11px
+}
+.familyIssueList p{margin:0;font-size:12px;line-height:1.35}
+
+.familyRepairActions{
+ display:flex;
+ flex-wrap:wrap;
+ gap:7px;
+ margin-top:10px
+}
+.familyRepairActions button{min-height:38px}
+.familyRepairActions button:disabled{opacity:.48}
+.familyManualReview{
+ display:inline-flex;
+ align-items:center;
+ padding:7px 9px;
+ border-radius:9px;
+ background:#2a1d1d;
+ color:#e7a7a7;
+ font-size:11px;
+ font-weight:800
+}
+.familyHealthyState{
+ padding:20px;
+ border:1px solid rgba(117,212,169,.16);
+ border-radius:14px;
+ text-align:center;
+ background:#18251f
+}
+.familyHealthyState span{
+ width:38px;height:38px;border-radius:50%;
+ display:grid;place-items:center;
+ margin:0 auto 8px;
+ background:#204231;color:var(--forest-light);font-size:20px
+}
+.familyHealthyState b,.familyHealthyState small{display:block}
+.familyHealthyState small{margin-top:4px;color:var(--muted)}
+
+/* Junior mobile polish */
+.juniorReturnBar{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ padding:8px 12px;
+ border-bottom:1px solid rgba(117,212,169,.10);
+ background:#151b18;
+ position:sticky;
+ top:0;
+ z-index:18
+}
+.juniorReturnBar button{
+ min-height:42px;
+ padding:0 13px;
+ border-color:rgba(117,212,169,.20)!important;
+ background:#1a2a21!important;
+ color:var(--forest-light)!important;
+ font-weight:900
+}
+.juniorReturnBar b{font-size:13px}
+
+.app[data-junior="true"] input,
+.app[data-junior="true"] select,
+.app[data-junior="true"] textarea{
+ min-height:50px;
+ font-size:max(16px,calc(14px * var(--ui-text-scale)))
+}
+.app[data-junior="true"] button{min-height:48px}
+.app[data-junior="true"] .simpleBottomNav button{min-height:58px}
+.app[data-junior="true"] .simpleNavChoices button{
+ min-height:64px;
+ padding:12px
+}
+.app[data-junior="true"] .contextBar{display:none!important}
+.app[data-junior="true"] .workspaceGuide{
+ margin-top:8px;
+ padding:8px 11px
+}
+.app[data-junior="true"] .workspaceGuide small{display:none}
+.app[data-junior="true"] .workspaceGuide b{font-size:13px}
+.app[data-junior="true"] .pageGuide{margin-top:6px}
+.app[data-junior="true"] .advancedTools{display:none!important}
+
+/* Keep the Parent return control visible in Parent-managed Junior Mode,
+   while reducing advanced header clutter. */
+.app[data-junior="true"] .headerActions .settingsButton,
+.app[data-junior="true"] .headerActions .helpButton,
+.app[data-junior="true"] .headerActions .reportProblemButton,
+.app[data-junior="true"] .headerActions .headerUtilityButton:not(.parentReturnButton){
+ display:none!important
+}
+
+@media(max-width:760px){
+ .familyConnectExisting{grid-template-columns:1fr}
+ .familyConnectExisting button{width:100%}
+ .familyRelationshipGrid{grid-template-columns:1fr 1fr}
+ .familyDiagnosticsIntro{flex-direction:column}
+ .familyDiagnosticsIntro button{width:100%}
+}
+
+@media(max-width:560px){
+ .cloudSyncNotice{align-items:flex-start;padding:9px 10px}
+ .cloudSyncNotice button{min-width:90px}
+ .familyDiagnosticMetrics{grid-template-columns:1fr 1fr 1fr}
+ .familyRelationshipGrid{grid-template-columns:1fr}
+ .familyDiagnosticTop{flex-direction:column}
+ .familyRepairActions{flex-direction:column}
+ .familyRepairActions button{width:100%}
+ .juniorReturnBar{top:0}
+ .app[data-junior="true"] main{padding-bottom:90px}
+ .app[data-junior="true"] .simpleBottomNav{
+  padding-bottom:max(6px,env(safe-area-inset-bottom))
+ }
+}
+
+
+/* Shared development communication — same athlete, role-appropriate meaning */
+.sharedDevelopmentFocusCard{
+ margin:10px 0 14px;
+ border-color:rgba(117,212,169,.16)!important;
+ background:linear-gradient(135deg,#1d2420,#17231d)!important
+}
+.sharedDevelopmentFocusCard .sectionHead p{
+ margin:4px 0 0;
+ color:var(--muted);
+ line-height:1.4
+}
+.sharedFocusGrid{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px
+}
+.sharedFocusGrid>div{
+ padding:11px;
+ border-radius:12px;
+ border:1px solid rgba(255,255,255,.055);
+ background:#181d1a;
+ min-width:0
+}
+.sharedFocusGrid small,.sharedFocusGrid b,.sharedFocusGrid span{display:block}
+.sharedFocusGrid small{
+ color:var(--forest-light);
+ font-size:10px;
+ font-weight:900;
+ letter-spacing:.06em
+}
+.sharedFocusGrid b{
+ margin-top:4px;
+ font-size:14px;
+ line-height:1.35
+}
+.sharedFocusGrid span{
+ margin-top:4px;
+ color:var(--muted);
+ font-size:11px;
+ line-height:1.4
+}
+.juniorSharedFocus .sharedFocusGrid{grid-template-columns:1fr 1fr}
+.juniorSharedFocus .sectionHead h2{font-size:20px}
+.juniorSharedFocus .sectionHead button{
+ background:linear-gradient(180deg,var(--forest-soft),var(--forest-deep))!important;
+ color:#fff!important;
+ border-color:rgba(117,212,169,.28)!important
+}
+
+@media(max-width:700px){
+ .sharedFocusGrid{grid-template-columns:1fr}
+ .juniorSharedFocus .sharedFocusGrid{grid-template-columns:1fr}
+ .sharedDevelopmentFocusCard .sectionHead{align-items:flex-start}
+}
+
+
+/* =========================================================
+   Phase 72.3.58 — Persistent Admin Preview Controls
+   ========================================================= */
+
+.adminPreviewBar{
+ position:sticky;
+ top:0;
+ z-index:40;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ padding:9px 14px;
+ border-bottom:1px solid rgba(117,212,169,.18);
+ background:linear-gradient(135deg,#142019,#18271f);
+ box-shadow:0 8px 22px rgba(0,0,0,.20)
+}
+.adminPreviewIdentity{min-width:180px}
+.adminPreviewIdentity small,
+.adminPreviewIdentity b,
+.adminPreviewIdentity span{display:block}
+.adminPreviewIdentity small{
+ color:var(--forest-light);
+ font-size:10px;
+ font-weight:900;
+ letter-spacing:.08em
+}
+.adminPreviewIdentity b{
+ margin-top:2px;
+ font-size:14px
+}
+.adminPreviewIdentity span{
+ margin-top:2px;
+ color:var(--muted);
+ font-size:11px
+}
+.adminPreviewControls{
+ display:flex;
+ align-items:end;
+ justify-content:flex-end;
+ gap:8px;
+ flex-wrap:wrap
+}
+.adminPreviewControls label{
+ min-width:150px;
+ margin:0
+}
+.adminPreviewControls label small{
+ display:block;
+ margin-bottom:3px;
+ color:var(--muted);
+ font-size:10px;
+ font-weight:900;
+ text-transform:uppercase
+}
+.adminPreviewControls select{
+ min-height:42px;
+ background:#171d19;
+ border-color:rgba(117,212,169,.18)
+}
+.adminPreviewAthlete{min-width:230px!important}
+.adminPreviewControls button{
+ min-height:42px;
+ padding:0 12px;
+ white-space:nowrap
+}
+.adminPreviewReturn{
+ border-color:rgba(117,212,169,.26)!important;
+ background:#1b3227!important;
+ color:var(--forest-light)!important;
+ font-weight:900
+}
+.adminPreviewBetaAdmin{
+ background:linear-gradient(180deg,var(--forest-soft),var(--forest-deep))!important;
+ color:#fff!important;
+ font-weight:900!important
+}
+
+/* The Admin test bar is intentionally never hidden by Junior Mode. */
+.app[data-junior="true"] .adminPreviewBar{
+ display:flex!important
+}
+
+@media(max-width:760px){
+ .adminPreviewBar{
+  position:sticky;
+  top:0;
+  align-items:stretch;
+  flex-direction:column;
+  padding:8px 10px
+ }
+ .adminPreviewIdentity span{display:none}
+ .adminPreviewControls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  width:100%
+ }
+ .adminPreviewControls label,
+ .adminPreviewAthlete{
+  min-width:0!important;
+  width:100%
+ }
+ .adminPreviewControls select,
+ .adminPreviewControls button{width:100%}
+}
+
+@media(max-width:480px){
+ .adminPreviewControls{grid-template-columns:1fr}
+}
+
+
+/* =========================================================
+   Phase 72.3.59 — Junior More / All Features Fix
+   ========================================================= */
+
+/* Junior More → See All My Features uses a real child-friendly palette.
+   The overlay remains visible only while the palette is open. */
+.app[data-junior="true"] .juniorFeatureOverlay{
+ display:grid!important;
+ backdrop-filter:blur(6px)
+}
+.app[data-junior="true"] .juniorFeaturePalette{
+ display:block!important;
+ width:min(520px,100%);
+ max-height:min(78vh,700px);
+ overflow:auto;
+ padding:14px;
+ border:1px solid rgba(117,212,169,.24)!important;
+ background:linear-gradient(180deg,#202a24,#141a17)!important
+}
+.juniorFeaturePalette .sectionHead{
+ align-items:flex-start
+}
+.juniorFeaturePalette .sectionHead small{
+ display:block;
+ color:var(--forest-light);
+ font-size:10px;
+ font-weight:900;
+ letter-spacing:.08em
+}
+.juniorFeaturePalette .sectionHead h2{
+ margin:3px 0 0;
+ font-size:22px
+}
+.juniorFeaturePalette input{
+ min-height:50px!important;
+ font-size:16px!important;
+ margin-top:8px
+}
+.juniorFeaturePalette .commandResults{
+ grid-template-columns:1fr;
+ gap:8px
+}
+.juniorFeaturePalette .commandResults button{
+ min-height:64px!important;
+ grid-template-columns:38px 1fr;
+ padding:11px!important;
+ border-color:rgba(117,212,169,.10)!important;
+ background:#19211c!important
+}
+.juniorFeaturePalette .commandResults button>span{
+ font-size:22px
+}
+.juniorFeaturePalette .commandResults button>b{
+ font-size:15px
+}
+.juniorFeaturePalette .commandResults button>small{
+ font-size:11px;
+ color:var(--muted);
+ line-height:1.35
+}
+.juniorAllFeaturesButton{
+ min-height:50px!important;
+ background:linear-gradient(180deg,var(--forest-soft),var(--forest-deep))!important;
+ color:#fff!important;
+ border-color:rgba(117,212,169,.24)!important;
+ font-weight:900!important
+}
+.juniorFeatureEmpty{
+ padding:18px 10px;
+ text-align:center;
+ color:var(--muted)
+}
+
+@media(max-width:600px){
+ .app[data-junior="true"] .juniorFeatureOverlay{
+  padding:54px 10px 88px
+ }
+ .app[data-junior="true"] .juniorFeaturePalette{
+  max-height:calc(100vh - 150px);
+  border-radius:16px
+ }
+}
+
+/* =========================================================
+   Phase 72.3.60 + 72.3.61 — Connections & Reliability
+   ========================================================= */
+
+.connectionSetupCard{display:grid;gap:12px}
+.connectionRuleNotice,
+.accountVsAthleteNotice{
+ display:flex;gap:11px;align-items:flex-start;padding:12px 13px;border-radius:13px;
+ background:linear-gradient(135deg,#1c2922,#171d1a);border:1px solid rgba(117,212,169,.17)
+}
+.connectionRuleNotice>span,
+.accountVsAthleteNotice>span{
+ flex:0 0 auto;padding:5px 8px;border-radius:999px;background:#173126;color:var(--forest-light);
+ border:1px solid rgba(117,212,169,.18);font-size:10px;font-weight:900;letter-spacing:.06em
+}
+.connectionRuleNotice b,.connectionRuleNotice p,
+.accountVsAthleteNotice b,.accountVsAthleteNotice p{display:block}
+.connectionRuleNotice p,.accountVsAthleteNotice p{margin:4px 0 0;color:var(--muted);line-height:1.45}
+
+.familySetupChooser{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.familySetupChooser button{
+ min-height:96px;padding:12px;text-align:left;border-radius:13px;background:#191e1b;
+ border:1px solid rgba(255,255,255,.07);color:var(--text)
+}
+.familySetupChooser button.active{
+ background:linear-gradient(135deg,#1d3429,#18241e);border-color:rgba(117,212,169,.30);
+ box-shadow:inset 0 0 0 1px rgba(117,212,169,.05)
+}
+.familySetupChooser small,.familySetupChooser b,.familySetupChooser span{display:block}
+.familySetupChooser small{color:var(--forest-light);font-size:10px;font-weight:900;letter-spacing:.06em}
+.familySetupChooser b{margin-top:4px;font-size:15px}
+.familySetupChooser span{margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4}
+
+.connectionCreatePanel{
+ grid-template-columns:1.4fr .7fr 1fr 1fr 1fr auto!important;
+ padding:12px;border-radius:13px;background:#171c19;border:1px solid rgba(117,212,169,.12)
+}
+.connectionPanelIntro{grid-column:1/-1;padding-bottom:3px}
+.connectionPanelIntro small,.connectionPanelIntro b,.connectionPanelIntro p{display:block}
+.connectionPanelIntro small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.connectionPanelIntro b{margin-top:3px}
+.connectionPanelIntro p{margin:3px 0 0;color:var(--muted);line-height:1.4}
+.connectionExistingPanel,.connectionTeamPanel{
+ padding:12px;border-radius:13px;background:#171c19;border:1px solid rgba(117,212,169,.12)
+}
+.connectionExistingPanel small,.connectionTeamPanel small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.connectionTeamPanel{display:grid;grid-template-columns:1.45fr .8fr .9fr auto;gap:9px;align-items:end}
+.connectionTeamPanel>div{align-self:center}
+.connectionTeamPanel h3{margin:3px 0!important}
+.connectionTeamPanel p{margin:3px 0 0;color:var(--muted);line-height:1.4}
+.connectionMessage{border-color:rgba(117,212,169,.17)!important;background:#1a2821!important}
+
+.familyPlayerSectionHead{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-top:2px}
+.familyPlayerSectionHead small,.familyPlayerSectionHead h3{display:block}
+.familyPlayerSectionHead small{color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.06em}
+.familyPlayerSectionHead h3{margin:2px 0 0!important}
+.familyPlayerSectionHead>span{
+ min-width:28px;height:28px;display:grid;place-items:center;border-radius:999px;background:#173126;color:var(--forest-light);font-weight:900
+}
+.connectionEmptyState{padding:18px;text-align:center;border-radius:12px;background:#171b19;border:1px dashed rgba(117,212,169,.15)}
+.connectionEmptyState b,.connectionEmptyState span{display:block}
+.connectionEmptyState span{margin-top:4px;color:var(--muted)}
+
+.connectionBadges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.connectionBadges span{
+ display:inline-flex;align-items:center;min-height:26px;padding:4px 7px;border-radius:999px;
+ font-size:10px;font-weight:900;border:1px solid rgba(255,255,255,.06);background:#202522;color:var(--muted)
+}
+.connectionBadges span.connected{background:#173126;color:var(--forest-light);border-color:rgba(117,212,169,.17)}
+.connectionBadges span.ready{background:#222721;color:#c3ccc7;border-color:rgba(255,255,255,.07)}
+.connectionBadges.compact{margin-top:5px}
+.connectionBadges.compact span{min-height:22px;padding:3px 6px;font-size:9px}
+
+.playerConnectionSummary{
+ padding:13px;border-radius:14px;background:linear-gradient(135deg,#1c2922,#171d1a);border:1px solid rgba(117,212,169,.17)
+}
+.connectionSummaryHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.connectionSummaryHead small,.connectionSummaryHead h3{display:block}
+.connectionSummaryHead small{color:var(--forest-light);font-size:10px;font-weight:900;letter-spacing:.06em}
+.connectionSummaryHead h3{margin:3px 0 0!important}
+.connectionSummaryHead button{min-height:36px}
+.connectionSummaryGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.connectionSummaryGrid>div{padding:10px;border-radius:11px;background:#171b19;border:1px solid rgba(255,255,255,.06)}
+.connectionSummaryGrid>div.connected{border-color:rgba(117,212,169,.16)}
+.connectionSummaryGrid small,.connectionSummaryGrid b,.connectionSummaryGrid span{display:block}
+.connectionSummaryGrid small{color:var(--muted);font-size:9px;font-weight:900}
+.connectionSummaryGrid b{margin-top:3px;font-size:13px}
+.connectionSummaryGrid .connected b{color:var(--forest-light)}
+.connectionSummaryGrid span{margin-top:3px;color:var(--muted);font-size:10px;line-height:1.35}
+.connectionNextStep{margin-top:9px;padding:9px 10px;border-radius:10px;background:#18241e;border:1px solid rgba(117,212,169,.10)}
+.connectionNextStep b,.connectionNextStep span{display:block}
+.connectionNextStep b{color:var(--forest-light)}
+.connectionNextStep span{margin-top:3px;color:var(--muted);font-size:11px;line-height:1.4}
+
+.playerConnectionPrimaryGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.connectionPrimaryCard{margin:0!important;padding:12px!important;border-radius:13px!important;background:#171c19!important;border:1px solid rgba(117,212,169,.12)!important}
+.connectionPrimaryCard small,.connectionPrimaryCard h3,.connectionPrimaryCard p{display:block}
+.connectionPrimaryCard small{color:var(--forest-light);font-weight:900;letter-spacing:.07em}
+.connectionPrimaryCard h3{margin:3px 0!important}
+.connectionPrimaryCard p{margin:4px 0 9px!important;color:var(--muted);line-height:1.4}
+.connectionRecovery{border:1px solid rgba(255,255,255,.07);border-radius:12px;background:#171b19;overflow:hidden}
+.connectionRecovery summary{cursor:pointer;padding:11px 12px;font-weight:800;color:#cbd2ce}
+.connectionRecovery .playerFamilyClaim{margin:0;border:0;border-top:1px solid rgba(255,255,255,.06);border-radius:0}
+
+.coachConnectionRule{margin-bottom:9px}
+.connectionRosterMember{align-items:center}
+.connectionRosterMember>div:first-child{min-width:0}
+
+.accountVsAthleteNotice{margin-bottom:12px}
+.familyConnectionLegend{
+ display:flex;gap:8px;align-items:flex-start;padding:10px 11px;border-radius:11px;background:#171b19;border:1px solid rgba(117,212,169,.10)
+}
+.familyConnectionLegend b{flex:0 0 auto;color:var(--forest-light);font-size:12px}
+.familyConnectionLegend span{color:var(--muted);font-size:11px;line-height:1.4}
+.familyConnectionGuidance{
+ display:flex;gap:8px;align-items:flex-start;margin-top:9px;padding:8px 9px;border-radius:9px;background:#18221d;border:1px solid rgba(117,212,169,.09)
+}
+.familyConnectionGuidance b{flex:0 0 auto;color:var(--forest-light);font-size:11px}
+.familyConnectionGuidance span{color:var(--muted);font-size:11px;line-height:1.35}
+.familyViewAthlete{border-color:rgba(117,212,169,.22)!important;color:var(--forest-light)!important}
+
+@media(max-width:900px){
+ .connectionCreatePanel{grid-template-columns:1fr 1fr!important}
+ .connectionCreatePanel .connectionPanelIntro,.connectionCreatePanel button{grid-column:1/-1}
+ .connectionTeamPanel{grid-template-columns:1fr 1fr}
+ .connectionTeamPanel>div{grid-column:1/-1}
+ .connectionTeamPanel button{grid-column:1/-1}
+}
+
+@media(max-width:650px){
+ .connectionRuleNotice,.accountVsAthleteNotice{flex-direction:column}
+ .familySetupChooser,.playerConnectionPrimaryGrid,.connectionSummaryGrid{grid-template-columns:1fr}
+ .connectionCreatePanel,.connectionTeamPanel{grid-template-columns:1fr!important}
+ .connectionCreatePanel .connectionPanelIntro,.connectionCreatePanel button,.connectionTeamPanel>div,.connectionTeamPanel button{grid-column:auto}
+ .familyConnectionLegend,.familyConnectionGuidance{flex-direction:column}
+ .connectionBadges{gap:5px}
+ .connectionSummaryHead{align-items:stretch;flex-direction:column}
+ .connectionSummaryHead button{width:100%}
+}
+
+
+/* Phase 72.3.62 — Player More + cloud test athlete feedback */
+.rosterCloudCreateMessage{
+ margin-top:10px;
+ padding:10px 12px;
+ border:1px solid rgba(117,212,169,.16);
+ border-radius:12px;
+ background:rgba(23,107,74,.13);
+ color:var(--muted);
+ font-size:12px;
+ line-height:1.4
+}
+.rosterCloudCreateMessage:empty{display:none}
+
+
+/* =========================================================
+   Phase 72.3.63 — Visual Hierarchy & Navigation Cleanup
+   Goal: less reading, stronger contrast, clearer text scale.
+   ========================================================= */
+
+:root{
+ --vh-page:#0a0d0b;
+ --vh-panel:#171c19;
+ --vh-panel-raised:#1d2420;
+ --vh-panel-soft:#121714;
+ --vh-line:rgba(224,228,226,.12);
+ --vh-line-strong:rgba(117,212,169,.22);
+ --vh-copy:#c7cfcb;
+ --vh-copy-soft:#929d97;
+ --vh-title:#f7faf8;
+}
+
+/* Stronger page/surface separation */
+html,body{
+ background:
+  radial-gradient(circle at 18% -10%,rgba(47,143,104,.10),transparent 34%),
+  var(--vh-page)!important;
+}
+.app{
+ background:transparent!important;
+ color:var(--text);
+}
+main{
+ padding-top:10px;
+}
+.card{
+ background:linear-gradient(180deg,var(--vh-panel-raised),var(--vh-panel))!important;
+ border:1px solid var(--vh-line)!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.025),
+  0 10px 28px rgba(0,0,0,.15)!important;
+}
+.card .card{
+ background:var(--vh-panel-soft)!important;
+ border-color:rgba(224,228,226,.075)!important;
+ box-shadow:none!important;
+}
+.hero,.homeHero,.phase35Hero{
+ background:
+  linear-gradient(135deg,#202a24 0%,#18201c 58%,#10291f 100%)!important;
+ border:1px solid rgba(117,212,169,.22)!important;
+}
+
+/* Typography scale: obvious title → heading → body → helper */
+body{
+ font-size:14px!important;
+ line-height:1.48;
+}
+.hero h1,.homeHero h1{
+ font-size:clamp(28px,4vw,38px)!important;
+ line-height:1.02!important;
+ letter-spacing:-.035em!important;
+ color:var(--vh-title)!important;
+}
+.hero p,.homeHero p{
+ max-width:62ch!important;
+ font-size:14px!important;
+ line-height:1.5!important;
+ color:var(--vh-copy)!important;
+}
+.sectionHead h1{
+ font-size:clamp(24px,3vw,32px)!important;
+ line-height:1.08!important;
+ letter-spacing:-.025em!important;
+}
+.sectionHead h2,.card h2{
+ font-size:clamp(18px,2.1vw,22px)!important;
+ line-height:1.15!important;
+ letter-spacing:-.018em!important;
+ color:var(--vh-title)!important;
+}
+.card h3{
+ font-size:16px!important;
+ line-height:1.25!important;
+ color:#eef3f0!important;
+}
+.sectionHead small,
+.card>small,
+.card .eyebrow,
+.sportSelectorHead small{
+ font-size:10px!important;
+ line-height:1.2!important;
+ font-weight:900!important;
+ letter-spacing:.085em!important;
+ text-transform:uppercase;
+ color:var(--forest-light)!important;
+}
+.card p,
+.card li,
+.card blockquote{
+ font-size:13px!important;
+ line-height:1.5!important;
+ color:var(--vh-copy)!important;
+}
+.card small{
+ font-size:11px;
+ line-height:1.4;
+}
+.muted,.card .muted{
+ color:var(--vh-copy-soft)!important;
+}
+
+/* Top-of-page guide becomes a compact page hero rather than another paragraph card */
+.workspaceGuide{
+ margin:2px 0 3px!important;
+ padding:0 2px!important;
+ min-height:20px!important;
+}
+.workspaceGuide small{
+ display:inline!important;
+ font-size:9px!important;
+ color:#7f8a84!important;
+ letter-spacing:.09em!important;
+}
+.workspaceGuide b{
+ display:inline!important;
+ margin-left:7px!important;
+ font-size:10px!important;
+ color:#8d9992!important;
+ font-weight:650!important;
+}
+.workspaceGuide>span{
+ margin-left:auto!important;
+ padding:3px 7px!important;
+ font-size:9px!important;
+ color:#aeb8b3!important;
+ border:0!important;
+ background:transparent!important;
+}
+.pageGuide{
+ position:relative;
+ align-items:center!important;
+ margin:0 0 16px!important;
+ padding:16px 17px!important;
+ border-radius:17px!important;
+ border:1px solid var(--vh-line-strong)!important;
+ border-left:4px solid var(--forest-soft)!important;
+ background:
+  linear-gradient(110deg,rgba(47,143,104,.10),rgba(255,255,255,.018) 40%),
+  #141a17!important;
+ box-shadow:0 10px 28px rgba(0,0,0,.15)!important;
+}
+.pageGuide small{
+ font-size:clamp(23px,3vw,30px)!important;
+ line-height:1.05!important;
+ letter-spacing:-.03em!important;
+ text-transform:none!important;
+ color:var(--vh-title)!important;
+}
+.pageGuide b{
+ margin-top:5px!important;
+ font-size:13px!important;
+ line-height:1.35!important;
+ color:#aeb8b3!important;
+ font-weight:650!important;
+}
+.pageGuide>span{
+ flex:0 0 auto;
+ max-width:none!important;
+ padding:7px 10px!important;
+ border:1px solid rgba(117,212,169,.20);
+ border-radius:999px;
+ background:rgba(47,143,104,.10);
+ color:#b7ecd3!important;
+ font-size:10px!important;
+ font-weight:900!important;
+ letter-spacing:.025em;
+ text-align:center!important;
+}
+
+/* Metrics should look like metrics, not paragraphs */
+.stat,.signalCard,.targetProgressHero>div,.executiveSummary>div,
+.testSummary>div,.programOverview>div{
+ border-top:2px solid rgba(117,212,169,.22)!important;
+}
+.stat small,.signalCard small,.targetProgressHero small,
+.executiveSummary small,.testSummary small,.programOverview small{
+ font-size:10px!important;
+ letter-spacing:.065em!important;
+ text-transform:uppercase;
+ color:#9aa59f!important;
+}
+.stat b,.signalCard b,.targetProgressHero b,
+.executiveSummary b,.testSummary b,.programOverview b{
+ font-size:clamp(22px,3vw,30px)!important;
+ line-height:1!important;
+ color:#f7faf8!important;
+ font-variant-numeric:tabular-nums;
+}
+
+/* Buttons: primary actions stand out, secondary actions recede */
+button,.button,a.button{
+ font-size:13px!important;
+ line-height:1.2!important;
+}
+.primary,.featureAction,.sel{
+ min-height:46px!important;
+ padding:10px 14px!important;
+ font-size:13px!important;
+ font-weight:850!important;
+}
+button:not(.primary):not(.featureAction):not(.sel){
+ color:#c6cfca;
+ background:#1a201d;
+}
+.tag,.rcBadge,.statusChip,.badge{
+ font-size:10px!important;
+ line-height:1!important;
+ font-weight:900!important;
+ letter-spacing:.035em!important;
+}
+
+/* Forms should be readable at a glance, especially on phones */
+label{
+ font-size:11px!important;
+ font-weight:800;
+ color:#b9c2bd;
+}
+input,select,textarea{
+ min-height:46px!important;
+ font-size:15px!important;
+ line-height:1.35!important;
+ background:#111613!important;
+ color:#f1f5f3!important;
+ border-color:rgba(224,228,226,.17)!important;
+}
+textarea{
+ padding-top:11px!important;
+ padding-bottom:11px!important;
+}
+
+/* Section rhythm: more space between topics, less noise inside each topic */
+.sectionDivider{
+ margin:30px 0 12px!important;
+}
+.sectionDivider span{
+ font-size:10px!important;
+ color:#aeb7b2!important;
+ letter-spacing:.11em!important;
+}
+.sectionHead{
+ margin-bottom:11px;
+}
+.sectionHead p{
+ max-width:68ch;
+ margin-top:5px!important;
+ font-size:12px!important;
+ line-height:1.45!important;
+ color:#9ea9a3!important;
+}
+.card{
+ margin-top:14px!important;
+ padding:17px!important;
+}
+.card>p:first-of-type{
+ max-width:72ch;
+}
+
+/* Stronger active navigation, quieter inactive navigation */
+.simpleBottomNav,.mainNav{
+ background:rgba(12,16,13,.97)!important;
+ border-top:1px solid rgba(224,228,226,.11)!important;
+ box-shadow:0 -10px 30px rgba(0,0,0,.28)!important;
+ backdrop-filter:blur(14px);
+}
+.simpleBottomNav button,.mainNav button{
+ min-height:58px!important;
+ opacity:.67;
+ color:#9ba69f!important;
+ border-radius:12px!important;
+}
+.simpleBottomNav button span,.mainNav .navIcon{
+ font-size:20px!important;
+}
+.simpleBottomNav button b,.mainNav .navLabel{
+ font-size:10px!important;
+ line-height:1.1!important;
+ font-weight:800!important;
+}
+.simpleBottomNav button.active,.mainNav button.active{
+ opacity:1!important;
+ color:#e8fff3!important;
+ background:linear-gradient(180deg,rgba(47,143,104,.18),rgba(47,143,104,.05))!important;
+ border-color:rgba(117,212,169,.20)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+}
+.simpleBottomNav button.active:after{
+ content:"";
+ position:absolute;
+ left:28%;
+ right:28%;
+ bottom:3px;
+ height:3px;
+ border-radius:999px;
+ background:var(--forest-light);
+}
+.simpleBottomNav button{
+ position:relative;
+}
+
+/* Navigation sheets read like a short menu, not a dense settings screen */
+.simpleNavSheet{
+ background:linear-gradient(180deg,#202722,#121713)!important;
+ border-color:rgba(224,228,226,.13)!important;
+}
+.simpleNavSheet .sectionHead h2{
+ font-size:25px!important;
+}
+.simpleNavChoices{
+ gap:9px!important;
+}
+.simpleNavChoices button{
+ min-height:70px!important;
+ padding:12px 13px!important;
+ background:#171d19!important;
+ border:1px solid rgba(224,228,226,.085)!important;
+}
+.simpleNavChoices button>span{
+ font-size:22px!important;
+}
+.simpleNavChoices button b{
+ font-size:15px!important;
+ color:#f3f7f5!important;
+}
+.simpleNavChoices button small{
+ margin-top:3px;
+ font-size:11px!important;
+ line-height:1.35!important;
+ color:#949f99!important;
+}
+.simpleNavChoices button strong{
+ font-size:11px!important;
+ color:var(--forest-light)!important;
+}
+.allFeaturesButton{
+ margin-top:10px!important;
+ min-height:48px!important;
+ font-weight:850!important;
+}
+
+/* Connection/status UI: compact and scannable */
+.familyRelationshipGrid>div,
+.connectionStatusGrid>div,
+.familyDiagnosticMetrics>div,
+.familyDiagnosticCard{
+ background:#151b17!important;
+ border-color:rgba(224,228,226,.09)!important;
+}
+.familyRelationshipGrid small,
+.connectionStatusGrid small,
+.familyDiagnosticMetrics small{
+ font-size:9px!important;
+ letter-spacing:.075em!important;
+ text-transform:uppercase;
+ color:#99a49e!important;
+}
+.familyRelationshipGrid b,
+.connectionStatusGrid b,
+.familyDiagnosticMetrics b{
+ font-size:17px!important;
+ color:#f1f6f3!important;
+}
+
+/* Advanced/less-used material stays visually subordinate */
+.advancedTools,.simpleDisclosure{
+ background:#111613!important;
+ border-color:rgba(224,228,226,.075)!important;
+}
+.advancedTools>summary b,.simpleDisclosure>summary b{
+ font-size:13px!important;
+}
+.advancedTools>summary small,.simpleDisclosure>summary small{
+ font-size:10px!important;
+ color:#8e9993!important;
+}
+
+/* Role-specific tiny accent keeps orientation without introducing new colors */
+.app[data-role="Admin"] .pageGuide{border-left-color:#75d4a9!important}
+.app[data-role="Coach"] .pageGuide{border-left-color:#b8bfbc!important}
+.app[data-role="Parent"] .pageGuide{border-left-color:#4ca47b!important}
+.app[data-role="Player"] .pageGuide{border-left-color:#2f8f68!important}
+
+/* Mobile: keep the hierarchy, remove nonessential top chrome */
+@media(max-width:700px){
+ body{font-size:14px!important}
+ main{padding-left:10px!important;padding-right:10px!important}
+ .brandBlock>div>small{display:none!important}
+ .workspaceGuide{display:none!important}
+ .pageGuide{
+  align-items:flex-start!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  padding:14px 14px!important;
+  margin-bottom:12px!important;
+ }
+ .pageGuide small{
+  font-size:25px!important;
+ }
+ .pageGuide b{
+  font-size:13px!important;
+ }
+ .pageGuide>span{
+  align-self:flex-start;
+  padding:6px 9px!important;
+ }
+ .card{
+  padding:14px!important;
+  margin-top:11px!important;
+ }
+ .card h2,.sectionHead h2{
+  font-size:19px!important;
+ }
+ .sectionHead{
+  gap:8px!important;
+ }
+ .sectionHead p{
+  font-size:12px!important;
+ }
+ input,select,textarea{
+  font-size:16px!important;
+ }
+ .simpleBottomNav button,.mainNav button{
+  min-height:62px!important;
+ }
+ .simpleBottomNav button b,.mainNav .navLabel{
+  font-size:10px!important;
+ }
+}
+
+/* Junior stays especially simple and readable */
+.app[data-junior="true"] .pageGuide{
+ border-left-width:5px!important;
+ padding:13px!important;
+}
+.app[data-junior="true"] .pageGuide small{
+ font-size:27px!important;
+}
+.app[data-junior="true"] .pageGuide b{
+ font-size:14px!important;
+ color:#c3ccc7!important;
+}
+.app[data-junior="true"] .pageGuide>span{
+ font-size:11px!important;
+}
+.app[data-junior="true"] .card h2{
+ font-size:20px!important;
+}
+.app[data-junior="true"] .card p{
+ font-size:14px!important;
+}
+.app[data-junior="true"] button{
+ font-size:14px!important;
+}
