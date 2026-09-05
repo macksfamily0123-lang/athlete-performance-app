@@ -173,6 +173,7 @@ export default function BetaGate(){
   // Parent-managed players
   const [showParentPlayers,setShowParentPlayers]=useState(false);
   const [parentPlayers,setParentPlayers]=useState<AthleteRow[]>([]);
+  const [parentPlayerPhotos,setParentPlayerPhotos]=useState<Record<string,string>>({});
   const [parentPlayerMode,setParentPlayerMode]=useState(false);
   const [parentManagedAthleteId,setParentManagedAthleteId]=useState("");
   const [childName,setChildName]=useState("");
@@ -526,6 +527,16 @@ export default function BetaGate(){
     const rows=(data||[]) as unknown as ParentAthleteLink[];
     const athletes=rows.map(x=>x.athlete).filter(Boolean) as AthleteRow[];
     setParentPlayers(athletes);
+    if(athletes.length){
+      const workspaceIds=athletes.map(x=>x.workspace_id);
+      const {data:photoRows}=await supabase.from("workspace_state").select("workspace_id,data").in("workspace_id",workspaceIds);
+      const photos:Record<string,string>={};
+      for(const row of photoRows||[]){
+        const value=(row as any)?.data?.profile?.photoUrl;
+        if(typeof value==="string"&&value)photos[String((row as any).workspace_id)]=value;
+      }
+      setParentPlayerPhotos(photos);
+    }else setParentPlayerPhotos({});
     await loadParentConnectionStatuses();
     if(!parentJoinAthleteId&&athletes[0])setParentJoinAthleteId(athletes[0].id);
     if(!selectedAthleteName&&athletes[0]){
@@ -842,7 +853,7 @@ export default function BetaGate(){
     const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
     return [
       "Beta diagnostic context",
-      "Version: 72.3.63 RC14",
+      "Version: 72.3.69 RC19",
       `Role: ${access?.role||"Unknown"}`,
       `Athlete: ${athlete}`,
       `Sport: ${sport}`,
@@ -868,7 +879,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message,
-      app_version:"72.3.63",
+      app_version:"72.3.69",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -1081,7 +1092,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · RC14 · v72.3.63</div>
+    <div className="betaRibbon">BETA · RC19 · v72.3.69</div>
     {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
     <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>
@@ -1145,7 +1156,7 @@ export default function BetaGate(){
       <div className="familyPlayerSectionHead"><div><small>CONNECTED TO THIS PARENT</small><h3>Players</h3></div><span>{parentPlayers.length}</span></div>
       <div className="parentPlayerList familyPlayerList">
         {parentPlayers.length===0?<div className="connectionEmptyState"><b>No Players connected yet</b><span>Choose Create New Player or Connect Existing Player above.</span></div>:parentPlayers.map(player=>{const status=parentConnectionStatuses.find(x=>x.athlete_id===player.id);return <article key={player.id} className={player.workspace_id===selectedCloudWorkspaceId?"active":""}>
-          <div className="familyPlayerIdentity"><div><b>{player.display_name}</b><small>{player.sport}{player.position?" · "+player.position:""}{player.team_name?" · "+player.team_name:""} · Age {player.age||"—"}</small></div><span className={"familyManagementBadge "+player.account_management.toLowerCase()}>{player.account_management==="Parent"?"Parent Managed":"Player Managed"}</span></div>
+          <div className="familyPlayerIdentity"><div className={`betaPlayerAvatar ${parentPlayerPhotos[player.workspace_id]?"hasPhoto":"fallback"}`}>{parentPlayerPhotos[player.workspace_id]?<img src={parentPlayerPhotos[player.workspace_id]} alt={`${player.display_name} profile`}/>:<><b>{player.display_name.trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"P"}</b><i aria-hidden="true">🏒</i></>}</div><div className="familyPlayerNameBlock"><b>{player.display_name}</b><small>{player.sport}{player.position?" · "+player.position:""}{player.team_name?" · "+player.team_name:""} · Age {player.age||"—"}</small></div><span className={"familyManagementBadge "+player.account_management.toLowerCase()}>{player.account_management==="Parent"?"Parent Managed":"Player Managed"}</span></div>
           <div className="connectionBadges">
             <span className={status?.player_login_connected?"connected":"ready"}>{status?.player_login_connected?"✓ Player Login Connected":"Player Login Optional"}</span>
             <span className="connected">✓ Parent Connected{status&&status.parent_count>1?` · ${status.parent_count}`:""}</span>

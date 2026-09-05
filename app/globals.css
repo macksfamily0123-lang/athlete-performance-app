@@ -6025,3 +6025,939 @@ textarea{
 .app[data-junior="true"] button{
  font-size:14px!important;
 }
+
+
+/* =========================================================
+   Phase 72.3.64 — Premium Performance / App Store UI
+   Recompose the product around a native mobile sports feel.
+   ========================================================= */
+
+:root{
+ --premium-bg:#090c0a;
+ --premium-surface:#151a17;
+ --premium-surface-2:#1c231f;
+ --premium-surface-3:#222a25;
+ --premium-border:rgba(234,240,236,.11);
+ --premium-border-soft:rgba(234,240,236,.07);
+ --premium-green:#2f8f68;
+ --premium-mint:#75d4a9;
+ --premium-silver:#b8bfbc;
+ --premium-white:#f6faf7;
+ --premium-muted:#97a29c;
+}
+
+/* Native-app shell */
+.app{
+ min-height:100vh;
+ background:
+  radial-gradient(circle at 10% 0%,rgba(47,143,104,.11),transparent 28%),
+  radial-gradient(circle at 90% 14%,rgba(184,191,188,.045),transparent 24%),
+  var(--premium-bg)!important;
+}
+.appHeader{
+ position:sticky;
+ top:0;
+ z-index:45;
+ min-height:62px;
+ padding:10px 14px!important;
+ border-bottom:1px solid rgba(255,255,255,.06)!important;
+ background:rgba(9,12,10,.90)!important;
+ backdrop-filter:blur(18px) saturate(120%);
+ box-shadow:0 8px 26px rgba(0,0,0,.18);
+}
+.brandBlock .logo{
+ width:40px!important;
+ height:40px!important;
+ border-radius:14px!important;
+ background:
+  linear-gradient(145deg,#176b4a,#2f8f68 55%,#75d4a9)!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.2),
+  0 8px 20px rgba(13,70,51,.28)!important;
+}
+.brandBlock strong{
+ font-size:15px!important;
+ letter-spacing:-.015em;
+}
+.brandBlock small{
+ color:#7f8a84!important;
+ font-size:9px!important;
+ letter-spacing:.06em;
+}
+.headerActions{
+ gap:7px!important;
+}
+.headerActions button{
+ min-height:36px!important;
+ border-radius:10px!important;
+ padding:7px 10px!important;
+ font-size:11px!important;
+ background:#161b18!important;
+ border-color:rgba(255,255,255,.08)!important;
+}
+.accountHeaderRole{
+ padding:6px 9px;
+ border-radius:999px;
+ background:rgba(47,143,104,.11);
+ border:1px solid rgba(117,212,169,.14);
+ color:#c8f0dc!important;
+ font-size:10px!important;
+ font-weight:900!important;
+}
+
+/* Home is a real app home now; remove duplicate web-dashboard title chrome. */
+.app[data-tab="Home"] .workspaceGuide,
+.app[data-tab="Home"] .pageGuide{
+ display:none!important;
+}
+.app[data-tab="Home"] .activeAthleteBanner,
+.app[data-tab="Home"] .homeHero,
+.app[data-tab="Home"] .parentHomeHero,
+.app[data-tab="Home"] .adminHero{
+ display:none!important;
+}
+
+/* The premium athlete home */
+.premiumHomeOverview{
+ margin:6px 0 18px;
+}
+.premiumHomeHero{
+ position:relative;
+ isolation:isolate;
+ overflow:hidden;
+ display:grid;
+ grid-template-columns:minmax(0,1fr) auto;
+ align-items:center;
+ gap:18px;
+ min-height:188px;
+ padding:22px;
+ border-radius:26px;
+ border:1px solid rgba(117,212,169,.20);
+ background:
+  linear-gradient(135deg,rgba(47,143,104,.28),rgba(24,31,27,.96) 42%,rgba(13,17,14,.98) 100%);
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.055),
+  0 24px 60px rgba(0,0,0,.30);
+}
+.premiumHomeHero::before{
+ content:"";
+ position:absolute;
+ z-index:-1;
+ width:250px;
+ height:250px;
+ right:-80px;
+ top:-86px;
+ border-radius:50%;
+ border:1px solid rgba(117,212,169,.10);
+ box-shadow:
+  0 0 0 34px rgba(117,212,169,.025),
+  0 0 0 70px rgba(184,191,188,.018);
+}
+.premiumHomeHero::after{
+ content:"";
+ position:absolute;
+ z-index:-1;
+ left:0;
+ right:0;
+ bottom:0;
+ height:1px;
+ background:linear-gradient(90deg,transparent,rgba(117,212,169,.45),transparent);
+}
+.premiumHeroIdentity{
+ display:flex;
+ align-items:center;
+ gap:15px;
+ min-width:0;
+}
+.premiumAthleteAvatar{
+ flex:0 0 auto;
+ width:66px;
+ height:66px;
+ display:grid;
+ place-items:center;
+ border-radius:22px;
+ border:1px solid rgba(255,255,255,.13);
+ background:
+  linear-gradient(145deg,rgba(255,255,255,.10),rgba(255,255,255,.025)),
+  #1a211d;
+ color:#eefaf3;
+ font-size:27px;
+ font-weight:950;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.08),
+  0 10px 24px rgba(0,0,0,.22);
+}
+.premiumHeroIdentity small{
+ display:block;
+ color:var(--premium-mint);
+ font-size:10px;
+ font-weight:950;
+ letter-spacing:.105em;
+}
+.premiumHeroIdentity h1{
+ margin:4px 0 5px!important;
+ font-size:clamp(30px,5vw,44px)!important;
+ line-height:.98!important;
+ letter-spacing:-.045em!important;
+ color:var(--premium-white)!important;
+}
+.premiumHeroIdentity p{
+ max-width:580px;
+ margin:0!important;
+ color:#b4beb8!important;
+ font-size:13px!important;
+ line-height:1.45!important;
+}
+.premiumAthleteMeta{
+ display:flex;
+ align-items:center;
+ flex-wrap:wrap;
+ gap:6px;
+ margin-top:10px;
+}
+.premiumAthleteMeta span{
+ padding:5px 8px;
+ border-radius:999px;
+ border:1px solid rgba(255,255,255,.09);
+ background:rgba(0,0,0,.16);
+ color:#c9d2cd;
+ font-size:9px;
+ font-weight:850;
+}
+.premiumReadinessOrb{
+ position:relative;
+ width:116px;
+ height:116px;
+ flex:0 0 116px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ border-radius:50%;
+ border:1px solid rgba(184,191,188,.16);
+ background:
+  radial-gradient(circle at center,#1a211d 52%,transparent 54%),
+  conic-gradient(var(--premium-silver) 0 65%,rgba(255,255,255,.06) 65% 100%);
+ box-shadow:
+  inset 0 0 25px rgba(255,255,255,.025),
+  0 14px 30px rgba(0,0,0,.25);
+}
+.premiumReadinessOrb.good{
+ background:
+  radial-gradient(circle at center,#17211c 52%,transparent 54%),
+  conic-gradient(var(--premium-mint) 0 82%,rgba(255,255,255,.06) 82% 100%);
+}
+.premiumReadinessOrb.steady{
+ background:
+  radial-gradient(circle at center,#1a211d 52%,transparent 54%),
+  conic-gradient(#55a982 0 66%,rgba(255,255,255,.06) 66% 100%);
+}
+.premiumReadinessOrb.watch{
+ background:
+  radial-gradient(circle at center,#211d18 52%,transparent 54%),
+  conic-gradient(#c7aa70 0 44%,rgba(255,255,255,.06) 44% 100%);
+}
+.premiumReadinessOrb small{
+ font-size:8px!important;
+ letter-spacing:.09em;
+ font-weight:950;
+ color:#8f9b95;
+}
+.premiumReadinessOrb strong{
+ margin:3px 0 1px;
+ font-size:32px;
+ line-height:1;
+ letter-spacing:-.05em;
+ color:#f7fbf8;
+ font-variant-numeric:tabular-nums;
+}
+.premiumReadinessOrb span{
+ font-size:10px;
+ font-weight:900;
+ color:#b8c2bc;
+}
+
+/* Three scan-first metrics */
+.premiumMetricStrip{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:9px;
+ margin:10px 0 16px;
+}
+.premiumMetricStrip button{
+ min-width:0;
+ min-height:102px!important;
+ padding:13px 14px!important;
+ text-align:left;
+ border-radius:18px!important;
+ border:1px solid var(--premium-border-soft)!important;
+ background:
+  linear-gradient(180deg,#1a201d,#121713)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+.premiumMetricStrip button:hover,
+.premiumMetricStrip button:focus-visible{
+ border-color:rgba(117,212,169,.22)!important;
+ transform:translateY(-1px);
+}
+.premiumMetricStrip small,
+.premiumMetricStrip strong,
+.premiumMetricStrip span{
+ display:block;
+}
+.premiumMetricStrip small{
+ color:#839089;
+ font-size:9px!important;
+ font-weight:950;
+ letter-spacing:.09em;
+}
+.premiumMetricStrip strong{
+ overflow:hidden;
+ margin-top:7px;
+ color:#f3f7f5;
+ font-size:20px!important;
+ line-height:1;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+.premiumMetricStrip span{
+ overflow:hidden;
+ margin-top:6px;
+ color:#9ca7a1;
+ font-size:10px;
+ line-height:1.3;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+
+/* Quick start = mobile app launchers */
+.premiumQuickSection{
+ padding:3px 0 2px;
+}
+.premiumSectionTitle{
+ display:flex;
+ align-items:end;
+ justify-content:space-between;
+ gap:12px;
+ margin-bottom:9px;
+ padding:0 2px;
+}
+.premiumSectionTitle small{
+ display:block;
+ color:#7e8a83;
+ font-size:9px;
+ font-weight:950;
+ letter-spacing:.10em;
+}
+.premiumSectionTitle h2{
+ margin:3px 0 0!important;
+ color:#eff4f1;
+ font-size:18px!important;
+ letter-spacing:-.02em;
+}
+.premiumSectionTitle>span{
+ color:#77827c;
+ font-size:9px;
+}
+.premiumQuickGrid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:9px;
+}
+.premiumQuickGrid>button{
+ display:grid;
+ grid-template-columns:44px minmax(0,1fr) auto;
+ align-items:center;
+ gap:10px;
+ min-height:76px!important;
+ padding:11px 12px!important;
+ text-align:left;
+ border-radius:18px!important;
+ border:1px solid rgba(255,255,255,.075)!important;
+ background:
+  linear-gradient(180deg,var(--premium-surface-2),var(--premium-surface))!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.025),
+  0 8px 18px rgba(0,0,0,.12)!important;
+}
+.premiumQuickGrid>button:active{
+ transform:scale(.985);
+}
+.premiumQuickIcon{
+ width:42px;
+ height:42px;
+ display:grid;
+ place-items:center;
+ border-radius:14px;
+ background:rgba(47,143,104,.14);
+ border:1px solid rgba(117,212,169,.13);
+ color:#9ee1bf;
+ font-size:20px;
+}
+.premiumQuickGrid>button div{
+ min-width:0;
+}
+.premiumQuickGrid>button b,
+.premiumQuickGrid>button small{
+ display:block;
+}
+.premiumQuickGrid>button b{
+ color:#eff4f1;
+ font-size:14px!important;
+ line-height:1.1;
+}
+.premiumQuickGrid>button small{
+ overflow:hidden;
+ margin-top:4px;
+ color:#8e9993;
+ font-size:10px!important;
+ line-height:1.3;
+ text-overflow:ellipsis;
+ white-space:nowrap;
+}
+.premiumQuickGrid>button>strong{
+ color:#6fc69e;
+ font-size:24px;
+ font-weight:500;
+}
+
+/* Home's older content becomes supporting content instead of competing hero content. */
+.app[data-tab="Home"] .parentSectionNav{
+ margin-top:18px;
+}
+.app[data-tab="Home"] .parentStartCard{
+ display:none!important;
+}
+.app[data-tab="Home"] .sharedDevelopmentFocusCard{
+ margin-top:18px!important;
+}
+.app[data-tab="Home"] .sharedDevelopmentFocusCard .sectionHead p,
+.app[data-tab="Home"] .adminFullAccessBanner p{
+ display:-webkit-box;
+ overflow:hidden;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:2;
+}
+.app[data-tab="Home"] .adminFullAccessBanner{
+ margin-top:16px;
+ border-radius:18px!important;
+ background:#151b17!important;
+ border-color:rgba(255,255,255,.08)!important;
+}
+.app[data-tab="Home"] .adminAccessGrid{
+ margin-top:10px;
+}
+
+/* Commercial card treatment across app */
+.card,.simpleDisclosure,.advancedTools{
+ border-radius:20px!important;
+}
+.card{
+ border-color:rgba(255,255,255,.075)!important;
+ background:
+  linear-gradient(180deg,rgba(29,36,32,.98),rgba(19,24,21,.99))!important;
+}
+.card:hover{
+ border-color:rgba(255,255,255,.10)!important;
+}
+.card .sectionHead p{
+ display:-webkit-box;
+ overflow:hidden;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:2;
+}
+.card>.sectionHead:first-child{
+ padding-bottom:4px;
+}
+.card>.sectionHead:first-child h2{
+ font-size:20px!important;
+}
+.card>.sectionHead:first-child small{
+ color:#8b978f!important;
+}
+.card button{
+ border-radius:12px!important;
+}
+.primary,.featureAction,.sel{
+ border-radius:13px!important;
+ background:
+  linear-gradient(180deg,#369a70,#176b4a)!important;
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.15),
+  0 8px 18px rgba(13,70,51,.22)!important;
+}
+.primary:active,.featureAction:active,.sel:active{
+ transform:translateY(1px) scale(.99);
+}
+
+/* Floating app-store-style bottom dock */
+.simpleBottomNav{
+ left:50%!important;
+ right:auto!important;
+ bottom:max(8px,env(safe-area-inset-bottom))!important;
+ width:min(calc(100% - 18px),680px)!important;
+ transform:translateX(-50%);
+ padding:7px 8px!important;
+ border:1px solid rgba(255,255,255,.09)!important;
+ border-radius:22px!important;
+ background:rgba(17,22,19,.94)!important;
+ backdrop-filter:blur(20px) saturate(125%);
+ box-shadow:
+  inset 0 1px 0 rgba(255,255,255,.04),
+  0 18px 45px rgba(0,0,0,.38)!important;
+}
+.simpleBottomNav button{
+ min-height:56px!important;
+ border-radius:16px!important;
+}
+.simpleBottomNav button.active{
+ background:rgba(47,143,104,.17)!important;
+}
+.simpleBottomNav button.active:after{
+ bottom:5px!important;
+}
+.app main{
+ padding-bottom:96px!important;
+}
+
+/* App-style navigation sheets become bottom sheets */
+.simpleNavOverlay{
+ align-items:end!important;
+ background:rgba(4,6,5,.64)!important;
+ backdrop-filter:blur(8px);
+}
+.simpleNavSheet{
+ width:min(100%,680px)!important;
+ max-height:min(78vh,760px);
+ overflow:auto;
+ border-radius:26px 26px 0 0!important;
+ border:1px solid rgba(255,255,255,.10)!important;
+ border-bottom:0!important;
+ background:
+  linear-gradient(180deg,#202722,#111612)!important;
+ box-shadow:0 -20px 55px rgba(0,0,0,.40)!important;
+}
+.simpleNavSheet::before{
+ content:"";
+ display:block;
+ width:42px;
+ height:4px;
+ margin:1px auto 12px;
+ border-radius:999px;
+ background:rgba(255,255,255,.20);
+}
+.simpleNavChoices button{
+ border-radius:16px!important;
+}
+.allFeaturesButton{
+ border-radius:14px!important;
+}
+
+/* Better empty-state feel */
+.parentEmptyState,.emptyState,.juniorFeatureEmpty{
+ border:1px dashed rgba(184,191,188,.16)!important;
+ border-radius:16px!important;
+ background:rgba(255,255,255,.018)!important;
+ padding:18px!important;
+}
+.parentEmptyState b,.emptyState b{
+ font-size:15px!important;
+ color:#eef4f0!important;
+}
+.parentEmptyState span,.emptyState span{
+ margin-top:4px;
+ color:#8f9a94!important;
+}
+
+/* Small motion, not flashy */
+@media(prefers-reduced-motion:no-preference){
+ .premiumHomeHero{
+  animation:premiumHomeEnter .34s ease-out both;
+ }
+ .premiumMetricStrip button,
+ .premiumQuickGrid>button,
+ .card,
+ .simpleNavChoices button{
+  transition:
+   transform .16s ease,
+   border-color .16s ease,
+   background .16s ease,
+   opacity .16s ease;
+ }
+ @keyframes premiumHomeEnter{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+ }
+}
+
+/* Role identity is subtle, not a completely different theme */
+.app[data-role="Coach"] .premiumHomeHero{
+ background:linear-gradient(135deg,rgba(184,191,188,.14),rgba(27,33,30,.97) 43%,#0f1311 100%);
+ border-color:rgba(184,191,188,.17);
+}
+.app[data-role="Parent"] .premiumHomeHero{
+ background:linear-gradient(135deg,rgba(47,143,104,.20),rgba(28,35,31,.97) 48%,#101411 100%);
+}
+.app[data-role="Admin"] .premiumHomeHero{
+ background:linear-gradient(135deg,rgba(117,212,169,.15),rgba(25,32,28,.97) 40%,#0d110e 100%);
+}
+
+/* Junior: big, simple, friendly */
+.premiumJuniorHome .premiumHomeHero{
+ min-height:170px;
+}
+.premiumJuniorHome .premiumHeroIdentity h1{
+ font-size:clamp(32px,9vw,45px)!important;
+}
+.premiumJuniorHome .premiumHeroIdentity p{
+ font-size:14px!important;
+}
+.premiumJuniorHome .premiumQuickGrid>button{
+ min-height:82px!important;
+}
+.premiumJuniorHome .premiumQuickGrid>button b{
+ font-size:16px!important;
+}
+.premiumJuniorHome .premiumQuickGrid>button small{
+ font-size:11px!important;
+}
+
+/* Mobile-first treatment */
+@media(max-width:720px){
+ .appHeader{
+  min-height:56px;
+  padding:8px 10px!important;
+ }
+ .brandBlock .logo{
+  width:36px!important;
+  height:36px!important;
+  border-radius:12px!important;
+ }
+ .brandBlock strong{
+  font-size:13px!important;
+ }
+ .headerActions{
+  flex-direction:row!important;
+  align-items:center!important;
+ }
+ .headerActions .settingsButton,
+ .headerActions .helpButton{
+  width:36px!important;
+  min-width:36px!important;
+  overflow:hidden;
+  color:transparent!important;
+  padding:0!important;
+ }
+ .headerActions .settingsButton::after{
+  content:"⚙";
+  color:#c4cdc8;
+  font-size:15px;
+ }
+ .headerActions .helpButton::after{
+  content:"?";
+  display:grid;
+  place-items:center;
+  color:#c4cdc8;
+  font-size:14px;
+  font-weight:900;
+ }
+ .premiumHomeOverview{
+  margin-top:3px;
+ }
+ .premiumHomeHero{
+  min-height:0;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  padding:17px 15px;
+  border-radius:22px;
+ }
+ .premiumHeroIdentity{
+  gap:10px;
+ }
+ .premiumAthleteAvatar{
+  width:52px;
+  height:52px;
+  border-radius:17px;
+  font-size:22px;
+ }
+ .premiumHeroIdentity h1{
+  font-size:29px!important;
+ }
+ .premiumHeroIdentity p{
+  max-width:36ch;
+  font-size:11px!important;
+ }
+ .premiumAthleteMeta{
+  margin-top:8px;
+ }
+ .premiumAthleteMeta span{
+  padding:4px 6px;
+  font-size:8px;
+ }
+ .premiumReadinessOrb{
+  width:88px;
+  height:88px;
+  flex-basis:88px;
+ }
+ .premiumReadinessOrb strong{
+  font-size:25px;
+ }
+ .premiumReadinessOrb small{
+  font-size:7px!important;
+ }
+ .premiumMetricStrip{
+  gap:7px;
+ }
+ .premiumMetricStrip button{
+  min-height:88px!important;
+  padding:11px 10px!important;
+  border-radius:15px!important;
+ }
+ .premiumMetricStrip strong{
+  font-size:17px!important;
+ }
+ .premiumMetricStrip span{
+  font-size:9px;
+ }
+ .premiumQuickGrid{
+  grid-template-columns:1fr;
+  gap:7px;
+ }
+ .premiumQuickGrid>button{
+  min-height:70px!important;
+  border-radius:16px!important;
+ }
+ .premiumSectionTitle h2{
+  font-size:17px!important;
+ }
+ .simpleBottomNav{
+  width:calc(100% - 12px)!important;
+  bottom:max(5px,env(safe-area-inset-bottom))!important;
+  border-radius:20px!important;
+  padding:6px!important;
+ }
+ .simpleBottomNav button{
+  min-height:54px!important;
+  padding-left:4px!important;
+  padding-right:4px!important;
+ }
+ .simpleBottomNav button span{
+  font-size:18px!important;
+ }
+ .simpleBottomNav button b{
+  font-size:9px!important;
+ }
+ .simpleNavSheet{
+  width:100%!important;
+  padding-bottom:max(14px,env(safe-area-inset-bottom))!important;
+ }
+ .card{
+  border-radius:18px!important;
+ }
+}
+
+@media(max-width:430px){
+ .premiumHomeHero{
+  grid-template-columns:1fr;
+ }
+ .premiumReadinessOrb{
+  position:absolute;
+  top:14px;
+  right:14px;
+  width:72px;
+  height:72px;
+  flex-basis:72px;
+ }
+ .premiumReadinessOrb strong{
+  font-size:21px;
+ }
+ .premiumReadinessOrb span{
+  font-size:8px;
+ }
+ .premiumHeroIdentity{
+  padding-right:72px;
+ }
+ .premiumAthleteAvatar{
+  display:none;
+ }
+ .premiumHeroIdentity h1{
+  font-size:30px!important;
+ }
+ .premiumMetricStrip{
+  grid-template-columns:1fr 1fr 1fr;
+ }
+ .premiumMetricStrip button{
+  min-width:0;
+ }
+ .premiumMetricStrip strong{
+  font-size:15px!important;
+ }
+ .premiumMetricStrip span{
+  font-size:8px;
+ }
+}
+
+
+/* =========================================================
+   Phase 72.3.66 — Commercial Hockey UI / Player Photos RC16
+   Built directly on completed 72.3.64 RC15.
+   ========================================================= */
+:root{
+ --commercial-green:#22ed83;--commercial-green-2:#08b965;--commercial-blue:#32a8ff;
+ --commercial-violet:#a94eff;--commercial-amber:#ff9e2f;--commercial-mint:#55efc4;
+ --commercial-cyan:#36d7e8;--commercial-red:#ff596f;--commercial-navy:#081720;
+}
+body{background:#04100e!important}
+.app{background:radial-gradient(circle at 12% 0%,rgba(34,237,131,.16),transparent 28%),radial-gradient(circle at 92% 4%,rgba(50,168,255,.13),transparent 25%),linear-gradient(180deg,#071714 0,#06100f 46%,#040b0a 100%)!important}
+.appHeader{background:rgba(4,15,13,.91)!important;border-bottom-color:rgba(80,238,171,.13)!important}
+.brandBlock .hockeyDevLogo,.roleLoginBrand .hockeyDevLogo{background:linear-gradient(145deg,#28f398,#0aa85e)!important;color:#042117!important;font-weight:1000!important;letter-spacing:-.06em!important}
+.brandBlock strong em{font-style:normal;color:var(--commercial-green);font-weight:1000}
+.brandBlock strong{font-size:16px!important;letter-spacing:.02em!important}.brandBlock small{color:#a5bdb4!important;letter-spacing:.1em!important}
+.contextBar.cleanContext{background:linear-gradient(180deg,rgba(12,31,27,.96),rgba(7,21,18,.96))!important;border-color:rgba(255,255,255,.07)!important}
+
+/* Real hockey/rink hero, while keeping all role/state logic intact. */
+.premiumHomeHero{min-height:260px!important;align-items:end!important;padding:24px!important;border-color:rgba(52,239,144,.24)!important;background:linear-gradient(90deg,rgba(4,18,14,.96) 0%,rgba(4,18,14,.79) 40%,rgba(4,18,14,.18) 70%),var(--sport-hero-image) right center/contain no-repeat!important;box-shadow:0 24px 70px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.08)!important}
+.premiumHomeHero:before{display:none!important}.premiumHomeHero:after{height:4px!important;background:linear-gradient(90deg,var(--commercial-green),var(--commercial-blue),var(--commercial-violet),var(--commercial-amber))!important;opacity:.9}
+.premiumHeroIdentity{align-items:end!important;text-shadow:0 2px 18px rgba(0,0,0,.8)}
+.premiumHeroIdentity h1{font-size:clamp(34px,6vw,52px)!important}.premiumHeroIdentity p{color:#e2f3ec!important;font-size:14px!important}.premiumHeroIdentity small{color:#7dffb7!important}
+.premiumAthleteAvatar.commercialPlayerAvatar{width:72px!important;height:72px!important;border-radius:50%!important;border:3px solid var(--commercial-green)!important;background:#0c2c22!important;box-shadow:0 0 0 4px rgba(2,14,11,.6),0 12px 28px rgba(0,0,0,.34)!important}
+.premiumReadinessOrb{width:124px!important;height:124px!important;flex-basis:124px!important;border:2px solid rgba(255,255,255,.12)!important;background:radial-gradient(circle at center,#081a16 52%,transparent 54%),conic-gradient(var(--commercial-green) 0 82%,rgba(255,255,255,.09) 82% 100%)!important;box-shadow:0 0 28px rgba(34,237,131,.18),0 18px 35px rgba(0,0,0,.36)!important}
+.premiumReadinessOrb strong{font-size:38px!important}.premiumReadinessOrb small,.premiumReadinessOrb span{color:#ecfff5!important}
+
+.premiumMetricStrip{gap:10px!important}.premiumMetricStrip button{min-height:110px!important;border-width:1px!important;background:linear-gradient(145deg,#0b3326,#0a201b)!important}.premiumMetricStrip button:nth-child(1){border-color:rgba(34,237,131,.6)!important;box-shadow:inset 0 0 30px rgba(34,237,131,.08)!important}.premiumMetricStrip button:nth-child(2){background:linear-gradient(145deg,#0b3a61,#0a2135)!important;border-color:rgba(50,168,255,.68)!important}.premiumMetricStrip button:nth-child(3){background:linear-gradient(145deg,#472176,#24133d)!important;border-color:rgba(169,78,255,.7)!important}.premiumMetricStrip strong{font-size:24px!important}.premiumMetricStrip small{color:#dff5eb!important}
+.commercialStartToday{display:flex!important;align-items:center;justify-content:center;gap:12px;width:100%;min-height:54px!important;margin:-2px 0 18px!important;border:1px solid #62ffae!important;border-radius:18px!important;background:linear-gradient(180deg,#36f18d,#0db964)!important;color:#042317!important;font-size:16px!important;font-weight:1000!important;box-shadow:0 12px 28px rgba(19,209,115,.25),inset 0 1px 0 rgba(255,255,255,.4)!important}.commercialStartToday strong{font-size:23px}
+
+.premiumQuickGrid{gap:11px!important}.premiumQuickGrid>button{min-height:112px!important;display:flex!important;align-items:center!important;gap:12px!important;border-radius:20px!important}.premiumQuickGrid>button:nth-child(4n+1){background:linear-gradient(145deg,#075e35,#0a2b22)!important;border-color:rgba(45,244,137,.5)!important}.premiumQuickGrid>button:nth-child(4n+2){background:linear-gradient(145deg,#0b5793,#0c2c49)!important;border-color:rgba(50,168,255,.55)!important}.premiumQuickGrid>button:nth-child(4n+3){background:linear-gradient(145deg,#5f2199,#301252)!important;border-color:rgba(177,75,255,.55)!important}.premiumQuickGrid>button:nth-child(4n+4){background:linear-gradient(145deg,#925011,#4b280d)!important;border-color:rgba(255,158,47,.62)!important}.premiumQuickIcon{width:48px!important;height:48px!important;flex:0 0 48px;border-radius:15px!important;background:rgba(255,255,255,.08)!important;color:#fff!important;font-size:25px!important}.premiumQuickGrid>button b{font-size:16px!important}.premiumQuickGrid>button small{color:#d9e6e1!important;white-space:normal!important}.premiumQuickGrid>button>strong{margin-left:auto;color:#fff!important}
+
+/* Player photo system: same profile data is already cloud-synced by RC15. */
+.commercialPlayerAvatar{position:relative;width:var(--avatar-size,58px);height:var(--avatar-size,58px);flex:0 0 var(--avatar-size,58px);display:grid;place-items:center;overflow:hidden;border-radius:50%;background:linear-gradient(145deg,#174c37,#153044);border:2px solid var(--commercial-green);color:#f5fff9;font-size:calc(var(--avatar-size,58px)*.34);font-weight:950;box-shadow:0 7px 20px rgba(0,0,0,.28)}
+.commercialPlayerAvatar img{width:100%;height:100%;display:block;object-fit:cover}.commercialPlayerAvatar.fallback i{position:absolute;right:3px;bottom:2px;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#06130f;font-size:11px;font-style:normal}.commercialPlayerAvatar.fallback span{letter-spacing:-.04em}
+.commercialProfilePhotoPanel{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;margin:14px 0 18px;padding:18px;border-radius:22px;background:radial-gradient(circle at 12% 20%,rgba(34,237,131,.13),transparent 34%),linear-gradient(145deg,#0e2923,#0a1c19);border:1px solid rgba(83,239,169,.18)}
+.commercialProfilePhotoButton{position:relative!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}.commercialCameraBadge{position:absolute;right:-2px;bottom:3px;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:var(--commercial-green);border:3px solid #092019;font-size:15px}.commercialProfilePhotoPanel>div>b,.commercialProfilePhotoPanel>div>small{display:block}.commercialProfilePhotoPanel>div>b{font-size:17px}.commercialProfilePhotoPanel>div>small{margin-top:5px;color:#9eb7ad}.commercialPhotoAction{min-height:44px!important;padding:0 16px!important;border-radius:14px!important;background:linear-gradient(180deg,#31ee8a,#0db763)!important;color:#032116!important;border:1px solid #66ffb1!important;font-weight:950!important}.commercialPhotoInput{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}.commercialPhotoMessage{grid-column:2/4;color:#74eeb1;font-size:11px;font-weight:800}
+.rosterAvatar.commercialPlayerAvatar{border-radius:50%!important;width:48px!important;height:48px!important;display:grid!important;padding:0!important}
+
+/* Richer commercial cards, charts, menu and backgrounds. */
+.card,.simpleDisclosure,.advancedTools{background:linear-gradient(160deg,rgba(15,39,33,.98),rgba(7,24,21,.98))!important;border-color:rgba(160,239,206,.10)!important;box-shadow:0 14px 36px rgba(0,0,0,.2)!important}.card:nth-of-type(4n+2){border-top-color:rgba(50,168,255,.22)!important}.card:nth-of-type(4n+3){border-top-color:rgba(169,78,255,.22)!important}.card:nth-of-type(4n+4){border-top-color:rgba(255,158,47,.22)!important}
+.stat,.commandCard,.signalCard{background:linear-gradient(145deg,#102a24,#0a1e1a)!important;border-color:rgba(255,255,255,.08)!important}.progress{background:#081512!important}.progress i{background:linear-gradient(90deg,var(--commercial-green),var(--commercial-blue),var(--commercial-violet))!important;box-shadow:0 0 15px rgba(52,222,160,.25)}
+.simpleNavSheet{background:radial-gradient(circle at 10% 0%,rgba(34,237,131,.13),transparent 28%),linear-gradient(180deg,#102b25,#071713)!important}.simpleNavChoices button{border:1px solid rgba(255,255,255,.08)!important;background:linear-gradient(145deg,#112f28,#0a1f1b)!important}.simpleNavChoices button:nth-child(4n+1)>span{color:var(--commercial-green)!important}.simpleNavChoices button:nth-child(4n+2)>span{color:var(--commercial-blue)!important}.simpleNavChoices button:nth-child(4n+3)>span{color:var(--commercial-violet)!important}.simpleNavChoices button:nth-child(4n+4)>span{color:var(--commercial-amber)!important}.simpleNavChoices button>span{font-size:25px!important}
+.simpleBottomNav{background:rgba(6,20,17,.96)!important;border-color:rgba(88,243,176,.15)!important}.simpleBottomNav button.active{background:linear-gradient(180deg,rgba(34,237,131,.17),rgba(34,237,131,.06))!important;color:#4dff9f!important}.simpleBottomNav button.active span{color:#4dff9f!important}
+
+/* Parent My Players gets real photos from each existing RC15 workspace state. */
+.familyPlayerIdentity{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;align-items:center!important;gap:12px!important}.familyPlayerNameBlock{min-width:0}.familyPlayerNameBlock>b,.familyPlayerNameBlock>small{display:block}.betaPlayerAvatar{position:relative;width:58px;height:58px;display:grid;place-items:center;overflow:hidden;border-radius:50%;border:2px solid var(--commercial-green);background:linear-gradient(145deg,#174c37,#153044);box-shadow:0 7px 20px rgba(0,0,0,.28);font-weight:950}.betaPlayerAvatar img{width:100%;height:100%;object-fit:cover}.betaPlayerAvatar.fallback i{position:absolute;right:1px;bottom:1px;font-size:10px;font-style:normal;background:#071713;border-radius:50%;padding:4px}
+.parentPlayerList article{background:linear-gradient(145deg,#102d26,#091e1a)!important;border-color:rgba(77,241,169,.14)!important;border-radius:20px!important}
+
+/* Ice Hockey accent: rink line across content and unmistakable sport identity. */
+.app[data-sport="Ice Hockey"] main:before{content:"";position:fixed;pointer-events:none;inset:62px 0 90px;z-index:-1;background:linear-gradient(90deg,transparent 49.8%,rgba(230,70,91,.045) 49.8% 50.2%,transparent 50.2%),radial-gradient(circle at 50% 48%,transparent 0 82px,rgba(54,137,229,.04) 83px 86px,transparent 87px)}
+
+@media(max-width:720px){
+ .app[data-tab="Home"] .lockedProfileSport{display:none!important}.app[data-tab="Home"] main{padding-top:8px!important}
+ .premiumHomeHero{min-height:330px!important;display:flex!important;align-items:flex-end!important;padding:18px!important;background:linear-gradient(180deg,rgba(4,18,14,.04) 12%,rgba(4,18,14,.2) 40%,rgba(4,18,14,.94) 78%),var(--sport-hero-image) right center/contain no-repeat!important}.premiumHeroIdentity{align-items:flex-end!important}.premiumHeroIdentity>div:last-child{min-width:0}.premiumHeroIdentity p{font-size:12px!important}.premiumReadinessOrb{position:absolute!important;right:15px;bottom:18px;width:96px!important;height:96px!important;flex-basis:96px!important}.premiumHeroIdentity{padding-right:94px}.premiumAthleteAvatar.commercialPlayerAvatar{width:58px!important;height:58px!important;flex-basis:58px!important}.premiumMetricStrip button{min-height:96px!important}.premiumMetricStrip strong{font-size:20px!important}.premiumQuickGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.premiumQuickGrid>button{min-height:142px!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:flex-end!important}.premiumQuickGrid>button>strong{position:absolute;right:12px;top:12px}.premiumQuickGrid>button{position:relative}.premiumQuickIcon{width:52px!important;height:52px!important;font-size:27px!important}.premiumQuickGrid>button small{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden!important}
+ .commercialProfilePhotoPanel{grid-template-columns:1fr!important;justify-items:center;text-align:center;padding:20px 14px}.commercialProfilePhotoPanel>div{max-width:300px}.commercialPhotoAction{width:min(100%,280px)}.commercialPhotoMessage{grid-column:auto}
+ .brandBlock small{display:none!important}.brandBlock strong{font-size:14px!important}
+}
+
+
+/* =========================================================
+   Phase 72.3.67 — Sport-aware header art RC17
+   Simple, readable equipment graphics replace the detailed hero.
+   ========================================================= */
+.premiumHomeHero{
+ --sport-hero-image:url('/sport-heroes/ice-hockey.svg');
+ background-color:#071713!important;
+ background-image:linear-gradient(90deg,rgba(4,18,14,.98) 0%,rgba(4,18,14,.92) 38%,rgba(4,18,14,.54) 58%,rgba(4,18,14,.10) 100%),var(--sport-hero-image)!important;
+ background-position:center,right center!important;
+ background-size:cover,min(62%,620px) auto!important;
+ background-repeat:no-repeat!important;
+}
+.premiumHomeHero .premiumHeroIdentity{max-width:min(62%,680px)}
+.app[data-sport="Baseball"] .premiumHomeHero{border-color:rgba(255,199,111,.28)!important}
+.app[data-sport="Football"] .premiumHomeHero{border-color:rgba(255,165,94,.28)!important}
+.app[data-sport="Basketball"] .premiumHomeHero{border-color:rgba(255,158,47,.30)!important}
+.app[data-sport="Lacrosse"] .premiumHomeHero{border-color:rgba(54,215,232,.28)!important}
+.app[data-sport="Wrestling"] .premiumHomeHero{border-color:rgba(169,78,255,.30)!important}
+.app[data-sport="Soccer"] .premiumHomeHero{border-color:rgba(85,239,196,.30)!important}
+.app[data-sport="Figure Skating"] .premiumHomeHero{border-color:rgba(102,221,255,.32)!important}
+@media(max-width:720px){
+ .premiumHomeHero{
+  min-height:255px!important;
+  background-image:linear-gradient(180deg,rgba(4,18,14,.18) 0%,rgba(4,18,14,.38) 44%,rgba(4,18,14,.97) 78%),var(--sport-hero-image)!important;
+  background-position:center,center 18%!important;
+  background-size:cover,94% auto!important;
+ }
+ .premiumHomeHero .premiumHeroIdentity{max-width:100%;padding-top:90px}
+}
+
+
+/* Phase 72.3.68 RC18 — realistic non-junior hockey hero treatment.
+   Junior Player intentionally keeps the simpler sport art from RC17. */
+.premiumHomeHero.premiumRealisticSportHero{
+ min-height:300px!important;
+ background-color:#061410!important;
+ background-image:
+  linear-gradient(90deg,rgba(3,15,12,.99) 0%,rgba(3,15,12,.94) 35%,rgba(3,15,12,.62) 55%,rgba(3,15,12,.16) 78%,rgba(3,15,12,.05) 100%),
+  radial-gradient(circle at 78% 18%,rgba(58,169,255,.18),transparent 34%),
+  var(--sport-hero-image)!important;
+ background-repeat:no-repeat,no-repeat,no-repeat!important;
+ background-size:cover,cover,auto 132%!important;
+ background-position:center,center,right 38% center!important;
+ overflow:hidden!important;
+}
+.premiumHomeHero.premiumRealisticSportHero::before{
+ display:block!important;content:""!important;position:absolute!important;inset:0!important;
+ background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 22%,rgba(0,0,0,.18) 100%)!important;
+ pointer-events:none!important;z-index:0!important;
+}
+.premiumHomeHero.premiumRealisticSportHero>.premiumHeroIdentity,
+.premiumHomeHero.premiumRealisticSportHero>.premiumReadinessOrb{position:relative!important;z-index:1!important}
+.app[data-role="Coach"] .premiumHomeHero.premiumRealisticSportHero{
+ background-image:linear-gradient(90deg,rgba(3,15,12,.99) 0%,rgba(3,15,12,.92) 38%,rgba(3,15,12,.44) 66%,rgba(3,15,12,.10) 100%),radial-gradient(circle at 80% 20%,rgba(56,169,255,.17),transparent 35%),var(--sport-hero-image)!important;
+ background-size:cover,cover,auto 125%!important;
+ background-position:center,center,right 44% center!important;
+}
+.premiumJuniorHome .premiumHomeHero{
+ /* Keep the junior treatment friendly and graphic-based, per RC18 direction. */
+ background-size:cover,contain!important;
+}
+@media(max-width:760px){
+ .premiumHomeHero.premiumRealisticSportHero{
+  min-height:345px!important;
+  background-image:linear-gradient(180deg,rgba(3,15,12,.08) 0%,rgba(3,15,12,.26) 38%,rgba(3,15,12,.93) 72%,rgba(3,15,12,.99) 100%),var(--sport-hero-image)!important;
+  background-size:cover,auto 82%!important;
+  background-position:center,right 4% top!important;
+ }
+ .app[data-role="Coach"] .premiumHomeHero.premiumRealisticSportHero{
+  background-image:linear-gradient(180deg,rgba(3,15,12,.08) 0%,rgba(3,15,12,.30) 36%,rgba(3,15,12,.94) 72%,rgba(3,15,12,.99) 100%),var(--sport-hero-image)!important;
+  background-size:cover,auto 80%!important;
+  background-position:center,right top!important;
+ }
+}
+
+
+/* =========================================================
+   Phase 72.3.69 RC19 — realistic non-Junior imagery for ALL sports.
+   Junior mode continues to use the simpler sport graphics.
+   ========================================================= */
+.premiumHomeHero.premiumRealisticSportHero{
+ background-size:cover,cover,cover!important;
+ background-position:center,center,center!important;
+}
+.app[data-sport="Baseball"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(255,199,111,.24)}
+.app[data-sport="Football"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(255,165,94,.24)}
+.app[data-sport="Ice Hockey"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(56,169,255,.20)}
+.app[data-sport="Basketball"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(255,158,47,.25)}
+.app[data-sport="Lacrosse"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(54,215,232,.22)}
+.app[data-sport="Wrestling"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(169,78,255,.24)}
+.app[data-sport="Soccer"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(85,239,196,.22)}
+.app[data-sport="Figure Skating"] .premiumHomeHero.premiumRealisticSportHero{--realistic-sport-accent:rgba(102,221,255,.24)}
+.premiumHomeHero.premiumRealisticSportHero{
+ border-color:color-mix(in srgb,var(--realistic-sport-accent,rgba(34,237,131,.22)) 72%,rgba(255,255,255,.08))!important;
+}
+@media(max-width:760px){
+ .premiumHomeHero.premiumRealisticSportHero,
+ .app[data-role="Coach"] .premiumHomeHero.premiumRealisticSportHero{
+  min-height:345px!important;
+  background-image:linear-gradient(180deg,rgba(3,15,12,.03) 0%,rgba(3,15,12,.18) 36%,rgba(3,15,12,.88) 69%,rgba(3,15,12,.99) 100%),var(--sport-hero-image)!important;
+  background-size:cover,cover!important;
+  background-position:center,center!important;
+ }
+}

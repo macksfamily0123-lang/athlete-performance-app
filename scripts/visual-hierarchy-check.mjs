@@ -6,7 +6,7 @@ const css=fs.readFileSync("app/globals.css","utf8");
 const migration=fs.readFileSync("supabase/migrations/009_player_more_cloud_test_athletes.sql","utf8");
 
 const checks=[
- ["RC14 ribbon", beta.includes("BETA · RC14 · v72.3.63")],
+ ["RC19 ribbon", beta.includes("BETA · RC19 · v72.3.69")],
  ["Page guide title scale increased", css.includes(".pageGuide small{")&&css.includes("font-size:clamp(23px,3vw,30px)!important")],
  ["Page guide purpose remains readable", css.includes(".pageGuide b{")&&css.includes("font-size:13px!important")],
  ["Page guide action is compact pill", css.includes(".pageGuide>span{")&&css.includes("border-radius:999px")],

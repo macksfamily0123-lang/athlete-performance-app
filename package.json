@@ -1,6 +1,6 @@
 {
   "name": "athlete-performance-app",
-  "version": "72.3.63",
+  "version": "72.3.69",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,7 @@
     "start": "next start",
     "test:roles": "node scripts/role-permission-audit.mjs",
     "test:regression": "node scripts/regression-check.mjs",
-    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy",
+    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui",
     "test:typecheck": "tsc --noEmit",
     "release:check": "npm test && npm run build",
     "test:reliability": "node scripts/reliability-check.mjs",
@@ -22,7 +22,12 @@
     "test:connections": "node scripts/connection-setup-check.mjs",
     "test:beta-readiness": "node scripts/beta-release-readiness-check.mjs",
     "test:player-more-cloud": "node scripts/player-more-cloud-check.mjs",
-    "test:visual-hierarchy": "node scripts/visual-hierarchy-check.mjs"
+    "test:visual-hierarchy": "node scripts/visual-hierarchy-check.mjs",
+    "test:premium-ui": "node scripts/premium-ui-check.mjs",
+    "test:commercial-ui": "node scripts/commercial-hockey-ui-check.mjs",
+    "test:sport-header": "node scripts/sport-header-check.mjs",
+    "test:realistic-hero": "node scripts/realistic-hero-check.mjs",
+    "test:realistic-all-sports": "node scripts/realistic-all-sports-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",

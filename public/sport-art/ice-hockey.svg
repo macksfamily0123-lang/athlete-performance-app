@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700">
+<defs><linearGradient id="bg" x1="0" x2="1"><stop stop-color="#07100d"/><stop offset=".55" stop-color="#0d3527"/><stop offset="1" stop-color="#082438"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="22"/></filter></defs>
+<rect width="1200" height="700" fill="url(#bg)"/><ellipse cx="970" cy="130" rx="250" ry="170" fill="#46dda1" opacity=".16" filter="url(#glow)"/>
+<g fill="none" stroke="#d6fff3" opacity=".13" stroke-width="4"><rect x="45" y="135" width="1110" height="455" rx="110"/><path d="M600 135v455"/><circle cx="600" cy="362" r="82"/><circle cx="215" cy="362" r="58"/><circle cx="985" cy="362" r="58"/></g>
+<g transform="translate(725 76)" opacity=".43">
+ <circle cx="103" cy="89" r="56" fill="#eafff7"/><path d="M66 61q38-35 86-4l15 43-30 23-78-10-20-25z" fill="#eafff7"/>
+ <g stroke="#082319" stroke-width="7" opacity=".65"><path d="M69 74h79M74 92h70M82 109h53"/><path d="M93 53v67M119 52v69"/></g>
+ <path d="M64 150q75-45 151 18l48 123-82 32-55-92-38 132-83-20 35-166z" fill="#d8fff0"/>
+ <path d="M191 177l183 248-25 19-198-236z" fill="#d8fff0"/>
+ <path d="M332 401l173 86-23 46-182-80z" fill="#d8fff0"/>
+ <path d="M474 485q55 8 83 33l-8 20-79-21z" fill="#d8fff0"/>
+ <path d="M31 340l115 51-30 64-121-45z" fill="#d8fff0"/>
+</g>
+<g transform="translate(875 521) rotate(-12)" stroke="#93ffd1" fill="none" stroke-width="12" stroke-linecap="round" opacity=".72"><path d="M0 0L210-135"/><path d="M204-138q45 10 78 35"/></g>
+<ellipse cx="1085" cy="586" rx="39" ry="13" fill="#08120f" stroke="#8dffd0" stroke-width="5" opacity=".85"/>
+<text x="66" y="618" fill="#8ff3c6" opacity=".26" font-family="Arial,sans-serif" font-size="50" font-weight="800">HOCKEY</text>
+</svg>
