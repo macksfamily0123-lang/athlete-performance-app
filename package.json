@@ -1,6 +1,6 @@
 {
   "name": "athlete-performance-app",
-  "version": "72.3.69",
+  "version": "72.3.76",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,7 @@
     "start": "next start",
     "test:roles": "node scripts/role-permission-audit.mjs",
     "test:regression": "node scripts/regression-check.mjs",
-    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui",
+    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui",
     "test:typecheck": "tsc --noEmit",
     "release:check": "npm test && npm run build",
     "test:reliability": "node scripts/reliability-check.mjs",
@@ -27,7 +27,14 @@
     "test:commercial-ui": "node scripts/commercial-hockey-ui-check.mjs",
     "test:sport-header": "node scripts/sport-header-check.mjs",
     "test:realistic-hero": "node scripts/realistic-hero-check.mjs",
-    "test:realistic-all-sports": "node scripts/realistic-all-sports-check.mjs"
+    "test:realistic-all-sports": "node scripts/realistic-all-sports-check.mjs",
+    "test:avatar-readiness-polish": "node scripts/avatar-readiness-polish-check.mjs",
+    "test:role-dashboard-mobile": "node scripts/role-dashboard-mobile-check.mjs",
+    "test:focus-icon-alignment": "node scripts/focus-icon-alignment-check.mjs",
+    "test:custom-design": "node scripts/custom-design-system-check.mjs",
+    "test:native-sports-redesign": "node scripts/native-sports-redesign-check.mjs",
+    "test:setup-modal": "node scripts/setup-modal-restoration-check.mjs",
+    "test:performance-os": "node scripts/performance-os-design-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",

@@ -6,15 +6,15 @@ const hero=fs.readFileSync("public/sport-heroes/ice-hockey.svg","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const migration=fs.readFileSync("supabase/migrations/009_player_more_cloud_test_athletes.sql","utf8");
 const checks=[
- ["Phase version is 72.3.69",pkg.version==="72.3.69"],
- ["RC19 ribbon",beta.includes("BETA · RC19 · v72.3.69")],
+ ["Phase version is 72.3.74",pkg.version==="72.3.76"],
+ ["RC24 ribbon",beta.includes("BETA · RC26 · v72.3.76")],
  ["Player Profile has photo field",athlete.includes("photoUrl?:string")],
  ["Mobile photo resize helper",athlete.includes("resizePlayerPhoto")&&athlete.includes('canvas.toDataURL("image/jpeg",.78)')],
  ["Profile photo picker",athlete.includes('type="file" accept="image/*"')&&athlete.includes("Add Player Photo")],
  ["Home avatar uses Player photo",athlete.includes('photoUrl={profile.photoUrl}')],
  ["Roster uses Player photos",athlete.includes('photoUrl={a.photoUrl}')],
  ["Parent My Players loads photos",beta.includes("parentPlayerPhotos")&&beta.includes('from("workspace_state").select("workspace_id,data")')],
- ["Fallback hockey avatar",athlete.includes('aria-hidden="true">🏒')&&beta.includes('aria-hidden="true">🏒')],
+ ["Clean initials fallback avatar",!athlete.includes('>🏒<')&&!beta.includes('>🏒<')&&athlete.includes("playerInitials(name)")],
  ["Recognizable hockey stick + puck header",hero.includes("<ellipse cx=\"650\"")&&hero.includes("<path d=\"M490 62L330 257")],
  ["Commercial accent palette",css.includes("--commercial-blue:#32a8ff")&&css.includes("--commercial-violet:#a94eff")&&css.includes("--commercial-amber:#ff9e2f")&&css.includes("--commercial-mint:#55efc4")],
  ["Sport-aware header art used",css.includes("var(--sport-hero-image)")&&athlete.includes("sportHeroAsset(sport)")],

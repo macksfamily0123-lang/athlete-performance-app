@@ -25,7 +25,7 @@ checks.push(['all non-Junior sports are realistic',app.includes('const premiumHo
 checks.push(['Hockey Coach keeps dedicated coach scene',app.includes('/commercial-scenes/ice-hockey-coach.webp')]);
 checks.push(['hero exposes current sport marker',app.includes('data-hero-sport={sport}')]);
 checks.push(['hero exposes realistic vs illustrated marker',app.includes('data-hero-style={realisticHero?"realistic":"illustrated"}')]);
-checks.push(['RC19 realistic CSS is present',css.includes('Phase 72.3.69 RC19')]);
+checks.push(['RC20 realistic CSS is present',css.includes('Phase 72.3.70 RC20')]);
 
 let failed=0;
 for(const [name,ok] of checks){console.log(`${ok?'PASS':'FAIL'}: ${name}`);if(!ok)failed++;}
