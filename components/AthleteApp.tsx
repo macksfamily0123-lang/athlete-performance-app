@@ -1,6 +1,7 @@
 
 "use client";
-import {useEffect,useMemo,useRef,useState} from "react";
+import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
+import {createPortal} from "react-dom";
 
 type Sport="Baseball"|"Football"|"Ice Hockey"|"Basketball"|"Lacrosse"|"Wrestling"|"Soccer"|"Figure Skating";
 type TestDef={id:string;name:string;category:string;unit:string;lowerBetter:boolean};
@@ -805,6 +806,14 @@ function PremiumHomeOverview({
   <button type="button" className="premiumRoleFocusCard nativeAdminFocus" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Inspect →</strong></button>
   <div className="nativeAdminCommandList">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>Open</strong></button>)}</div>
  </section>;
+}
+
+
+function ViewportPortal({children}:{children:ReactNode}){
+ const [ready,setReady]=useState(false);
+ useEffect(()=>setReady(true),[]);
+ if(!ready||typeof document==="undefined")return null;
+ return createPortal(children,document.body);
 }
 
 
@@ -1616,13 +1625,13 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    
     
   </main>
-  {showGuide&&accountSession&&<div className="guideOverlay" role="dialog" aria-modal="true" aria-label="Getting started guide"><div className="guideCard">
+  {showGuide&&accountSession&&<ViewportPortal><div className="guideOverlay" role="dialog" aria-modal="true" aria-label="Getting started guide"><div className="guideCard">
    <div className="guideTop"><div><small>{effectiveRole.toUpperCase()} SETUP</small><b>Step {guideStep+1} of {guideSteps.length}</b></div><button onClick={requestSkipSetup} aria-label="Skip setup">Skip setup</button></div>
    <div className="guideProgress"><i style={{width:`${Math.round((guideStep+1)/guideSteps.length*100)}%`}}/></div>
    <div className="guideBody"><span className="guideIcon">{guideStep===0?"◆":guideStep===guideSteps.length-1?"✓":guideStep+1}</span><h2>{guideSteps[guideStep]?.title}</h2><p>{guideSteps[guideStep]?.body}</p>{guideSteps[guideStep]?.button&&<button className="featureAction guideAction" onClick={jumpToGuideTarget}>{guideSteps[guideStep].button}</button>}</div>
    <div className="guideFooter"><button disabled={guideStep===0} onClick={()=>openGuideStep(guideStep-1)}>Back</button><button disabled={guideSteps[guideStep]?.id==="profile"&&canEditPlayerProfile&&!profileSavedForGuide} onClick={()=>guideStep===guideSteps.length-1?finishGuide():openGuideStep(guideStep+1)}>{guideStep===guideSteps.length-1?"Finish":"Continue"}</button></div>
    <small className="guideHint">{guideSteps[guideStep]?.button?"Use the main button to go do this step. When the required information is saved, setup continues automatically.":"Every step is optional."}</small>
-  </div></div>}
+  </div></div></ViewportPortal>}
   {showReadinessPrompt&&accountSession&&!showGuide&&!showFeatureOverview&&<div className="routinePromptOverlay" role="dialog" aria-modal="true" aria-label="Morning readiness check-in"><div className="routinePromptCard">
    <span className="routinePromptIcon">☀</span><small>GOOD MORNING</small><h2>Ready for your daily check-in?</h2><p>Take a minute to log sleep, energy, soreness, and stress so today's training can match how you feel.</p>
    <div className="routinePromptActions"><button onClick={dismissReadinessPrompt}>Not now</button><button className="featureAction" onClick={openReadinessFromPrompt}>Start Readiness Check-in</button></div>
@@ -1655,13 +1664,13 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
    <div className="featureHelpFooter"><div><b>{featureOverviewSource==="setup"?"You’re ready to use the app":"Need setup help again?"}</b><span>{featureOverviewSource==="setup"?"Close this tour and start from Overview. You can reopen this guide anytime with Help.":"Restart the guided setup at any time without removing your saved data."}</span></div><div className="featureHelpFooterActions">{featureOverviewSource==="setup"&&<button className="featureAction" onClick={()=>{setShowFeatureOverview(false);setTab("Home")}}>Start Using App</button>}<button onClick={()=>{setShowFeatureOverview(false);setFeatureOverviewSource("help");setGuideStep(0);setShowGuide(true)}}>Restart Setup Guide</button></div></div>
   </div></div>}
-  {showSkipSetupDisclaimer&&<div className="skipSetupOverlay" role="alertdialog" aria-modal="true" aria-label="Setup incomplete"><div className="skipSetupCard">
+  {showSkipSetupDisclaimer&&<ViewportPortal><div className="skipSetupOverlay" role="alertdialog" aria-modal="true" aria-label="Setup incomplete"><div className="skipSetupCard">
    <span className="skipSetupIcon">!</span>
    <small>SETUP INCOMPLETE</small>
    <h2>Your setup is not finished yet</h2>
    <p>You can skip the guided setup now, but some profile information or app features may still need to be completed. You can tap <b>Help</b> at any time to continue the setup guide from where you left off.</p>
    <div className="skipSetupActions"><button onClick={()=>setShowSkipSetupDisclaimer(false)}>Continue Setup</button><button className="skipAnywayButton" onClick={confirmSkipSetup}>Skip Setup Anyway</button></div>
-  </div></div>}
+  </div></div></ViewportPortal>}
   {showSettings&&<div className="settingsOverlay" role="dialog" aria-modal="true" aria-label="App settings" onClick={()=>setShowSettings(false)}><div className="settingsCard" onClick={e=>e.stopPropagation()}>
    <div className="settingsHead"><div><small>SETTINGS</small><h2>Display & Text</h2><p>Choose the text size that is easiest to read. Your choice is saved on this device.</p></div><button className="settingsClose" aria-label="Close settings" onClick={()=>setShowSettings(false)}>×</button></div>
    <div className="textSizeSetting">
@@ -3363,7 +3372,7 @@ const signals:PerformanceSignal[]=[
   :{title:"See My Progress",detail:"Review what is improving",tab:"Analytics" as Tab};
  const playerGreeting=(()=>{const h=new Date().getHours();return h<12?"Good morning":h<17?"Good afternoon":"Good evening"})();
 
- const roleSetupCard=setupSteps.length>0&&!roleSetupDismissed&&!roleSetupTemporarilyHidden&&setupPct<100&&<div className="roleSetupModalOverlay" role="dialog" aria-modal="true" aria-labelledby="role-setup-title"><div className={"onboardingCard roleHomeSetupCard roleSetupModalCard "+accountRole.toLowerCase()}><div className="sectionHead"><div><small>{accountRole==="Coach"?"COACH WORKSPACE SETUP":"PLAYER SETUP"}</small><h2 id="role-setup-title">{accountRole==="Coach"?"Get Your Coach Workspace Ready":"Finish Player Setup"}</h2><p>{accountRole==="Coach"?"This setup teaches the Coach workflow only. If it is incomplete, dismissing it hides it for this login only; it returns the next time you sign in. You will review athlete development information, but you will not edit Player Profile identity or complete Player-owned check-ins/reviews.":"This setup only covers the Player's own profile, Daily Check-In, schedule, and first goal."}</p></div><button aria-label={`Dismiss ${accountRole} setup`} title={accountRole==="Coach"?"Hide until next login":"Dismiss setup"} onClick={dismissRoleSetup}>×</button></div><div className="setupMeter"><div className="progress"><i style={{width:`${setupPct}%`}}/></div><b>{setupPct}%</b></div><div className="setupSteps">{setupSteps.map(x=>x.done?<span className="done" key={x.key}>✓ {x.label}</span>:<button type="button" className="setupStepLink" key={x.key} onClick={()=>goToSetupItem(x)}><span>○ {x.label}</span><b>Open →</b></button>)}</div>{accountRole==="Coach"&&<div className="coachSetupBoundary"><span>Coach setup is separate from Player and Parent setup.</span><b>Coach develops the athlete · Player owns their profile/check-ins · Parent supports the athlete.</b></div>}</div></div>;
+ const roleSetupCard=setupSteps.length>0&&!roleSetupDismissed&&!roleSetupTemporarilyHidden&&setupPct<100&&<ViewportPortal><div className="roleSetupModalOverlay" role="dialog" aria-modal="true" aria-labelledby="role-setup-title"><div className={"onboardingCard roleHomeSetupCard roleSetupModalCard "+accountRole.toLowerCase()}><div className="sectionHead"><div><small>{accountRole==="Coach"?"COACH WORKSPACE SETUP":"PLAYER SETUP"}</small><h2 id="role-setup-title">{accountRole==="Coach"?"Get Your Coach Workspace Ready":"Finish Player Setup"}</h2><p>{accountRole==="Coach"?"This setup teaches the Coach workflow only. If it is incomplete, dismissing it hides it for this login only; it returns the next time you sign in. You will review athlete development information, but you will not edit Player Profile identity or complete Player-owned check-ins/reviews.":"This setup only covers the Player's own profile, Daily Check-In, schedule, and first goal."}</p></div><button aria-label={`Dismiss ${accountRole} setup`} title={accountRole==="Coach"?"Hide until next login":"Dismiss setup"} onClick={dismissRoleSetup}>×</button></div><div className="setupMeter"><div className="progress"><i style={{width:`${setupPct}%`}}/></div><b>{setupPct}%</b></div><div className="setupSteps">{setupSteps.map(x=>x.done?<span className="done" key={x.key}>✓ {x.label}</span>:<button type="button" className="setupStepLink" key={x.key} onClick={()=>goToSetupItem(x)}><span>○ {x.label}</span><b>Open →</b></button>)}</div>{accountRole==="Coach"&&<div className="coachSetupBoundary"><span>Coach setup is separate from Player and Parent setup.</span><b>Coach develops the athlete · Player owns their profile/check-ins · Parent supports the athlete.</b></div>}</div></div></ViewportPortal>;
 
  if(accountRole==="Coach"){
   return <><div className="activeAthleteBanner"><small>COACH WORKSPACE</small><b>{coachSelectedAthleteName||"No Player selected"}</b><span>{coachSelectedAthleteName?`${sport}${profile.position?` · ${profile.position}`:""}`:"Select a Player from Teams or the Command Center"}</span></div>
@@ -5536,7 +5545,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.76 RC26","good"],
+  ["App Version","72.3.77 RC27","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],
