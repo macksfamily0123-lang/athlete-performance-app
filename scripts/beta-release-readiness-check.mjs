@@ -6,10 +6,10 @@ const migration=fs.readFileSync("supabase/migrations/008_connection_setup_reliab
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 
 const checks=[
- ["Combined version is 72.3.74",pkg.version==="72.3.77"],
- ["RC24 ribbon",beta.includes("BETA · RC27 · v72.3.77")],
- ["Feedback version is 72.3.74",beta.includes('app_version:"72.3.77"')],
- ["Admin health version is RC24",athlete.includes('["App Version","72.3.77 RC27","good"]')],
+ ["Combined version is 72.3.74",pkg.version==="72.3.78"],
+ ["RC24 ribbon",beta.includes("BETA · RC28 · v72.3.78")],
+ ["Feedback version is 72.3.74",beta.includes('app_version:"72.3.78"')],
+ ["Admin health version is RC24",athlete.includes('["App Version","72.3.78 RC28","good"]')],
  ["Connection operations have double-submit lock",beta.includes("runConnectionAction")&&beta.includes("if(connectionAction)return")],
  ["Parent create button disables while busy",beta.includes('disabled={!!connectionAction||!childName.trim()}')],
  ["Parent existing connect disables while busy",beta.includes('disabled={!!connectionAction||!parentConnectionCode.trim()}')],

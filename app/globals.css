@@ -8225,3 +8225,65 @@ input:focus,select:focus,textarea:focus{
  .performanceOS .simpleBottomNav.customBottomNav button,.simpleBottomNav.customBottomNav button{min-height:52px!important}
  .performanceOS .simpleBottomNav.customBottomNav .premiumAppIcon,.simpleBottomNav.customBottomNav .premiumAppIcon{width:18px!important;height:18px!important}
 }
+
+/* =========================================================
+   Phase 72.3.78 RC28 — Always-interactive viewport nav
+   Primary nav and nav sheets are body-level portals so scrolling
+   content can never sit above their tap targets. Also repairs
+   narrow Train-sheet copy wrapping (including Development).
+   ========================================================= */
+.viewportBottomNav{
+ --role-accent:var(--commercial-green,#2eed83);
+ pointer-events:auto!important;
+ isolation:isolate!important;
+ z-index:12000!important;
+ touch-action:manipulation!important;
+}
+.viewportBottomNav.coachBottomNav{--role-accent:var(--commercial-blue,#32a8ff)}
+.viewportBottomNav.parentBottomNav{--role-accent:#b477e8}
+.viewportBottomNav.adminBottomNav{--role-accent:var(--commercial-amber,#ffad32)}
+.viewportBottomNav.playerBottomNav,.viewportBottomNav.juniorBottomNav{--role-accent:var(--commercial-green,#2eed83)}
+.viewportBottomNav button{
+ pointer-events:auto!important;
+ position:relative!important;
+ z-index:1!important;
+ touch-action:manipulation!important;
+ -webkit-tap-highlight-color:transparent;
+}
+.viewportNavOverlay{
+ z-index:12050!important;
+ pointer-events:auto!important;
+}
+.viewportNavOverlay .simpleNavSheet,
+.viewportNavOverlay .simpleNavSheet *{
+ pointer-events:auto!important;
+}
+.simpleNavChoiceCopy{min-width:0!important;overflow:hidden!important}
+.simpleNavChoiceCopy b,
+.simpleNavChoiceCopy small{
+ max-width:100%!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+ word-break:normal!important;
+}
+@media(max-width:430px){
+ .viewportNavOverlay .simpleNavChoices>button{
+  grid-template-columns:32px minmax(0,1fr)!important;
+  grid-template-areas:"icon copy" "icon action"!important;
+  align-items:start!important;
+  gap:4px 9px!important;
+  min-height:76px!important;
+  padding:11px 10px!important;
+ }
+ .viewportNavOverlay .simpleNavChoices>button>span{grid-area:icon!important;margin-top:2px!important}
+ .viewportNavOverlay .simpleNavChoiceCopy{grid-area:copy!important}
+ .viewportNavOverlay .simpleNavChoices>button>strong{
+  grid-area:action!important;
+  justify-self:start!important;
+  margin-top:2px!important;
+  font-size:9px!important;
+  line-height:1.1!important;
+ }
+ .viewportNavOverlay .simpleNavChoiceCopy b{font-size:13px!important;line-height:1.15!important}
+ .viewportNavOverlay .simpleNavChoiceCopy small{font-size:10px!important;line-height:1.35!important;margin-top:3px!important}
+}

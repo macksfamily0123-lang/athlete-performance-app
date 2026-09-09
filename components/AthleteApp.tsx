@@ -1688,30 +1688,30 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="settingsFooter"><button onClick={()=>changeTextSize("comfortable")}>Use Recommended Size</button><button className="featureAction" onClick={()=>setShowSettings(false)}>Done</button></div>
   </div></div>}
   {commandOpen&&<div className={"commandOverlay "+(juniorPlayerMode?"juniorFeatureOverlay":"")} role="dialog" aria-modal="true" aria-label={juniorPlayerMode?"All Junior Player features":"Quick navigation"} onClick={()=>setCommandOpen(false)}><div className={"commandPalette "+(juniorPlayerMode?"juniorFeaturePalette":"")} onClick={e=>e.stopPropagation()}><div className="sectionHead"><div><small>{juniorPlayerMode?"JUNIOR PLAYER":"QUICK NAVIGATION"}</small><h2>{juniorPlayerMode?"All My Features":"Go to a section"}</h2></div><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder={juniorPlayerMode?"Search my features…":"Search Overview, Goals, Testing, Roster…"}/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span>{navMeta[a.tab]?.icon||"•"}</span><b>{a.label}</b><small>{juniorPlayerMode?(playerPageHelp[a.tab]?.purpose||"Open this feature"):a.keywords.join(" · ")}</small></button>)}</div>{juniorPlayerMode&&filteredActions.length===0&&<div className="juniorFeatureEmpty">No matching feature. Try a different word.</div>}</div></div>}
- {navSheet&&<div className="simpleNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
+ {navSheet&&<ViewportPortal><div className="simpleNavOverlay viewportNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
    <div className="sectionHead"><div><small>{navSheet.toUpperCase()}</small><h2>{navSheet==="More"?"More Features":navSheet}</h2></div><button onClick={()=>setNavSheet(null)}>×</button></div>
-   <div className="simpleNavChoices">{(juniorPlayerMode&&navSheet==="More"?(["Coach","Development","Testing","Competition"] as Tab[]):effectiveRole==="Parent"&&navSheet==="More"?(["Development","Competition"] as Tab[]):navGroups[navSheet]).map(x=><button key={x} onClick={()=>{setTab(x);setNavSheet(null)}}><span>{navMeta[x]?.icon||"•"}</span><div><b>{roleNavLabel(x)}</b><small>{effectiveRole==="Parent"?(parentPageHelp[x]?.purpose||pageHelp[x]?.purpose||""):pageHelp[x]?.purpose||""}</small></div><strong>Open →</strong></button>)}</div>
+   <div className="simpleNavChoices">{(juniorPlayerMode&&navSheet==="More"?(["Coach","Development","Testing","Competition"] as Tab[]):effectiveRole==="Parent"&&navSheet==="More"?(["Development","Competition"] as Tab[]):navGroups[navSheet]).map(x=><button key={x} onClick={()=>{setTab(x);setNavSheet(null)}}><span>{navMeta[x]?.icon||"•"}</span><div className="simpleNavChoiceCopy"><b>{roleNavLabel(x)}</b><small>{effectiveRole==="Parent"?(parentPageHelp[x]?.purpose||pageHelp[x]?.purpose||""):pageHelp[x]?.purpose||""}</small></div><strong>Open →</strong></button>)}</div>
    {navSheet==="More"&&<button className={"allFeaturesButton "+(juniorPlayerMode?"juniorAllFeaturesButton":"")} onClick={()=>{setNavSheet(null);setCommandOpen(true)}}>{juniorPlayerMode?"See All My Features":"Search All Features"}</button>}
-  </div></div>}
- {juniorPlayerMode?<div className="simpleBottomNav juniorBottomNav customBottomNav">
+  </div></div></ViewportPortal>}
+ <ViewportPortal>{juniorPlayerMode?<div className="simpleBottomNav juniorBottomNav customBottomNav viewportBottomNav" aria-label="Primary navigation">
   <button className={tab==="Home"?"active":""} onClick={()=>setTab("Home")}><span><PremiumAppIcon name="home"/></span><b>Today</b></button>
   <button className={tab==="Goals"?"active":""} onClick={()=>setTab("Goals")}><span><PremiumAppIcon name="goal"/></span><b>My Goal</b></button>
   <button className={tab==="Calendar"?"active":""} onClick={()=>setTab("Calendar")}><span><PremiumAppIcon name="train"/></span><b>Training</b></button>
   <button className={tab==="Analytics"?"active":""} onClick={()=>setTab("Analytics")}><span><PremiumAppIcon name="progress"/></span><b>Progress</b></button>
   <button className={["Coach","Development","Testing","Competition"].includes(tab)?"active":""} onClick={()=>setNavSheet("More")}><span><PremiumAppIcon name="more"/></span><b>More</b></button>
- </div>:effectiveRole==="Parent"?<div className="simpleBottomNav parentBottomNav customBottomNav">
+ </div>:effectiveRole==="Parent"?<div className="simpleBottomNav parentBottomNav customBottomNav viewportBottomNav" aria-label="Primary navigation">
   <button className={tab==="Home"?"active":""} onClick={()=>setTab("Home")}><span><PremiumAppIcon name="home"/></span><b>Overview</b></button>
   <button className={tab==="Calendar"?"active":""} onClick={()=>setTab("Calendar")}><span><PremiumAppIcon name="calendar"/></span><b>Schedule</b></button>
   <button className={tab==="Coach"?"active":""} onClick={()=>setTab("Coach")}><span><PremiumAppIcon name="recovery"/></span><b>Recovery</b></button>
   <button className={tab==="Analytics"?"active":""} onClick={()=>setTab("Analytics")}><span><PremiumAppIcon name="progress"/></span><b>Progress</b></button>
   <button className={tab==="Development"||tab==="Competition"?"active":""} onClick={()=>setNavSheet("More")}><span><PremiumAppIcon name="more"/></span><b>More</b></button>
- </div>:<div className={"simpleBottomNav customBottomNav "+(effectiveRole==="Player"?"playerBottomNav":"")}>
+ </div>:<div className={`simpleBottomNav customBottomNav viewportBottomNav ${effectiveRole.toLowerCase()}BottomNav ${effectiveRole==="Player"?"playerBottomNav":""}`} aria-label="Primary navigation">
   <button className={tab==="Home"?"active":""} onClick={()=>setTab("Home")}><span><PremiumAppIcon name="home"/></span><b>{effectiveRole==="Player"?"Today":"Overview"}</b></button>
   <button className={groupActive("Plan")?"active":""} onClick={()=>openNavGroup("Plan")}><span><PremiumAppIcon name="calendar"/></span><b>Plan</b></button>
   <button className={groupActive("Train")?"active":""} onClick={()=>openNavGroup("Train")}><span><PremiumAppIcon name="train"/></span><b>Train</b></button>
   <button className={groupActive("Progress")?"active":""} onClick={()=>openNavGroup("Progress")}><span><PremiumAppIcon name="progress"/></span><b>Progress</b></button>
   <button className={groupActive("More")?"active":""} onClick={()=>openNavGroup("More")}><span><PremiumAppIcon name="more"/></span><b>More</b></button>
- </div>}
+ </div>}</ViewportPortal>
  </div>
 }
 
@@ -5545,7 +5545,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.77 RC27","good"],
+  ["App Version","72.3.78 RC28","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],
