@@ -142,6 +142,9 @@ export default function BetaGate(){
   const [playerAccessCode,setPlayerAccessCode]=useState("");
   const [message,setMessage]=useState("");
   const [signupComplete,setSignupComplete]=useState<{email:string;role:"Player"|"Parent"}|null>(null);
+  const [passwordRecovery,setPasswordRecovery]=useState(false);
+  const [newPassword,setNewPassword]=useState("");
+  const [newPasswordMessage,setNewPasswordMessage]=useState("");
 
   const [showDisclaimer,setShowDisclaimer]=useState(false);
   const [showFeedback,setShowFeedback]=useState(false);
@@ -239,7 +242,8 @@ export default function BetaGate(){
       await loadAccess(u);
       if(alive)setLoading(false);
     });
-    const {data:listener}=supabase.auth.onAuthStateChange(async(_event,session)=>{
+    const {data:listener}=supabase.auth.onAuthStateChange(async(event,session)=>{
+      if(event==="PASSWORD_RECOVERY")setPasswordRecovery(true);
       const u=session?.user||null;
       setUser(u);
       await loadAccess(u);
@@ -300,6 +304,24 @@ export default function BetaGate(){
     }
     setPlayerAccessCode("");
     setMessage("Account created and signed in.");
+  };
+
+  const sendPasswordReset=async()=>{
+    if(!supabase)return;
+    const target=email.trim();
+    if(!target){setMessage("Enter your email address first, then choose Forgot password.");return}
+    setMessage("Sending password reset email…");
+    const {error}=await supabase.auth.resetPasswordForEmail(target,{redirectTo:typeof window!=="undefined"?window.location.origin:undefined});
+    setMessage(error?error.message:"Password reset email sent. Check your inbox and spam folder.");
+  };
+
+  const completePasswordRecovery=async()=>{
+    if(!supabase)return;
+    if(newPassword.length<8){setNewPasswordMessage("Use at least 8 characters for the new password.");return}
+    setNewPasswordMessage("Updating password…");
+    const {error}=await supabase.auth.updateUser({password:newPassword});
+    if(error){setNewPasswordMessage(error.message);return}
+    setNewPassword("");setNewPasswordMessage("Password updated. You can continue into the beta app.");setPasswordRecovery(false);
   };
 
   const signOut=async()=>{
@@ -853,7 +875,7 @@ export default function BetaGate(){
     const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
     return [
       "Beta diagnostic context",
-      "Version: 72.3.80 RC30",
+      "Version: 72.3.88 RC38",
       `Role: ${access?.role||"Unknown"}`,
       `Athlete: ${athlete}`,
       `Sport: ${sport}`,
@@ -879,7 +901,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message,
-      app_version:"72.3.80",
+      app_version:"72.3.88",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -1070,6 +1092,14 @@ export default function BetaGate(){
     <button className="signupSecondary" onClick={()=>{setSignupComplete(null);setAuthMode("signup");setMessage("")}}>Use a Different Email</button>
   </div></div>;
 
+  if(passwordRecovery&&user)return <div className="betaAuthShell"><div className="betaAuthCard betaRecoveryCard">
+    <div className="betaAuthBrand"><span>AP</span><div><small>ACCOUNT RECOVERY</small><h1>Set a new password</h1><p>Choose a new password for your Athlete Performance beta account.</p></div></div>
+    <label>New password<input type="password" autoComplete="new-password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder="At least 8 characters"/></label>
+    {newPasswordMessage&&<div className="betaMessage">{newPasswordMessage}</div>}
+    <button className="betaPrimary" onClick={completePasswordRecovery}>Update Password</button>
+    <button type="button" className="betaRecoveryLink" onClick={()=>setPasswordRecovery(false)}>Cancel</button>
+  </div></div>;
+
   if(!user)return <div className="betaAuthShell"><div className="betaAuthCard">
     <div className="betaAuthBrand"><span>AP</span><div><small>ATHLETE PERFORMANCE</small><h1>{authMode==="signin"?"Beta sign in":"Create beta account"}</h1><p>Secure accounts with cloud-backed athlete data.</p></div></div>
     <div className="betaModeSwitch"><button className={authMode==="signin"?"active":""} onClick={()=>{setAuthMode("signin");setMessage("")}}>Sign In</button><button className={authMode==="signup"?"active":""} onClick={()=>{setAuthMode("signup");setMessage("")}}>Create Account</button></div>
@@ -1081,6 +1111,7 @@ export default function BetaGate(){
     <label>Password<input type="password" autoComplete={authMode==="signin"?"current-password":"new-password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password"/></label>
     {message&&<div className="betaMessage">{message}</div>}
     <button className="betaPrimary" onClick={submitAuth}>{authMode==="signin"?"Sign In":"Create Account"}</button>
+    {authMode==="signin"&&<button type="button" className="betaRecoveryLink" onClick={sendPasswordReset}>Forgot password?</button>}
     <small className="betaFinePrint">Parents can add multiple players after signing in. Coaches can create teams and send player invite codes.</small>
   </div></div>;
 
@@ -1092,7 +1123,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · RC30 · v72.3.80</div>
+    <div className="betaRibbon">BETA · RC38 · v72.3.88</div>
     {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
     <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>

@@ -21,9 +21,9 @@ for(const [sport,file] of sports){
 checks.push(["Junior still uses simple sport art",src.includes("if(juniorMode)return sportHeroAsset(sport)")]);
 checks.push(["All non-Junior accounts marked realistic",src.includes("const premiumHomeHeroIsRealistic=(_sport:Sport,juniorMode:boolean)=>!juniorMode")]);
 checks.push(["Selected sport drives hero",src.includes("realisticSportHeroAsset(sport)")]);
-checks.push(["Hockey Coach keeps coach scene",src.includes('accountRole==="Coach"&&sport==="Ice Hockey"')&&src.includes("/commercial-scenes/ice-hockey-coach.webp")]);
+checks.push(["Hockey Coach keeps coach scene",src.includes('accountRole==="Coach"')&&src.includes("/commercial-scenes/ice-hockey-coach-role.webp")]);
 checks.push(["RC20 all-sport CSS present",css.includes("Phase 72.3.70 RC20")&&css.includes(".premiumHomeHero.premiumRealisticSportHero")]);
-checks.push(["Version is 72.3.74",pkg.version==="72.3.80"]);
+checks.push(["Version is 72.3.74",pkg.version==="72.3.88"]);
 
 let pass=0;
 for(const [name,ok] of checks){

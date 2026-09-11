@@ -71,7 +71,9 @@ const rolePermissions:Record<AccountRole,Record<RolePermissionKey,boolean>>={
  }
 };
 const canRole=(role:AccountRole,permission:RolePermissionKey)=>rolePermissions[role][permission];
-type TextSize="standard"|"comfortable"|"large"|"xlarge";
+type TextSize="standard"|"comfortable"|"large"|"xlarge"|"xxlarge"|"maximum";
+type NotificationPrefs={training:boolean;recovery:boolean;goals:boolean;progress:boolean;cloud:boolean};
+type InAppNotice={id:string;title:string;detail:string;tone:"good"|"watch"|"info";tab?:Tab;action?:"retry-sync"};
 export type BetaRole=AccountRole;
 type AccountSession={role:AccountRole;displayName:string;athleteId:string;linkedAthleteIds?:string[]};
 export type CoachCloudAthleteState={
@@ -228,9 +230,14 @@ const realisticSportHeroAsset=(sport:Sport)=>({
 const premiumHomeHeroAsset=(sport:Sport,accountRole:AccountRole,juniorMode:boolean)=>{
  // Junior mode intentionally keeps the simpler, friendly sport artwork.
  if(juniorMode)return sportHeroAsset(sport);
- // Every non-Junior account gets a realistic image tied to the selected athlete's Profile Sport.
- // Hockey Coach retains the dedicated coach/team concept scene; other roles use the sport action scene.
- if(accountRole==="Coach"&&sport==="Ice Hockey")return "/commercial-scenes/ice-hockey-coach.webp";
+ // Phase 72.3.88 RC38: Ice Hockey now has distinct role photography.
+ // Player = action athlete, Parent = supportive parent/athlete scene, Coach = team/coach scene.
+ if(sport==="Ice Hockey"){
+  if(accountRole==="Parent")return "/commercial-scenes/ice-hockey-parent.webp";
+  if(accountRole==="Coach")return "/commercial-scenes/ice-hockey-coach-role.webp";
+  return "/commercial-scenes/ice-hockey-player-game-wide.webp";
+ }
+ // Other sports retain their sport-specific realistic hero while using the new full-image renderer.
  return realisticSportHeroAsset(sport);
 };
 const premiumHomeHeroIsRealistic=(_sport:Sport,juniorMode:boolean)=>!juniorMode;
@@ -784,19 +791,38 @@ function PremiumHomeOverview({
  const sportWorkouts=workouts.filter(w=>w.sport===sport);
  const completedSportWorkouts=sportWorkouts.filter(w=>w.completed).length;
  const trainingConsistency=sportWorkouts.length?Math.round(completedSportWorkouts/sportWorkouts.length*100):0;
+ const sleepTarget=readinessSleepTarget(Number(profile.age||0));
+ const recoveryTips=latestReadiness?[
+  latestReadiness.sleep<sleepTarget.min?`Sleep: aim for ${sleepTarget.label} tonight.`:`Sleep: protect a consistent ${sleepTarget.label} window.`,
+  latestReadiness.soreness>=6?"Mobility: use easy movement and reduce optional volume if soreness stays high.":"Mobility: 5–10 minutes of easy movement after training.",
+  latestReadiness.stress>=6?"Reset: use breathing, quiet time, or an easier evening to lower stress.":"Hydration: drink consistently through the day and refuel after training.",
+  latestReadiness.energy<=5?"Fuel: prioritize a quality meal/snack and hydration before adding extra work.":"Recovery: keep sleep, food, hydration, and cooldown habits consistent."
+ ].slice(0,3):[
+  "Sleep: protect a consistent sleep window tonight.",
+  "Hydration: drink consistently through the day.",
+  "Mobility: use 5–10 minutes of easy movement after training."
+ ];
+ const recoveryHeadline=readinessValue===null?"Build your recovery signal":readinessValue<60?"Recovery needs attention":readinessValue<80?"Protect recovery quality":"Recovery supports performance";
+ const testMomentum=latestTestChange===null?50:Math.max(0,Math.min(100,50+latestTestChange*2));
+ const intelligenceScore=Math.round((readinessValue??65)*.4+(goalProgress??50)*.2+trainingConsistency*.2+testMomentum*.2);
+ const intelligenceHeadline=readinessValue!==null&&readinessValue<60?"Recovery-first plan":nextWorkout&&readinessValue!==null&&readinessValue>=75?"Ready to train with intent":latestTestChange!==null&&latestTestChange>2?"Build on performance momentum":goalProgress!==null&&goalProgress>=75?"Finish the next goal step":"Build a clean performance signal";
+ const intelligenceDetail=readinessValue!==null&&readinessValue<60?"Keep optional volume low and prioritize sleep, hydration, mobility, and a simple check-in.":nextWorkout?`${nextWorkout.name} is the next scheduled action. Use readiness and recent progress to guide intensity.`:"Add your next training session and keep readiness, testing, and goals current.";
+ const intelligenceTab:Tab=readinessValue!==null&&readinessValue<60?"Coach":nextWorkout?"Calendar":"Analytics";
  const elitePerformanceBand=<div className="elitePerformanceBand" aria-label="Live athlete performance signals">
   <button type="button" data-signal="readiness" onClick={()=>setTab("Coach")}><span className="eliteSignalTop"><small>READINESS</small><i className={`eliteStatusDot ${statusClass}`}/></span><strong>{readinessValue!==null?readinessValue:"—"}</strong><span>{statusLabel}</span><div className="eliteMicroGauge"><i style={{width:`${readinessValue??0}%`}}/></div></button>
   <button type="button" data-signal="goals" onClick={()=>setTab("Goals")}><span className="eliteSignalTop"><small>GOAL EXECUTION</small><i/></span><strong>{goalProgress!==null?`${goalProgress}%`:"—"}</strong><span>{activeGoals.length?`${activeGoals.length} active target${activeGoals.length===1?"":"s"}`:"Set first target"}</span><div className="eliteMicroGauge"><i style={{width:`${goalProgress??0}%`}}/></div></button>
-  <button type="button" data-signal="testing" className="eliteTrendSignal" onClick={()=>setTab("Testing")}><span className="eliteSignalTop"><small>PERFORMANCE TREND</small><i/></span><strong>{trendPrimary}</strong><span>{trendTitle}</span><EliteSparkline values={trendValues} label={`${trendTitle} recent trend`}/></button>
+  <button type="button" data-signal="testing" className="eliteTrendSignal" onClick={()=>setTab("Analytics")} aria-label="Open Progress"><span className="eliteSignalTop"><small>PROGRESS</small><i/></span><strong>{trendPrimary}</strong><span>{trendTitle}</span><EliteSparkline values={trendValues} label={`${trendTitle} recent trend`}/></button>
   <button type="button" data-signal="training" onClick={()=>setTab("Calendar")}><span className="eliteSignalTop"><small>TRAINING</small><i/></span><strong>{sportWorkouts.length?`${trainingConsistency}%`:nextWorkout?"NEXT":"OPEN"}</strong><span>{nextWorkout?`${friendlyDate(nextWorkout.date)} · ${nextWorkout.name}`:sportWorkouts.length?`${completedSportWorkouts}/${sportWorkouts.length} complete`:"Build your schedule"}</span><div className="eliteMicroGauge"><i style={{width:`${trainingConsistency}%`}}/></div></button>
  </div>;
- const eliteVisualPerformance=<button type="button" className="eliteVisualPerformance" onClick={()=>setTab("Analytics")} aria-label="Open athlete progress analytics">
-  <div className="eliteVisualCopy"><small>PERFORMANCE SIGNAL</small><b>{trendTitle}</b><span>{trendDelta}</span></div>
+ const eliteVisualPerformance=<button type="button" className="eliteVisualPerformance eliteProgressHome" onClick={()=>setTab("Analytics")} aria-label="Open Progress analytics">
+  <div className="eliteProgressHeading"><span>PROGRESS</span><small>TRACK · ANALYZE · IMPROVE</small></div>
+  <div className="eliteVisualCopy"><small>PERFORMANCE TREND</small><b>{trendTitle}</b><span>{trendDelta}</span></div>
   <div className="eliteVisualMetric"><strong>{trendPrimary}</strong><span>{latestTestRows.length>1?"latest test":"current signal"}</span></div>
-  <EliteSparkline values={trendValues} label={`${trendTitle} performance signal`}/>
-  <div className="eliteVisualAction">OPEN PROGRESS <span>↗</span></div>
+  <EliteSparkline values={trendValues} label={`${trendTitle} progress signal`}/>
+  <div className="eliteVisualAction"><b>VIEW PROGRESS</b><span>Open analytics ↗</span></div>
  </button>;
- const hero=<div className={`premiumHomeHero nativeSportsHero elitePerformanceHero ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
+ const hero=<div className={`premiumHomeHero nativeSportsHero elitePerformanceHero rc34RoleHero ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-role={accountRole} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
+  {realisticHero&&<div className="eliteRoleHeroMedia" aria-hidden="true"><img className="eliteRoleHeroBackdrop" src={heroAsset} alt=""/><img className="eliteRoleHeroForeground" src={heroAsset} alt=""/></div>}
   <div className="nativeHeroTopline"><span>{roleCopy[accountRole].eyebrow}</span><span>{sport}</span></div>
   {!juniorMode&&<div className="eliteHeroTelemetry" aria-hidden="true"><span>HD / PERFORMANCE</span><i/><span>{accountRole.toUpperCase()}</span></div>}
   <div className="nativeHeroBottom">
@@ -824,9 +850,16 @@ function PremiumHomeOverview({
    {hero}
    <div className="nativePlayerFlow elitePlayerFlow">
     {elitePerformanceBand}
+    <button type="button" className="performanceIntelligence" onClick={()=>setTab(intelligenceTab)} aria-label="Open recommended performance action"><span className="performanceIntelligenceScore"><small>PERFORMANCE INDEX</small><b>{intelligenceScore}</b><i style={{"--score":`${intelligenceScore}%`} as React.CSSProperties}/></span><span className="performanceIntelligenceCopy"><small>PERFORMANCE INTELLIGENCE</small><b>{intelligenceHeadline}</b><span>{intelligenceDetail}</span></span><strong>ACT →</strong></button>
     <button type="button" className="commercialStartToday nativePrimaryAction elitePrimaryAction" onClick={()=>setTab(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach")}><span><small>YOUR NEXT MOVE</small><b>{nextWorkout?.name||(!latestReadiness?"Complete Daily Check-In":"Open Today's Plan")}</b></span><strong>Start →</strong></button>
     <button type="button" className="premiumRoleFocusCard nativeFeatureStory eliteFocusStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>{roleFocus.action} →</strong></button>
     {eliteVisualPerformance}
+    <button type="button" className="eliteRecoveryHome" onClick={()=>setTab("Coach")} aria-label="Open Recovery tips and readiness">
+     <span className="eliteRecoveryIcon"><PremiumAppIcon name="recovery"/></span>
+     <div className="eliteRecoveryCopy"><small>RECOVERY TIPS</small><b>{recoveryHeadline}</b><span>{recoveryTips[0]}</span></div>
+     <div className="eliteRecoveryMiniTips">{recoveryTips.slice(1).map((tip,index)=><span key={index}>{tip}</span>)}</div>
+     <strong>OPEN RECOVERY →</strong>
+    </button>
     <div className="nativeEditorialSection eliteActionSection"><div className="nativeSectionKicker"><span>MOVE FORWARD</span><b>Four ways into your day</b></div><div className="nativeActionList">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="nativeActionIndex">0{index+1}</span><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>↗</strong></button>)}</div></div>
    </div>
   </section>;
@@ -903,6 +936,10 @@ export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
  const [showFeatureOverview,setShowFeatureOverview]=useState(false);
  const [featureOverviewSource,setFeatureOverviewSource]=useState<"setup"|"help">("help");
  const [showSettings,setShowSettings]=useState(false);
+ const [showNotifications,setShowNotifications]=useState(false);
+ const [notificationPrefs,setNotificationPrefs]=useState<NotificationPrefs>({training:true,recovery:true,goals:true,progress:true,cloud:true});
+ const [notificationReadIds,setNotificationReadIds]=useState<string[]>([]);
+ const [lastLocalSnapshotAt,setLastLocalSnapshotAt]=useState("");
  const [textSize,setTextSize]=useState<TextSize>("comfortable");
  const [profileSavedForGuide,setProfileSavedForGuide]=useState(false);
  const [showReadinessPrompt,setShowReadinessPrompt]=useState(false);
@@ -983,16 +1020,34 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  useEffect(()=>{
   try{
    const saved=localStorage.getItem("uiTextSize") as TextSize|null;
-   if(saved&&(["standard","comfortable","large","xlarge"] as TextSize[]).includes(saved))setTextSize(saved);
+   if(saved&&(["standard","comfortable","large","xlarge","xxlarge","maximum"] as TextSize[]).includes(saved))setTextSize(saved);
   }catch{}
  },[]);
  const changeTextSize=(size:TextSize)=>{
   setTextSize(size);
   try{localStorage.setItem("uiTextSize",size)}catch{}
  };
+ useEffect(()=>{
+  try{
+   const raw=localStorage.getItem("notificationPrefs");
+   if(raw)setNotificationPrefs(x=>({...x,...JSON.parse(raw)}));
+   const read=localStorage.getItem("notificationReadIds");
+   if(read)setNotificationReadIds(Array.isArray(JSON.parse(read))?JSON.parse(read):[]);
+   setLastLocalSnapshotAt(localStorage.getItem("lastLocalSnapshotAt")||"");
+  }catch{}
+ },[]);
+ useEffect(()=>{try{localStorage.setItem("notificationPrefs",JSON.stringify(notificationPrefs))}catch{}},[notificationPrefs]);
+ useEffect(()=>{try{localStorage.setItem("notificationReadIds",JSON.stringify(notificationReadIds.slice(-80)))}catch{}},[notificationReadIds]);
 
  useEffect(()=>setMounted(true),[]);
- useEffect(()=>{try{localStorage.setItem(`athleteData:${activeAthleteId}`,JSON.stringify({profile,goals,workouts,results,development:dev,program,readiness,coachNotes,competitions,reportNotes,developmentSystem}))}catch{}},[activeAthleteId,profile,goals,workouts,results,dev,program,readiness,coachNotes,competitions,reportNotes,developmentSystem]);
+ useEffect(()=>{
+  try{
+   localStorage.setItem(`athleteData:${activeAthleteId}`,JSON.stringify({profile,goals,workouts,results,development:dev,program,readiness,coachNotes,competitions,reportNotes,developmentSystem}));
+   const stamp=new Date().toISOString();
+   localStorage.setItem("lastLocalSnapshotAt",stamp);
+   setLastLocalSnapshotAt(stamp);
+  }catch{}
+ },[activeAthleteId,profile,goals,workouts,results,dev,program,readiness,coachNotes,competitions,reportNotes,developmentSystem]);
 
  
  const storageKey=(id:string)=>`athleteData:${id}`;
@@ -1000,6 +1055,17 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  const buildSnapshot=():AthleteSnapshot=>({
    profile:{...profile},goals:[...goals],workouts:[...workouts],results:[...results],development:[...dev],program:program?{...program,sessions:program.sessions.map(x=>({...x}))}:null,readiness:[...readiness],coachNotes:[...coachNotes],competitions:[...competitions],reportNotes:[...reportNotes],developmentSystem:normalizeDevelopmentSystem(developmentSystem)
  });
+
+ const downloadRecoveryBackup=()=>{
+  try{
+   const payload={version:"72.3.88",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+   const url=URL.createObjectURL(blob);
+   const a=document.createElement("a");
+   a.href=url;a.download=`athlete-performance-backup-${(profile.name||"athlete").replace(/[^a-z0-9]+/gi,"-").toLowerCase()}-${today()}.json`;
+   document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  }catch{}
+ };
 
  const saveActiveSnapshot=()=>{
    try{localStorage.setItem(storageKey(activeAthleteId),JSON.stringify(buildSnapshot()))}catch{}
@@ -1230,6 +1296,32 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  const thisWeekStart=mondayOfWeek();
  const hasReadinessToday=readiness.some(r=>r.date===todayLocal);
  const hasCurrentWeekReview=weeklyReviews.some(r=>r.weekStart===thisWeekStart);
+ const appNotices=useMemo<InAppNotice[]>(()=>{
+  const notices:InAppNotice[]=[];
+  const latest=readiness.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const readinessNow=latest?readinessScoreV2(latest,Number(profile.age||0)):null;
+  const next=workouts.filter(w=>w.sport===sport&&!w.completed&&w.date>=todayLocal).slice().sort((a,b)=>a.date.localeCompare(b.date))[0];
+  const goalNear=goals.filter(g=>(g.status||"Active")!=="Complete"&&Number(g.progress||0)>=80).slice().sort((a,b)=>Number(b.progress||0)-Number(a.progress||0))[0];
+  const sportResults=results.filter(r=>r.sport===sport).slice().sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  const recent=sportResults[0],previous=recent?sportResults.find(r=>r.testId===recent.testId&&r.id!==recent.id):undefined;
+  if(notificationPrefs.cloud&&betaBridge&&(cloudStatus==="waiting"||cloudStatus==="error"||pendingCloudSave))notices.push({id:`cloud-${cloudStatus}`,title:cloudStatus==="error"?"Cloud save needs attention":"Changes are waiting to sync",detail:cloudErrorMessage||"Your latest work is protected locally. Retry when the connection is available.",tone:"watch",action:"retry-sync"});
+  if(notificationPrefs.recovery&&readinessNow!==null&&readinessNow<60)notices.push({id:`recovery-${latest?.date||todayLocal}`,title:"Recovery-first day",detail:`Readiness is ${readinessNow}/100. Protect sleep, hydration, mobility, and optional training volume.`,tone:"watch",tab:"Coach"});
+  if(notificationPrefs.training&&next)notices.push({id:`training-${next.id}-${next.date}`,title:next.date===todayLocal?"Training is on deck today":"Next training is scheduled",detail:`${next.name} · ${friendlyDate(next.date)} · ${next.minutes} min`,tone:"info",tab:"Calendar"});
+  if(notificationPrefs.goals&&goalNear)notices.push({id:`goal-${goalNear.id}-${goalNear.progress}`,title:"Goal is close",detail:`${goalNear.title} is ${goalNear.progress}% complete. Finish the next small step.`,tone:"good",tab:"Goals"});
+  if(notificationPrefs.progress&&recent&&previous){
+   const def=definitions(sport).find(x=>x.id===recent.testId)||({lowerBetter:recent.unit==="sec"} as TestDef);
+   const delta=((def.lowerBetter?previous.value-recent.value:recent.value-previous.value)/Math.max(Math.abs(previous.value),.0001))*100;
+   if(delta>1)notices.push({id:`progress-${recent.id}`,title:"Performance trend improved",detail:`${recent.name} moved ${Math.round(delta*10)/10}% in the right direction.`,tone:"good",tab:"Analytics"});
+  }
+  return notices.slice(0,8);
+ },[readiness,profile.age,workouts,sport,goals,results,notificationPrefs,betaBridge,cloudStatus,pendingCloudSave,cloudErrorMessage,todayLocal]);
+ const unreadNotices=appNotices.filter(n=>!notificationReadIds.includes(n.id));
+ const openNotice=(notice:InAppNotice)=>{
+  setNotificationReadIds(ids=>ids.includes(notice.id)?ids:[...ids,notice.id]);
+  if(notice.action==="retry-sync"){void retryPendingCloudSave();return}
+  if(notice.tab)setTab(notice.tab);
+  setShowNotifications(false);
+ };
 
  useEffect(()=>{
   if(!mounted||!accountSession||showGuide||showSkipSetupDisclaimer||showFeatureOverview)return;
@@ -1622,7 +1714,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  ];
  const filteredActions=quickActions.filter(a=>visibleTabs.includes(a.tab)).filter(a=>!commandQuery.trim()||(`${a.label} ${a.keywords.join(" ")}`).toLowerCase().includes(commandQuery.toLowerCase()));
  useEffect(()=>{
-  const handler=(e:KeyboardEvent)=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();setCommandOpen(x=>!x)}if(e.key==="Escape"){setCommandOpen(false);setShowSettings(false)}};
+  const handler=(e:KeyboardEvent)=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();setCommandOpen(x=>!x)}if(e.key==="Escape"){setCommandOpen(false);setShowSettings(false);setShowNotifications(false)}};
   window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)
  },[]);
 
@@ -1637,8 +1729,15 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    {betaBridge?.returnToCoachWorkspace&&accountRole==="Coach"&&betaBridge.selectedAthleteName&&<button className="headerUtilityButton coachReturnButton" onClick={betaBridge.returnToCoachWorkspace}>Coach Home</button>}
    {betaBridge?.openBetaAdmin&&accountRole==="Admin"&&<button className="headerUtilityButton" onClick={betaBridge.openBetaAdmin}>Beta Admin</button>}
    {betaBridge?.openFeedback&&<button className="headerUtilityButton reportProblemButton" onClick={betaBridge.openFeedback}>Report Problem</button>}
-   <button className="settingsButton" onClick={()=>setShowSettings(true)} aria-label="Open settings">Settings</button><button className="helpButton" onClick={resumeGuide}>Help</button>
+   <button type="button" className="notificationButton" onClick={()=>setShowNotifications(true)} aria-label={`Open alerts${unreadNotices.length?` (${unreadNotices.length} unread)`:""}`}><span>Alerts</span>{unreadNotices.length>0&&<i>{unreadNotices.length}</i>}</button>
+   <button type="button" className="settingsButton" data-settings-trigger="true" onClick={()=>setShowSettings(true)} aria-label="Open settings">Settings</button><button className="helpButton" onClick={resumeGuide}>Help</button>
   </div></header>
+  {betaBridge&&<div className="betaReliabilityRail" role="status" aria-label="Beta reliability status">
+   <span className={cloudOnline?"online":"offline"}><i/>{cloudOnline?"ONLINE":"OFFLINE"}</span>
+   <span><b>Cloud</b> {cloudStatus==="saved"?"Synced":cloudStatus==="loading"?"Saving":cloudStatus==="waiting"?"Queued":cloudStatus==="error"?"Needs retry":"Local"}</span>
+   <span><b>Recovery point</b> {lastLocalSnapshotAt?new Date(lastLocalSnapshotAt).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"}):"Building"}</span>
+   {(cloudStatus==="waiting"||cloudStatus==="error")&&<button type="button" onClick={()=>void retryPendingCloudSave()} disabled={!cloudOnline}>Retry sync</button>}
+  </div>}
   {accountRole==="Admin"&&<div className="adminPreviewBar" role="region" aria-label="Admin preview controls">
     <div className="adminPreviewIdentity">
       <small>ADMIN TEST MODE</small>
@@ -1725,7 +1824,12 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <p>You can skip the guided setup now, but some profile information or app features may still need to be completed. You can tap <b>Help</b> at any time to continue the setup guide from where you left off.</p>
    <div className="skipSetupActions"><button onClick={()=>setShowSkipSetupDisclaimer(false)}>Continue Setup</button><button className="skipAnywayButton" onClick={confirmSkipSetup}>Skip Setup Anyway</button></div>
   </div></div></ViewportPortal>}
-  {showSettings&&<div className="settingsOverlay" role="dialog" aria-modal="true" aria-label="App settings" onClick={()=>setShowSettings(false)}><div className="settingsCard" onClick={e=>e.stopPropagation()}>
+  {showNotifications&&<ViewportPortal><div className="notificationOverlay" role="dialog" aria-modal="true" aria-label="Performance alerts" onClick={()=>setShowNotifications(false)}><div className="notificationPanel" onClick={e=>e.stopPropagation()}>
+   <div className="notificationHead"><div><small>PERFORMANCE ALERTS</small><h2>What needs attention</h2><p>Actionable reminders from training, recovery, goals, progress, and cloud sync.</p></div><button type="button" onClick={()=>setShowNotifications(false)} aria-label="Close alerts">×</button></div>
+   <div className="notificationList">{appNotices.length?appNotices.map(notice=><button type="button" key={notice.id} className={`notificationItem ${notice.tone} ${notificationReadIds.includes(notice.id)?"read":"unread"}`} onClick={()=>openNotice(notice)}><i/><div><b>{notice.title}</b><span>{notice.detail}</span></div><strong>{notice.action==="retry-sync"?"Retry":"Open"} →</strong></button>):<div className="notificationEmpty"><b>You're caught up.</b><span>No performance alerts need attention right now.</span></div>}</div>
+   <div className="notificationFooter"><button type="button" onClick={()=>setNotificationReadIds(appNotices.map(n=>n.id))}>Mark all read</button><button type="button" className="featureAction" onClick={()=>{setShowNotifications(false);setShowSettings(true)}}>Alert settings</button></div>
+  </div></div></ViewportPortal>}
+  {showSettings&&<ViewportPortal><div className="settingsOverlay viewportSettingsOverlay" role="dialog" aria-modal="true" aria-label="App settings" onClick={()=>setShowSettings(false)}><div className="settingsCard" onClick={e=>e.stopPropagation()}>
    <div className="settingsHead"><div><small>SETTINGS</small><h2>Display & Text</h2><p>Choose the text size that is easiest to read. Your choice is saved on this device.</p></div><button className="settingsClose" aria-label="Close settings" onClick={()=>setShowSettings(false)}>×</button></div>
    <div className="textSizeSetting">
     <div className="settingLabel"><b>Text size</b><span>Applies throughout the app, including workout instructions and navigation.</span></div>
@@ -1734,13 +1838,26 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
        ["standard","Standard","100%"],
        ["comfortable","Comfortable","110%"],
        ["large","Large","120%"],
-       ["xlarge","Extra Large","132%"]
+       ["xlarge","Extra Large","132%"],
+       ["xxlarge","Accessibility Large","150%"],
+       ["maximum","Maximum","180%"]
       ] as [TextSize,string,string][]).map(([value,label,scale])=><button type="button" key={value} className={textSize===value?"active":""} onClick={()=>changeTextSize(value)}><span className="textSizeSample">Aa</span><div><b>{label}</b><small>{scale}</small></div>{textSize===value&&<strong>✓</strong>}</button>)}
     </div>
     <div className="textPreview"><small>PREVIEW</small><b>Training should be easy to read.</b><p>Exercise instructions, setup steps, coaching cues, and safety notes will use this text size.</p></div>
    </div>
+   <div className="notificationSettings">
+    <div className="settingLabel"><b>Performance alerts</b><span>Choose which signals appear in the in-app Alerts center.</span></div>
+    <div className="notificationPreferenceGrid">{([
+     ["training","Training & schedule"],["recovery","Recovery & readiness"],["goals","Goal milestones"],["progress","Testing & progress"],["cloud","Cloud sync"]
+    ] as [keyof NotificationPrefs,string][]).map(([key,label])=><label key={key}><input type="checkbox" checked={notificationPrefs[key]} onChange={e=>setNotificationPrefs(x=>({...x,[key]:e.target.checked}))}/><span>{label}</span></label>)}</div>
+   </div>
+   <div className="reliabilitySettings">
+    <div className="settingLabel"><b>Beta reliability</b><span>Your athlete data is continuously protected in a local recovery point while cloud sync is active.</span></div>
+    <div className="reliabilitySettingsGrid"><div><small>CONNECTION</small><b>{cloudOnline?"Online":"Offline"}</b></div><div><small>CLOUD</small><b>{cloudStatus}</b></div><div><small>LOCAL RECOVERY</small><b>{lastLocalSnapshotAt?new Date(lastLocalSnapshotAt).toLocaleString():"Building"}</b></div></div>
+    <button type="button" className="recoveryBackupButton" onClick={downloadRecoveryBackup}>Download recovery backup</button>
+   </div>
    <div className="settingsFooter"><button onClick={()=>changeTextSize("comfortable")}>Use Recommended Size</button><button className="featureAction" onClick={()=>setShowSettings(false)}>Done</button></div>
-  </div></div>}
+  </div></div></ViewportPortal>}
   {commandOpen&&<div className={"commandOverlay "+(juniorPlayerMode?"juniorFeatureOverlay":"")} role="dialog" aria-modal="true" aria-label={juniorPlayerMode?"All Junior Player features":"Quick navigation"} onClick={()=>setCommandOpen(false)}><div className={"commandPalette "+(juniorPlayerMode?"juniorFeaturePalette":"")} onClick={e=>e.stopPropagation()}><div className="sectionHead"><div><small>{juniorPlayerMode?"JUNIOR PLAYER":"QUICK NAVIGATION"}</small><h2>{juniorPlayerMode?"All My Features":"Go to a section"}</h2></div><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder={juniorPlayerMode?"Search my features…":"Search Overview, Goals, Testing, Roster…"}/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span className="commandResultIcon"><NavMetaIcon icon={navMeta[a.tab]?.icon}/></span><b>{a.label}</b><small>{juniorPlayerMode?(playerPageHelp[a.tab]?.purpose||"Open this feature"):a.keywords.join(" · ")}</small></button>)}</div>{juniorPlayerMode&&filteredActions.length===0&&<div className="juniorFeatureEmpty">No matching feature. Try a different word.</div>}</div></div>}
  {navSheet&&<ViewportPortal><div className="simpleNavOverlay viewportNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
    <div className="sectionHead"><div><small>{navSheet.toUpperCase()}</small><h2>{navSheet==="More"?"More Features":navSheet}</h2></div><button onClick={()=>setNavSheet(null)}>×</button></div>
@@ -3660,7 +3777,7 @@ function Goals({viewRole,actualRole,authorName,goals,setGoals,juniorMode=false}:
   </div>;
  };
 
- return <><div className={"hero "+(juniorMode?"juniorGoalHero":"")}><small>{juniorMode?"MY GOAL":viewRole==="Player"?"MY GOALS":"GOALS"}</small><h1>{juniorMode?"What do I want to get better at?":viewRole==="Player"?"My Goals":"Player Goals"}</h1><p>{juniorMode?"Type your goal below. A Parent can help you type it, but it is still your goal.":viewRole==="Player"?"Set goals that matter to you and track your own progress.":"Review the athlete's Player-owned short-, mid-, and long-term development goals."}</p></div>
+ return <div className="eliteGoalsPage" data-junior={juniorMode?"true":"false"} data-role={viewRole}><div className={"hero "+(juniorMode?"juniorGoalHero":"")}><small>{juniorMode?"MY GOAL":viewRole==="Player"?"MY GOALS":"GOALS"}</small><h1>{juniorMode?"What do I want to get better at?":viewRole==="Player"?"My Goals":"Player Goals"}</h1><p>{juniorMode?"Type your goal below. A Parent can help you type it, but it is still your goal.":viewRole==="Player"?"Set goals that matter to you and track your own progress.":"Review the athlete's Player-owned short-, mid-, and long-term development goals."}</p></div>
 
  {juniorMode&&viewRole==="Player"&&<div className="card setupAnchor createGoalCard juniorGoalCard juniorGoalEntryCard" id="setup-goals" tabIndex={-1}>
   <div className="juniorGoalEntryHead"><span className="juniorGoalEntryIcon">★</span><div><small>ADD MY GOAL</small><h2>What do you want to get better at?</h2><p>Write one thing you want to improve, then tell us how you will know you did it.</p></div></div>
@@ -3675,6 +3792,13 @@ function Goals({viewRole,actualRole,authorName,goals,setGoals,juniorMode=false}:
  </div>}
 
  <div className={"goalOwnershipNotice "+viewRole.toLowerCase()}><span className="tag">{roleMessage.tag}</span><div><h2>{roleMessage.title}</h2><p>{roleMessage.body}</p></div></div>
+
+ {!juniorMode&&<div className="eliteGoalsSignalRail" aria-label="Goal performance summary">
+  <div><small>ACTIVE</small><strong>{active.length}</strong><span>current targets</span></div>
+  <div><small>MOMENTUM</small><strong>{goalMomentum}%</strong><span>average progress</span></div>
+  <div><small>NEAR FINISH</small><strong>{closeGoals.length}</strong><span>70% or higher</span></div>
+  <div><small>COMPLETE</small><strong>{completedGoalRows.length}</strong><span>goals achieved</span></div>
+ </div>}
 
  <details className="simpleDisclosure advancedTools"><summary><div><b>Goal Insights</b><small>Quality, momentum, completion, and overdue analysis</small></div><span>Open</span></summary><div className="simpleDisclosureBody"><div className="goalQuality"><div><small>GOAL QUALITY</small><b>{goalQuality}%</b><span>measurable + time-bound</span></div><div className="progress"><i style={{width:`${goalQuality}%`}}/></div></div>
  <div className="goalIntelligence">
@@ -3721,9 +3845,8 @@ function Goals({viewRole,actualRole,authorName,goals,setGoals,juniorMode=false}:
  {goals.some(g=>(g.status||"Active")==="Paused")&&<div className="card"><h2>Paused Goals</h2>{goals.filter(g=>(g.status||"Active")==="Paused").map(g=><div className="goalCard compact playerOwnedGoalCard" key={g.id}><div><b>{g.title}</b><small>{g.category||"Performance"} · {g.progress}%</small></div>{canOwnGoals&&<button onClick={()=>update(g.id,{status:"Active"})}>Resume</button>}{!canOwnGoals&&<span className="tag">PLAYER PAUSED</span>}{renderFeedback(g)}</div>)}</div>}
 
  <details className="simpleDisclosure advancedTools"><summary><div><b>Completed Goals</b><small>Past goal history</small></div><span>Open</span></summary><div className="simpleDisclosureBody"><div className="card"><h2>Completed Goals</h2>{complete.length===0?<p>No completed goals yet.</p>:complete.slice(0,10).map(g=><div className="goalCard compact doneGoal playerOwnedGoalCard" key={g.id}><div><b>{g.title}</b><small>{g.category||"Performance"}{g.deadline?" · "+g.deadline:""}</small></div><span>✓ Complete</span>{renderFeedback(g)}</div>)}</div></div></details>
- </>;
+ </div>;
 }
-
 function Calendar({accountRole,sport,workouts,setWorkouts,profile,seasonEvents,setSeasonEvents,trainingBlocks,setTrainingBlocks,competitions}:{accountRole:AccountRole;sport:Sport;workouts:Workout[];setWorkouts:any;profile:Profile;seasonEvents:SeasonEvent[];setSeasonEvents:React.Dispatch<React.SetStateAction<SeasonEvent[]>>;trainingBlocks:TrainingBlock[];setTrainingBlocks:React.Dispatch<React.SetStateAction<TrainingBlock[]>>;competitions:CompetitionLog[]}){
  const canWriteTraining=canRole(accountRole,"writeTraining");
  const canScheduleWorkout=canWriteTraining||canRole(accountRole,"scheduleWorkout");
@@ -5599,7 +5722,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.80 RC30","good"],
+  ["App Version","72.3.88 RC38","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],

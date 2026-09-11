@@ -22,7 +22,7 @@ for(const [sport,file] of Object.entries(realistic)){
 }
 checks.push(['Junior mode keeps sport-specific illustrated asset',app.includes('if(juniorMode)return sportHeroAsset(sport)')]);
 checks.push(['all non-Junior sports are realistic',app.includes('const premiumHomeHeroIsRealistic=(_sport:Sport,juniorMode:boolean)=>!juniorMode')]);
-checks.push(['Hockey Coach keeps dedicated coach scene',app.includes('/commercial-scenes/ice-hockey-coach.webp')]);
+checks.push(['Hockey Coach keeps dedicated coach scene',app.includes('/commercial-scenes/ice-hockey-coach-role.webp')]);
 checks.push(['hero exposes current sport marker',app.includes('data-hero-sport={sport}')]);
 checks.push(['hero exposes realistic vs illustrated marker',app.includes('data-hero-style={realisticHero?"realistic":"illustrated"}')]);
 checks.push(['RC20 realistic CSS is present',css.includes('Phase 72.3.70 RC20')]);

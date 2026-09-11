@@ -2129,6 +2129,8 @@ input,select,textarea{min-height:42px}
 .app[data-text-size="comfortable"]{--ui-text-scale:1.10}
 .app[data-text-size="large"]{--ui-text-scale:1.20}
 .app[data-text-size="xlarge"]{--ui-text-scale:1.32}
+.app[data-text-size="xxlarge"]{--ui-text-scale:1.50}
+.app[data-text-size="maximum"]{--ui-text-scale:1.80}
 
 /* Raise the app's minimum everyday reading sizes. */
 .app p,
@@ -8647,3 +8649,629 @@ input:focus,select:focus,textarea:focus{
  .eliteVisualMetric strong{font-size:21px}
  .performanceOS .nativeActionList b{font-size:13px!important}
 }
+
+/* Phase 72.3.81 RC31 — Elite Home / Goals / Recovery refinement */
+
+/* Kill inherited circular pseudo-element geometry on the cinematic hero.
+   Earlier phases reused ::before from the old rounded-card hero, leaving a 250px circle. */
+.performanceOS .elitePerformanceHero::before{
+ width:auto!important;height:auto!important;left:0!important;right:0!important;top:0!important;bottom:0!important;
+ border-radius:0!important;border:0!important;box-shadow:none!important;
+}
+.performanceOS .elitePerformanceHero{border-radius:0!important;box-shadow:0 22px 70px rgba(0,0,0,.38)!important}
+.performanceOS .elitePerformanceHero::after{border-radius:0!important}
+
+/* Make Progress unmistakable as an interactive destination. */
+.performanceOS .eliteTrendSignal .eliteSignalTop small{color:#8ed6ff!important;letter-spacing:.17em!important}
+.performanceOS .eliteVisualAction{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
+.performanceOS .eliteVisualAction b{font-size:9px!important;letter-spacing:.16em!important;color:#8ed6ff!important}
+.performanceOS .eliteVisualAction span{font-size:9px!important;color:#a9bbb3!important;font-weight:800!important}
+
+/* Recovery is now a first-class Player Home destination. */
+.performanceOS .eliteRecoveryHome{
+ width:100%;display:grid;grid-template-columns:48px minmax(0,1.1fr) minmax(0,1fr) auto;align-items:center;gap:14px;
+ margin:0!important;padding:16px 0!important;border:0!important;border-top:1px solid rgba(94,245,163,.32)!important;border-bottom:1px solid var(--elite-line)!important;
+ border-radius:0!important;background:linear-gradient(90deg,rgba(24,105,70,.16),rgba(5,12,9,.02) 54%,transparent)!important;
+ color:#eef7f2!important;text-align:left!important;box-shadow:none!important;clip-path:none!important
+}
+.performanceOS .eliteRecoveryHome:hover{background:linear-gradient(90deg,rgba(31,139,91,.22),rgba(5,12,9,.035) 58%,transparent)!important}
+.performanceOS .eliteRecoveryIcon{width:42px;height:42px;display:grid;place-items:center;border-left:2px solid #46ec91;color:#46ec91;background:rgba(70,236,145,.055)}
+.performanceOS .eliteRecoveryIcon svg{width:22px;height:22px}
+.performanceOS .eliteRecoveryCopy{min-width:0}
+.performanceOS .eliteRecoveryCopy small{display:block;font-size:7px;font-weight:950;letter-spacing:.18em;color:#46ec91}
+.performanceOS .eliteRecoveryCopy b{display:block;margin:4px 0 3px;font-size:16px;letter-spacing:-.02em;color:#f0f7f3}
+.performanceOS .eliteRecoveryCopy span{display:block;font-size:9px;line-height:1.4;color:#9eb0a8}
+.performanceOS .eliteRecoveryMiniTips{display:grid;gap:5px;min-width:0}
+.performanceOS .eliteRecoveryMiniTips span{position:relative;padding-left:12px;font-size:8px;line-height:1.35;color:#82978d}
+.performanceOS .eliteRecoveryMiniTips span::before{content:"";position:absolute;left:0;top:.48em;width:5px;height:1px;background:#46ec91}
+.performanceOS .eliteRecoveryHome>strong{font-size:8px;letter-spacing:.12em;white-space:nowrap;color:#d7e3dd}
+
+/* Goals page: editorial goal board, not rounded dashboard cards. */
+.performanceOS .eliteGoalsPage[data-junior="false"]{--goal-accent:#42ee91;position:relative}
+.performanceOS .eliteGoalsPage[data-junior="false"]>.hero{
+ border-radius:0!important;border:0!important;border-top:1px solid rgba(255,255,255,.09)!important;border-bottom:1px solid var(--elite-line-hi)!important;
+ background:linear-gradient(100deg,rgba(12,35,25,.82),rgba(5,11,9,.96) 64%),repeating-linear-gradient(125deg,transparent 0 72px,rgba(255,255,255,.018) 73px 74px)!important;
+ box-shadow:none!important;padding:22px 0 20px!important
+}
+.performanceOS .eliteGoalsPage[data-junior="false"]>.hero small{color:var(--goal-accent)!important;letter-spacing:.18em!important}
+.performanceOS .eliteGoalsPage[data-junior="false"]>.hero h1{font-size:clamp(32px,7vw,54px)!important;letter-spacing:-.055em!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] :is(.card,.goalCard,.goalOwnershipNotice,.goalReadOnlyOwnership,.goalQuality,.goalQuickGuide>div,.goalFormula,.goalEmptyState,.goalFeedbackItem,.simpleDisclosure,.advancedTools,.stat){
+ border-radius:0!important;box-shadow:none!important
+}
+.performanceOS .eliteGoalsPage[data-junior="false"]>.goalOwnershipNotice{
+ margin:0!important;padding:14px 0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--elite-line)!important;border-left:0!important
+}
+.performanceOS .eliteGoalsPage[data-junior="false"]>.goalOwnershipNotice .tag{border-radius:0!important;border:0!important;border-left:2px solid var(--goal-accent)!important;background:transparent!important;padding-left:9px!important}
+.performanceOS .eliteGoalsSignalRail{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0 0 18px;border-top:1px solid var(--elite-line-hi);border-bottom:1px solid var(--elite-line-hi);background:rgba(255,255,255,.008)
+}
+.performanceOS .eliteGoalsSignalRail>div{padding:13px 14px;border-right:1px solid var(--elite-line);min-width:0}
+.performanceOS .eliteGoalsSignalRail>div:last-child{border-right:0}
+.performanceOS .eliteGoalsSignalRail small,.performanceOS .eliteGoalsSignalRail strong,.performanceOS .eliteGoalsSignalRail span{display:block}
+.performanceOS .eliteGoalsSignalRail small{font-size:7px;font-weight:950;letter-spacing:.16em;color:#8b9d95}
+.performanceOS .eliteGoalsSignalRail strong{margin:3px 0 2px;font-size:24px;line-height:1;color:#eef7f2;letter-spacing:-.04em}
+.performanceOS .eliteGoalsSignalRail span{font-size:8px;color:#6f837a}
+.performanceOS .eliteGoalsPage[data-junior="false"] .simpleDisclosure{border-left:0!important;border-right:0!important;background:transparent!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .simpleDisclosure>summary{border-radius:0!important;background:transparent!important;border-top:1px solid var(--elite-line)!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalQuality{padding:14px 0!important;margin:0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalIntelligence{gap:0!important;margin:0!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalIntelligence>div{border:0!important;border-right:1px solid var(--elite-line)!important;background:transparent!important;padding:13px!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalIntelligence>div:last-child{border-right:0!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalIntelligence>div::after,.performanceOS .eliteGoalsPage[data-junior="false"] .stat::after{display:none!important}
+.performanceOS .eliteGoalsPage[data-junior="false"]>.card,
+.performanceOS .eliteGoalsPage[data-junior="false"]>.simpleDisclosure,
+.performanceOS .eliteGoalsPage[data-junior="false"]>.goalReadOnlyOwnership{
+ background:transparent!important;border-left:0!important;border-right:0!important;border-top:1px solid var(--elite-line)!important;border-bottom:1px solid var(--elite-line)!important;padding:18px 0!important
+}
+.performanceOS .eliteGoalsPage[data-junior="false"] .createGoalCard{border-top:2px solid rgba(66,238,145,.38)!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalQuickGuide{gap:0!important;border-top:1px solid var(--elite-line)!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalQuickGuide>div{background:transparent!important;border:0!important;border-right:1px solid var(--elite-line)!important;padding:13px!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalQuickGuide>div:last-child{border-right:0!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalQuickGuide>div>span{border-radius:0!important;background:transparent!important;color:var(--goal-accent)!important;border:1px solid rgba(66,238,145,.34)!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalFormula{background:linear-gradient(90deg,rgba(66,238,145,.075),transparent)!important;border:0!important;border-left:2px solid var(--goal-accent)!important;padding:12px 14px!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] :is(input,select,textarea){border-radius:2px!important;background:#07100d!important;border-color:#26352f!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] button{border-radius:2px!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalCard{
+ position:relative;margin:0!important;padding:17px 0 18px 13px!important;background:linear-gradient(90deg,rgba(66,238,145,.035),transparent 62%)!important;
+ border:0!important;border-bottom:1px solid var(--elite-line)!important;border-left:2px solid rgba(66,238,145,.36)!important
+}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalCard h2{font-size:17px!important;letter-spacing:-.025em!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalCard>.row>strong{font-size:26px!important;color:var(--goal-accent)!important;letter-spacing:-.05em}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalCard .progress{height:3px!important;border-radius:0!important;background:#0a1410!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalCard .progress i{border-radius:0!important;background:linear-gradient(90deg,#28cb76,#55f2a0)!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalActions{border-top:1px solid var(--elite-line)!important;padding-top:10px!important}
+.performanceOS .eliteGoalsPage[data-junior="false"] .goalFeedbackComposer{border-top:1px solid var(--elite-line)!important;padding-top:12px!important}
+
+/* Subtle extra visual depth without card soup. */
+.performanceOS .elitePlayerFlow{position:relative}
+.performanceOS .elitePlayerFlow::before{content:"";position:absolute;pointer-events:none;left:-10px;right:-10px;top:0;height:160px;background:linear-gradient(180deg,rgba(57,232,137,.028),transparent);z-index:-1}
+.performanceOS .eliteActionSection{border-top:1px solid var(--elite-line-hi)!important}
+.performanceOS .eliteActionSection .nativeActionList>button{transition:background .16s ease,border-color .16s ease}
+.performanceOS .eliteActionSection .nativeActionList>button:hover{background:linear-gradient(90deg,rgba(62,220,134,.055),transparent)!important}
+
+@media(max-width:700px){
+ .performanceOS .eliteRecoveryHome{grid-template-columns:42px minmax(0,1fr) auto;gap:10px;padding:14px 0!important}
+ .performanceOS .eliteRecoveryMiniTips{display:none}
+ .performanceOS .eliteRecoveryHome>strong{font-size:7px}
+ .performanceOS .eliteGoalsSignalRail{grid-template-columns:1fr 1fr}
+ .performanceOS .eliteGoalsSignalRail>div:nth-child(2){border-right:0}
+ .performanceOS .eliteGoalsSignalRail>div:nth-child(-n+2){border-bottom:1px solid var(--elite-line)}
+ .performanceOS .eliteGoalsPage[data-junior="false"] .goalQuickGuide{grid-template-columns:1fr!important}
+ .performanceOS .eliteGoalsPage[data-junior="false"] .goalQuickGuide>div{border-right:0!important;border-bottom:1px solid var(--elite-line)!important}
+ .performanceOS .eliteGoalsPage[data-junior="false"] .goalQuickGuide>div:last-child{border-bottom:0!important}
+}
+@media(max-width:390px){
+ .performanceOS .eliteRecoveryHome{grid-template-columns:38px minmax(0,1fr);}
+ .performanceOS .eliteRecoveryHome>strong{grid-column:2;justify-self:start;margin-top:-3px}
+ .performanceOS .eliteRecoveryIcon{width:36px;height:40px}
+ .performanceOS .eliteGoalsSignalRail strong{font-size:21px}
+}
+
+/* ========================================================================== */
+/* Phase 72.3.82 RC32 — Professional Athletic System                         */
+/* Full-app polish: clearer progress, wide Coach hero, sharper elite surfaces */
+/* ========================================================================== */
+.performanceOS{
+ --pro-bg:#030806;
+ --pro-panel:#07110d;
+ --pro-panel-2:#0a1712;
+ --pro-ink:#f1f7f4;
+ --pro-muted:#84978e;
+ --pro-silver:#b6c2bc;
+ --pro-line:rgba(195,219,208,.13);
+ --pro-line-strong:rgba(203,229,217,.24);
+ --pro-green:#43ec91;
+ background:
+  radial-gradient(circle at 8% 0%,rgba(43,215,130,.08),transparent 24%),
+  radial-gradient(circle at 93% 12%,rgba(74,166,232,.055),transparent 20%),
+  linear-gradient(180deg,#040a08 0%,#020604 100%)!important;
+ color:var(--pro-ink)!important;
+}
+.performanceOS main{position:relative;isolation:isolate}
+.performanceOS main::before{
+ content:"";position:absolute;z-index:-1;pointer-events:none;inset:0 -18px;
+ background:
+  linear-gradient(115deg,transparent 0 72%,rgba(255,255,255,.012) 72.1% 72.35%,transparent 72.45%),
+  repeating-linear-gradient(180deg,transparent 0 119px,rgba(255,255,255,.009) 120px 121px);
+ opacity:.8;
+}
+.performanceOS[data-sport="Ice Hockey"] main::before{
+ background:
+  linear-gradient(90deg,transparent 0 31%,rgba(76,151,219,.025) 31.1% 31.35%,transparent 31.45% 68%,rgba(76,151,219,.025) 68.1% 68.35%,transparent 68.45%),
+  linear-gradient(180deg,transparent 0 44%,rgba(218,65,79,.018) 44.1% 44.3%,transparent 44.4%),
+  repeating-linear-gradient(180deg,transparent 0 119px,rgba(255,255,255,.009) 120px 121px);
+}
+
+/* Stronger professional type hierarchy across the full product. */
+.performanceOS main h1,.performanceOS main h2,.performanceOS main h3{
+ color:var(--pro-ink);font-weight:900;letter-spacing:-.035em;text-wrap:balance;
+}
+.performanceOS main h2{font-size:clamp(19px,3.2vw,29px);line-height:1.02}
+.performanceOS main h3{font-size:clamp(15px,2.5vw,20px)}
+.performanceOS main p{color:#a0b1a9;line-height:1.55}
+.performanceOS main small{font-weight:750}
+.performanceOS main .sectionHead{
+ position:relative;align-items:flex-end!important;padding:0 0 11px 12px!important;margin-bottom:13px!important;
+ border-bottom:1px solid var(--pro-line)!important;
+}
+.performanceOS main .sectionHead::before{
+ content:"";position:absolute;left:0;top:2px;bottom:11px;width:2px;background:var(--role-accent,var(--pro-green));
+ box-shadow:0 0 16px color-mix(in srgb,var(--role-accent,var(--pro-green)) 25%,transparent);
+}
+.performanceOS main .sectionHead small{font-size:7px!important;letter-spacing:.17em!important;text-transform:uppercase;color:var(--role-accent,var(--pro-green))!important}
+.performanceOS main .sectionHead p{margin-top:5px!important;font-size:10px!important;max-width:70ch}
+.performanceOS main .tag{
+ border-radius:1px!important;background:rgba(255,255,255,.02)!important;border:1px solid var(--pro-line-strong)!important;
+ color:#c7d3cd!important;letter-spacing:.12em!important;text-transform:uppercase!important;
+}
+
+/* Front-to-back surface reset: strips and ruled panels replace chat-style cards. */
+.performanceOS[data-junior="false"] main .card,
+.performanceOS[data-junior="false"] main .stat,
+.performanceOS[data-junior="false"] main .hero:not(.premiumHomeHero),
+.performanceOS[data-junior="false"] main .pageGuide,
+.performanceOS[data-junior="false"] main .goalCard,
+.performanceOS[data-junior="false"] main .parentExpandable,
+.performanceOS[data-junior="false"] main .parentMilestone,
+.performanceOS[data-junior="false"] main .activityItem{
+ border-radius:0!important;box-shadow:none!important;
+ background:linear-gradient(90deg,rgba(11,24,19,.66),rgba(5,12,9,.24) 72%,transparent)!important;
+ border-left:0!important;border-right:0!important;border-top:1px solid var(--pro-line)!important;border-bottom:1px solid var(--pro-line)!important;
+}
+.performanceOS[data-junior="false"] main .card{padding:18px 16px!important}
+.performanceOS[data-junior="false"] main .card+.card{margin-top:10px!important}
+.performanceOS main :is(input,select,textarea){
+ border-radius:1px!important;background:#050c09!important;border:1px solid #23342c!important;color:#edf5f1!important;
+ box-shadow:none!important;
+}
+.performanceOS main :is(input,select,textarea):focus{
+ border-color:color-mix(in srgb,var(--role-accent,var(--pro-green)) 65%,#23342c)!important;
+ outline:1px solid color-mix(in srgb,var(--role-accent,var(--pro-green)) 32%,transparent)!important;outline-offset:1px;
+}
+.performanceOS main .featureAction,
+.performanceOS main .primaryAction,
+.performanceOS main button.featureAction{
+ border-radius:1px!important;box-shadow:none!important;font-weight:900!important;letter-spacing:.03em!important;
+}
+.performanceOS main .featureAction{
+ clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
+}
+
+/* Tabs become a restrained performance-nav strip instead of pills. */
+.performanceOS main :is(.developmentModeTabs,.parentViewTabs,.sectionSubnav,.simpleSectionNav,.filters){
+ border-radius:0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--pro-line)!important;gap:0!important;
+}
+.performanceOS main :is(.developmentModeTabs,.parentViewTabs,.sectionSubnav,.simpleSectionNav,.filters)>button{
+ border-radius:0!important;background:transparent!important;border:0!important;border-bottom:2px solid transparent!important;
+ color:#8da098!important;box-shadow:none!important;
+}
+.performanceOS main :is(.developmentModeTabs,.parentViewTabs,.sectionSubnav,.simpleSectionNav,.filters)>button.sel,
+.performanceOS main :is(.developmentModeTabs,.parentViewTabs,.sectionSubnav,.simpleSectionNav,.filters)>button.active,
+.performanceOS main :is(.developmentModeTabs,.parentViewTabs,.sectionSubnav,.simpleSectionNav,.filters)>button[aria-selected="true"]{
+ color:#eef8f3!important;border-bottom-color:var(--role-accent,var(--pro-green))!important;
+}
+
+/* Progress must be unmistakably labeled on Player Home. */
+.performanceOS .eliteProgressHome{position:relative;grid-template-columns:minmax(145px,.7fr) minmax(150px,.9fr) minmax(110px,.45fr) minmax(220px,1.25fr) auto!important}
+.performanceOS .eliteProgressHeading{align-self:stretch;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--pro-line);padding-right:18px}
+.performanceOS .eliteProgressHeading span{display:block;color:#89d9ff;font-size:15px;font-weight:950;letter-spacing:.14em;line-height:1}
+.performanceOS .eliteProgressHeading small{display:block;margin-top:7px;color:#6e8178;font-size:6.5px;letter-spacing:.13em;line-height:1.45}
+.performanceOS .eliteProgressHome .eliteVisualCopy small{color:#9cb1a7!important}
+.performanceOS .eliteProgressHome .eliteVisualAction b{font-size:10px!important;color:#8edcff!important;letter-spacing:.15em!important}
+.performanceOS .eliteProgressHome .eliteVisualAction span{display:block!important;margin:5px 0 0!important;font-size:7px!important;color:#768a80!important}
+
+/* Coach hero gets a true wide asset and cinematic full-bleed treatment. */
+.performanceOS[data-role="Coach"] .elitePerformanceHero{
+ min-height:510px!important;background-size:cover!important;background-position:center 42%!important;background-repeat:no-repeat!important;
+}
+.performanceOS[data-role="Coach"] .elitePerformanceHero::before{
+ background:
+  linear-gradient(90deg,rgba(1,7,5,.74) 0%,rgba(1,7,5,.34) 30%,rgba(1,7,5,.05) 60%,rgba(1,7,5,.18) 100%),
+  linear-gradient(180deg,rgba(0,0,0,.02) 0 38%,rgba(0,0,0,.22) 60%,rgba(1,7,5,.97) 94% 100%)!important;
+}
+.performanceOS[data-role="Coach"] .elitePerformanceHero .nativeHeroBottom{max-width:100%!important}
+.performanceOS[data-role="Coach"] .nativeHeroIdentity p{max-width:44ch!important}
+.performanceOS[data-role="Coach"] .nativeCoachConsole{border-top:1px solid var(--pro-line-strong)!important}
+
+/* Testing, Development, Competition and Coach areas share one visual language. */
+.performanceOS[data-junior="false"] main :is(.testingLibrary,.testingResults,.developmentIntelHeader,.adaptivePriorityGrid,.competitionSummary,.coachHomeV2,.coachReviewPanel,.parentSupportActivity,.reportSection){
+ border-radius:0!important;box-shadow:none!important;
+}
+.performanceOS[data-junior="false"] main .adaptivePriorityGrid{gap:1px!important;background:var(--pro-line)!important}
+.performanceOS[data-junior="false"] main .adaptivePriorityGrid>div{border-radius:0!important;border:0!important;background:#07100d!important}
+.performanceOS[data-junior="false"] main .activityTimeline{border-top:1px solid var(--pro-line)!important}
+.performanceOS[data-junior="false"] main .activityItem{margin:0!important;padding:13px 0!important;background:transparent!important}
+
+/* Roster and data rows: scouting-board density, clean separators, no floating bubbles. */
+.performanceOS main :is(.rosterCard,.rosterSummaryCard,.parentSupportActivityRow,.parentMilestone){
+ border-radius:0!important;box-shadow:none!important;
+}
+.performanceOS main .parentSupportActivityRow{border-bottom:1px solid var(--pro-line)!important;padding-top:13px!important;padding-bottom:13px!important}
+
+/* Sharper premium navigation and header chrome. */
+.performanceOS .appHeader{
+ background:rgba(3,9,7,.94)!important;border-bottom:1px solid var(--pro-line-strong)!important;box-shadow:none!important;
+ backdrop-filter:blur(16px) saturate(115%);
+}
+.performanceOS .hockeyDevLogo{border-radius:1px!important;clip-path:polygon(0 0,78% 0,100% 22%,100% 100%,0 100%)}
+.viewportBottomNav{
+ background:linear-gradient(180deg,rgba(3,9,7,.94),rgba(2,6,4,.985))!important;border-top:1px solid rgba(210,233,222,.16)!important;
+ box-shadow:0 -18px 48px rgba(0,0,0,.28)!important;backdrop-filter:blur(18px) saturate(120%)!important;
+}
+.viewportBottomNav button{border-radius:0!important}
+.viewportBottomNav button.active::after{height:2px!important;left:22%!important;right:22%!important;bottom:2px!important;background:var(--role-accent,var(--pro-green))!important}
+
+/* Quiet motion: polished, athletic, never playful. */
+@media (prefers-reduced-motion:no-preference){
+ .performanceOS .elitePerformanceBand>button,.performanceOS .nativeActionList>button,.performanceOS .eliteRecoveryHome,.viewportBottomNav button{transition:background-color .16s ease,color .16s ease,border-color .16s ease,transform .16s ease}
+ .performanceOS .elitePerformanceBand>button:active,.performanceOS .nativeActionList>button:active,.viewportBottomNav button:active{transform:translateY(1px)}
+}
+
+@media(max-width:700px){
+ .performanceOS .eliteProgressHome{grid-template-columns:1fr auto!important}
+ .performanceOS .eliteProgressHeading{grid-column:1 / -1;border-right:0;border-bottom:1px solid var(--pro-line);padding:0 0 10px!important;flex-direction:row;align-items:end;justify-content:space-between;gap:10px}
+ .performanceOS .eliteProgressHeading span{font-size:14px}
+ .performanceOS .eliteProgressHeading small{text-align:right;max-width:18ch;margin:0;font-size:6px}
+ .performanceOS .eliteProgressHome .eliteVisualCopy{grid-column:1}
+ .performanceOS .eliteProgressHome .eliteVisualMetric{grid-column:2}
+ .performanceOS .eliteProgressHome .eliteSparkline{grid-column:1 / -1}
+ .performanceOS .eliteProgressHome .eliteVisualAction{grid-column:1 / -1;display:flex!important;align-items:center!important;justify-content:space-between!important}
+ .performanceOS .eliteProgressHome .eliteVisualAction span{margin:0!important}
+ .performanceOS[data-role="Coach"] .elitePerformanceHero{min-height:530px!important;background-position:62% center!important}
+ .performanceOS[data-junior="false"] main .card{padding:16px 10px!important}
+ .performanceOS main .sectionHead{padding-left:10px!important}
+}
+@media(max-width:390px){
+ .performanceOS[data-role="Coach"] .elitePerformanceHero{min-height:510px!important;background-position:64% center!important}
+ .performanceOS .eliteProgressHeading span{font-size:13px}
+}
+
+/* =========================================================
+   Phase 72.3.83 RC33 — Sport Photo Framing / Zoom-Out Pass
+   Keep cinematic heroes large while showing more of each source image.
+   Dark edge-fill replaces aggressive background enlargement.
+   ========================================================= */
+.performanceOS .elitePerformanceHero,
+.performanceOS .premiumHomeHero.nativeSportsHero.premiumRealisticSportHero{
+ background-color:#030b09!important;
+ /* Gradient fills any exposed edge area while the photo sits farther back. */
+ background-size:cover,94% auto!important;
+ background-position:center,center 34%!important;
+ background-repeat:no-repeat!important;
+ image-rendering:auto!important;
+}
+
+/* Most realistic assets are 2:1 landscape images. Keep them slightly inset
+   instead of stretching them beyond their native composition. */
+.performanceOS[data-sport="Baseball"] .elitePerformanceHero,
+.performanceOS[data-sport="Football"] .elitePerformanceHero,
+.performanceOS[data-sport="Basketball"] .elitePerformanceHero,
+.performanceOS[data-sport="Lacrosse"] .elitePerformanceHero,
+.performanceOS[data-sport="Wrestling"] .elitePerformanceHero,
+.performanceOS[data-sport="Soccer"] .elitePerformanceHero,
+.performanceOS[data-sport="Figure Skating"] .elitePerformanceHero{
+ background-size:cover,94% auto!important;
+ background-position:center,center 30%!important;
+}
+
+/* Hockey player art is portrait-oriented, so use height-based framing.
+   This displays the athlete smaller and sharper with intentional negative space. */
+.performanceOS[data-sport="Ice Hockey"]:not([data-role="Coach"]) .elitePerformanceHero{
+ background-size:cover,auto 108%!important;
+ background-position:center,76% 42%!important;
+}
+
+/* The dedicated Coach image is already wide/high-resolution; keep it inset
+   rather than scaling it to a tall hero crop. */
+.performanceOS[data-role="Coach"][data-sport="Ice Hockey"] .elitePerformanceHero{
+ background-size:cover,94% auto!important;
+ background-position:center,center 36%!important;
+}
+
+@media(max-width:700px){
+ /* Tall phone heroes previously forced landscape photography to ~2x width.
+    A 78% image-height framing shows substantially more of the source image. */
+ .performanceOS[data-sport="Baseball"] .elitePerformanceHero,
+ .performanceOS[data-sport="Football"] .elitePerformanceHero,
+ .performanceOS[data-sport="Basketball"] .elitePerformanceHero,
+ .performanceOS[data-sport="Lacrosse"] .elitePerformanceHero,
+ .performanceOS[data-sport="Wrestling"] .elitePerformanceHero,
+ .performanceOS[data-sport="Soccer"] .elitePerformanceHero,
+ .performanceOS[data-sport="Figure Skating"] .elitePerformanceHero{
+  background-size:cover,auto 78%!important;
+  background-position:center,center 8%!important;
+ }
+ .performanceOS[data-sport="Ice Hockey"]:not([data-role="Coach"]) .elitePerformanceHero{
+  background-size:cover,auto 96%!important;
+  background-position:center,center 8%!important;
+ }
+ .performanceOS[data-role="Coach"][data-sport="Ice Hockey"] .elitePerformanceHero{
+  background-size:cover,auto 80%!important;
+  background-position:center,center 8%!important;
+ }
+}
+
+@media(max-width:390px){
+ .performanceOS[data-sport="Baseball"] .elitePerformanceHero,
+ .performanceOS[data-sport="Football"] .elitePerformanceHero,
+ .performanceOS[data-sport="Basketball"] .elitePerformanceHero,
+ .performanceOS[data-sport="Lacrosse"] .elitePerformanceHero,
+ .performanceOS[data-sport="Wrestling"] .elitePerformanceHero,
+ .performanceOS[data-sport="Soccer"] .elitePerformanceHero,
+ .performanceOS[data-sport="Figure Skating"] .elitePerformanceHero{
+  background-size:cover,auto 74%!important;
+ }
+ .performanceOS[data-sport="Ice Hockey"]:not([data-role="Coach"]) .elitePerformanceHero{
+  background-size:cover,auto 92%!important;
+ }
+ .performanceOS[data-role="Coach"][data-sport="Ice Hockey"] .elitePerformanceHero{
+  background-size:cover,auto 76%!important;
+ }
+}
+
+/* =========================================================
+   Phase 72.3.84 RC34 — Role-Specific Full Hero Photography
+   Player / Parent / Coach use distinct role scenes where available.
+   Two-layer media treatment fills the full hero while keeping the
+   complete source image visible and sharp in the foreground.
+   ========================================================= */
+.performanceOS .rc34RoleHero.premiumRealisticSportHero{
+ position:relative!important;
+ overflow:hidden!important;
+ background:#020806!important;
+ background-image:none!important;
+ isolation:isolate!important;
+}
+.performanceOS .rc34RoleHero.premiumRealisticSportHero::before{
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ z-index:1!important;
+ pointer-events:none!important;
+ background:linear-gradient(180deg,rgba(2,8,6,.05) 0%,rgba(2,8,6,.12) 36%,rgba(2,8,6,.66) 68%,rgba(2,8,6,.97) 100%)!important;
+}
+.performanceOS .rc34RoleHero.premiumRealisticSportHero::after{
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ z-index:1!important;
+ pointer-events:none!important;
+ background:linear-gradient(90deg,rgba(2,8,6,.30),transparent 38%,transparent 72%,rgba(2,8,6,.18))!important;
+}
+.performanceOS .eliteRoleHeroMedia{
+ position:absolute!important;
+ inset:0!important;
+ z-index:0!important;
+ overflow:hidden!important;
+ background:#020806!important;
+}
+.performanceOS .eliteRoleHeroBackdrop,
+.performanceOS .eliteRoleHeroForeground{
+ position:absolute!important;
+ inset:0!important;
+ width:100%!important;
+ height:100%!important;
+ display:block!important;
+ pointer-events:none!important;
+ user-select:none!important;
+}
+.performanceOS .eliteRoleHeroBackdrop{
+ object-fit:cover!important;
+ object-position:center!important;
+ filter:blur(22px) brightness(.38) saturate(.85)!important;
+ transform:scale(1.12)!important;
+ opacity:.92!important;
+}
+.performanceOS .eliteRoleHeroForeground{
+ object-fit:contain!important;
+ object-position:center center!important;
+ filter:contrast(1.04) saturate(1.03)!important;
+ z-index:1!important;
+}
+.performanceOS .rc34RoleHero .nativeHeroTopline,
+.performanceOS .rc34RoleHero .eliteHeroTelemetry,
+.performanceOS .rc34RoleHero .nativeHeroBottom{
+ position:relative!important;
+ z-index:3!important;
+}
+/* Role framing: show the complete scene, but place the visual subject intentionally. */
+.performanceOS[data-sport="Ice Hockey"][data-role="Player"] .eliteRoleHeroForeground,
+.performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .eliteRoleHeroForeground{
+ object-position:center 32%!important;
+}
+.performanceOS[data-sport="Ice Hockey"][data-role="Parent"] .eliteRoleHeroForeground{
+ object-position:center 26%!important;
+}
+.performanceOS[data-sport="Ice Hockey"][data-role="Coach"] .eliteRoleHeroForeground{
+ object-position:center center!important;
+}
+@media(max-width:700px){
+ .performanceOS .rc34RoleHero.premiumRealisticSportHero{min-height:430px!important}
+ .performanceOS .eliteRoleHeroForeground{object-fit:contain!important;object-position:center 22%!important}
+ .performanceOS[data-sport="Ice Hockey"][data-role="Player"] .eliteRoleHeroForeground,
+ .performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .eliteRoleHeroForeground{object-position:center 16%!important}
+ .performanceOS[data-sport="Ice Hockey"][data-role="Parent"] .eliteRoleHeroForeground{object-position:center 18%!important}
+ .performanceOS[data-sport="Ice Hockey"][data-role="Coach"] .eliteRoleHeroForeground{object-position:center 20%!important}
+}
+@media(max-width:390px){
+ .performanceOS .rc34RoleHero.premiumRealisticSportHero{min-height:410px!important}
+ .performanceOS .eliteRoleHeroBackdrop{filter:blur(18px) brightness(.34) saturate(.82)!important}
+}
+
+
+/* =========================================================
+   Phase 72.3.85 RC35 — Profile Settings + Wide Game Hero
+   Settings lives above the fixed dock; Player hockey uses a
+   wide in-game asset that fills the hero without portrait crop.
+   ========================================================= */
+.viewportSettingsOverlay{
+ position:fixed!important;
+ inset:0!important;
+ z-index:13050!important;
+ display:grid!important;
+ place-items:center!important;
+ pointer-events:auto!important;
+}
+.viewportSettingsOverlay .settingsCard{position:relative!important;z-index:1!important;pointer-events:auto!important}
+.performanceOS .settingsButton{pointer-events:auto!important;touch-action:manipulation!important;position:relative!important;z-index:2!important}
+
+.performanceOS[data-sport="Ice Hockey"][data-role="Player"] .rc34RoleHero,
+.performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .rc34RoleHero{
+ min-height:360px!important;
+}
+.performanceOS[data-sport="Ice Hockey"][data-role="Player"] .eliteRoleHeroForeground,
+.performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .eliteRoleHeroForeground{
+ object-fit:cover!important;
+ object-position:center 44%!important;
+}
+.performanceOS[data-sport="Ice Hockey"][data-role="Player"] .eliteRoleHeroBackdrop,
+.performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .eliteRoleHeroBackdrop{
+ object-position:center 44%!important;
+ filter:blur(14px) brightness(.34) saturate(.88)!important;
+ transform:scale(1.06)!important;
+}
+@media(max-width:700px){
+ .performanceOS[data-sport="Ice Hockey"][data-role="Player"] .rc34RoleHero,
+ .performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .rc34RoleHero{min-height:340px!important}
+ .performanceOS[data-sport="Ice Hockey"][data-role="Player"] .eliteRoleHeroForeground,
+ .performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .eliteRoleHeroForeground{object-fit:cover!important;object-position:center 42%!important}
+}
+@media(max-width:390px){
+ .performanceOS[data-sport="Ice Hockey"][data-role="Player"] .rc34RoleHero,
+ .performanceOS[data-sport="Ice Hockey"][data-role="Admin"] .rc34RoleHero{min-height:320px!important}
+}
+
+
+/* =========================================================
+   Phase 72.3.88 RC38 — 180% Text + Full-Fill Parent/Coach Heroes
+   ========================================================= */
+.performanceOS[data-role="Parent"] .rc34RoleHero,
+.performanceOS[data-role="Coach"] .rc34RoleHero{
+ min-height:360px!important;
+ overflow:hidden!important;
+}
+.performanceOS[data-role="Parent"] .eliteRoleHeroMedia,
+.performanceOS[data-role="Coach"] .eliteRoleHeroMedia{
+ position:absolute!important;inset:0!important;overflow:hidden!important;
+}
+.performanceOS[data-role="Parent"] .eliteRoleHeroForeground,
+.performanceOS[data-role="Coach"] .eliteRoleHeroForeground{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ object-fit:cover!important;transform:none!important;filter:none!important;
+}
+.performanceOS[data-role="Parent"] .eliteRoleHeroBackdrop,
+.performanceOS[data-role="Coach"] .eliteRoleHeroBackdrop{
+ position:absolute!important;inset:-2%!important;width:104%!important;height:104%!important;
+ object-fit:cover!important;filter:blur(10px) brightness(.32) saturate(.88)!important;
+ transform:scale(1.04)!important;
+}
+.performanceOS[data-role="Parent"] .eliteRoleHeroForeground{object-position:center 44%!important}
+.performanceOS[data-role="Coach"] .eliteRoleHeroForeground{object-position:center 40%!important}
+.performanceOS[data-sport="Ice Hockey"][data-role="Coach"] .eliteRoleHeroForeground{object-position:center 42%!important}
+
+/* Large-accessibility text remains usable instead of clipping fixed UI. */
+.app[data-text-size="xxlarge"] .settingsCard,
+.app[data-text-size="maximum"] .settingsCard{max-height:92vh!important}
+.app[data-text-size="xxlarge"] .textSizeChoices,
+.app[data-text-size="maximum"] .textSizeChoices{grid-template-columns:1fr!important}
+.app[data-text-size="maximum"] .simpleBottomNav{min-height:78px!important}
+.app[data-text-size="maximum"] .simpleBottomNav button{min-width:0!important;padding:7px 2px!important}
+.app[data-text-size="maximum"] .simpleBottomNav button b{font-size:12px!important;line-height:1.1!important;white-space:normal!important}
+.app[data-text-size="maximum"] .simpleBottomNav button span{transform:scale(.92)}
+@media(max-width:700px){
+ .performanceOS[data-role="Parent"] .rc34RoleHero,
+ .performanceOS[data-role="Coach"] .rc34RoleHero{min-height:340px!important}
+ .performanceOS[data-role="Parent"] .eliteRoleHeroForeground,
+ .performanceOS[data-role="Coach"] .eliteRoleHeroForeground{object-fit:cover!important}
+ .performanceOS[data-role="Parent"] .eliteRoleHeroForeground{object-position:center 44%!important}
+ .performanceOS[data-role="Coach"] .eliteRoleHeroForeground{object-position:center 38%!important}
+}
+@media(max-width:390px){
+ .performanceOS[data-role="Parent"] .rc34RoleHero,
+ .performanceOS[data-role="Coach"] .rc34RoleHero{min-height:320px!important}
+}
+
+/* ============================================================
+   Phase 72.3.88 RC38 — Performance Intelligence + Beta Hardening
+   Combined RC36 + RC37 + RC38 release
+   ============================================================ */
+
+/* Performance intelligence: one decisive recommendation, not another card grid. */
+.performanceIntelligence{
+  width:100%;display:grid;grid-template-columns:minmax(118px,150px) minmax(0,1fr) auto;align-items:stretch;
+  min-height:132px;padding:0;border:1px solid rgba(90,245,166,.28);border-left:4px solid #31e78f;border-radius:2px;
+  background:linear-gradient(112deg,rgba(6,31,25,.98),rgba(8,20,27,.98));color:#f3fff8;text-align:left;overflow:hidden;
+  box-shadow:inset 0 1px rgba(255,255,255,.035);cursor:pointer;
+}
+.performanceIntelligenceScore{display:grid;align-content:center;gap:4px;padding:18px 20px;background:linear-gradient(180deg,rgba(49,231,143,.12),rgba(49,231,143,.025));border-right:1px solid rgba(200,236,220,.12)}
+.performanceIntelligenceScore small,.performanceIntelligenceCopy small{font-size:.68rem;letter-spacing:.16em;font-weight:850;color:#76a897}
+.performanceIntelligenceScore b{font-size:2.45rem;line-height:.95;letter-spacing:-.05em;color:#fff;font-variant-numeric:tabular-nums}
+.performanceIntelligenceScore i{display:block;width:100%;height:3px;margin-top:8px;background:rgba(255,255,255,.12);position:relative;overflow:hidden}
+.performanceIntelligenceScore i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--score,0%);background:linear-gradient(90deg,#1dbf72,#6cf6ae)}
+.performanceIntelligenceCopy{min-width:0;display:grid;align-content:center;gap:6px;padding:18px 22px}
+.performanceIntelligenceCopy b{font-size:clamp(1.05rem,3vw,1.45rem);letter-spacing:-.025em;color:#fff}
+.performanceIntelligenceCopy>span{font-size:.86rem;line-height:1.5;color:#aec2bb;max-width:66ch}
+.performanceIntelligence>strong{align-self:center;padding:20px;color:#58efa0;letter-spacing:.08em;font-size:.78rem;white-space:nowrap}
+
+/* Header alerts + reliability strip */
+.notificationButton{position:relative;min-height:36px;padding:0 12px;border:1px solid rgba(200,236,220,.15);border-radius:2px;background:#0b1718;color:#dceae4;font-weight:800;cursor:pointer}
+.notificationButton i{position:absolute;right:-7px;top:-8px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#35e88e;color:#052417;font-style:normal;font-size:.68rem;border:2px solid #07110f}
+.betaReliabilityRail{display:flex;align-items:center;gap:14px;min-height:36px;padding:7px clamp(14px,3vw,34px);border-bottom:1px solid rgba(188,224,210,.1);background:#07110f;color:#91aaa0;font-size:.72rem;letter-spacing:.02em;overflow-x:auto;white-space:nowrap}
+.betaReliabilityRail span{display:inline-flex;align-items:center;gap:5px}.betaReliabilityRail b{color:#d7e5df}.betaReliabilityRail span:first-child i{width:7px;height:7px;border-radius:999px;background:#42e998;box-shadow:0 0 0 3px rgba(66,233,152,.09)}
+.betaReliabilityRail span.offline i{background:#f2ad49}.betaReliabilityRail button{margin-left:auto;border:1px solid rgba(55,230,143,.35);background:transparent;color:#5bf0a1;border-radius:2px;padding:6px 10px;font-weight:800}
+
+/* Notification center lives above all viewport chrome. */
+.notificationOverlay{position:fixed;inset:0;z-index:24050;display:grid;place-items:center;padding:18px;background:rgba(0,8,8,.78);backdrop-filter:blur(10px)}
+.notificationPanel{width:min(680px,100%);max-height:min(82vh,760px);overflow:auto;background:#081313;border:1px solid rgba(167,216,196,.2);box-shadow:0 30px 90px rgba(0,0,0,.58);color:#f2fbf7}
+.notificationHead{display:flex;justify-content:space-between;gap:20px;padding:22px;border-bottom:1px solid rgba(180,220,205,.12)}
+.notificationHead small{font-size:.68rem;letter-spacing:.18em;color:#5ae99c;font-weight:900}.notificationHead h2{margin:5px 0 4px;font-size:1.45rem}.notificationHead p{margin:0;color:#91aaa0;font-size:.84rem}.notificationHead>button{width:42px;height:42px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#fff;border-radius:2px;font-size:1.45rem}
+.notificationList{display:grid}.notificationItem{display:grid;grid-template-columns:5px minmax(0,1fr) auto;gap:15px;align-items:center;padding:16px 20px;border:0;border-bottom:1px solid rgba(180,220,205,.09);background:#0a1819;color:#effaf5;text-align:left;cursor:pointer}.notificationItem:hover{background:#0d2020}.notificationItem i{width:4px;height:44px;background:#46d8ff}.notificationItem.good i{background:#45eb97}.notificationItem.watch i{background:#f2ad49}.notificationItem.read{opacity:.66}.notificationItem div{display:grid;gap:4px}.notificationItem b{font-size:.92rem}.notificationItem span{color:#9db1aa;font-size:.8rem;line-height:1.4}.notificationItem strong{font-size:.72rem;color:#62eca2;white-space:nowrap}
+.notificationEmpty{padding:36px 24px;display:grid;gap:6px;text-align:center;color:#a9bab4}.notificationEmpty b{color:#f1faf6;font-size:1.05rem}.notificationFooter{display:flex;justify-content:space-between;gap:10px;padding:16px 20px;background:#071111}.notificationFooter button{min-height:42px;padding:0 14px;border-radius:2px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#d8e7e1;font-weight:800}.notificationFooter .featureAction{background:#22cf79;color:#041d12;border-color:#31e68b}
+
+/* Settings: alert controls + recovery copy */
+.notificationSettings,.reliabilitySettings{margin-top:18px;padding-top:18px;border-top:1px solid rgba(180,220,205,.13)}
+.notificationPreferenceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.notificationPreferenceGrid label{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid rgba(180,220,205,.12);background:#0a1717}.notificationPreferenceGrid input{width:18px;height:18px;accent-color:#31e78f}.notificationPreferenceGrid span{font-size:.82rem;font-weight:750}
+.reliabilitySettingsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:12px 0;border-top:1px solid rgba(180,220,205,.12);border-bottom:1px solid rgba(180,220,205,.12)}.reliabilitySettingsGrid>div{padding:12px;border-right:1px solid rgba(180,220,205,.12);min-width:0}.reliabilitySettingsGrid>div:last-child{border-right:0}.reliabilitySettingsGrid small{display:block;font-size:.62rem;letter-spacing:.12em;color:#749489}.reliabilitySettingsGrid b{display:block;margin-top:5px;font-size:.82rem;overflow-wrap:anywhere}.recoveryBackupButton{min-height:42px;border-radius:2px;border:1px solid rgba(54,233,145,.34);background:#0b1d18;color:#5ff0a6;font-weight:850;padding:0 15px}
+.betaRecoveryLink{width:100%;margin-top:10px;border:0;background:transparent;color:#7edfb0;text-decoration:underline;text-underline-offset:3px;font-weight:750;cursor:pointer}
+
+/* RC37 motion polish: subtle and disabled for reduced-motion users. */
+@keyframes rc38HeroIn{from{opacity:.45;transform:scale(1.012)}to{opacity:1;transform:scale(1)}}
+@keyframes rc38SignalIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes rc38LineDraw{from{stroke-dasharray:360;stroke-dashoffset:360}to{stroke-dasharray:360;stroke-dashoffset:0}}
+.performanceOS[data-junior="false"] .eliteRoleHeroForeground{animation:rc38HeroIn .55s cubic-bezier(.2,.8,.2,1) both}
+.performanceOS[data-junior="false"] .elitePerformanceBand>button{animation:rc38SignalIn .38s ease both}.performanceOS[data-junior="false"] .elitePerformanceBand>button:nth-child(2){animation-delay:.04s}.performanceOS[data-junior="false"] .elitePerformanceBand>button:nth-child(3){animation-delay:.08s}.performanceOS[data-junior="false"] .elitePerformanceBand>button:nth-child(4){animation-delay:.12s}
+.performanceOS[data-junior="false"] .eliteSparklineLine{stroke-dasharray:360;animation:rc38LineDraw .85s .12s ease-out both}
+.performanceOS[data-junior="false"] button:active{transform:translateY(1px)}
+
+/* Front-to-back visual consistency: flatter, more instrument-panel than chatbot-card. */
+.performanceOS[data-junior="false"] :is(.goalCard,.testCard,.developmentCard,.competitionCard,.analyticsCard,.coachPanel,.parentPanel){border-radius:3px!important}
+.performanceOS[data-junior="false"] :is(.sectionHead,.featureGroupTitle,.nativeSectionKicker){letter-spacing:.015em}
+.performanceOS[data-junior="false"] main :is(h1,h2,h3){text-wrap:balance}
+
+@media(max-width:640px){
+ .performanceIntelligence{grid-template-columns:104px minmax(0,1fr);min-height:0}.performanceIntelligence>strong{grid-column:1/-1;padding:10px 14px;border-top:1px solid rgba(200,236,220,.1);text-align:right}.performanceIntelligenceScore{padding:15px 14px}.performanceIntelligenceScore b{font-size:2rem}.performanceIntelligenceCopy{padding:15px 14px}.performanceIntelligenceCopy>span{font-size:.78rem}
+ .betaReliabilityRail{gap:11px;padding:6px 12px}.betaReliabilityRail button{margin-left:0}
+ .notificationOverlay{padding:8px;place-items:end center}.notificationPanel{max-height:88vh}.notificationHead{padding:17px}.notificationItem{grid-template-columns:4px minmax(0,1fr);padding:14px 15px}.notificationItem strong{grid-column:2}.notificationFooter{position:sticky;bottom:0}
+ .notificationPreferenceGrid{grid-template-columns:1fr}.reliabilitySettingsGrid{grid-template-columns:1fr}.reliabilitySettingsGrid>div{border-right:0;border-bottom:1px solid rgba(180,220,205,.1)}.reliabilitySettingsGrid>div:last-child{border-bottom:0}
+}
+@media(prefers-reduced-motion:reduce){.performanceOS *{scroll-behavior:auto!important}.performanceOS .eliteRoleHeroForeground,.performanceOS .elitePerformanceBand>button,.performanceOS .eliteSparklineLine{animation:none!important;transition:none!important}}

@@ -5,7 +5,7 @@ const css=fs.readFileSync('app/globals.css','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const checks=[
- ['version is 72.3.80',pkg.version==='72.3.80'],
+ ['version is 72.3.83',pkg.version==='72.3.88'],
  ['RC29 coach roster repair remains',pkg.scripts['test:coach-roster-more']?.includes('coach-roster-more-check.mjs')],
  ['elite visual check registered',pkg.scripts['test:elite-visual']?.includes('elite-performance-visual-check.mjs')],
  ['sparkline component exists',app.includes('function EliteSparkline')],
@@ -23,7 +23,7 @@ const checks=[
  ['roster scouting row treatment exists',css.includes('Roster: professional scouting-board rows')],
  ['premium command drawer treatment exists',css.includes('premium command drawer')],
  ['mobile 360-430 tuning exists',css.includes('@media(max-width:390px)')&&css.includes('.eliteVisualPerformance')],
- ['RC30 release notes present',release.includes('Phase 72.3.80')&&release.includes('Elite Performance Visual System')],
+ ['RC31 release notes present',release.includes('Phase 72.3.83')&&release.includes('Elite Performance Visual System')],
  ['migration 009 remains latest per docs',release.includes('migration 009')]
 ];
 let pass=0;
