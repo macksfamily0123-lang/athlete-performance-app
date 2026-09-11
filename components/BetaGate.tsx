@@ -853,7 +853,7 @@ export default function BetaGate(){
     const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
     return [
       "Beta diagnostic context",
-      "Version: 72.3.78 RC28",
+      "Version: 72.3.80 RC30",
       `Role: ${access?.role||"Unknown"}`,
       `Athlete: ${athlete}`,
       `Sport: ${sport}`,
@@ -879,7 +879,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message,
-      app_version:"72.3.78",
+      app_version:"72.3.80",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -1092,7 +1092,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · RC28 · v72.3.78</div>
+    <div className="betaRibbon">BETA · RC30 · v72.3.80</div>
     {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
     <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>

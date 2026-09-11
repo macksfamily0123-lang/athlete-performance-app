@@ -3,7 +3,7 @@ const app=fs.readFileSync("components/AthleteApp.tsx","utf8");
 const css=fs.readFileSync("app/globals.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.78"],
+ ["RC24 version",pkg.version==="72.3.80"],
  ["custom icon family exists",app.includes("function PremiumAppIcon")&&app.includes('type PremiumIconName=')],
  ["Home quick actions use SVG icon family",app.includes('<PremiumAppIcon name={action.icon}/>')],
  ["bottom navigation uses SVG icon family",app.includes("customBottomNav")&&app.includes('<PremiumAppIcon name="home"/>')&&app.includes('<PremiumAppIcon name="more"/>')],

@@ -597,12 +597,38 @@ function PremiumAppIcon({name,className=""}:{name:PremiumIconName;className?:str
  return <svg className={`premiumAppIcon ${className}`} {...common}>{path}</svg>;
 }
 
+const premiumNavIconNames:PremiumIconName[]=["home","goal","calendar","train","progress","more","readiness","development","testing","competition","roster","support","recovery"];
+function NavMetaIcon({icon}:{icon?:string}){
+ if(icon&&premiumNavIconNames.includes(icon as PremiumIconName))return <PremiumAppIcon name={icon as PremiumIconName}/>;
+ return <>{icon||"•"}</>;
+}
+
 function PremiumRoleFocusIcon({role,juniorMode}:{role:AccountRole;juniorMode:boolean}){
  if(role==="Coach")return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="goal"/></span>;
  if(role==="Parent")return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="support"/></span>;
  if(juniorMode)return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="development"/></span>;
  // Player and Admin use a filled trend mark so the icon has no open "hole" that reveals the tile background.
  return <span className="premiumRoleFocusIcon premiumRoleFocusSolid" aria-hidden="true"><svg viewBox="0 0 24 24" className="premiumAppIcon" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4.25 17.8 9.5 12.55l3.25 2.85 5.12-5.36h-2.62a1.5 1.5 0 0 1 0-3h5.5v5.5a1.5 1.5 0 0 1-3 0v-.4l-4.82 5.03a1.5 1.5 0 0 1-2.08.08l-3.23-2.82-2.25 2.25a1.5 1.5 0 1 1-2.12-2.12Z"/></svg></span>;
+}
+
+function EliteSparkline({values,label}:{values:number[];label:string}){
+ const points=values.filter(Number.isFinite).slice(-7);
+ const w=240,h=72,p=6;
+ const usable=points.length?points:[50,50];
+ const min=Math.min(...usable),max=Math.max(...usable),span=max-min||1;
+ const coords=usable.map((v,i)=>{
+  const x=p+i*((w-2*p)/Math.max(1,usable.length-1));
+  const y=h-p-((v-min)/span)*(h-2*p);
+  return [x,y] as const;
+ });
+ const line=coords.map(([x,y])=>`${x},${y}`).join(" ");
+ const area=`${p},${h-p} ${line} ${w-p},${h-p}`;
+ return <svg className="eliteSparkline" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={label}>
+  <line x1={p} y1={h-p} x2={w-p} y2={h-p} className="eliteSparklineBase"/>
+  <polygon points={area} className="eliteSparklineArea"/>
+  <polyline points={line} className="eliteSparklineLine"/>
+  {coords.map(([x,y],i)=><circle key={i} cx={x} cy={y} r={i===coords.length-1?3.6:2.2} className={i===coords.length-1?"eliteSparklinePoint latest":"eliteSparklinePoint"}/>)}
+ </svg>;
 }
 
 const resizePlayerPhoto=(file:File)=>new Promise<string>((resolve,reject)=>{
@@ -747,8 +773,32 @@ function PremiumHomeOverview({
   {label:"NEXT",value:nextWorkout?"Training":nextCompetition?"Event":"Open",detail:nextWorkout?.date||nextCompetition?.date||"Schedule",tab:"Calendar" as Tab,tone:"blue"},
   {label:"TESTING",value:latestResult?String(latestResult.value):"—",detail:latestResult?latestResult.name:"No result yet",tab:"Testing" as Tab,tone:"violet"}
  ];
- const hero=<div className={`premiumHomeHero nativeSportsHero ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
+ const latestTestRows=latestResult?results.filter(r=>r.sport===sport&&r.testId===latestResult.testId).slice().sort((a,b)=>a.date.localeCompare(b.date)||a.id-b.id).slice(-7):[];
+ const latestTestDef=latestResult?(definitions(sport).find(x=>x.id===latestResult.testId)||({lowerBetter:latestResult.unit==="sec"} as TestDef)):null;
+ const latestTestChange=latestTestRows.length>1&&latestTestDef?Math.round((((latestTestDef.lowerBetter?latestTestRows[0].value-latestTestRows[latestTestRows.length-1].value:latestTestRows[latestTestRows.length-1].value-latestTestRows[0].value)/Math.max(Math.abs(latestTestRows[0].value),.0001))*100)*10)/10:null;
+ const readinessTrend=readiness.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-7).map(r=>readinessScoreV2(r,Number(profile.age||0)));
+ const trendValues=latestTestRows.length>1?latestTestRows.map(r=>r.value):readinessTrend;
+ const trendTitle=latestTestRows.length>1?(latestResult?.name||"Testing trend"):"Readiness trend";
+ const trendPrimary=latestTestRows.length>1?`${latestTestRows[latestTestRows.length-1].value} ${latestResult?.unit||""}`:(readinessValue!==null?`${readinessValue}/100`:"Build signal");
+ const trendDelta=latestTestRows.length>1&&latestTestChange!==null?`${latestTestChange>=0?"+":""}${latestTestChange}% from baseline`:readinessTrend.length>1?`${readinessTrend.length} recent check-ins`:"More data needed";
+ const sportWorkouts=workouts.filter(w=>w.sport===sport);
+ const completedSportWorkouts=sportWorkouts.filter(w=>w.completed).length;
+ const trainingConsistency=sportWorkouts.length?Math.round(completedSportWorkouts/sportWorkouts.length*100):0;
+ const elitePerformanceBand=<div className="elitePerformanceBand" aria-label="Live athlete performance signals">
+  <button type="button" data-signal="readiness" onClick={()=>setTab("Coach")}><span className="eliteSignalTop"><small>READINESS</small><i className={`eliteStatusDot ${statusClass}`}/></span><strong>{readinessValue!==null?readinessValue:"—"}</strong><span>{statusLabel}</span><div className="eliteMicroGauge"><i style={{width:`${readinessValue??0}%`}}/></div></button>
+  <button type="button" data-signal="goals" onClick={()=>setTab("Goals")}><span className="eliteSignalTop"><small>GOAL EXECUTION</small><i/></span><strong>{goalProgress!==null?`${goalProgress}%`:"—"}</strong><span>{activeGoals.length?`${activeGoals.length} active target${activeGoals.length===1?"":"s"}`:"Set first target"}</span><div className="eliteMicroGauge"><i style={{width:`${goalProgress??0}%`}}/></div></button>
+  <button type="button" data-signal="testing" className="eliteTrendSignal" onClick={()=>setTab("Testing")}><span className="eliteSignalTop"><small>PERFORMANCE TREND</small><i/></span><strong>{trendPrimary}</strong><span>{trendTitle}</span><EliteSparkline values={trendValues} label={`${trendTitle} recent trend`}/></button>
+  <button type="button" data-signal="training" onClick={()=>setTab("Calendar")}><span className="eliteSignalTop"><small>TRAINING</small><i/></span><strong>{sportWorkouts.length?`${trainingConsistency}%`:nextWorkout?"NEXT":"OPEN"}</strong><span>{nextWorkout?`${friendlyDate(nextWorkout.date)} · ${nextWorkout.name}`:sportWorkouts.length?`${completedSportWorkouts}/${sportWorkouts.length} complete`:"Build your schedule"}</span><div className="eliteMicroGauge"><i style={{width:`${trainingConsistency}%`}}/></div></button>
+ </div>;
+ const eliteVisualPerformance=<button type="button" className="eliteVisualPerformance" onClick={()=>setTab("Analytics")} aria-label="Open athlete progress analytics">
+  <div className="eliteVisualCopy"><small>PERFORMANCE SIGNAL</small><b>{trendTitle}</b><span>{trendDelta}</span></div>
+  <div className="eliteVisualMetric"><strong>{trendPrimary}</strong><span>{latestTestRows.length>1?"latest test":"current signal"}</span></div>
+  <EliteSparkline values={trendValues} label={`${trendTitle} performance signal`}/>
+  <div className="eliteVisualAction">OPEN PROGRESS <span>↗</span></div>
+ </button>;
+ const hero=<div className={`premiumHomeHero nativeSportsHero elitePerformanceHero ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
   <div className="nativeHeroTopline"><span>{roleCopy[accountRole].eyebrow}</span><span>{sport}</span></div>
+  {!juniorMode&&<div className="eliteHeroTelemetry" aria-hidden="true"><span>HD / PERFORMANCE</span><i/><span>{accountRole.toUpperCase()}</span></div>}
   <div className="nativeHeroBottom">
    <div className="premiumHeroIdentity nativeHeroIdentity">
     <PlayerPhotoAvatar name={profile.name} photoUrl={profile.photoUrl} size={72} className="premiumAthleteAvatar"/>
@@ -772,37 +822,41 @@ function PremiumHomeOverview({
  if(accountRole==="Player"){
   return <section className="premiumHomeOverview nativeSportsHome nativePlayerHome" aria-label="Player home summary">
    {hero}
-   <div className="nativePlayerFlow">
-    <button type="button" className="commercialStartToday nativePrimaryAction" onClick={()=>setTab(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach")}><span><small>YOUR NEXT MOVE</small><b>{nextWorkout?.name||(!latestReadiness?"Complete Daily Check-In":"Open Today's Plan")}</b></span><strong>Start →</strong></button>
-    <div className="premiumMetricStrip nativeInstrumentRail">{metricItems.map(item=><button type="button" key={item.label} data-tone={item.tone} onClick={()=>setTab(item.tab)}><small>{item.label}</small><strong>{item.value}</strong><span>{item.detail}</span></button>)}</div>
-    <button type="button" className="premiumRoleFocusCard nativeFeatureStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>{roleFocus.action} →</strong></button>
-    <div className="nativeEditorialSection"><div className="nativeSectionKicker"><span>MOVE FORWARD</span><b>Four ways into your day</b></div><div className="nativeActionList">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="nativeActionIndex">0{index+1}</span><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>↗</strong></button>)}</div></div>
+   <div className="nativePlayerFlow elitePlayerFlow">
+    {elitePerformanceBand}
+    <button type="button" className="commercialStartToday nativePrimaryAction elitePrimaryAction" onClick={()=>setTab(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach")}><span><small>YOUR NEXT MOVE</small><b>{nextWorkout?.name||(!latestReadiness?"Complete Daily Check-In":"Open Today's Plan")}</b></span><strong>Start →</strong></button>
+    <button type="button" className="premiumRoleFocusCard nativeFeatureStory eliteFocusStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>{roleFocus.action} →</strong></button>
+    {eliteVisualPerformance}
+    <div className="nativeEditorialSection eliteActionSection"><div className="nativeSectionKicker"><span>MOVE FORWARD</span><b>Four ways into your day</b></div><div className="nativeActionList">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="nativeActionIndex">0{index+1}</span><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>↗</strong></button>)}</div></div>
    </div>
   </section>;
  }
 
  if(accountRole==="Coach"){
-  return <section className="premiumHomeOverview nativeSportsHome nativeCoachHome" aria-label="Coach home summary">
+  return <section className="premiumHomeOverview nativeSportsHome nativeCoachHome eliteCoachHome" aria-label="Coach home summary">
    {hero}
+   {elitePerformanceBand}
    <div className="nativeCoachConsole">
     <div className="nativeCoachSignalBand"><div><small>PLAYER READINESS</small><b>{readinessValue!==null?`${readinessValue}/100`:"No check-in"}</b></div><div><small>ACTIVE GOALS</small><b>{activeGoals.length}</b></div><div className="wide"><small>DEVELOPMENT PRIORITY</small><b>{developmentFocus}</b></div></div>
     <button type="button" className="premiumRoleFocusCard nativeCoachPriority" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Review →</strong></button>
+    {eliteVisualPerformance}
     <nav className="nativeCoachActionBar" aria-label="Coach shortcuts">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><PremiumAppIcon name={action.icon}/><span>{action.label}</span></button>)}</nav>
    </div>
   </section>;
  }
 
  if(accountRole==="Parent"){
-  return <section className="premiumHomeOverview nativeSportsHome nativeParentHome" aria-label="Parent home summary">
+  return <section className="premiumHomeOverview nativeSportsHome nativeParentHome eliteParentHome" aria-label="Parent home summary">
    {hero}
+   {elitePerformanceBand}
    <button type="button" className="premiumRoleFocusCard nativeParentStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Support →</strong></button>
    <div className="nativeParentTimeline" aria-label="Parent support shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="nativeTimelineMarker">{index+1}</span><div><small>{action.label}</small><b>{action.detail}</b></div><PremiumAppIcon name={action.icon}/></button>)}</div>
   </section>;
  }
 
- return <section className="premiumHomeOverview nativeSportsHome nativeAdminHome" aria-label="Admin home summary">
+ return <section className="premiumHomeOverview nativeSportsHome nativeAdminHome eliteAdminHome" aria-label="Admin home summary">
   {hero}
-  <div className="nativeAdminTicker premiumMetricStrip">{metricItems.map(item=><button type="button" key={item.label} onClick={()=>setTab(item.tab)}><small>{item.label}</small><strong>{item.value}</strong><span>{item.detail}</span></button>)}</div>
+  {elitePerformanceBand}
   <button type="button" className="premiumRoleFocusCard nativeAdminFocus" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Inspect →</strong></button>
   <div className="nativeAdminCommandList">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>Open</strong></button>)}</div>
  </section>;
@@ -1687,10 +1741,10 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    </div>
    <div className="settingsFooter"><button onClick={()=>changeTextSize("comfortable")}>Use Recommended Size</button><button className="featureAction" onClick={()=>setShowSettings(false)}>Done</button></div>
   </div></div>}
-  {commandOpen&&<div className={"commandOverlay "+(juniorPlayerMode?"juniorFeatureOverlay":"")} role="dialog" aria-modal="true" aria-label={juniorPlayerMode?"All Junior Player features":"Quick navigation"} onClick={()=>setCommandOpen(false)}><div className={"commandPalette "+(juniorPlayerMode?"juniorFeaturePalette":"")} onClick={e=>e.stopPropagation()}><div className="sectionHead"><div><small>{juniorPlayerMode?"JUNIOR PLAYER":"QUICK NAVIGATION"}</small><h2>{juniorPlayerMode?"All My Features":"Go to a section"}</h2></div><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder={juniorPlayerMode?"Search my features…":"Search Overview, Goals, Testing, Roster…"}/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span>{navMeta[a.tab]?.icon||"•"}</span><b>{a.label}</b><small>{juniorPlayerMode?(playerPageHelp[a.tab]?.purpose||"Open this feature"):a.keywords.join(" · ")}</small></button>)}</div>{juniorPlayerMode&&filteredActions.length===0&&<div className="juniorFeatureEmpty">No matching feature. Try a different word.</div>}</div></div>}
+  {commandOpen&&<div className={"commandOverlay "+(juniorPlayerMode?"juniorFeatureOverlay":"")} role="dialog" aria-modal="true" aria-label={juniorPlayerMode?"All Junior Player features":"Quick navigation"} onClick={()=>setCommandOpen(false)}><div className={"commandPalette "+(juniorPlayerMode?"juniorFeaturePalette":"")} onClick={e=>e.stopPropagation()}><div className="sectionHead"><div><small>{juniorPlayerMode?"JUNIOR PLAYER":"QUICK NAVIGATION"}</small><h2>{juniorPlayerMode?"All My Features":"Go to a section"}</h2></div><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder={juniorPlayerMode?"Search my features…":"Search Overview, Goals, Testing, Roster…"}/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span className="commandResultIcon"><NavMetaIcon icon={navMeta[a.tab]?.icon}/></span><b>{a.label}</b><small>{juniorPlayerMode?(playerPageHelp[a.tab]?.purpose||"Open this feature"):a.keywords.join(" · ")}</small></button>)}</div>{juniorPlayerMode&&filteredActions.length===0&&<div className="juniorFeatureEmpty">No matching feature. Try a different word.</div>}</div></div>}
  {navSheet&&<ViewportPortal><div className="simpleNavOverlay viewportNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
    <div className="sectionHead"><div><small>{navSheet.toUpperCase()}</small><h2>{navSheet==="More"?"More Features":navSheet}</h2></div><button onClick={()=>setNavSheet(null)}>×</button></div>
-   <div className="simpleNavChoices">{(juniorPlayerMode&&navSheet==="More"?(["Coach","Development","Testing","Competition"] as Tab[]):effectiveRole==="Parent"&&navSheet==="More"?(["Development","Competition"] as Tab[]):navGroups[navSheet]).map(x=><button key={x} onClick={()=>{setTab(x);setNavSheet(null)}}><span>{navMeta[x]?.icon||"•"}</span><div className="simpleNavChoiceCopy"><b>{roleNavLabel(x)}</b><small>{effectiveRole==="Parent"?(parentPageHelp[x]?.purpose||pageHelp[x]?.purpose||""):pageHelp[x]?.purpose||""}</small></div><strong>Open →</strong></button>)}</div>
+   <div className="simpleNavChoices">{(juniorPlayerMode&&navSheet==="More"?(["Coach","Development","Testing","Competition"] as Tab[]):effectiveRole==="Parent"&&navSheet==="More"?(["Development","Competition"] as Tab[]):navGroups[navSheet]).map(x=><button key={x} onClick={()=>{setTab(x);setNavSheet(null)}}><span className="simpleNavChoiceIcon"><NavMetaIcon icon={navMeta[x]?.icon}/></span><div className="simpleNavChoiceCopy"><b>{roleNavLabel(x)}</b><small>{effectiveRole==="Parent"?(parentPageHelp[x]?.purpose||pageHelp[x]?.purpose||""):pageHelp[x]?.purpose||""}</small></div><strong>Open →</strong></button>)}</div>
    {navSheet==="More"&&<button className={"allFeaturesButton "+(juniorPlayerMode?"juniorAllFeaturesButton":"")} onClick={()=>{setNavSheet(null);setCommandOpen(true)}}>{juniorPlayerMode?"See All My Features":"Search All Features"}</button>}
   </div></div></ViewportPortal>}
  <ViewportPortal>{juniorPlayerMode?<div className="simpleBottomNav juniorBottomNav customBottomNav viewportBottomNav" aria-label="Primary navigation">
@@ -5545,7 +5599,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.78 RC28","good"],
+  ["App Version","72.3.80 RC30","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],
@@ -5570,7 +5624,19 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
  const [reviewPlayerId,setReviewPlayerId]=useState<string>("");
  const [addPlayerMessage,setAddPlayerMessage]=useState("");
  const [creatingPlayer,setCreatingPlayer]=useState(false);
+ const [coachActionMessage,setCoachActionMessage]=useState("");
  const canManageProfiles=accountRole==="Admin";
+ const launchCoachInvite=()=>{
+  setCoachActionMessage("");
+  if(openCoachInvitePlayer){openCoachInvitePlayer();return}
+  if(openCoachTeams){openCoachTeams();return}
+  setCoachActionMessage("Invite Player is available from a signed-in Coach account. Team actions are read-only in Coach Preview.");
+ };
+ const launchCoachTeams=()=>{
+  setCoachActionMessage("");
+  if(openCoachTeams){openCoachTeams();return}
+  setCoachActionMessage("Manage Teams is available from a signed-in Coach account. Team actions are read-only in Coach Preview.");
+ };
  const scrollToAddAthlete=()=>{
    window.setTimeout(()=>{
      const el=document.getElementById("roster-add-athlete");
@@ -5915,10 +5981,10 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
 
  useEffect(()=>{if(!summaries.some(x=>x.id===compareA))setCompareA(activeAthleteId);if(compareB&&!summaries.some(x=>x.id===compareB))setCompareB("")},[roster.length,activeAthleteId]);
 
- return <><div className={"hero "+(!canManageProfiles?"coachRosterHeroV2":"")}><div><small>{canManageProfiles?"ROSTER":"COACH ROSTER"}</small><h1>{canManageProfiles?"Roster":"Players & Teams"}</h1><p>{canManageProfiles?"Admin full-access athlete management, cloud switching, corrections, and side-by-side comparison.":"Your main place to invite Players, manage teams, select athletes, and review development status. Player profile information remains read-only."}</p></div>{!canManageProfiles&&<div className="coachRosterPrimaryActions"><button className="featureAction" onClick={()=>openCoachInvitePlayer?.()}>＋ Invite Player</button><button onClick={()=>openCoachTeams?.()}>Manage Teams</button></div>}</div>
+ return <><div className={"hero "+(!canManageProfiles?"coachRosterHeroV2":"")}><div><small>{canManageProfiles?"ROSTER":"COACH ROSTER"}</small><h1>{canManageProfiles?"Roster":"Players & Teams"}</h1><p>{canManageProfiles?"Admin full-access athlete management, cloud switching, corrections, and side-by-side comparison.":"Your main place to invite Players, manage teams, select athletes, and review development status. Player profile information remains read-only."}</p></div>{!canManageProfiles&&<div className="coachRosterPrimaryActions"><button className="featureAction" onClick={launchCoachInvite}>＋ Invite Player</button><button onClick={launchCoachTeams}>Manage Teams</button></div>}</div>
+ {!canManageProfiles&&coachActionMessage&&<div className="coachRosterActionMessage" role="status">{coachActionMessage}</div>}
  {!canManageProfiles&&<div className="coachRosterInviteGuide">
-   <div><span className="coachRosterInviteIcon">＋</span><div><small>ADD PLAYERS</small><b>Invite a Player from Roster</b><p>Create/select a team, copy the Player Invite, and send it to the Player or Parent. The Player still creates and owns their own account and profile.</p></div></div>
-   <div className="coachRosterInviteGuideActions"><button className="featureAction" onClick={()=>openCoachInvitePlayer?.()}>Invite Player</button><button onClick={()=>openCoachTeams?.()}>Teams & Membership</button></div>
+   <div><span className="coachRosterInviteIcon">＋</span><div><small>PLAYER CONNECTION</small><b>Invite Players from one place</b><p>Use the single <b>Invite Player</b> action above to share a team invite. Use <b>Manage Teams</b> for team creation and membership. The Player still creates and owns their own account and profile. A Parent can support that same athlete record.</p></div></div>
   </div>}
  {!canManageProfiles&&<div className="coachRosterReadOnlyNotice"><span>🔒</span><div><small>PROFILE OWNERSHIP</small><b>Coaches cannot edit Player profiles</b><p>Use the roster to select athletes and review development data. Profile corrections must be made by the Player or Admin.</p></div></div>}
  
@@ -5927,7 +5993,7 @@ function Roster({accountRole,sport,profile,roster,setRoster,activeAthleteId,swit
  {!canManageProfiles&&<section className="coachCommandCenter">
   <div className="coachCommandHead">
    <div><small>COACH COMMAND CENTER</small><h2>This Week</h2><p>Scan the roster, handle the highest-priority development needs first, then move through goals, plan reviews, observations, Coach reviews, and retesting. Practice planning stays outside this app.</p></div>
-   <div className="coachCommandCloudStatus"><span className="tag">{friendlyDate(mondayOfWeek())} WEEK</span><span className={"coachCloudRosterState "+coachRosterCloudStatus}>{coachRosterCloudStatus==="ready"?`Cloud roster · ${coachCloudRoster.length}`:coachRosterCloudStatus==="loading"?"Loading cloud roster…":coachRosterCloudStatus==="error"?"Cloud roster issue":"Local roster"}</span><button onClick={()=>openCoachInvitePlayer?.()}>＋ Invite Player</button></div>
+   <div className="coachCommandCloudStatus"><span className="tag">{friendlyDate(mondayOfWeek())} WEEK</span><span className={"coachCloudRosterState "+coachRosterCloudStatus}>{coachRosterCloudStatus==="ready"?`Cloud roster · ${coachCloudRoster.length}`:coachRosterCloudStatus==="loading"?"Loading cloud roster…":coachRosterCloudStatus==="error"?"Cloud roster issue":"Local roster"}</span></div>
   </div>
 
   <div className="coachWeeklyDashboard coachWeeklyDashboardV2">

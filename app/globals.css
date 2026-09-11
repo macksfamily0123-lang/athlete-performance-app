@@ -8227,7 +8227,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 /* =========================================================
-   Phase 72.3.78 RC28 — Always-interactive viewport nav
+   Phase 72.3.79 RC29 — Always-interactive viewport nav
    Primary nav and nav sheets are body-level portals so scrolling
    content can never sit above their tap targets. Also repairs
    narrow Train-sheet copy wrapping (including Development).
@@ -8286,4 +8286,364 @@ input:focus,select:focus,textarea:focus{
  }
  .viewportNavOverlay .simpleNavChoiceCopy b{font-size:13px!important;line-height:1.15!important}
  .viewportNavOverlay .simpleNavChoiceCopy small{font-size:10px!important;line-height:1.35!important;margin-top:3px!important}
+}
+
+
+/* =========================================================
+   Phase 72.3.79 RC29 — More/Roster + Coach action repair
+   ========================================================= */
+.simpleNavChoices>button{
+ grid-template-columns:36px minmax(0,1fr) auto!important;
+ overflow:hidden;
+}
+.simpleNavChoiceIcon{
+ display:grid!important;place-items:center!important;width:34px!important;height:34px!important;
+ min-width:34px!important;overflow:hidden!important;font-size:0!important;
+}
+.simpleNavChoiceIcon .premiumAppIcon{width:19px;height:19px;display:block}
+.simpleNavChoiceCopy{min-width:0;overflow:hidden}
+.simpleNavChoiceCopy b{line-height:1.18;overflow-wrap:anywhere;word-break:normal}
+.simpleNavChoiceCopy small{overflow-wrap:anywhere}
+.simpleNavChoices>button>strong{white-space:nowrap;justify-self:end}
+.coachRosterActionMessage{
+ margin:8px 0 10px;padding:9px 10px;border-left:3px solid var(--forest-light);
+ background:rgba(117,212,169,.06);color:var(--silver-light);line-height:1.4;
+}
+.coachRosterInviteGuide{align-items:flex-start!important}
+.coachRosterInviteGuide>div:first-child{width:100%}
+.coachRosterPrimaryActions{align-items:stretch}
+.coachRosterPrimaryActions button{flex:1;min-width:118px}
+@media(max-width:460px){
+ .simpleNavChoices>button{grid-template-columns:34px minmax(0,1fr)!important;gap:8px!important}
+ .simpleNavChoices>button>strong{grid-column:2;justify-self:start;margin-top:2px}
+ .simpleNavChoiceIcon{grid-row:1 / span 2}
+ .coachRosterPrimaryActions{display:grid!important;grid-template-columns:1fr 1fr!important;min-width:0!important;width:100%!important}
+ .coachRosterPrimaryActions button{min-width:0!important;width:100%!important}
+}
+
+.commandResultIcon{display:grid!important;place-items:center!important;font-size:0!important}
+.commandResultIcon .premiumAppIcon{width:18px;height:18px;display:block}
+
+/* =========================================================
+   Phase 72.3.80 RC30 — Elite Performance Visual System
+   Premium athlete-performance treatment layered on RC29.
+   Photography first, continuous instruments, graphite/silver,
+   sport geometry, embedded visuals, and mobile-first hierarchy.
+   ========================================================= */
+:root{
+ --elite-graphite:#050907;
+ --elite-carbon:#07100d;
+ --elite-panel:#0a1410;
+ --elite-panel-hi:#0d1a15;
+ --elite-silver:#9daaa4;
+ --elite-silver-hi:#d8e2dd;
+ --elite-line:rgba(216,235,226,.12);
+ --elite-line-hi:rgba(216,235,226,.24);
+ --elite-green:#35ea8e;
+ --elite-blue:#55b9ff;
+ --elite-violet:#bd7cff;
+ --elite-amber:#ffb24c;
+ --elite-mint:#64e9c4;
+}
+
+/* Overall canvas: quiet premium depth instead of decorative dashboard gradients. */
+.performanceOS{
+ position:relative;
+ background-color:var(--elite-graphite)!important;
+ background-image:
+  radial-gradient(circle at 82% -4%,rgba(53,234,142,.075),transparent 24%),
+  radial-gradient(circle at 8% 20%,rgba(85,185,255,.045),transparent 23%),
+  linear-gradient(180deg,#07100d 0%,#040806 72%,#020504 100%)!important;
+ color:#eef7f2;
+}
+.performanceOS::before{
+ content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.34;
+ background-image:var(--elite-sport-motif,linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.025) 50%,transparent 50.2%));
+ background-size:100% 100%;background-position:center;background-repeat:no-repeat;
+}
+.performanceOS[data-sport="Ice Hockey"]{--elite-sport-motif:linear-gradient(90deg,transparent 23%,rgba(65,140,255,.055) 23.2%,transparent 23.5%,transparent 49.8%,rgba(230,67,81,.048) 50%,transparent 50.2%,transparent 76.5%,rgba(65,140,255,.055) 76.8%,transparent 77%)}
+.performanceOS[data-sport="Football"]{--elite-sport-motif:repeating-linear-gradient(90deg,transparent 0 9.6%,rgba(255,255,255,.025) 9.8% 10%,transparent 10.2%)}
+.performanceOS[data-sport="Soccer"]{--elite-sport-motif:linear-gradient(90deg,transparent 49.75%,rgba(255,255,255,.035) 49.9% 50.1%,transparent 50.25%),radial-gradient(circle at center,transparent 0 11%,rgba(255,255,255,.03) 11.2% 11.5%,transparent 11.7%)}
+.performanceOS[data-sport="Basketball"]{--elite-sport-motif:radial-gradient(circle at 50% 50%,transparent 0 10%,rgba(255,255,255,.03) 10.2% 10.5%,transparent 10.7%),linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.025) 50%,transparent 50.2%)}
+.performanceOS[data-sport="Baseball"]{--elite-sport-motif:linear-gradient(45deg,transparent 49.85%,rgba(255,255,255,.025) 50%,transparent 50.15%),linear-gradient(-45deg,transparent 49.85%,rgba(255,255,255,.025) 50%,transparent 50.15%)}
+.performanceOS[data-sport="Lacrosse"]{--elite-sport-motif:linear-gradient(90deg,transparent 49.8%,rgba(255,255,255,.03) 50%,transparent 50.2%),linear-gradient(0deg,transparent 17%,rgba(255,255,255,.02) 17.2%,transparent 17.4%,transparent 82.6%,rgba(255,255,255,.02) 82.8%,transparent 83%)}
+.performanceOS[data-sport="Wrestling"]{--elite-sport-motif:radial-gradient(circle at center,transparent 0 17%,rgba(255,255,255,.028) 17.2% 17.6%,transparent 17.8%)}
+.performanceOS[data-sport="Figure Skating"]{--elite-sport-motif:linear-gradient(135deg,transparent 0 44%,rgba(185,219,255,.025) 44.2%,transparent 44.4% 100%)}
+
+/* Brand chrome: closer to premium team equipment than a generic web header. */
+.performanceOS .appHeader{
+ min-height:62px!important;
+ border-bottom:1px solid var(--elite-line-hi)!important;
+ background:rgba(3,8,6,.965)!important;
+ box-shadow:none!important;
+ backdrop-filter:blur(18px) saturate(130%);
+}
+.performanceOS .brandBlock .hockeyDevLogo{
+ border-radius:1px!important;
+ clip-path:polygon(0 0,82% 0,100% 18%,100% 100%,18% 100%,0 82%);
+ background:transparent!important;
+ color:var(--elite-green)!important;
+ border:1px solid rgba(82,244,157,.52)!important;
+ box-shadow:inset 0 0 0 1px rgba(255,255,255,.025)!important;
+}
+.performanceOS .brandBlock strong{font-size:13px!important;letter-spacing:.1em!important;font-weight:900!important}
+.performanceOS .brandBlock strong em{color:var(--elite-green)!important}
+.performanceOS .brandBlock small{font-size:7px!important;letter-spacing:.18em!important;color:#788b82!important}
+.performanceOS .accountHeaderRole{color:#aabbb3!important;text-transform:uppercase;letter-spacing:.1em;font-size:8px!important}
+.performanceOS .headerUtilityButton,.performanceOS .settingsButton,.performanceOS .helpButton{
+ min-height:34px!important;border:1px solid var(--elite-line)!important;background:transparent!important;color:#becbc5!important;
+ text-transform:uppercase;letter-spacing:.07em;font-size:8px!important
+}
+.performanceOS .headerUtilityButton:hover,.performanceOS .settingsButton:hover,.performanceOS .helpButton:hover{border-color:var(--elite-line-hi)!important;color:#fff!important}
+
+/* Compact identity bar; hero owns the visual identity on Home. */
+.performanceOS .contextBar.cleanContext{
+ border:0!important;border-bottom:1px solid var(--elite-line)!important;border-radius:0!important;
+ background:rgba(5,13,10,.78)!important;box-shadow:none!important;
+}
+.performanceOS .athleteContext small,.performanceOS .sessionIdentity small{letter-spacing:.14em!important;color:#71847b!important}
+.performanceOS .athleteContext b,.performanceOS .sessionIdentity b{color:#eaf3ef!important}
+.performanceOS[data-tab="Home"] .sportSelectorBlock.lockedProfileSport{display:none!important}
+.performanceOS[data-tab="Home"] .workspaceGuide{display:none!important}
+.performanceOS .pageGuide{
+ border:0!important;border-bottom:1px solid var(--elite-line)!important;border-radius:0!important;background:transparent!important;
+ padding:10px 0!important;margin:0 0 14px!important;box-shadow:none!important
+}
+.performanceOS .pageGuide small{color:var(--role-accent)!important;letter-spacing:.13em!important;text-transform:uppercase}
+.performanceOS .pageGuide b{font-size:12px!important;color:#d8e3de!important}
+.performanceOS .pageGuide>span{color:#7f9289!important;font-size:9px!important}
+
+/* Hero: cinematic photograph with precise telemetry, never a rounded image card. */
+.performanceOS .elitePerformanceHero{
+ min-height:460px!important;
+ background-position:center,center 30%!important;
+ background-size:cover!important;
+ border-top:1px solid rgba(255,255,255,.08)!important;
+}
+.performanceOS .elitePerformanceHero::before{
+ background:
+  linear-gradient(90deg,rgba(1,6,4,.48) 0%,rgba(1,6,4,.10) 48%,rgba(1,6,4,.18) 100%),
+  linear-gradient(180deg,rgba(0,0,0,.02) 0 42%,rgba(0,0,0,.18) 58%,rgba(1,7,5,.96) 92% 100%),
+  repeating-linear-gradient(90deg,transparent 0 139px,rgba(255,255,255,.022) 140px 141px)!important;
+}
+.performanceOS .nativeHeroTopline{padding:15px 18px!important;border-bottom:1px solid rgba(255,255,255,.12)!important;font-size:8px!important}
+.performanceOS .eliteHeroTelemetry{
+ position:absolute;z-index:3;right:18px;top:48px;display:flex;align-items:center;gap:8px;
+ color:rgba(235,248,242,.72);font-size:7px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+ writing-mode:vertical-rl;transform:rotate(180deg)
+}
+.performanceOS .eliteHeroTelemetry i{display:block;width:1px;height:34px;background:linear-gradient(180deg,var(--role-accent),rgba(255,255,255,.14))}
+.performanceOS .nativeHeroBottom{padding:24px 22px 22px!important}
+.performanceOS .nativeHeroIdentity h1{font-size:clamp(42px,7vw,68px)!important;line-height:.86!important;letter-spacing:-.062em!important;text-shadow:0 5px 30px rgba(0,0,0,.72)!important}
+.performanceOS .nativeHeroIdentity p{font-size:11px!important;letter-spacing:.01em!important;color:#c8d6cf!important}
+.performanceOS .nativeHeroIdentity .premiumAthleteAvatar{width:66px!important;height:66px!important;flex-basis:66px!important;border:1px solid rgba(255,255,255,.58)!important;box-shadow:0 12px 30px rgba(0,0,0,.35)!important}
+.performanceOS .premiumReadinessOrb{width:116px!important;height:116px!important;flex-basis:116px!important;background:rgba(1,8,5,.78)!important;border:1px solid rgba(255,255,255,.16)!important;backdrop-filter:blur(10px)}
+.performanceOS .premiumReadinessContent strong{font-size:35px!important}
+.performanceOS .premiumReadinessProgress{stroke:var(--role-accent)!important}
+
+/* Continuous elite signal rail: one instrument panel, not a row of cards. */
+.elitePerformanceBand{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0!important;
+ border-top:1px solid var(--elite-line-hi);border-bottom:1px solid var(--elite-line-hi);
+ background:linear-gradient(180deg,rgba(10,21,17,.82),rgba(5,12,9,.74));
+}
+.elitePerformanceBand>button{
+ min-width:0;min-height:132px;padding:16px 15px 14px;text-align:left;color:#eef7f2;background:transparent!important;
+ border:0!important;border-right:1px solid var(--elite-line)!important;border-radius:0!important;position:relative;overflow:hidden
+}
+.elitePerformanceBand>button:last-child{border-right:0!important}
+.elitePerformanceBand>button::after{content:"";position:absolute;left:15px;right:15px;bottom:0;height:1px;background:transparent}
+.elitePerformanceBand>button:hover,.elitePerformanceBand>button:focus-visible{background:rgba(255,255,255,.026)!important}
+.eliteSignalTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.eliteSignalTop small{font-size:7px;font-weight:950;letter-spacing:.15em;color:#7f948a}
+.eliteSignalTop>i{width:5px;height:5px;background:var(--role-accent);display:block;transform:rotate(45deg);opacity:.8}
+.eliteSignalTop .eliteStatusDot{border-radius:50%;transform:none;background:#718078}
+.eliteSignalTop .eliteStatusDot.good{background:#3de892;box-shadow:0 0 10px rgba(61,232,146,.38)}
+.eliteSignalTop .eliteStatusDot.steady{background:#64c6ff}
+.eliteSignalTop .eliteStatusDot.watch{background:#ffb24c}
+.elitePerformanceBand strong{display:block;margin-top:10px;font-size:26px;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.elitePerformanceBand>button>span:not(.eliteSignalTop){display:block;margin-top:5px;min-height:25px;color:#8da098;font-size:9px;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
+.eliteMicroGauge{height:2px;margin-top:11px;background:rgba(255,255,255,.07);overflow:hidden}
+.eliteMicroGauge i{display:block;height:100%;background:var(--role-accent);box-shadow:0 0 12px color-mix(in srgb,var(--role-accent) 36%,transparent)}
+.eliteTrendSignal{color:var(--elite-blue)!important}
+.eliteTrendSignal strong{color:#eef7f2!important}
+.eliteTrendSignal .eliteSparkline{height:34px;margin-top:4px}
+
+/* Embedded sparkline — no chart card chrome. */
+.eliteSparkline{display:block;width:100%;height:auto;overflow:visible;color:var(--role-accent)}
+.eliteSparklineBase{stroke:rgba(226,241,234,.12);stroke-width:1}
+.eliteSparklineArea{fill:currentColor;opacity:.065}
+.eliteSparklineLine{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.eliteSparklinePoint{fill:#09140f;stroke:currentColor;stroke-width:1.5}
+.eliteSparklinePoint.latest{fill:currentColor;stroke:#e9f8f1;stroke-width:1}
+
+/* Visual performance feature: analytics embedded into the narrative. */
+.eliteVisualPerformance{
+ width:100%;display:grid!important;grid-template-columns:minmax(150px,.9fr) minmax(110px,.45fr) minmax(220px,1.35fr) auto;
+ align-items:center;gap:22px;margin:24px 0 0!important;padding:20px 0!important;text-align:left!important;
+ background:transparent!important;border:0!important;border-top:1px solid var(--elite-line-hi)!important;border-bottom:1px solid var(--elite-line-hi)!important;
+ border-radius:0!important;color:#eff8f3!important
+}
+.eliteVisualCopy small,.eliteVisualCopy b,.eliteVisualCopy span,.eliteVisualMetric strong,.eliteVisualMetric span{display:block}
+.eliteVisualCopy small{font-size:7px;color:var(--role-accent);font-weight:950;letter-spacing:.17em}
+.eliteVisualCopy b{margin-top:6px;font-size:17px;letter-spacing:-.02em}
+.eliteVisualCopy span{margin-top:5px;color:#879a91;font-size:9px}
+.eliteVisualMetric{border-left:1px solid var(--elite-line);padding-left:18px}
+.eliteVisualMetric strong{font-size:25px;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.eliteVisualMetric span{margin-top:4px;text-transform:uppercase;color:#71857b;font-size:7px;letter-spacing:.13em}
+.eliteVisualPerformance .eliteSparkline{height:72px;color:var(--elite-green)}
+.eliteVisualAction{font-size:8px;letter-spacing:.14em;color:var(--role-accent);white-space:nowrap;font-weight:900}
+.eliteVisualAction span{font-size:16px;margin-left:5px}
+
+/* Player hierarchy: the next move owns attention; the rest recedes. */
+.performanceOS .elitePlayerFlow{padding-top:0!important}
+.performanceOS .elitePrimaryAction{
+ min-height:80px!important;padding:0 22px!important;background:linear-gradient(90deg,#2bdf82 0%,#45ef9a 68%,#7af4b4 100%)!important;
+ clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%)!important
+}
+.performanceOS .elitePrimaryAction span small{font-size:7px!important;letter-spacing:.19em!important}
+.performanceOS .elitePrimaryAction span b{font-size:18px!important}
+.performanceOS .eliteFocusStory{margin-top:22px!important;padding:20px 0!important}
+.performanceOS .eliteActionSection{padding-top:30px!important}
+.performanceOS .nativeSectionKicker b{font-size:22px!important}
+.performanceOS .nativeActionList button{min-height:82px!important}
+.performanceOS .nativeActionList b{font-size:15px!important}
+.performanceOS .nativeActionList small{font-size:9px!important;color:#7f9389!important}
+
+/* Coach tactical hierarchy: colored accents describe status, not decorative cards. */
+.performanceOS .eliteCoachHome .elitePerformanceBand{--role-accent:var(--commercial-blue)}
+.performanceOS .nativeCoachSignalBand{margin-top:18px!important}
+.performanceOS .nativeCoachSignalBand>div{padding:14px 12px!important;border-right:1px solid var(--elite-line)!important}
+.performanceOS .nativeCoachSignalBand small{letter-spacing:.14em!important;font-size:7px!important;color:#758a80!important}
+.performanceOS .nativeCoachSignalBand b{font-size:17px!important}
+.performanceOS .nativeCoachActionBar{margin-top:18px!important;border-top:1px solid var(--elite-line)!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .nativeCoachActionBar button{min-height:72px!important}
+
+/* Parent is calm and premium: less dashboard noise, more readable support signal. */
+.performanceOS .eliteParentHome .elitePerformanceBand{--role-accent:#c790f2}
+.performanceOS .nativeParentStory{margin-top:20px!important}
+.performanceOS .nativeParentTimeline button{min-height:76px!important}
+.performanceOS .nativeParentTimeline small{letter-spacing:.12em!important;text-transform:uppercase;color:#798d83!important}
+.performanceOS .nativeParentTimeline b{font-size:14px!important}
+
+/* Admin console stays operational and high-contrast. */
+.performanceOS .eliteAdminHome .elitePerformanceBand{--role-accent:var(--commercial-amber)}
+.performanceOS .nativeAdminFocus{margin-top:20px!important}
+.performanceOS .nativeAdminCommandList{margin-top:18px!important;border-top:1px solid var(--elite-line)!important}
+
+/* Analytics: strip away old rounded cockpit boxes and let data breathe. */
+.performanceOS .analyticsCockpitHero{
+ border-radius:0!important;border:0!important;border-bottom:1px solid var(--elite-line-hi)!important;
+ background:linear-gradient(90deg,rgba(11,24,19,.86),rgba(5,11,9,.54))!important;box-shadow:none!important
+}
+.performanceOS .cockpitPrimaryPanel,.performanceOS .cockpitSecondaryPanel,.performanceOS .cockpitTrendSection{
+ border-radius:0!important;border-left:0!important;border-right:0!important;background:transparent!important;box-shadow:none!important;padding:16px 0!important
+}
+.performanceOS .cockpitOverallInstrument{border-radius:0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--elite-line)!important;padding:16px 0!important}
+.performanceOS .cockpitScoreRing{box-shadow:none!important}
+.performanceOS .cockpitInstrumentGrid{gap:0!important;border-top:1px solid var(--elite-line)!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .cockpitInstrument{border-radius:0!important;border:0!important;border-right:1px solid var(--elite-line)!important;background:transparent!important;padding:14px 12px!important}
+.performanceOS .cockpitInstrument:last-child{border-right:0!important}
+.performanceOS .cockpitGauge{border-radius:0!important;height:3px!important;background:#0a120f!important}
+.performanceOS .cockpitGauge i{border-radius:0!important;background:var(--role-accent)!important}
+.performanceOS .cockpitQuickGrid{gap:0!important;border-top:1px solid var(--elite-line)!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .cockpitQuickCard{border-radius:0!important;border:0!important;border-right:1px solid var(--elite-line)!important;background:transparent!important;min-height:132px!important;padding:14px!important}
+.performanceOS .cockpitQuickCard:last-child{border-right:0!important}
+.performanceOS .cockpitToolbar{border-radius:0!important;border-left:0!important;border-right:0!important;background:transparent!important}
+.performanceOS .cockpitDataStrip{gap:0!important;border-top:1px solid var(--elite-line)!important;border-bottom:1px solid var(--elite-line)!important}
+.performanceOS .cockpitDataStrip>div{border-radius:0!important;border:0!important;border-right:1px solid var(--elite-line)!important;background:transparent!important}
+.performanceOS .cockpitDataStrip>div:last-child{border-right:0!important}
+.performanceOS .cockpitTrend{border-radius:0!important;background:transparent!important;border-left:0!important;border-right:0!important;border-color:var(--elite-line)!important;padding:18px 0!important}
+.performanceOS .chart{height:180px!important;color:var(--role-accent)!important}
+
+/* Roster: professional scouting-board rows. */
+.performanceOS .rosterCard,.performanceOS .rosterSummaryCard{
+ border-radius:0!important;background:transparent!important;border:0!important;border-bottom:1px solid var(--elite-line)!important;border-left:0!important;padding:15px 0!important
+}
+.performanceOS .rosterSummaryTop{grid-template-columns:56px minmax(0,1fr) auto!important}
+.performanceOS .rosterMetrics{gap:0!important;margin:12px 0 0!important;border-top:1px solid var(--elite-line)!important}
+.performanceOS .rosterMetrics span{border:0!important;border-right:1px solid var(--elite-line)!important;border-radius:0!important;background:transparent!important;padding:9px!important}
+.performanceOS .rosterMetrics span:last-child{border-right:0!important}
+.performanceOS .rosterAvatar.commercialPlayerAvatar{width:52px!important;height:52px!important;border-radius:50%!important;border-color:rgba(255,255,255,.36)!important}
+
+/* More/Train sheets: premium command drawer, not chat choices. */
+.viewportNavOverlay .simpleNavSheet{
+ border-radius:0!important;border:1px solid var(--elite-line-hi)!important;background:linear-gradient(180deg,#08130f,#040906)!important;
+ box-shadow:0 26px 90px rgba(0,0,0,.62)!important
+}
+.viewportNavOverlay .simpleNavChoices>button{
+ border-radius:0!important;border:0!important;border-bottom:1px solid var(--elite-line)!important;background:transparent!important;min-height:72px!important
+}
+.viewportNavOverlay .simpleNavChoices>button:hover{background:rgba(255,255,255,.025)!important}
+.viewportNavOverlay .simpleNavChoiceIcon{border:1px solid var(--elite-line)!important;background:rgba(255,255,255,.018)!important}
+.viewportNavOverlay .simpleNavChoiceCopy b{font-size:13px!important}
+.viewportNavOverlay .simpleNavChoiceCopy small{color:#7d9087!important}
+
+/* Setup dialog: elite onboarding sheet. */
+.roleSetupModalCard{
+ border-radius:0!important;border:1px solid var(--elite-line-hi)!important;border-top:2px solid var(--role-accent)!important;background:#06100c!important
+}
+.roleSetupModalCard::before{content:"SETUP / ATHLETE WORKSPACE";display:block;margin:-2px 0 15px;padding:9px 0;border-bottom:1px solid var(--elite-line);font-size:7px;font-weight:950;letter-spacing:.16em;color:var(--role-accent)}
+.roleSetupModalCard .setupStepLink{border-radius:0!important;border-left:2px solid var(--elite-line-hi)!important;background:transparent!important}
+
+/* Loading and empty states use branded instrument skeletons. */
+.performanceOS .hydrationCard,.performanceOS .cockpitEmpty{
+ border-radius:0!important;border:1px solid var(--elite-line)!important;background:linear-gradient(90deg,#07120e,#0a1712,#07120e)!important;background-size:220% 100%;
+}
+.performanceOS .hydrationPulse{border-radius:0!important;background:linear-gradient(90deg,rgba(53,234,142,.16),rgba(255,255,255,.06))!important}
+
+/* Mobile is a designed composition, not a compressed desktop layout. */
+@media(max-width:700px){
+ .performanceOS main{padding-left:10px!important;padding-right:10px!important}
+ .performanceOS .contextBar.cleanContext{margin-left:10px!important;margin-right:10px!important}
+ .performanceOS .pageGuide{margin-left:0!important;margin-right:0!important}
+ .performanceOS .elitePerformanceHero{
+  width:calc(100% + 20px)!important;margin-left:-10px!important;min-height:520px!important;
+  background-position:center,center 24%!important;padding:0!important
+ }
+ .performanceOS .nativeHeroTopline{padding:13px 12px!important}
+ .performanceOS .eliteHeroTelemetry{right:9px;top:44px;font-size:6px}
+ .performanceOS .nativeHeroBottom{padding:0 12px 18px!important;grid-template-columns:minmax(0,1fr) 86px!important}
+ .performanceOS .nativeHeroIdentity{align-items:flex-end!important;gap:8px!important}
+ .performanceOS .nativeHeroIdentity h1{font-size:34px!important;line-height:.88!important}
+ .performanceOS .nativeHeroIdentity p{font-size:9px!important;line-height:1.35!important}
+ .performanceOS .nativeHeroIdentity .premiumAthleteAvatar{width:54px!important;height:54px!important;flex-basis:54px!important}
+ .performanceOS .premiumReadinessOrb{width:84px!important;height:84px!important;flex-basis:84px!important}
+ .performanceOS .premiumReadinessContent strong{font-size:26px!important}
+ .performanceOS .premiumReadinessContent small{font-size:6px!important}
+ .performanceOS .premiumReadinessContent span{font-size:7px!important}
+ .elitePerformanceBand{grid-template-columns:1fr 1fr;width:calc(100% + 20px);margin-left:-10px!important}
+ .elitePerformanceBand>button{min-height:116px;padding:13px 12px!important;border-bottom:1px solid var(--elite-line)!important}
+ .elitePerformanceBand>button:nth-child(2n){border-right:0!important}
+ .elitePerformanceBand>button:nth-last-child(-n+2){border-bottom:0!important}
+ .elitePerformanceBand strong{font-size:22px}
+ .eliteTrendSignal .eliteSparkline{height:28px}
+ .performanceOS .elitePrimaryAction{width:calc(100% + 20px)!important;margin-left:-10px!important;min-height:76px!important;padding-left:14px!important;padding-right:16px!important}
+ .performanceOS .eliteFocusStory{margin-left:0!important;margin-right:0!important}
+ .eliteVisualPerformance{grid-template-columns:minmax(0,1fr) auto;gap:10px 14px;padding:16px 0!important}
+ .eliteVisualCopy{grid-column:1}
+ .eliteVisualMetric{grid-column:2;border-left:0;padding-left:0;text-align:right}
+ .eliteVisualPerformance .eliteSparkline{grid-column:1 / -1;height:72px}
+ .eliteVisualAction{grid-column:1 / -1;border-top:1px solid var(--elite-line);padding-top:9px}
+ .performanceOS .nativeSectionKicker{align-items:flex-start!important;flex-direction:column!important;gap:4px!important}
+ .performanceOS .nativeSectionKicker b{font-size:18px!important}
+ .performanceOS .nativeActionList button{grid-template-columns:24px 36px minmax(0,1fr) 18px!important;gap:9px!important;min-height:76px!important}
+ .performanceOS .nativeActionList small{line-height:1.32!important}
+ .performanceOS .cockpitInstrumentGrid{grid-template-columns:1fr 1fr!important}
+ .performanceOS .cockpitInstrument{border-bottom:1px solid var(--elite-line)!important}
+ .performanceOS .cockpitQuickGrid{grid-template-columns:1fr 1fr!important}
+ .performanceOS .cockpitQuickCard{border-bottom:1px solid var(--elite-line)!important}
+ .performanceOS .cockpitDataStrip{grid-template-columns:1fr 1fr!important}
+ .performanceOS .rosterMetrics{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:390px){
+ .performanceOS .elitePerformanceHero{min-height:500px!important;background-position:center,center 22%!important}
+ .performanceOS .nativeHeroIdentity h1{font-size:31px!important}
+ .elitePerformanceBand>button{min-height:112px;padding:12px 10px!important}
+ .elitePerformanceBand strong{font-size:20px}
+ .eliteSignalTop small{font-size:6.5px}
+ .eliteVisualPerformance{gap:9px 10px}
+ .eliteVisualCopy b{font-size:15px}
+ .eliteVisualMetric strong{font-size:21px}
+ .performanceOS .nativeActionList b{font-size:13px!important}
 }

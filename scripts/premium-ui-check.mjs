@@ -13,7 +13,7 @@ const checks=[
  ["Coach quick actions exist", athlete.includes('{icon:"roster" as PremiumIconName,label:"Roster"')&&athlete.includes('{icon:"readiness" as PremiumIconName,label:"Readiness"')],
  ["Parent quick actions exist", athlete.includes('{icon:"calendar" as PremiumIconName,label:"Schedule"')&&athlete.includes('{icon:"support" as PremiumIconName,label:"Support"')],
  ["Admin quick actions exist", athlete.includes('{icon:"roster" as PremiumIconName,label:"Roster",detail:"Athletes & connections"')],
- ["Home metric strip exists", athlete.includes('premiumMetricStrip')],
+ ["Home performance instrument rail exists", athlete.includes('elitePerformanceBand')&&athlete.includes('eliteVisualPerformance')],
  ["Readiness orb exists", athlete.includes("function SmoothReadinessRing")&&athlete.includes("premiumReadinessOrb")],
  ["Root exposes tab for UI targeting", athlete.includes("data-tab={tab}")],
  ["Root exposes sport for future art direction", athlete.includes("data-sport={sport}")],
@@ -42,7 +42,7 @@ const checks=[
  ["Junior Goal Entry retained", athlete.includes("juniorGoalEntryCard")],
  ["Family diagnostics retained", beta.includes("Family & Account Diagnostics")],
  ["No practice-plan generator", !athlete.includes("Generate Practice Plan")&&!athlete.includes("Practice Plan Generator")],
- ["RC24 ribbon", beta.includes("BETA · RC28 · v72.3.78")]
+ ["RC24 ribbon", beta.includes("BETA · RC30 · v72.3.80")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);
