@@ -5,8 +5,8 @@ const css=fs.readFileSync('app/globals.css','utf8');
 const sw=fs.readFileSync('public/sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const checks=[
- ['combined version is 72.3.88',pkg.version==='72.3.88'],
- ['beta ribbon is RC38',beta.includes('BETA · RC38 · v72.3.88')],
+ ['combined version is 72.3.89',pkg.version==='72.3.90'],
+ ['beta ribbon is RC38',beta.includes('BETA · RC40 · v72.3.90')],
  ['in-app alerts state exists',app.includes('showNotifications')&&app.includes('notificationPrefs')],
  ['alerts are derived from performance data',app.includes('const appNotices=useMemo<InAppNotice[]>')],
  ['cloud save issues can generate alerts',app.includes('Changes are waiting to sync')],
@@ -20,7 +20,7 @@ const checks=[
  ['local recovery points are timestamped',app.includes('lastLocalSnapshotAt')],
  ['downloadable recovery backup exists',app.includes('downloadRecoveryBackup')&&app.includes('athlete-performance-backup-')],
  ['password reset flow exists',beta.includes('resetPasswordForEmail')&&beta.includes('Forgot password?')&&beta.includes('PASSWORD_RECOVERY')&&beta.includes('updateUser({password:newPassword})')],
- ['service worker has a versioned offline cache',sw.includes('athlete-performance-beta-v88')&&sw.includes('caches.open(CACHE)')],
+ ['service worker has a versioned offline cache',sw.includes('athlete-performance-beta-v89')&&sw.includes('caches.open(CACHE)')],
  ['navigation has network fallback',sw.includes('request.mode==="navigate"')&&sw.includes('caches.match("/")')],
  ['notification overlay is above app chrome',css.includes('.notificationOverlay{position:fixed')&&css.includes('z-index:24050')],
 ];

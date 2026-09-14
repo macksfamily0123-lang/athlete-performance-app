@@ -40,3 +40,24 @@ Full combined release built on Phase 72.3.86 RC36.
 This combined build preserves the earlier **Phase 72.3.83 RC33** lineage, including **Recovery Tips**, the **Elite Performance Visual System**, and the prior **wide 1600×900 asset** work. Migration 009 remains the latest required migration.
 
 Compatibility: migration 009 remains unchanged and is still the latest required migration.
+
+## Phase 72.3.89 RC39 — Connected Trackers
+- Adds Player/Parent-only Connected Trackers in Settings.
+- Cloud OAuth framework for Fitbit, Oura, WHOOP, and Strava.
+- Garmin appears as architecture-ready pending provider approval; Apple Health and Health Connect are marked for future native mobile bridges.
+- Normalizes sleep, readiness/recovery, resting HR/HRV, and workout summaries into Supabase.
+- Adds Player/Parent Home tracker summary strip.
+- Coach and Admin tracker access is denied both in UI and migration 010 RLS rules.
+- OAuth access/refresh tokens are encrypted server-side and never exposed to client code.
+- Adds migration 010. Migration 009 remains unchanged.
+
+## Phase 72.3.90 RC40 — Google Health / Fitbit Migration
+- Replaces the legacy Fitbit OAuth connector for new users with Google Health OAuth 2.0.
+- Uses `GOOGLE_HEALTH_CLIENT_ID` and `GOOGLE_HEALTH_CLIENT_SECRET`.
+- Uses the production callback `/api/trackers/oauth/callback/google-health`.
+- Imports Google Health exercise sessions, sleep duration/efficiency, daily resting heart rate and daily HRV when available.
+- Keeps Oura, WHOOP and Strava cloud connectors.
+- Keeps Garmin approval-ready and Apple Health / Health Connect as future native bridges.
+- Preserves Player/Parent-only tracker privacy and server-side encrypted OAuth tokens.
+- Adds migration 011 to allow `google-health` provider values while preserving legacy `fitbit` rows.
+- Migration 009 remains unchanged and migration 010 remains the tracker privacy/data foundation.

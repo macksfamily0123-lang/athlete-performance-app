@@ -39,7 +39,7 @@ const checks=[
  ["Parent competition result retained", athlete.includes("parentCompetitionResultCard")],
  ["Family diagnostics retained", beta.includes("Family & Account Diagnostics")],
  ["No practice-plan generator", !athlete.includes("Generate Practice Plan")&&!athlete.includes("Practice Plan Generator")],
- ["RC24 ribbon", beta.includes("BETA · RC38 · v72.3.88")]
+ ["RC24 ribbon", beta.includes("BETA · RC40 · v72.3.90")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);

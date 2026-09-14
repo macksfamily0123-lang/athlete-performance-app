@@ -29,3 +29,11 @@ This is one full installable app package that includes the RC36 accessibility/ro
 
 ### Database
 No new Supabase migration is required. Migration 009 is unchanged byte-for-byte.
+
+### Connected Trackers — RC39
+Connected Trackers is intentionally private to Player and authorized Parent accounts. Coach and Admin roles cannot query tracker metrics.
+
+Before enabling live providers, run `supabase/migrations/010_connected_trackers_player_parent_only.sql`, add the server-only Supabase service-role key and tracker encryption key in Vercel, then add OAuth credentials for any providers you want to enable. Provider redirect URLs use `/api/trackers/oauth/callback/<provider>` on the deployed beta domain.
+
+### Google Health / Fitbit — RC40
+RC40 migrates new Fitbit/Pixel Watch connections from the legacy Fitbit Web API to Google Health OAuth 2.0. Player and authorized Parent accounts can connect Google Health in Settings, then import recent workouts, sleep duration/efficiency, daily resting heart rate and HRV. Coach and Admin remain denied access to tracker data. Run migration 011 after migration 010 before testing the connection.

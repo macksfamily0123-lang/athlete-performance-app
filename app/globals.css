@@ -9275,3 +9275,36 @@ input:focus,select:focus,textarea:focus{
  .notificationPreferenceGrid{grid-template-columns:1fr}.reliabilitySettingsGrid{grid-template-columns:1fr}.reliabilitySettingsGrid>div{border-right:0;border-bottom:1px solid rgba(180,220,205,.1)}.reliabilitySettingsGrid>div:last-child{border-bottom:0}
 }
 @media(prefers-reduced-motion:reduce){.performanceOS *{scroll-behavior:auto!important}.performanceOS .eliteRoleHeroForeground,.performanceOS .elitePerformanceBand>button,.performanceOS .eliteSparklineLine{animation:none!important;transition:none!important}}
+
+/* ================================================================
+   Phase 72.3.89 RC39 — Connected Trackers
+   Player + authorized Parent only. Coach/Admin intentionally excluded.
+   ================================================================ */
+.trackerSettings{margin-top:20px;padding-top:20px;border-top:1px solid rgba(180,220,205,.14)}
+.trackerMessage{margin-top:12px;padding:11px 13px;border-left:3px solid #3ee991;background:#0b1e18;color:#dff7eb;font-size:.8rem;line-height:1.45}
+.trackerLoading{padding:18px 0;color:#8fa89e;font-size:.82rem}
+.trackerSnapshot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px;border-top:1px solid rgba(180,220,205,.13);border-bottom:1px solid rgba(180,220,205,.13)}
+.trackerSnapshot>div{padding:13px 12px;border-right:1px solid rgba(180,220,205,.11);min-width:0}.trackerSnapshot>div:last-child{border-right:0}
+.trackerSnapshot small,.trackerProviderCard small{display:block;color:#78958b;font-size:.61rem;letter-spacing:.13em;font-weight:850}.trackerSnapshot b{display:block;margin-top:5px;color:#f1faf6;font-size:.95rem;overflow-wrap:anywhere}
+.trackerProviderGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+.trackerProviderCard{display:grid;gap:10px;padding:14px;border:1px solid rgba(181,219,205,.13);background:linear-gradient(180deg,#0a1717,#071211);min-width:0}
+.trackerProviderCard.connected{border-color:rgba(52,233,145,.31)}
+.trackerProviderHead{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center}
+.trackerProviderMark{display:grid;place-items:center;width:38px;height:38px;border:1px solid rgba(255,255,255,.14);background:#10231e;color:#66efaa;font-weight:950;font-size:1rem}.trackerProviderMark.oura{color:#d9c0ff}.trackerProviderMark.whoop{color:#6edcff}.trackerProviderMark.strava{color:#ff9a62}.trackerProviderMark.google-health{color:#65e9d1}.trackerProviderMark.garmin{color:#7bc8ff}
+.trackerProviderHead>div{min-width:0}.trackerProviderHead b{display:block;color:#f5fcf9;font-size:.9rem}.trackerProviderHead small{margin-top:2px;letter-spacing:.05em;text-transform:uppercase}
+.trackerStatus{font-size:.6rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:5px 7px;border:1px solid rgba(255,255,255,.12);white-space:nowrap}.trackerStatus.connected{color:#59ee9f;border-color:rgba(65,234,151,.28)}.trackerStatus.ready{color:#77cffb}.trackerStatus.setup{color:#9aaca6}
+.trackerProviderCard p{margin:0;color:#9eb2aa;font-size:.75rem;line-height:1.45}.trackerLastSync{color:#86a399!important;letter-spacing:0!important}.trackerError{color:#efad72!important;letter-spacing:0!important;line-height:1.35}
+.trackerProviderActions{display:flex;gap:7px;flex-wrap:wrap}.trackerProviderActions button{min-height:38px;padding:0 11px;border-radius:2px;border:1px solid rgba(255,255,255,.13);background:transparent;color:#d7e8e1;font-weight:820;font-size:.74rem}.trackerProviderActions button.featureAction{background:#21cc77;color:#041c12;border-color:#31e58b}.trackerProviderActions button:disabled{opacity:.45;cursor:not-allowed}
+.trackerPrivacyNote{display:grid;gap:4px;margin-top:13px;padding:11px 13px;border-left:2px solid #44de92;background:#081612}.trackerPrivacyNote b{font-size:.63rem;letter-spacing:.13em;color:#55e99b}.trackerPrivacyNote span{font-size:.75rem;color:#96aaa3;line-height:1.4}
+.trackerHomeStrip{display:grid;grid-template-columns:1.1fr repeat(3,minmax(0,1fr));border-top:1px solid rgba(186,223,209,.14);border-bottom:1px solid rgba(186,223,209,.14);background:#071211;color:#effaf5}
+.trackerHomeStrip>div{padding:13px 14px;border-right:1px solid rgba(186,223,209,.1);min-width:0}.trackerHomeStrip>div:last-child{border-right:0}
+.trackerHomeStrip small{display:block;font-size:.58rem;letter-spacing:.14em;color:#739187;font-weight:900}.trackerHomeStrip b{display:block;margin-top:5px;font-size:.9rem;overflow-wrap:anywhere}.trackerHomeStrip span{display:block;margin-top:4px;color:#8fa59d;font-size:.68rem;line-height:1.3}.trackerHomeTitle{background:linear-gradient(120deg,#0b2119,#081512)}.trackerHomeTitle small{color:#58e99b}.trackerHomeTitle b{font-size:.82rem}
+@media(max-width:640px){
+ .trackerProviderGrid{grid-template-columns:1fr}.trackerSnapshot{grid-template-columns:1fr}.trackerSnapshot>div{border-right:0;border-bottom:1px solid rgba(180,220,205,.1)}.trackerSnapshot>div:last-child{border-bottom:0}
+ .trackerHomeStrip{grid-template-columns:repeat(3,minmax(0,1fr))}.trackerHomeTitle{grid-column:1/-1;border-right:0!important;padding:9px 12px!important}.trackerHomeStrip>div{padding:11px 10px}.trackerHomeStrip b{font-size:.78rem}.trackerHomeStrip span{font-size:.62rem}
+ .trackerProviderHead{grid-template-columns:36px minmax(0,1fr)}.trackerStatus{grid-column:2;justify-self:start}
+}
+@media(max-width:390px){.trackerHomeStrip{grid-template-columns:1fr}.trackerHomeStrip>div{border-right:0;border-bottom:1px solid rgba(186,223,209,.1)}.trackerHomeStrip>div:last-child{border-bottom:0}}
+
+/* Phase 72.3.90 RC40 — Google Health / Fitbit migration */
+.trackerProviderMark.google-health{background:linear-gradient(145deg,#10231e,#12302a);color:#78f0cf}

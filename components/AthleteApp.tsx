@@ -2,6 +2,7 @@
 "use client";
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
+import {getSupabase} from "../lib/supabase";
 
 type Sport="Baseball"|"Football"|"Ice Hockey"|"Basketball"|"Lacrosse"|"Wrestling"|"Soccer"|"Figure Skating";
 type TestDef={id:string;name:string;category:string;unit:string;lowerBetter:boolean};
@@ -73,6 +74,12 @@ const rolePermissions:Record<AccountRole,Record<RolePermissionKey,boolean>>={
 const canRole=(role:AccountRole,permission:RolePermissionKey)=>rolePermissions[role][permission];
 type TextSize="standard"|"comfortable"|"large"|"xlarge"|"xxlarge"|"maximum";
 type NotificationPrefs={training:boolean;recovery:boolean;goals:boolean;progress:boolean;cloud:boolean};
+type TrackerProviderId="google-health"|"oura"|"whoop"|"strava"|"garmin"|"apple-health"|"health-connect";
+type TrackerProviderStatus={id:TrackerProviderId;name:string;kind:string;sleep:boolean;workouts:boolean;cloudOAuth:boolean;note:string;configured:boolean};
+type TrackerConnectionStatus={id:string;provider:TrackerProviderId;status:"connected"|"error"|"revoked";scopes:string[];last_synced_at?:string|null;last_error?:string|null};
+type TrackerDailyMetric={provider:TrackerProviderId;metric_date:string;sleep_minutes?:number|null;sleep_score?:number|null;readiness_score?:number|null;resting_hr?:number|null;hrv_ms?:number|null;steps?:number|null;active_minutes?:number|null;calories?:number|null};
+type TrackerWorkoutMetric={provider:TrackerProviderId;provider_workout_id:string;workout_date:string;workout_type:string;duration_minutes?:number|null;avg_hr?:number|null;max_hr?:number|null;calories?:number|null;distance_meters?:number|null;strain?:number|null};
+type TrackerDashboard={providers:TrackerProviderStatus[];connections:TrackerConnectionStatus[];daily:TrackerDailyMetric[];workouts:TrackerWorkoutMetric[]};
 type InAppNotice={id:string;title:string;detail:string;tone:"good"|"watch"|"info";tab?:Tab;action?:"retry-sync"};
 export type BetaRole=AccountRole;
 type AccountSession={role:AccountRole;displayName:string;athleteId:string;linkedAthleteIds?:string[]};
@@ -110,6 +117,7 @@ export type BetaBridge={
  returnToParentWorkspace?:()=>void;
  selectedAthleteName?:string;
  selectedAthleteSport?:string;
+ trackerAthleteId?:string;
  saveSharedNotes?:(notes:unknown[])=>Promise<void>;
  loadCoachWeeklyReviews?:()=>Promise<CoachWeeklyReview[]>;
  saveCoachWeeklyReview?:(review:CoachWeeklyReview)=>Promise<void>;
@@ -230,7 +238,7 @@ const realisticSportHeroAsset=(sport:Sport)=>({
 const premiumHomeHeroAsset=(sport:Sport,accountRole:AccountRole,juniorMode:boolean)=>{
  // Junior mode intentionally keeps the simpler, friendly sport artwork.
  if(juniorMode)return sportHeroAsset(sport);
- // Phase 72.3.88 RC38: Ice Hockey now has distinct role photography.
+ // Phase 72.3.90 RC40: Ice Hockey now has distinct role photography.
  // Player = action athlete, Parent = supportive parent/athlete scene, Coach = team/coach scene.
  if(sport==="Ice Hockey"){
   if(accountRole==="Parent")return "/commercial-scenes/ice-hockey-parent.webp";
@@ -661,7 +669,7 @@ const resizePlayerPhoto=(file:File)=>new Promise<string>((resolve,reject)=>{
 
 
 function PremiumHomeOverview({
- accountRole,juniorMode,profile,sport,goals,workouts,results,readiness,competitions,dev,setTab
+ accountRole,juniorMode,profile,sport,goals,workouts,results,readiness,competitions,dev,setTab,trackerData
 }:{
  accountRole:AccountRole;
  juniorMode:boolean;
@@ -674,6 +682,7 @@ function PremiumHomeOverview({
  competitions:CompetitionLog[];
  dev:DevelopmentItem[];
  setTab:React.Dispatch<React.SetStateAction<Tab>>;
+ trackerData?:TrackerDashboard|null;
 }){
  const initial=(profile.name||"A").trim().charAt(0).toUpperCase()||"A";
  const latestReadiness=readiness.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
@@ -792,7 +801,15 @@ function PremiumHomeOverview({
  const completedSportWorkouts=sportWorkouts.filter(w=>w.completed).length;
  const trainingConsistency=sportWorkouts.length?Math.round(completedSportWorkouts/sportWorkouts.length*100):0;
  const sleepTarget=readinessSleepTarget(Number(profile.age||0));
- const recoveryTips=latestReadiness?[
+ const trackerDailyMetric=trackerData?.daily?.[0]||null;
+ const trackerWorkoutMetric=trackerData?.workouts?.[0]||null;
+ const trackerRecoveryScore=trackerDailyMetric?.readiness_score!=null?Math.round(Number(trackerDailyMetric.readiness_score)):null;
+ const trackerSleepHours=trackerDailyMetric?.sleep_minutes!=null?Number(trackerDailyMetric.sleep_minutes)/60:null;
+ const recoveryTips=trackerSleepHours!=null?[
+  trackerSleepHours<sleepTarget.min?`Tracker sleep: ${trackerSleepHours.toFixed(1)}h. Aim for ${sleepTarget.label} tonight.`:`Tracker sleep: ${trackerSleepHours.toFixed(1)}h. Protect that recovery window.`,
+  trackerDailyMetric?.hrv_ms!=null?`HRV: ${Math.round(Number(trackerDailyMetric.hrv_ms))} ms from your connected tracker. Watch your personal trend, not one reading.`:"Mobility: 5–10 minutes of easy movement after training.",
+  trackerWorkoutMetric?.duration_minutes?`Last workout: ${Math.round(Number(trackerWorkoutMetric.duration_minutes))} min. Refuel and hydrate before adding extra work.`:"Hydration: drink consistently through the day."
+ ]:latestReadiness?[
   latestReadiness.sleep<sleepTarget.min?`Sleep: aim for ${sleepTarget.label} tonight.`:`Sleep: protect a consistent ${sleepTarget.label} window.`,
   latestReadiness.soreness>=6?"Mobility: use easy movement and reduce optional volume if soreness stays high.":"Mobility: 5–10 minutes of easy movement after training.",
   latestReadiness.stress>=6?"Reset: use breathing, quiet time, or an easier evening to lower stress.":"Hydration: drink consistently through the day and refuel after training.",
@@ -802,12 +819,14 @@ function PremiumHomeOverview({
   "Hydration: drink consistently through the day.",
   "Mobility: use 5–10 minutes of easy movement after training."
  ];
- const recoveryHeadline=readinessValue===null?"Build your recovery signal":readinessValue<60?"Recovery needs attention":readinessValue<80?"Protect recovery quality":"Recovery supports performance";
+ const effectiveRecoveryScore=trackerRecoveryScore??readinessValue;
+ const recoveryHeadline=effectiveRecoveryScore===null?"Build your recovery signal":effectiveRecoveryScore<60?"Recovery needs attention":effectiveRecoveryScore<80?"Protect recovery quality":"Recovery supports performance";
  const testMomentum=latestTestChange===null?50:Math.max(0,Math.min(100,50+latestTestChange*2));
- const intelligenceScore=Math.round((readinessValue??65)*.4+(goalProgress??50)*.2+trainingConsistency*.2+testMomentum*.2);
- const intelligenceHeadline=readinessValue!==null&&readinessValue<60?"Recovery-first plan":nextWorkout&&readinessValue!==null&&readinessValue>=75?"Ready to train with intent":latestTestChange!==null&&latestTestChange>2?"Build on performance momentum":goalProgress!==null&&goalProgress>=75?"Finish the next goal step":"Build a clean performance signal";
- const intelligenceDetail=readinessValue!==null&&readinessValue<60?"Keep optional volume low and prioritize sleep, hydration, mobility, and a simple check-in.":nextWorkout?`${nextWorkout.name} is the next scheduled action. Use readiness and recent progress to guide intensity.`:"Add your next training session and keep readiness, testing, and goals current.";
- const intelligenceTab:Tab=readinessValue!==null&&readinessValue<60?"Coach":nextWorkout?"Calendar":"Analytics";
+ const intelligenceReadiness=effectiveRecoveryScore??65;
+ const intelligenceScore=Math.round(intelligenceReadiness*.4+(goalProgress??50)*.2+trainingConsistency*.2+testMomentum*.2);
+ const intelligenceHeadline=effectiveRecoveryScore!==null&&effectiveRecoveryScore<60?"Recovery-first plan":nextWorkout&&effectiveRecoveryScore!==null&&effectiveRecoveryScore>=75?"Ready to train with intent":latestTestChange!==null&&latestTestChange>2?"Build on performance momentum":goalProgress!==null&&goalProgress>=75?"Finish the next goal step":"Build a clean performance signal";
+ const intelligenceDetail=trackerRecoveryScore!==null?`Connected tracker recovery is ${trackerRecoveryScore}/100${trackerSleepHours!=null?` with ${trackerSleepHours.toFixed(1)}h sleep`:""}. ${nextWorkout?`${nextWorkout.name} is next; use the recovery signal to guide intensity.`:"Keep recovery, testing, and goals current."}`:effectiveRecoveryScore!==null&&effectiveRecoveryScore<60?"Keep optional volume low and prioritize sleep, hydration, mobility, and a simple check-in.":nextWorkout?`${nextWorkout.name} is the next scheduled action. Use readiness and recent progress to guide intensity.`:"Add your next training session and keep readiness, testing, and goals current.";
+ const intelligenceTab:Tab=effectiveRecoveryScore!==null&&effectiveRecoveryScore<60?"Coach":nextWorkout?"Calendar":"Analytics";
  const elitePerformanceBand=<div className="elitePerformanceBand" aria-label="Live athlete performance signals">
   <button type="button" data-signal="readiness" onClick={()=>setTab("Coach")}><span className="eliteSignalTop"><small>READINESS</small><i className={`eliteStatusDot ${statusClass}`}/></span><strong>{readinessValue!==null?readinessValue:"—"}</strong><span>{statusLabel}</span><div className="eliteMicroGauge"><i style={{width:`${readinessValue??0}%`}}/></div></button>
   <button type="button" data-signal="goals" onClick={()=>setTab("Goals")}><span className="eliteSignalTop"><small>GOAL EXECUTION</small><i/></span><strong>{goalProgress!==null?`${goalProgress}%`:"—"}</strong><span>{activeGoals.length?`${activeGoals.length} active target${activeGoals.length===1?"":"s"}`:"Set first target"}</span><div className="eliteMicroGauge"><i style={{width:`${goalProgress??0}%`}}/></div></button>
@@ -833,6 +852,15 @@ function PremiumHomeOverview({
    <SmoothReadinessRing value={readinessValue} label={accountRole==="Player"&&juniorMode?"TODAY":"READINESS"} status={statusLabel} statusClass={statusClass}/>
   </div>
  </div>;
+ const trackerDaily=trackerDailyMetric;
+ const trackerWorkout=trackerWorkoutMetric;
+ const trackerConnected=trackerData?.connections?.filter(x=>x.status==="connected")||[];
+ const trackerHomeStrip=trackerConnected.length?<section className="trackerHomeStrip" aria-label="Connected tracker summary">
+  <div className="trackerHomeTitle"><small>CONNECTED TRACKERS</small><b>{trackerConnected.length} source{trackerConnected.length===1?"":"s"} active</b></div>
+  <div><small>SLEEP</small><b>{trackerDaily?.sleep_minutes?`${Math.floor(Number(trackerDaily.sleep_minutes)/60)}h ${Math.round(Number(trackerDaily.sleep_minutes)%60)}m`:trackerDaily?.sleep_score?`${Math.round(Number(trackerDaily.sleep_score))}%`:"—"}</b><span>{trackerDaily?.metric_date?friendlyDate(trackerDaily.metric_date):"Waiting for sleep data"}</span></div>
+  <div><small>RECOVERY</small><b>{trackerDaily?.readiness_score!=null?`${Math.round(Number(trackerDaily.readiness_score))}/100`:trackerDaily?.hrv_ms!=null?`${Math.round(Number(trackerDaily.hrv_ms))} ms`:"—"}</b><span>{trackerDaily?.resting_hr!=null?`Resting HR ${Math.round(Number(trackerDaily.resting_hr))}`:"Private to Player + Parent"}</span></div>
+  <div><small>LAST WORKOUT</small><b>{trackerWorkout?.workout_type||"—"}</b><span>{trackerWorkout?.duration_minutes?`${Math.round(Number(trackerWorkout.duration_minutes))} min`:"Sync a workout tracker"}</span></div>
+ </section>:null;
 
  if(accountRole==="Player"&&juniorMode){
   return <section className="premiumHomeOverview premiumJuniorHome nativeSportsHome nativeJuniorSportsHome" aria-label="Junior athlete home summary">
@@ -850,6 +878,7 @@ function PremiumHomeOverview({
    {hero}
    <div className="nativePlayerFlow elitePlayerFlow">
     {elitePerformanceBand}
+    {trackerHomeStrip}
     <button type="button" className="performanceIntelligence" onClick={()=>setTab(intelligenceTab)} aria-label="Open recommended performance action"><span className="performanceIntelligenceScore"><small>PERFORMANCE INDEX</small><b>{intelligenceScore}</b><i style={{"--score":`${intelligenceScore}%`} as React.CSSProperties}/></span><span className="performanceIntelligenceCopy"><small>PERFORMANCE INTELLIGENCE</small><b>{intelligenceHeadline}</b><span>{intelligenceDetail}</span></span><strong>ACT →</strong></button>
     <button type="button" className="commercialStartToday nativePrimaryAction elitePrimaryAction" onClick={()=>setTab(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach")}><span><small>YOUR NEXT MOVE</small><b>{nextWorkout?.name||(!latestReadiness?"Complete Daily Check-In":"Open Today's Plan")}</b></span><strong>Start →</strong></button>
     <button type="button" className="premiumRoleFocusCard nativeFeatureStory eliteFocusStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>{roleFocus.action} →</strong></button>
@@ -882,6 +911,7 @@ function PremiumHomeOverview({
   return <section className="premiumHomeOverview nativeSportsHome nativeParentHome eliteParentHome" aria-label="Parent home summary">
    {hero}
    {elitePerformanceBand}
+   {trackerHomeStrip}
    <button type="button" className="premiumRoleFocusCard nativeParentStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Support →</strong></button>
    <div className="nativeParentTimeline" aria-label="Parent support shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="nativeTimelineMarker">{index+1}</span><div><small>{action.label}</small><b>{action.detail}</b></div><PremiumAppIcon name={action.icon}/></button>)}</div>
   </section>;
@@ -941,6 +971,10 @@ export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
  const [notificationReadIds,setNotificationReadIds]=useState<string[]>([]);
  const [lastLocalSnapshotAt,setLastLocalSnapshotAt]=useState("");
  const [textSize,setTextSize]=useState<TextSize>("comfortable");
+ const [trackerData,setTrackerData]=useState<TrackerDashboard|null>(null);
+ const [trackerLoading,setTrackerLoading]=useState(false);
+ const [trackerMessage,setTrackerMessage]=useState("");
+ const [trackerBusyProvider,setTrackerBusyProvider]=useState<TrackerProviderId|null>(null);
  const [profileSavedForGuide,setProfileSavedForGuide]=useState(false);
  const [showReadinessPrompt,setShowReadinessPrompt]=useState(false);
  const [showWeeklyReviewPrompt,setShowWeeklyReviewPrompt]=useState(false);
@@ -1058,7 +1092,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.88",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.90",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
@@ -1277,6 +1311,29 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   (Number.isFinite(playerAgeNumber)&&playerAgeNumber>=6&&playerAgeNumber<=10)
  );
  const canEditPlayerProfile=effectiveRole==="Player"||effectiveRole==="Admin";
+ const trackerAthleteId=betaBridge?.trackerAthleteId||"";
+ const trackerAllowed=Boolean(betaBridge&&trackerAthleteId&&(accountRole==="Player"||accountRole==="Parent"));
+ const trackerAuthToken=async()=>{
+  const supabase=getSupabase();if(!supabase)throw new Error("Tracker connections require the secure beta backend.");
+  const {data}=await supabase.auth.getSession();const token=data.session?.access_token;if(!token)throw new Error("Sign in again before managing trackers.");return token;
+ };
+ const loadTrackers=async()=>{
+  if(!trackerAllowed)return;setTrackerLoading(true);setTrackerMessage("");
+  try{const token=await trackerAuthToken();const response=await fetch(`/api/trackers/status?athleteId=${encodeURIComponent(trackerAthleteId)}`,{headers:{Authorization:`Bearer ${token}`},cache:"no-store"});const json=await response.json();if(!response.ok)throw new Error(json.error||"Could not load trackers.");setTrackerData(json as TrackerDashboard)}catch(error:any){setTrackerMessage(error?.message||"Could not load tracker data.")}finally{setTrackerLoading(false)}
+ };
+ const connectTracker=async(provider:TrackerProviderId)=>{
+  if(!trackerAllowed)return;setTrackerBusyProvider(provider);setTrackerMessage("");
+  try{const token=await trackerAuthToken();const response=await fetch(`/api/trackers/oauth/start?provider=${encodeURIComponent(provider)}&athleteId=${encodeURIComponent(trackerAthleteId)}`,{headers:{Authorization:`Bearer ${token}`},cache:"no-store"});const json=await response.json();if(!response.ok)throw new Error(json.error||"Could not start tracker connection.");window.location.assign(json.url)}catch(error:any){setTrackerMessage(error?.message||"Could not start tracker connection.");setTrackerBusyProvider(null)}
+ };
+ const syncTracker=async(provider:TrackerProviderId)=>{
+  setTrackerBusyProvider(provider);setTrackerMessage("");try{const token=await trackerAuthToken();const response=await fetch("/api/trackers/sync",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({athleteId:trackerAthleteId,provider})});const json=await response.json();if(!response.ok)throw new Error(json.error||"Tracker sync failed.");setTrackerMessage(`Synced ${provider}: ${json.daily||0} daily records and ${json.workouts||0} workouts.`);await loadTrackers()}catch(error:any){setTrackerMessage(error?.message||"Tracker sync failed.")}finally{setTrackerBusyProvider(null)}
+ };
+ const disconnectTracker=async(provider:TrackerProviderId)=>{
+  if(!window.confirm(`Disconnect ${provider}? Imported workout and sleep history will remain until you choose to delete it in a later data-management release.`))return;
+  setTrackerBusyProvider(provider);setTrackerMessage("");try{const token=await trackerAuthToken();const response=await fetch("/api/trackers/disconnect",{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({athleteId:trackerAthleteId,provider})});const json=await response.json();if(!response.ok)throw new Error(json.error||"Tracker could not be disconnected.");setTrackerMessage(`${provider} disconnected.`);await loadTrackers()}catch(error:any){setTrackerMessage(error?.message||"Tracker could not be disconnected.")}finally{setTrackerBusyProvider(null)}
+ };
+ useEffect(()=>{if(trackerAllowed)void loadTrackers();else setTrackerData(null)},[trackerAllowed,trackerAthleteId]);
+ useEffect(()=>{if(!mounted||!trackerAllowed)return;const query=new URLSearchParams(window.location.search);const tracker=query.get("tracker");if(!tracker)return;if(tracker==="connected"){setShowSettings(true);setTrackerMessage(`${query.get("provider")||"Tracker"} connected. Sync now to import recent data.`);void loadTrackers()}else if(tracker==="error"){setShowSettings(true);setTrackerMessage(query.get("message")||"Tracker connection failed.")}query.delete("tracker");query.delete("provider");query.delete("message");const next=query.toString()?`${window.location.pathname}?${query.toString()}`:window.location.pathname;window.history.replaceState({},"",next)},[mounted,trackerAllowed,trackerAthleteId]);
 
  useEffect(()=>{
   let cancelled=false;
@@ -1761,7 +1818,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="sportSelectorBlock lockedProfileSport"><div className="sportSelectorHead"><small>PROFILE SPORT</small><span>Locked to this athlete</span></div><div className="lockedSportDisplay"><button className="sel lockedSportButton" type="button" disabled aria-label={`${sport} is locked to this athlete profile`}>{sport}</button><span>Sport changes only through <b>Edit Profile</b>.</span></div></div>
    {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>{guideSteps.find(x=>x.id===guideWaitingFor)?.complete?"Complete this step and the guide will continue automatically.":"Explore this feature, then return to the guide when you're ready."}</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
    <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Review, support, and communicate":effectiveRole==="Player"?(juniorPlayerMode?"One thing at a time. Have fun and keep improving.":"Keep today simple: check in, train, improve"):"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{effectiveRole==="Parent"?(parentPageHelp[tab]?.title||roleNavLabel(tab)):effectiveRole==="Player"?(playerPageHelp[tab]?.title||roleNavLabel(tab)):pageHelp[tab]?.title||tab}</small><b>{effectiveRole==="Parent"?(parentPageHelp[tab]?.purpose||""):effectiveRole==="Player"?(playerPageHelp[tab]?.purpose||""):pageHelp[tab]?.purpose||""}</b></div><span>{effectiveRole==="Parent"?(parentPageHelp[tab]?.primary||""):effectiveRole==="Player"?(playerPageHelp[tab]?.primary||""):pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
-   {tab==="Home"&&<PremiumHomeOverview accountRole={effectiveRole} juniorMode={juniorPlayerMode} profile={profile} sport={sport} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} dev={dev} setTab={setTab}/>}
+   {tab==="Home"&&<PremiumHomeOverview accountRole={effectiveRole} juniorMode={juniorPlayerMode} profile={profile} sport={sport} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} dev={dev} setTab={setTab} trackerData={trackerAllowed?trackerData:null}/>}
    {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/></>:<Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/>)} 
    {tab==="Goals"&&<Goals viewRole={effectiveRole} actualRole={accountRole} authorName={accountSession.displayName} goals={goals} setGoals={setGoals} juniorMode={juniorPlayerMode}/>}
    {tab==="Calendar"&&(effectiveRole==="Parent"?<ParentSchedule sport={sport} workouts={workouts} setWorkouts={setWorkouts} competitions={competitions} seasonEvents={seasonEvents} setTab={setTab}/>:<Calendar accountRole={effectiveRole} sport={sport} workouts={workouts} setWorkouts={setWorkouts} profile={profile} seasonEvents={seasonEvents} setSeasonEvents={setSeasonEvents} trainingBlocks={trainingBlocks} setTrainingBlocks={setTrainingBlocks} competitions={competitions}/>)} 
@@ -1851,6 +1908,15 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
      ["training","Training & schedule"],["recovery","Recovery & readiness"],["goals","Goal milestones"],["progress","Testing & progress"],["cloud","Cloud sync"]
     ] as [keyof NotificationPrefs,string][]).map(([key,label])=><label key={key}><input type="checkbox" checked={notificationPrefs[key]} onChange={e=>setNotificationPrefs(x=>({...x,[key]:e.target.checked}))}/><span>{label}</span></label>)}</div>
    </div>
+   {trackerAllowed&&<div className="trackerSettings">
+    <div className="settingLabel"><b>Connected trackers</b><span>Workout and sleep data is private to the Player and authorized Parent. Coach and Admin accounts cannot access this data.</span></div>
+    {trackerMessage&&<div className="trackerMessage" role="status">{trackerMessage}</div>}
+    {trackerLoading&&!trackerData?<div className="trackerLoading">Loading connected trackers…</div>:<>
+     {trackerData?.connections?.length?(()=>{const d=trackerData.daily?.[0];const w=trackerData.workouts?.[0];return <div className="trackerSnapshot"><div><small>LATEST SLEEP</small><b>{d?.sleep_minutes?`${Math.floor(Number(d.sleep_minutes)/60)}h ${Math.round(Number(d.sleep_minutes)%60)}m`:d?.sleep_score?`${Math.round(Number(d.sleep_score))}%`:"—"}</b></div><div><small>RECOVERY</small><b>{d?.readiness_score!=null?`${Math.round(Number(d.readiness_score))}/100`:d?.hrv_ms!=null?`${Math.round(Number(d.hrv_ms))} ms`:"—"}</b></div><div><small>LAST WORKOUT</small><b>{w?.workout_type||"—"}</b></div></div>})():null}
+     <div className="trackerProviderGrid">{(trackerData?.providers||[]).map(provider=>{const connection=trackerData?.connections?.find(x=>x.provider===provider.id);const busy=trackerBusyProvider===provider.id;return <article key={provider.id} className={`trackerProviderCard ${connection?.status||""}`}><div className="trackerProviderHead"><span className={`trackerProviderMark ${provider.id}`}>{provider.name.slice(0,1)}</span><div><b>{provider.name}</b><small>{provider.kind}</small></div><span className={`trackerStatus ${connection?.status==="connected"?"connected":provider.configured?"ready":"setup"}`}>{connection?.status==="connected"?"Connected":provider.configured?"Ready":"Setup needed"}</span></div><p>{provider.note}</p>{connection?.last_synced_at&&<small className="trackerLastSync">Last sync {new Date(connection.last_synced_at).toLocaleString()}</small>}{connection?.last_error&&<small className="trackerError">{connection.last_error}</small>}<div className="trackerProviderActions">{connection?.status==="connected"?<><button type="button" disabled={busy} className="featureAction" onClick={()=>void syncTracker(provider.id)}>{busy?"Syncing…":"Sync now"}</button><button type="button" disabled={busy} onClick={()=>void disconnectTracker(provider.id)}>Disconnect</button></>:provider.cloudOAuth?<button type="button" disabled={busy||!provider.configured} className="featureAction" onClick={()=>void connectTracker(provider.id)}>{busy?"Opening…":provider.configured?"Connect":"Add provider keys first"}</button>:<button type="button" disabled>Future mobile / partner connection</button>}</div></article>})}</div>
+     <div className="trackerPrivacyNote"><b>PRIVATE PERFORMANCE DATA</b><span>Only the signed-in Player and Parents linked to this Player can read imported tracker metrics. Coach and Admin roles are denied at the database layer.</span></div>
+    </>}
+   </div>}
    <div className="reliabilitySettings">
     <div className="settingLabel"><b>Beta reliability</b><span>Your athlete data is continuously protected in a local recovery point while cloud sync is active.</span></div>
     <div className="reliabilitySettingsGrid"><div><small>CONNECTION</small><b>{cloudOnline?"Online":"Offline"}</b></div><div><small>CLOUD</small><b>{cloudStatus}</b></div><div><small>LOCAL RECOVERY</small><b>{lastLocalSnapshotAt?new Date(lastLocalSnapshotAt).toLocaleString():"Building"}</b></div></div>
@@ -5722,7 +5788,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.88 RC38","good"],
+  ["App Version","72.3.90 RC40","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],

@@ -178,3 +178,6 @@ It adds:
 - schema-cache reload notification
 
 Admin test athletes are cloud-persistent sandbox athletes. They do not automatically create or impersonate a real Player login, Parent, or Coach relationship.
+
+## Migration 010 — Connected Trackers
+Run `010_connected_trackers_player_parent_only.sql` after migration 009. It creates server-only OAuth connection storage plus Player/Parent-readable normalized tracker metrics. Coach and Admin are explicitly denied tracker-data access.

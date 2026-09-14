@@ -6,7 +6,7 @@ const app=fs.readFileSync(path.join(root,"components","AthleteApp.tsx"),"utf8");
 const css=fs.readFileSync(path.join(root,"app","globals.css"),"utf8");
 const pkg=JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8"));
 const checks=[
-  ["version is 72.3.88",pkg.version==="72.3.88"],
+  ["version is 72.3.89",pkg.version==="72.3.90"],
   ["TextSize supports 180% maximum",app.includes('"maximum"')&&app.includes('"180%"')],
   ["TextSize supports 150% accessibility step",app.includes('"xxlarge"')&&app.includes('"150%"')],
   ["saved maximum text size is accepted",app.includes('"xxlarge","maximum"')],

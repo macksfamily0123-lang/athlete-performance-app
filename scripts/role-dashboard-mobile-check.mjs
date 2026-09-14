@@ -3,7 +3,7 @@ const app=fs.readFileSync("components/AthleteApp.tsx","utf8");
 const css=fs.readFileSync("app/globals.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.88"],
+ ["RC24 version",pkg.version==="72.3.90"],
  ["role focus is data driven",app.includes("const roleFocus=accountRole===")],
  ["role focus card renders",app.includes("premiumRoleFocusCard")],
  ["coach photo in next review",app.includes("coachNextPlayerIdentity")&&app.includes("photoUrl={nextPlayer.photoUrl}")],

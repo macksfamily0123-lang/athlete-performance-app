@@ -1,0 +1,6 @@
+import {NextResponse} from "next/server";
+import {assertTrackerAccess,authenticateTrackerRequest,isCloudProvider,serviceSupabase,syncConnection} from "../../../../lib/serverTracker";
+export const runtime="nodejs";
+export async function POST(request:Request){
+ try{const body=await request.json();const athleteId=String(body?.athleteId||"");const provider=String(body?.provider||"");if(!isCloudProvider(provider))return NextResponse.json({error:"Unknown tracker provider."},{status:400});const ctx=await authenticateTrackerRequest(request);await assertTrackerAccess(ctx,athleteId);const db=serviceSupabase();const {data,error}=await db.from("tracker_connections").select("*").eq("athlete_id",athleteId).eq("user_id",ctx.userId).eq("provider",provider).maybeSingle();if(error||!data)throw new Error("Connect this tracker before syncing it.");try{const result=await syncConnection(data);return NextResponse.json({ok:true,...result});}catch(syncError:any){await db.from("tracker_connections").update({last_error:String(syncError?.message||"Sync failed").slice(0,500),status:"error",updated_at:new Date().toISOString()}).eq("id",data.id);throw syncError}}catch(error:any){return NextResponse.json({error:error?.message||"Tracker sync failed."},{status:400})}
+}

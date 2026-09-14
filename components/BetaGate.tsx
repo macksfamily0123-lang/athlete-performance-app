@@ -875,7 +875,7 @@ export default function BetaGate(){
     const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
     return [
       "Beta diagnostic context",
-      "Version: 72.3.88 RC38",
+      "Version: 72.3.90 RC40",
       `Role: ${access?.role||"Unknown"}`,
       `Athlete: ${athlete}`,
       `Sport: ${sport}`,
@@ -901,7 +901,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message,
-      app_version:"72.3.88",
+      app_version:"72.3.90",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -1062,6 +1062,7 @@ export default function BetaGate(){
     returnToParentWorkspace:access.role==="Parent"&&parentPlayerMode?returnToParentWorkspace:undefined,
     selectedAthleteName,
     selectedAthleteSport,
+    trackerAthleteId:access.role==="Player"?(selfAthlete?.id||undefined):access.role==="Parent"?(parentPlayers.find(x=>x.workspace_id===selectedCloudWorkspaceId)?.id||parentManagedAthleteId||parentPlayers[0]?.id||undefined):undefined,
     saveSharedNotes,
     loadCoachWeeklyReviews,
     saveCoachWeeklyReview:["Coach","Admin"].includes(access.role)?saveCoachWeeklyReview:undefined
@@ -1123,7 +1124,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · RC38 · v72.3.88</div>
+    <div className="betaRibbon">BETA · RC40 · v72.3.90</div>
     {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
     <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>
