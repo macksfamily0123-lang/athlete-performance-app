@@ -1,6 +1,6 @@
 {
   "name": "athlete-performance-app",
-  "version": "72.3.92",
+  "version": "72.3.93",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,7 @@
     "start": "next start",
     "test:roles": "node scripts/role-permission-audit.mjs",
     "test:regression": "node scripts/regression-check.mjs",
-    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:viewport-shell && npm run test:always-active-nav && npm run test:coach-roster-more && npm run test:elite-visual && npm run test:elite-home-goals-recovery && npm run test:professional-athletic && npm run test:photo-framing && npm run test:settings-player-hero && npm run test:text180-role-heroes && npm run test:performance-intelligence && npm run test:beta-hardening && npm run test:connected-trackers && npm run test:google-health && npm run test:tracker-discovery && npm run test:tracker-connect-ux && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui && npm run test:role-specific-hero",
+    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:viewport-shell && npm run test:always-active-nav && npm run test:coach-roster-more && npm run test:elite-visual && npm run test:elite-home-goals-recovery && npm run test:professional-athletic && npm run test:photo-framing && npm run test:settings-player-hero && npm run test:text180-role-heroes && npm run test:performance-intelligence && npm run test:beta-hardening && npm run test:connected-trackers && npm run test:google-health && npm run test:tracker-discovery && npm run test:tracker-connect-ux && npm run test:tracker-setup-flow && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui && npm run test:role-specific-hero",
     "test:typecheck": "tsc --noEmit",
     "release:check": "npm test && npm run build",
     "test:reliability": "node scripts/reliability-check.mjs",
@@ -50,7 +50,8 @@
     "test:connected-trackers": "node scripts/rc39-connected-trackers-check.mjs",
     "test:google-health": "node scripts/rc40-google-health-check.mjs",
     "test:tracker-discovery": "node scripts/rc41-tracker-discovery-check.mjs",
-    "test:tracker-connect-ux": "node scripts/rc42-tracker-connect-ux-check.mjs"
+    "test:tracker-connect-ux": "node scripts/rc42-tracker-connect-ux-check.mjs",
+    "test:tracker-setup-flow": "node scripts/rc43-tracker-setup-flow-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",
