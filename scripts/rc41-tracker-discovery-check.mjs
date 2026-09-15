@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+const app=fs.readFileSync(new URL('../components/AthleteApp.tsx',import.meta.url),'utf8');
+const css=fs.readFileSync(new URL('../app/globals.css',import.meta.url),'utf8');
+let pass=0, fail=0;
+const check=(ok,msg)=>{if(ok){pass++;console.log(`PASS ${msg}`)}else{fail++;console.error(`FAIL ${msg}`)}};
+check(app.includes('const trackerDiscoverable=effectiveRole==="Player"||effectiveRole==="Parent"'),'tracker section is discoverable in Player/Parent views');
+check(app.includes('const openTrackerCenter=()=>'),'shared tracker-center opener exists');
+check(app.includes('id="connected-trackers-settings"'),'settings tracker section has a scroll target');
+check(app.includes('Connect a Performance Tracker'),'Home has an easy-to-find tracker connection CTA');
+check(app.includes('WORKOUT + SLEEP DATA'),'Home tracker CTA explains its purpose');
+check(app.includes('CONNECTED RECOVERY DATA'),'Recovery page has tracker CTA');
+check(app.includes('Bring sleep and workout data into Recovery & Readiness.'),'Recovery CTA explains imported data');
+check(app.includes('PLAYER / PARENT SIGN-IN REQUIRED'),'Admin/Coach preview privacy lock is explicit');
+check(app.includes('Private tracker authorization is intentionally disabled here.'),'preview cannot expose private tracker data');
+check(app.includes('SELECT A PLAYER FIRST'),'missing canonical athlete id gives a visible setup explanation');
+check(app.includes('onOpenTrackers={trackerDiscoverable?openTrackerCenter:undefined}'),'Home receives tracker opener');
+check(app.includes('onOpenTrackers={openTrackerCenter} trackerConnectedCount='),'Recovery receives tracker opener');
+check(css.includes('.trackerDiscoveryCta,.recoveryTrackerCta'),'tracker discovery CTA styling exists');
+check(css.includes('.trackerAccessLocked'),'private preview lock styling exists');
+if(fail){console.error(`\n${pass}/${pass+fail} checks passed.`);process.exit(1)}
+console.log(`\nPASS: ${pass}/${pass+fail} RC41 Tracker Discovery checks.`);

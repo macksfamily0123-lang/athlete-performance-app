@@ -1,3 +1,24 @@
+# Phase 72.3.92 RC42 — Clear Tracker Connection Center
+
+- Adds a large primary **Connect Google Health** action at the top of Connected Trackers.
+- Keeps provider choices visible even before tracker status finishes loading.
+- Makes every OAuth provider action explicit (`Connect Google Health`, `Connect Oura`, etc.).
+- Explains that Google Health covers Fitbit and Pixel Watch workout/sleep metrics.
+- Gives Parents a direct **Choose Player** action if no managed Player is selected.
+- Makes Admin/Coach preview behavior explicit: preview can show where trackers live but cannot authorize or read private tracker data.
+- Preserves RC41 Home/Recovery tracker discovery, RC40 Google Health integration, and RC39 Player/Parent-only privacy.
+- No new Supabase migration. Migrations 010 and 011 are unchanged.
+
+# Phase 72.3.91 RC41 — Tracker Discovery & Recovery Access
+
+- Connected Trackers is now easy to find from Player Home and Parent Home, even before a tracker is connected.
+- Recovery & Readiness now includes a prominent Connect / Manage workout & sleep trackers action.
+- Settings always shows the Connected Trackers section when viewing Player or Parent experiences.
+- Admin/Coach previews show a privacy lock explanation instead of exposing private tracker data.
+- Real Player/Parent accounts without a canonical selected Player now get a clear setup message instead of a missing section.
+- No new Supabase migration is required; migrations 010 and 011 are preserved unchanged.
+- Google Health, Oura, WHOOP, and Strava support from RC40 is preserved.
+
 # Phase 72.3.88 RC38 — Combined Performance Intelligence + Beta Hardening
 
 Full combined release built on Phase 72.3.86 RC36.

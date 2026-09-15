@@ -1,5 +1,9 @@
 # Athlete Performance App — Phase 72.3.88 RC38
 
+
+## RC42 — Clear Tracker Connection Center
+Player and Parent experiences now expose Connected Trackers in three clear places: Home, Settings, and Recovery & Readiness. Coach/Admin preview modes can see where the feature lives but cannot connect or view private tracker data. No new database migration is required for RC41.
+
 ## Combined RC36 + RC37 + RC38 release
 
 This is one full installable app package that includes the RC36 accessibility/role-hero baseline, the RC37 Performance Intelligence and interaction work, and the RC38 reliability/notifications/beta-hardening work.

@@ -3,6 +3,7 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 import {getSupabase} from "../lib/supabase";
+import {trackerCatalog} from "../lib/trackerCatalog";
 
 type Sport="Baseball"|"Football"|"Ice Hockey"|"Basketball"|"Lacrosse"|"Wrestling"|"Soccer"|"Figure Skating";
 type TestDef={id:string;name:string;category:string;unit:string;lowerBetter:boolean};
@@ -80,6 +81,7 @@ type TrackerConnectionStatus={id:string;provider:TrackerProviderId;status:"conne
 type TrackerDailyMetric={provider:TrackerProviderId;metric_date:string;sleep_minutes?:number|null;sleep_score?:number|null;readiness_score?:number|null;resting_hr?:number|null;hrv_ms?:number|null;steps?:number|null;active_minutes?:number|null;calories?:number|null};
 type TrackerWorkoutMetric={provider:TrackerProviderId;provider_workout_id:string;workout_date:string;workout_type:string;duration_minutes?:number|null;avg_hr?:number|null;max_hr?:number|null;calories?:number|null;distance_meters?:number|null;strain?:number|null};
 type TrackerDashboard={providers:TrackerProviderStatus[];connections:TrackerConnectionStatus[];daily:TrackerDailyMetric[];workouts:TrackerWorkoutMetric[]};
+const fallbackTrackerProviders:TrackerProviderStatus[]=trackerCatalog.map(provider=>({...provider,configured:false}));
 type InAppNotice={id:string;title:string;detail:string;tone:"good"|"watch"|"info";tab?:Tab;action?:"retry-sync"};
 export type BetaRole=AccountRole;
 type AccountSession={role:AccountRole;displayName:string;athleteId:string;linkedAthleteIds?:string[]};
@@ -669,7 +671,7 @@ const resizePlayerPhoto=(file:File)=>new Promise<string>((resolve,reject)=>{
 
 
 function PremiumHomeOverview({
- accountRole,juniorMode,profile,sport,goals,workouts,results,readiness,competitions,dev,setTab,trackerData
+ accountRole,juniorMode,profile,sport,goals,workouts,results,readiness,competitions,dev,setTab,trackerData,onOpenTrackers
 }:{
  accountRole:AccountRole;
  juniorMode:boolean;
@@ -683,6 +685,7 @@ function PremiumHomeOverview({
  dev:DevelopmentItem[];
  setTab:React.Dispatch<React.SetStateAction<Tab>>;
  trackerData?:TrackerDashboard|null;
+ onOpenTrackers?:()=>void;
 }){
  const initial=(profile.name||"A").trim().charAt(0).toUpperCase()||"A";
  const latestReadiness=readiness.slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
@@ -861,10 +864,16 @@ function PremiumHomeOverview({
   <div><small>RECOVERY</small><b>{trackerDaily?.readiness_score!=null?`${Math.round(Number(trackerDaily.readiness_score))}/100`:trackerDaily?.hrv_ms!=null?`${Math.round(Number(trackerDaily.hrv_ms))} ms`:"—"}</b><span>{trackerDaily?.resting_hr!=null?`Resting HR ${Math.round(Number(trackerDaily.resting_hr))}`:"Private to Player + Parent"}</span></div>
   <div><small>LAST WORKOUT</small><b>{trackerWorkout?.workout_type||"—"}</b><span>{trackerWorkout?.duration_minutes?`${Math.round(Number(trackerWorkout.duration_minutes))} min`:"Sync a workout tracker"}</span></div>
  </section>:null;
+ const trackerDiscoveryCta=(accountRole==="Player"||accountRole==="Parent")&&onOpenTrackers?<button type="button" className="trackerDiscoveryCta" onClick={onOpenTrackers} aria-label={trackerConnected.length?"Manage connected performance trackers":"Connect a workout or sleep tracker"}>
+  <span className="trackerDiscoveryIcon"><PremiumAppIcon name="recovery"/></span>
+  <span className="trackerDiscoveryCopy"><small>WORKOUT + SLEEP DATA</small><b>{trackerConnected.length?"Manage Connected Trackers":"Connect a Performance Tracker"}</b><span>{trackerConnected.length?`${trackerConnected.length} connected source${trackerConnected.length===1?"":"s"} · manage sync and privacy`:"Google Health, Oura, WHOOP and Strava · private to Player + Parent"}</span></span>
+  <strong>{trackerConnected.length?"MANAGE →":"CONNECT →"}</strong>
+ </button>:null;
 
  if(accountRole==="Player"&&juniorMode){
   return <section className="premiumHomeOverview premiumJuniorHome nativeSportsHome nativeJuniorSportsHome" aria-label="Junior athlete home summary">
    {hero}
+   {trackerDiscoveryCta}
    <button type="button" className="commercialStartToday nativeJuniorPrimary" onClick={()=>setTab(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach")}><span>Start Today</span><strong>→</strong></button>
    <div className="nativeJuniorTiles premiumQuickGrid">
     {quickActions.map(action=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>›</strong></button>)}
@@ -879,6 +888,7 @@ function PremiumHomeOverview({
    <div className="nativePlayerFlow elitePlayerFlow">
     {elitePerformanceBand}
     {trackerHomeStrip}
+    {trackerDiscoveryCta}
     <button type="button" className="performanceIntelligence" onClick={()=>setTab(intelligenceTab)} aria-label="Open recommended performance action"><span className="performanceIntelligenceScore"><small>PERFORMANCE INDEX</small><b>{intelligenceScore}</b><i style={{"--score":`${intelligenceScore}%`} as React.CSSProperties}/></span><span className="performanceIntelligenceCopy"><small>PERFORMANCE INTELLIGENCE</small><b>{intelligenceHeadline}</b><span>{intelligenceDetail}</span></span><strong>ACT →</strong></button>
     <button type="button" className="commercialStartToday nativePrimaryAction elitePrimaryAction" onClick={()=>setTab(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach")}><span><small>YOUR NEXT MOVE</small><b>{nextWorkout?.name||(!latestReadiness?"Complete Daily Check-In":"Open Today's Plan")}</b></span><strong>Start →</strong></button>
     <button type="button" className="premiumRoleFocusCard nativeFeatureStory eliteFocusStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>{roleFocus.action} →</strong></button>
@@ -912,6 +922,7 @@ function PremiumHomeOverview({
    {hero}
    {elitePerformanceBand}
    {trackerHomeStrip}
+   {trackerDiscoveryCta}
    <button type="button" className="premiumRoleFocusCard nativeParentStory" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Support →</strong></button>
    <div className="nativeParentTimeline" aria-label="Parent support shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="nativeTimelineMarker">{index+1}</span><div><small>{action.label}</small><b>{action.detail}</b></div><PremiumAppIcon name={action.icon}/></button>)}</div>
   </section>;
@@ -1092,7 +1103,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.90",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.92",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
@@ -1312,7 +1323,15 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  );
  const canEditPlayerProfile=effectiveRole==="Player"||effectiveRole==="Admin";
  const trackerAthleteId=betaBridge?.trackerAthleteId||"";
+ const trackerDiscoverable=effectiveRole==="Player"||effectiveRole==="Parent";
  const trackerAllowed=Boolean(betaBridge&&trackerAthleteId&&(accountRole==="Player"||accountRole==="Parent"));
+ const trackerProviders=trackerData?.providers?.length?trackerData.providers:fallbackTrackerProviders;
+ const googleHealthConnection=trackerData?.connections?.find(x=>x.provider==="google-health");
+ const googleHealthBusy=trackerBusyProvider==="google-health";
+ const openTrackerCenter=()=>{
+  setShowSettings(true);
+  window.setTimeout(()=>document.getElementById("connected-trackers-settings")?.scrollIntoView({behavior:"smooth",block:"start"}),90);
+ };
  const trackerAuthToken=async()=>{
   const supabase=getSupabase();if(!supabase)throw new Error("Tracker connections require the secure beta backend.");
   const {data}=await supabase.auth.getSession();const token=data.session?.access_token;if(!token)throw new Error("Sign in again before managing trackers.");return token;
@@ -1818,13 +1837,13 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="sportSelectorBlock lockedProfileSport"><div className="sportSelectorHead"><small>PROFILE SPORT</small><span>Locked to this athlete</span></div><div className="lockedSportDisplay"><button className="sel lockedSportButton" type="button" disabled aria-label={`${sport} is locked to this athlete profile`}>{sport}</button><span>Sport changes only through <b>Edit Profile</b>.</span></div></div>
    {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>{guideSteps.find(x=>x.id===guideWaitingFor)?.complete?"Complete this step and the guide will continue automatically.":"Explore this feature, then return to the guide when you're ready."}</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
    <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Review, support, and communicate":effectiveRole==="Player"?(juniorPlayerMode?"One thing at a time. Have fun and keep improving.":"Keep today simple: check in, train, improve"):"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{effectiveRole==="Parent"?(parentPageHelp[tab]?.title||roleNavLabel(tab)):effectiveRole==="Player"?(playerPageHelp[tab]?.title||roleNavLabel(tab)):pageHelp[tab]?.title||tab}</small><b>{effectiveRole==="Parent"?(parentPageHelp[tab]?.purpose||""):effectiveRole==="Player"?(playerPageHelp[tab]?.purpose||""):pageHelp[tab]?.purpose||""}</b></div><span>{effectiveRole==="Parent"?(parentPageHelp[tab]?.primary||""):effectiveRole==="Player"?(playerPageHelp[tab]?.primary||""):pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
-   {tab==="Home"&&<PremiumHomeOverview accountRole={effectiveRole} juniorMode={juniorPlayerMode} profile={profile} sport={sport} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} dev={dev} setTab={setTab} trackerData={trackerAllowed?trackerData:null}/>}
+   {tab==="Home"&&<PremiumHomeOverview accountRole={effectiveRole} juniorMode={juniorPlayerMode} profile={profile} sport={sport} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} dev={dev} setTab={setTab} trackerData={trackerAllowed?trackerData:null} onOpenTrackers={trackerDiscoverable?openTrackerCenter:undefined}/>}
    {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/></>:<Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/>)} 
    {tab==="Goals"&&<Goals viewRole={effectiveRole} actualRole={accountRole} authorName={accountSession.displayName} goals={goals} setGoals={setGoals} juniorMode={juniorPlayerMode}/>}
    {tab==="Calendar"&&(effectiveRole==="Parent"?<ParentSchedule sport={sport} workouts={workouts} setWorkouts={setWorkouts} competitions={competitions} seasonEvents={seasonEvents} setTab={setTab}/>:<Calendar accountRole={effectiveRole} sport={sport} workouts={workouts} setWorkouts={setWorkouts} profile={profile} seasonEvents={seasonEvents} setSeasonEvents={setSeasonEvents} trainingBlocks={trainingBlocks} setTrainingBlocks={setTrainingBlocks} competitions={competitions}/>)} 
    {tab==="Testing"&&<Testing accountRole={effectiveRole} sport={sport} library={[...definitions(sport),...custom.filter(x=>x.sport===sport)]} custom={custom} setCustom={setCustom} results={results} setResults={setResults} testTargets={testTargets} setTestTargets={setTestTargets}/>} 
    {tab==="Analytics"&&(effectiveRole==="Parent"?<ParentProgress sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} setTab={setTab}/>:<AnalyticsHub accountRole={effectiveRole} actualAccountRole={accountRole} setTab={setTab} setDev={setDev} setGoals={setGoals} setWorkouts={setWorkouts} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} competitions={competitions} reportNotes={reportNotes} setReportNotes={setReportNotes}/>)} 
-   {tab==="Coach"&&((effectiveRole==="Coach"||effectiveRole==="Admin")?<CoachHub athleteId={betaBridge?.workspaceId||activeAthleteId} accountRole={effectiveRole} authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} coachWeeklyReviews={coachWeeklyReviews} setCoachWeeklyReviews={setCoachWeeklyReviews} saveCoachWeeklyReview={betaBridge?.saveCoachWeeklyReview} canWriteCoachReview={(accountRole==="Coach"&&Boolean(betaBridge?.selectedAthleteName))||accountRole==="Admin"} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} competitions={competitions} coachNotes={coachNotes} setCoachNotes={setCoachNotes}/>:effectiveRole==="Player"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Player" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} juniorMode={juniorPlayerMode}/>:effectiveRole==="Parent"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Parent" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes}/>:null)} 
+   {tab==="Coach"&&((effectiveRole==="Coach"||effectiveRole==="Admin")?<CoachHub athleteId={betaBridge?.workspaceId||activeAthleteId} accountRole={effectiveRole} authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} coachWeeklyReviews={coachWeeklyReviews} setCoachWeeklyReviews={setCoachWeeklyReviews} saveCoachWeeklyReview={betaBridge?.saveCoachWeeklyReview} canWriteCoachReview={(accountRole==="Coach"&&Boolean(betaBridge?.selectedAthleteName))||accountRole==="Admin"} sport={sport} profile={profile} goals={goals} workouts={workouts} results={results} dev={dev} program={program} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} competitions={competitions} coachNotes={coachNotes} setCoachNotes={setCoachNotes}/>:effectiveRole==="Player"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Player" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} juniorMode={juniorPlayerMode} onOpenTrackers={openTrackerCenter} trackerConnectedCount={trackerData?.connections?.filter(x=>x.status==="connected").length||0}/>:effectiveRole==="Parent"?<Readiness sport={sport} profile={profile} readiness={readiness} setReadiness={setReadiness} weeklyReviews={weeklyReviews} coachNotes={coachNotes} setCoachNotes={setCoachNotes} program={program} workouts={workouts} accountRole="Parent" authorName={accountSession.displayName} saveSharedNotes={betaBridge?.saveSharedNotes} onOpenTrackers={openTrackerCenter} trackerConnectedCount={trackerData?.connections?.filter(x=>x.status==="connected").length||0}/>:null)} 
    
    {tab==="Development"&&(effectiveRole==="Parent"?<ParentDevelopment sport={sport} profile={profile} dev={dev} program={program} milestones={milestones} developmentSystem={developmentSystem} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} goals={goals} workouts={workouts} results={results} competitions={competitions} setTab={setTab}/>:<DevelopmentHub accountRole={effectiveRole} setTab={setTab} sport={sport} profile={profile} dev={dev} setDev={setDev} results={results} goals={goals} workouts={workouts} program={program} setProgram={setProgram} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} competitions={competitions} milestones={milestones} setMilestones={setMilestones} developmentSystem={developmentSystem} setDevelopmentSystem={setDevelopmentSystem} setWorkouts={setWorkouts}/>)} 
    
@@ -1908,13 +1927,20 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
      ["training","Training & schedule"],["recovery","Recovery & readiness"],["goals","Goal milestones"],["progress","Testing & progress"],["cloud","Cloud sync"]
     ] as [keyof NotificationPrefs,string][]).map(([key,label])=><label key={key}><input type="checkbox" checked={notificationPrefs[key]} onChange={e=>setNotificationPrefs(x=>({...x,[key]:e.target.checked}))}/><span>{label}</span></label>)}</div>
    </div>
-   {trackerAllowed&&<div className="trackerSettings">
-    <div className="settingLabel"><b>Connected trackers</b><span>Workout and sleep data is private to the Player and authorized Parent. Coach and Admin accounts cannot access this data.</span></div>
+   {trackerDiscoverable&&<div className="trackerSettings" id="connected-trackers-settings">
+    <div className="settingLabel"><b>Connected trackers</b><span>Connect workout and sleep services here. Imported data is private to the signed-in Player and authorized Parent.</span></div>
+    {(accountRole==="Coach"||accountRole==="Admin")?<div className="trackerAccessLocked trackerPreviewLock"><b>PLAYER / PARENT SIGN-IN REQUIRED</b><span>You are viewing a Player or Parent preview from a Coach/Admin account. Private tracker authorization is intentionally disabled here. Sign in as the actual Player or a linked Parent to connect Google Health or another tracker.</span></div>:!trackerAthleteId?<div className="trackerAccessLocked"><b>SELECT A PLAYER FIRST</b><span>This account does not yet have a canonical Player selected for tracker data. Choose the Player first, then return here to connect a tracker.</span>{accountRole==="Parent"&&betaBridge?.openParentPlayers&&<button type="button" className="featureAction trackerChoosePlayer" onClick={()=>{setShowSettings(false);betaBridge.openParentPlayers?.()}}>Choose Player</button>}</div>:<>
+    <div className={`trackerConnectHero ${googleHealthConnection?.status==="connected"?"connected":""}`}>
+     <div className="trackerConnectHeroIcon"><PremiumAppIcon name="recovery"/></div>
+     <div className="trackerConnectHeroCopy"><small>RECOMMENDED CONNECTION</small><h3>{googleHealthConnection?.status==="connected"?"Google Health is connected":"Connect Google Health"}</h3><p>Connect Fitbit and Pixel Watch workout, sleep, resting-heart-rate and HRV data through Google Health. You will be sent to Google to approve read-only access.</p>{googleHealthConnection?.last_synced_at&&<span>Last sync {new Date(googleHealthConnection.last_synced_at).toLocaleString()}</span>}</div>
+     <div className="trackerConnectHeroAction">{googleHealthConnection?.status==="connected"?<button type="button" className="featureAction trackerPrimaryConnect" disabled={googleHealthBusy} onClick={()=>void syncTracker("google-health")}>{googleHealthBusy?"Syncing…":"Sync Google Health"}</button>:<button type="button" className="featureAction trackerPrimaryConnect" disabled={googleHealthBusy} onClick={()=>void connectTracker("google-health")}>{googleHealthBusy?"Opening Google…":"Connect Google Health"}</button>}<small>Player + authorized Parent only</small></div>
+    </div>
     {trackerMessage&&<div className="trackerMessage" role="status">{trackerMessage}</div>}
-    {trackerLoading&&!trackerData?<div className="trackerLoading">Loading connected trackers…</div>:<>
-     {trackerData?.connections?.length?(()=>{const d=trackerData.daily?.[0];const w=trackerData.workouts?.[0];return <div className="trackerSnapshot"><div><small>LATEST SLEEP</small><b>{d?.sleep_minutes?`${Math.floor(Number(d.sleep_minutes)/60)}h ${Math.round(Number(d.sleep_minutes)%60)}m`:d?.sleep_score?`${Math.round(Number(d.sleep_score))}%`:"—"}</b></div><div><small>RECOVERY</small><b>{d?.readiness_score!=null?`${Math.round(Number(d.readiness_score))}/100`:d?.hrv_ms!=null?`${Math.round(Number(d.hrv_ms))} ms`:"—"}</b></div><div><small>LAST WORKOUT</small><b>{w?.workout_type||"—"}</b></div></div>})():null}
-     <div className="trackerProviderGrid">{(trackerData?.providers||[]).map(provider=>{const connection=trackerData?.connections?.find(x=>x.provider===provider.id);const busy=trackerBusyProvider===provider.id;return <article key={provider.id} className={`trackerProviderCard ${connection?.status||""}`}><div className="trackerProviderHead"><span className={`trackerProviderMark ${provider.id}`}>{provider.name.slice(0,1)}</span><div><b>{provider.name}</b><small>{provider.kind}</small></div><span className={`trackerStatus ${connection?.status==="connected"?"connected":provider.configured?"ready":"setup"}`}>{connection?.status==="connected"?"Connected":provider.configured?"Ready":"Setup needed"}</span></div><p>{provider.note}</p>{connection?.last_synced_at&&<small className="trackerLastSync">Last sync {new Date(connection.last_synced_at).toLocaleString()}</small>}{connection?.last_error&&<small className="trackerError">{connection.last_error}</small>}<div className="trackerProviderActions">{connection?.status==="connected"?<><button type="button" disabled={busy} className="featureAction" onClick={()=>void syncTracker(provider.id)}>{busy?"Syncing…":"Sync now"}</button><button type="button" disabled={busy} onClick={()=>void disconnectTracker(provider.id)}>Disconnect</button></>:provider.cloudOAuth?<button type="button" disabled={busy||!provider.configured} className="featureAction" onClick={()=>void connectTracker(provider.id)}>{busy?"Opening…":provider.configured?"Connect":"Add provider keys first"}</button>:<button type="button" disabled>Future mobile / partner connection</button>}</div></article>})}</div>
-     <div className="trackerPrivacyNote"><b>PRIVATE PERFORMANCE DATA</b><span>Only the signed-in Player and Parents linked to this Player can read imported tracker metrics. Coach and Admin roles are denied at the database layer.</span></div>
+    {trackerLoading&&!trackerData?<div className="trackerLoading">Checking connection status… You can still use the Google Health button above.</div>:null}
+    {trackerData?.connections?.length?(()=>{const d=trackerData.daily?.[0];const w=trackerData.workouts?.[0];return <div className="trackerSnapshot"><div><small>LATEST SLEEP</small><b>{d?.sleep_minutes?`${Math.floor(Number(d.sleep_minutes)/60)}h ${Math.round(Number(d.sleep_minutes)%60)}m`:d?.sleep_score?`${Math.round(Number(d.sleep_score))}%`:"—"}</b></div><div><small>RECOVERY</small><b>{d?.readiness_score!=null?`${Math.round(Number(d.readiness_score))}/100`:d?.hrv_ms!=null?`${Math.round(Number(d.hrv_ms))} ms`:"—"}</b></div><div><small>LAST WORKOUT</small><b>{w?.workout_type||"—"}</b></div></div>})():null}
+    <div className="trackerProviderIntro"><div><small>OTHER CONNECTIONS</small><b>Choose a provider</b><span>Google Health is recommended for Fitbit / Pixel Watch. Oura, WHOOP and Strava can be enabled with their own provider credentials.</span></div></div>
+    <div className="trackerProviderGrid">{trackerProviders.map(provider=>{const connection=trackerData?.connections?.find(x=>x.provider===provider.id);const busy=trackerBusyProvider===provider.id;return <article key={provider.id} className={`trackerProviderCard ${connection?.status||""}`}><div className="trackerProviderHead"><span className={`trackerProviderMark ${provider.id}`}>{provider.name.slice(0,1)}</span><div><b>{provider.name}</b><small>{provider.kind}</small></div><span className={`trackerStatus ${connection?.status==="connected"?"connected":provider.configured?"ready":"setup"}`}>{connection?.status==="connected"?"Connected":provider.configured?"Ready":trackerData?"Setup needed":"Available"}</span></div><p>{provider.note}</p>{connection?.last_synced_at&&<small className="trackerLastSync">Last sync {new Date(connection.last_synced_at).toLocaleString()}</small>}{connection?.last_error&&<small className="trackerError">{connection.last_error}</small>}<div className="trackerProviderActions">{connection?.status==="connected"?<><button type="button" disabled={busy} className="featureAction" onClick={()=>void syncTracker(provider.id)}>{busy?"Syncing…":"Sync now"}</button><button type="button" disabled={busy} onClick={()=>void disconnectTracker(provider.id)}>Disconnect</button></>:provider.cloudOAuth?<button type="button" disabled={busy} className="featureAction" onClick={()=>void connectTracker(provider.id)}>{busy?"Opening…":`Connect ${provider.name}`}</button>:<button type="button" disabled>Future mobile / partner connection</button>}</div></article>})}</div>
+    <div className="trackerPrivacyNote"><b>PRIVATE PERFORMANCE DATA</b><span>Only the signed-in Player and Parents linked to this Player can read imported tracker metrics. Coach and Admin roles are denied at the database layer.</span></div>
     </>}
    </div>}
    <div className="reliabilitySettings">
@@ -5300,7 +5326,7 @@ function Program({accountRole,sport,profile,dev,results,readiness,program,setPro
  </>;
 }
 
-function Readiness({sport,profile,readiness,setReadiness,weeklyReviews,coachNotes,setCoachNotes,program,workouts,accountRole="Coach",authorName="",saveSharedNotes,juniorMode=false}:{sport:Sport;profile:Profile;readiness:ReadinessLog[];setReadiness:React.Dispatch<React.SetStateAction<ReadinessLog[]>>;weeklyReviews:WeeklyReview[];coachNotes:CoachNote[];setCoachNotes:React.Dispatch<React.SetStateAction<CoachNote[]>>;program:TrainingProgram|null;workouts:Workout[];accountRole?:AccountRole;authorName?:string;saveSharedNotes?:((notes:unknown[])=>Promise<void>);juniorMode?:boolean}){
+function Readiness({sport,profile,readiness,setReadiness,weeklyReviews,coachNotes,setCoachNotes,program,workouts,accountRole="Coach",authorName="",saveSharedNotes,juniorMode=false,onOpenTrackers,trackerConnectedCount=0}:{sport:Sport;profile:Profile;readiness:ReadinessLog[];setReadiness:React.Dispatch<React.SetStateAction<ReadinessLog[]>>;weeklyReviews:WeeklyReview[];coachNotes:CoachNote[];setCoachNotes:React.Dispatch<React.SetStateAction<CoachNote[]>>;program:TrainingProgram|null;workouts:Workout[];accountRole?:AccountRole;authorName?:string;saveSharedNotes?:((notes:unknown[])=>Promise<void>);juniorMode?:boolean;onOpenTrackers?:()=>void;trackerConnectedCount?:number}){
  const [sleep,setSleep]=useState("8"),[soreness,setSoreness]=useState("3"),[energy,setEnergy]=useState("7"),[stress,setStress]=useState("3"),[notes,setNotes]=useState("");
  const [noteTitle,setNoteTitle]=useState(""),[noteText,setNoteText]=useState(""),[noteCategory,setNoteCategory]=useState("General");
  const defaultNoteAuthor=accountRole==="Player"?"Athlete":accountRole==="Parent"?"Parent":accountRole==="Admin"?"Admin":"Coach";
@@ -5399,6 +5425,11 @@ function Readiness({sport,profile,readiness,setReadiness,weeklyReviews,coachNote
    <button onClick={()=>document.getElementById("shared-support-notes")?.scrollIntoView({behavior:"smooth",block:"start"})}>Shared Notes</button>
   </div>
  </div>}
+ {(accountRole==="Player"||accountRole==="Parent")&&onOpenTrackers&&<button type="button" className="recoveryTrackerCta" onClick={onOpenTrackers}>
+  <span className="trackerDiscoveryIcon"><PremiumAppIcon name="recovery"/></span>
+  <span><small>CONNECTED RECOVERY DATA</small><b>{trackerConnectedCount?"Manage workout & sleep trackers":"Connect workout & sleep trackers"}</b><em>{trackerConnectedCount?`${trackerConnectedCount} source${trackerConnectedCount===1?"":"s"} connected · sync sleep, HRV and workouts`:"Bring sleep and workout data into Recovery & Readiness."}</em></span>
+  <strong>{trackerConnectedCount?"MANAGE →":"CONNECT →"}</strong>
+ </button>}
  <div id={accountRole==="Parent"?"parent-recovery-summary":undefined} className="readinessHero"><div><small>READINESS SCORE</small><strong>{score}</strong><span>/100</span></div><div><b>{status}</b><p>{score>=80?"Good day for normal training intensity.":score>=60?"Keep quality high but watch fatigue.":score>0?"Prioritize recovery, mobility, and lower intensity.":"Complete today's check-in to get a score."}</p>{todayLog&&<small>{delta>=0?"+":""}{delta} vs previous log · 7-day avg {avg7}</small>}</div></div>
  <div className="recoveryFlags">{flags.map(f=><div className={"recoveryFlag "+f.status.toLowerCase()} key={f.label}><small>{f.label}</small><b>{f.value}</b><span>{f.status}</span></div>)}</div>
 
@@ -5788,7 +5819,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.90 RC40","good"],
+  ["App Version","72.3.92 RC42","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],

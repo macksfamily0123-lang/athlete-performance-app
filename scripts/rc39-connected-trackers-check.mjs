@@ -8,7 +8,7 @@ const server=read("lib/serverTracker.ts");
 const pkg=JSON.parse(read("package.json"));
 const files=["app/api/trackers/oauth/start/route.ts","app/api/trackers/oauth/callback/[provider]/route.ts","app/api/trackers/status/route.ts","app/api/trackers/sync/route.ts","app/api/trackers/disconnect/route.ts"];
 let checks=[];const check=(ok,label)=>checks.push({ok:Boolean(ok),label});
-check(["72.3.89","72.3.90"].includes(pkg.version),"package is RC39 tracker foundation or later");
+check(["72.3.89","72.3.90","72.3.91","72.3.92"].includes(pkg.version),"package is RC39 tracker foundation or later");
 check(pkg.scripts["test:connected-trackers"],"tracker regression script is registered");
 check(files.every(f=>fs.existsSync(new URL(`../${f}`,import.meta.url))),"OAuth/status/sync/disconnect routes exist");
 check(fs.existsSync(new URL("../supabase/migrations/010_connected_trackers_player_parent_only.sql",import.meta.url)),"migration 010 exists");

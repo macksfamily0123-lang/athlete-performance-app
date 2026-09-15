@@ -9,7 +9,7 @@ const env=read(".env.example");
 const setup=read("TRACKER_PROVIDER_SETUP.md");
 const pkg=JSON.parse(read("package.json"));
 let checks=[];const check=(ok,label)=>checks.push({ok:Boolean(ok),label});
-check(pkg.version==="72.3.90","package version is Phase 72.3.90");
+check(["72.3.90","72.3.91","72.3.92"].includes(pkg.version),"package is RC40 Google Health or later");
 check(pkg.scripts["test:google-health"],"RC40 Google Health regression script is registered");
 check(catalog.includes('id:"google-health"')&&catalog.includes('name:"Google Health"'),"Google Health replaces Fitbit in the visible tracker catalog");
 check(catalog.includes("Fitbit and Pixel Watch"),"Google Health card clearly identifies Fitbit/Pixel Watch coverage");
