@@ -3,7 +3,7 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 import {getSupabase} from "../lib/supabase";
-// Phase 72.3.95 RC45: all external tracker connectivity is intentionally
+// Phase 72.3.97 RC47: all external tracker connectivity remains intentionally
 // disabled. Keeping the archived types below makes this change reversible,
 // while the false gate prevents tracker UI, loading, syncing, and sharing.
 const TRACKER_CONNECTIVITY_ENABLED=false;
@@ -112,6 +112,8 @@ export type BetaBridge={
  selectCoachRosterAthlete?:(workspaceId:string)=>void;
  onSignOut:()=>Promise<void>|void;
  openFeedback?:()=>void;
+ openPrivacyCenter?:()=>void;
+ openLaunchChecklist?:()=>void;
  openParentPlayers?:()=>void;
  openPlayerJoinTeam?:()=>void;
  openCoachTeams?:()=>void;
@@ -128,6 +130,11 @@ export type BetaBridge={
  saveSharedNotes?:(notes:unknown[])=>Promise<void>;
  loadCoachWeeklyReviews?:()=>Promise<CoachWeeklyReview[]>;
  saveCoachWeeklyReview?:(review:CoachWeeklyReview)=>Promise<void>;
+};
+
+type InstallPromptEvent=Event&{
+ prompt:()=>Promise<void>;
+ userChoice:Promise<{outcome:"accepted"|"dismissed";platform:string}>;
 };
 
 type ReminderItem={id:string;title:string;detail:string;date:string;kind:"Workout"|"Competition"|"Retest"|"Goal"|"Readiness";priority:"High"|"Normal"};
@@ -1020,6 +1027,8 @@ export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
  const [showFeatureOverview,setShowFeatureOverview]=useState(false);
  const [featureOverviewSource,setFeatureOverviewSource]=useState<"setup"|"help">("help");
  const [showSettings,setShowSettings]=useState(false);
+ const [showInstallHelp,setShowInstallHelp]=useState(false);
+ const [installPrompt,setInstallPrompt]=useState<InstallPromptEvent|null>(null);
  const [showTrackerSetup,setShowTrackerSetup]=useState(false);
  const [showNotifications,setShowNotifications]=useState(false);
  const [notificationPrefs,setNotificationPrefs]=useState<NotificationPrefs>({training:true,recovery:true,goals:true,progress:true,cloud:true});
@@ -1064,6 +1073,11 @@ export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
   return()=>window.cancelAnimationFrame(frame);
  },[tab,mounted]);
  useEffect(()=>{for(const [key,setter] of [["results",setResults],["custom",setCustom],["goals",setGoals],["workouts",setWorkouts]] as any[]){try{const v=localStorage.getItem(key);if(v)setter(JSON.parse(v))}catch{}}},[]);
+ useEffect(()=>{
+  const capture=(event:Event)=>{event.preventDefault();setInstallPrompt(event as InstallPromptEvent)};
+  window.addEventListener("beforeinstallprompt",capture);
+  return()=>window.removeEventListener("beforeinstallprompt",capture);
+ },[]);
  useEffect(()=>localStorage.setItem("results",JSON.stringify(results)),[results]);
  useEffect(()=>localStorage.setItem("custom",JSON.stringify(custom)),[custom]);
  useEffect(()=>localStorage.setItem("goals",JSON.stringify(goals)),[goals]);
@@ -1151,13 +1165,20 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.95",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.97",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
    a.href=url;a.download=`athlete-performance-backup-${(profile.name||"athlete").replace(/[^a-z0-9]+/gi,"-").toLowerCase()}-${today()}.json`;
    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
   }catch{}
+ };
+
+ const installApp=async()=>{
+  if(!installPrompt){setShowInstallHelp(true);return}
+  await installPrompt.prompt();
+  await installPrompt.userChoice;
+  setInstallPrompt(null);
  };
 
  const saveActiveSnapshot=()=>{
@@ -2012,6 +2033,14 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
     <button type="button" className="trackerSetupLaunch featureAction" onClick={()=>{setShowSettings(false);setShowTrackerSetup(true)}}><span><PremiumAppIcon name="recovery"/></span><div><small>{accountRole==="Coach"?"PLAYER-SHARED DATA":"WORKOUT + PERFORMANCE SERVICES"}</small><b>{accountRole==="Coach"?"Open Shared Performance":"Open Tracker Setup"}</b><em>{trackerData?.connections?.filter(x=>x.status==="connected").length?`${trackerData.connections.filter(x=>x.status==="connected").length} ${accountRole==="Coach"?"shared":"connected"} source${trackerData.connections.filter(x=>x.status==="connected").length===1?"":"s"}`:`Google Health · Oura · WHOOP · Strava · KINEXON`}</em></div><strong>OPEN →</strong></button>
     <div className="trackerSettingsHint">{accountRole==="Coach"?"Coach access is read-only and appears only after the selected Player or linked Parent opts in.":"Player and linked Parent accounts connect services and control exactly which categories, if any, a current Coach can see."}</div>
    </div>}
+   {betaBridge&&<div className="privacySettings">
+    <div className="settingLabel"><b>Privacy & account controls</b><span>See who can access the selected Player, download app data, or submit an access/deletion request.</span></div>
+    <div className="settingsActionGrid"><button type="button" className="featureAction" onClick={()=>{setShowSettings(false);betaBridge.openPrivacyCenter?.()}}>Open Privacy Center</button><button type="button" onClick={()=>{setShowSettings(false);betaBridge.openLaunchChecklist?.()}}>Open Beta Start Checklist</button></div>
+   </div>}
+   <div className="installSettings">
+    <div className="settingLabel"><b>Install Athlete Performance</b><span>Add the closed beta to a phone, tablet, or desktop for faster access. Installation does not enable trackers.</span></div>
+    <button type="button" className="recoveryBackupButton" onClick={()=>void installApp()}>{installPrompt?"Install App":"Show Install Steps"}</button>
+   </div>
    <div className="reliabilitySettings">
     <div className="settingLabel"><b>Beta reliability</b><span>Your athlete data is continuously protected in a local recovery point while cloud sync is active.</span></div>
     <div className="reliabilitySettingsGrid"><div><small>CONNECTION</small><b>{cloudOnline?"Online":"Offline"}</b></div><div><small>CLOUD</small><b>{cloudStatus}</b></div><div><small>LOCAL RECOVERY</small><b>{lastLocalSnapshotAt?new Date(lastLocalSnapshotAt).toLocaleString():"Building"}</b></div></div>
@@ -2019,6 +2048,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    </div>
    <div className="settingsFooter"><button onClick={()=>changeTextSize("comfortable")}>Use Recommended Size</button><button className="featureAction" onClick={()=>setShowSettings(false)}>Done</button></div>
   </div></div></ViewportPortal>}
+  {showInstallHelp&&<ViewportPortal><div className="settingsOverlay" role="dialog" aria-modal="true" aria-label="Install app instructions" onClick={()=>setShowInstallHelp(false)}><div className="settingsCard installHelpCard" onClick={e=>e.stopPropagation()}><div className="settingsHead"><div><small>INSTALL APP</small><h2>Add Athlete Performance</h2><p>Use the steps for your device.</p></div><button className="settingsClose" onClick={()=>setShowInstallHelp(false)}>×</button></div><div className="installStepGrid"><div><b>iPhone / iPad</b><span>Open in Safari → tap Share → Add to Home Screen → Add.</span></div><div><b>Android / Chrome</b><span>Open the browser menu → Install app or Add to Home screen.</span></div><div><b>Desktop Chrome / Edge</b><span>Use the install icon in the address bar, or Browser menu → Install Athlete Performance.</span></div></div><div className="settingsFooter"><button className="featureAction" onClick={()=>setShowInstallHelp(false)}>Done</button></div></div></div></ViewportPortal>}
   {commandOpen&&<div className={"commandOverlay "+(juniorPlayerMode?"juniorFeatureOverlay":"")} role="dialog" aria-modal="true" aria-label={juniorPlayerMode?"All Junior Player features":"Quick navigation"} onClick={()=>setCommandOpen(false)}><div className={"commandPalette "+(juniorPlayerMode?"juniorFeaturePalette":"")} onClick={e=>e.stopPropagation()}><div className="sectionHead"><div><small>{juniorPlayerMode?"JUNIOR PLAYER":"QUICK NAVIGATION"}</small><h2>{juniorPlayerMode?"All My Features":"Go to a section"}</h2></div><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder={juniorPlayerMode?"Search my features…":"Search Overview, Goals, Testing, Roster…"}/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{setTab(a.tab);setCommandOpen(false);setCommandQuery("")}}><span className="commandResultIcon"><NavMetaIcon icon={navMeta[a.tab]?.icon}/></span><b>{a.label}</b><small>{juniorPlayerMode?(playerPageHelp[a.tab]?.purpose||"Open this feature"):a.keywords.join(" · ")}</small></button>)}</div>{juniorPlayerMode&&filteredActions.length===0&&<div className="juniorFeatureEmpty">No matching feature. Try a different word.</div>}</div></div>}
  {navSheet&&<ViewportPortal><div className="simpleNavOverlay viewportNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
    <div className="sectionHead"><div><small>{navSheet.toUpperCase()}</small><h2>{navSheet==="More"?"More Features":navSheet}</h2></div><button onClick={()=>setNavSheet(null)}>×</button></div>
@@ -5888,7 +5918,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.95 RC45","good"],
+  ["App Version","72.3.97 RC47","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],

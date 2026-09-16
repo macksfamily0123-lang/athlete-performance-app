@@ -1,4 +1,12 @@
-# Athlete Performance App — Phase 72.3.95 RC45
+# Athlete Performance App — Phase 72.3.97 RC47
+
+## RC47 — Combined RC46 privacy + RC47 closed beta
+
+This single package combines the planned RC46 and RC47 work. New accounts require an Admin-approved email. Signup records a versioned privacy acceptance, Parent-managed Player creation requires a guardian attestation, and joining a Coach team requires an explicit Player or Parent opt-in.
+
+The new Privacy & Account Center shows current Parent/Coach access, downloads an app-data export, and submits account, athlete, or Coach-access requests for Admin review. Admin now has a Closed Beta Readiness view, role-specific start checklists, improved feedback impact/category fields, and install guidance.
+
+Tracker connectivity remains disabled. No tracker API routes or provider server modules are installed. Historical migrations 010–012 remain unchanged for database continuity; migration 013 adds only privacy/closed-beta controls.
 
 ## RC45 — Tracker connectivity removed for now
 

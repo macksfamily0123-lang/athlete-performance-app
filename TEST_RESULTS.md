@@ -1,3 +1,14 @@
+# Phase 72.3.97 RC47 — Combined RC46 + RC47 Validation
+
+- Full automated regression suite: passed.
+- RC47 privacy/closed-beta checks: 16/16 passed.
+- TypeScript (`tsc --noEmit`): passed.
+- Next.js 15.5.21 production build: passed.
+- Production routes: `/` and `/_not-found` only; no tracker API routes were generated.
+- Historical migrations 010, 011, and 012: preserved.
+- New migration 013: youth privacy consent, privacy requests, Coach team-access audit, and email-approved beta provisioning.
+- Build emitted only pre-existing Autoprefixer compatibility warnings about `end`; no compile or type errors.
+
 # Phase 72.3.95 RC45 — Validation Results
 
 - Full registered `npm test` regression suite: passed.

@@ -1,3 +1,15 @@
+# Phase 72.3.97 RC47 — Combined RC46 + RC47
+
+- Adds email-approved closed-beta registration for every role.
+- Adds versioned privacy acceptance at signup and first use.
+- Requires a Parent/legal-guardian attestation before a junior Player is created.
+- Makes Team Invite acceptance the explicit, auditable opt-in for Coach access.
+- Adds a Privacy & Account Center with access visibility, JSON export, and reviewed deletion/access-removal requests.
+- Adds an Admin Closed Beta Readiness dashboard and privacy request workflow.
+- Adds role-specific launch checklists, install guidance, accessibility feedback, and feedback impact levels.
+- Adds migration 013. Migrations 010–012 remain preserved and unchanged.
+- Keeps all tracker/wearable connectivity disabled and does not require provider credentials.
+
 # Phase 72.3.95 RC45 — Tracker Connectivity Removed
 
 - Removes all tracker connection, setup, sync, imported-data display, and Coach tracker-sharing entry points from the live UI.

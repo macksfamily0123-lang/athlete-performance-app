@@ -6,15 +6,15 @@ const migration=fs.readFileSync("supabase/migrations/008_connection_setup_reliab
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 
 const checks=[
- ["Combined version is 72.3.74",pkg.version==="72.3.95"],
- ["RC24 ribbon",beta.includes("BETA · RC45 · v72.3.95")],
- ["Feedback version is 72.3.74",beta.includes('app_version:"72.3.95"')],
- ["Admin health version is RC24",athlete.includes('["App Version","72.3.95 RC45","good"]')],
+ ["Combined version is 72.3.74",pkg.version==="72.3.97"],
+ ["RC24 ribbon",beta.includes("CLOSED BETA · RC47 · v72.3.97")],
+ ["Feedback version is 72.3.74",beta.includes('app_version:"72.3.97"')],
+ ["Admin health version is RC24",athlete.includes('["App Version","72.3.97 RC47","good"]')],
  ["Connection operations have double-submit lock",beta.includes("runConnectionAction")&&beta.includes("if(connectionAction)return")],
- ["Parent create button disables while busy",beta.includes('disabled={!!connectionAction||!childName.trim()}')],
+ ["Parent create button disables while busy or unconsented",beta.includes('disabled={!!connectionAction||!childName.trim()||!guardianAttested}')],
  ["Parent existing connect disables while busy",beta.includes('disabled={!!connectionAction||!parentConnectionCode.trim()}')],
- ["Player team connect disables while busy",beta.includes('disabled={!!connectionAction||!playerJoinCode.trim()}')],
- ["Parent team connect disables while busy",beta.includes('disabled={!!connectionAction||!parentJoinAthleteId||!parentJoinCode.trim()}')],
+ ["Player team connect disables while busy or unconsented",beta.includes('disabled={!!connectionAction||!playerJoinCode.trim()||!playerCoachConsent}')],
+ ["Parent team connect disables while busy or unconsented",beta.includes('disabled={!!connectionAction||!parentJoinAthleteId||!parentJoinCode.trim()||!parentCoachConsent}')],
  ["Friendly invalid Parent code error",beta.includes("That Parent Connection Code is invalid or expired")],
  ["Friendly invalid Team code error",beta.includes("That Team Invite Code is not valid")],
  ["Friendly migration/schema error",beta.includes("Install the latest migration")],

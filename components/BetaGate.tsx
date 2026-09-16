@@ -31,7 +31,30 @@ type BetaFeedbackRow={
   message:string;
   app_version:string|null;
   page_url:string|null;
+  severity:string;
+  status:string;
   created_at:string;
+};
+
+type PrivacyAccessRow={
+  athlete_id:string;
+  display_name:string;
+  athlete_age:number|null;
+  account_management:"Player"|"Parent";
+  parent_count:number;
+  coach_count:number;
+  coach_access:{team_id:string;team_name:string;coach_name:string;joined_at:string}[];
+};
+
+type PrivacyRequestRow={
+  id:number;
+  user_id:string;
+  athlete_id:string|null;
+  request_type:"export"|"delete_account"|"delete_athlete"|"revoke_coach_access";
+  status:"submitted"|"in_review"|"completed"|"declined";
+  details:string;
+  created_at:string;
+  updated_at:string;
 };
 
 type FamilyDiagnosticRow={
@@ -101,6 +124,7 @@ type ConnectionStatusRow={
 
 const roles:BetaRole[]=["Player","Coach","Parent","Admin"];
 const sports=["Baseball","Football","Ice Hockey","Basketball","Lacrosse","Wrestling","Soccer","Figure Skating"];
+const PRIVACY_POLICY_VERSION="2026-09-16";
 
 const cleanConnectionError=(raw:string)=>{
   const message=String(raw||"");
@@ -140,6 +164,7 @@ export default function BetaGate(){
   const [displayName,setDisplayName]=useState("");
   const [signupRole,setSignupRole]=useState<"Player"|"Parent">("Player");
   const [playerAccessCode,setPlayerAccessCode]=useState("");
+  const [privacyAccepted,setPrivacyAccepted]=useState(false);
   const [message,setMessage]=useState("");
   const [signupComplete,setSignupComplete]=useState<{email:string;role:"Player"|"Parent"}|null>(null);
   const [passwordRecovery,setPasswordRecovery]=useState(false);
@@ -147,15 +172,22 @@ export default function BetaGate(){
   const [newPasswordMessage,setNewPasswordMessage]=useState("");
 
   const [showDisclaimer,setShowDisclaimer]=useState(false);
+  const [showPrivacy,setShowPrivacy]=useState(false);
+  const [privacySummary,setPrivacySummary]=useState<PrivacyAccessRow|null>(null);
+  const [privacyRequests,setPrivacyRequests]=useState<PrivacyRequestRow[]>([]);
+  const [privacyMessage,setPrivacyMessage]=useState("");
+  const [privacyLoading,setPrivacyLoading]=useState(false);
+  const [showLaunchChecklist,setShowLaunchChecklist]=useState(false);
   const [showFeedback,setShowFeedback]=useState(false);
   const [feedbackType,setFeedbackType]=useState("Bug");
+  const [feedbackSeverity,setFeedbackSeverity]=useState("Normal");
   const [feedbackBody,setFeedbackBody]=useState("");
   const [feedbackMessage,setFeedbackMessage]=useState("");
   const [feedbackSeed,setFeedbackSeed]=useState("");
   const [isOnline,setIsOnline]=useState(true);
 
   const [showAdmin,setShowAdmin]=useState(false);
-  const [adminSection,setAdminSection]=useState<"accounts"|"family"|"feedback">("accounts");
+  const [adminSection,setAdminSection]=useState<"readiness"|"accounts"|"family"|"feedback">("readiness");
   const [members,setMembers]=useState<BetaMember[]>([]);
   const [familyDiagnostics,setFamilyDiagnostics]=useState<FamilyDiagnosticRow[]>([]);
   const [familyDiagnosticFilter,setFamilyDiagnosticFilter]=useState<"Needs Attention"|"All">("Needs Attention");
@@ -163,6 +195,7 @@ export default function BetaGate(){
   const [familyDiagnosticLoading,setFamilyDiagnosticLoading]=useState(false);
   const [familyRepairingId,setFamilyRepairingId]=useState("");
   const [feedbackInbox,setFeedbackInbox]=useState<BetaFeedbackRow[]>([]);
+  const [adminPrivacyRequests,setAdminPrivacyRequests]=useState<PrivacyRequestRow[]>([]);
   const [feedbackFilter,setFeedbackFilter]=useState("All");
   const [feedbackInboxMessage,setFeedbackInboxMessage]=useState("");
   const [inviteEmail,setInviteEmail]=useState("");
@@ -185,9 +218,11 @@ export default function BetaGate(){
   const [childSport,setChildSport]=useState("Ice Hockey");
   const [childPosition,setChildPosition]=useState("");
   const [childTeam,setChildTeam]=useState("");
+  const [guardianAttested,setGuardianAttested]=useState(false);
   const [parentMessage,setParentMessage]=useState("");
   const [parentJoinAthleteId,setParentJoinAthleteId]=useState("");
   const [parentJoinCode,setParentJoinCode]=useState("");
+  const [parentCoachConsent,setParentCoachConsent]=useState(false);
   const [parentConnectionCode,setParentConnectionCode]=useState("");
   const [parentSetupMode,setParentSetupMode]=useState<"choose"|"new"|"existing">("choose");
   const [parentConnectionStatuses,setParentConnectionStatuses]=useState<ConnectionStatusRow[]>([]);
@@ -195,6 +230,7 @@ export default function BetaGate(){
   // Player team invite
   const [showPlayerJoinTeam,setShowPlayerJoinTeam]=useState(false);
   const [playerJoinCode,setPlayerJoinCode]=useState("");
+  const [playerCoachConsent,setPlayerCoachConsent]=useState(false);
   const [playerJoinMessage,setPlayerJoinMessage]=useState("");
   const [existingPlayerAccessCode,setExistingPlayerAccessCode]=useState("");
   const [playerAccessMessage,setPlayerAccessMessage]=useState("");
@@ -256,7 +292,9 @@ export default function BetaGate(){
   useEffect(()=>{
     if(!access?.user_id)return;
     try{
-      if(localStorage.getItem(`betaDisclaimerAccepted:${access.user_id}`)!=="1")setShowDisclaimer(true);
+      const noticeAccepted=localStorage.getItem(`betaDisclaimerAccepted:${access.user_id}`)==="1";
+      if(!noticeAccepted)setShowDisclaimer(true);
+      else if(localStorage.getItem(`betaLaunchChecklist:${access.user_id}`)!=="1")setShowLaunchChecklist(true);
     }catch{setShowDisclaimer(true)}
   },[access?.user_id]);
 
@@ -282,6 +320,7 @@ export default function BetaGate(){
       if(error)setMessage(error.message);
       return;
     }
+    if(!privacyAccepted){setMessage("Review and accept the beta privacy notice before creating an account.");return}
     const signupEmail=email.trim();
     const {data,error}=await supabase.auth.signUp({
       email:signupEmail,
@@ -289,7 +328,9 @@ export default function BetaGate(){
       options:{data:{
         display_name:displayName.trim(),
         requested_role:signupRole,
-        player_claim_code:signupRole==="Player"?playerAccessCode.trim().toUpperCase():""
+        player_claim_code:signupRole==="Player"?playerAccessCode.trim().toUpperCase():"",
+        privacy_consent:true,
+        privacy_policy_version:PRIVACY_POLICY_VERSION
       }}
     });
     if(error){
@@ -300,10 +341,12 @@ export default function BetaGate(){
       setSignupComplete({email:signupEmail,role:signupRole});
       setPassword("");
       setPlayerAccessCode("");
+      setPrivacyAccepted(false);
       setMessage("");
       return;
     }
     setPlayerAccessCode("");
+    setPrivacyAccepted(false);
     setMessage("Account created and signed in.");
   };
 
@@ -570,6 +613,7 @@ export default function BetaGate(){
 
   const createParentPlayer=async()=>runConnectionAction("parent-create",async()=>{
     if(!supabase||access?.role!=="Parent"||!childName.trim())return;
+    if(!guardianAttested){setParentMessage("Confirm that you are the Parent or legal guardian and consent to creating this Player account.");return}
     const age=Number(childAge);
     if(!Number.isFinite(age)||age<6||age>99){setParentMessage("Enter a valid Player age from 6 to 99.");return}
     const normalizedName=childName.trim().replace(/\s+/g," ").toLowerCase();
@@ -580,15 +624,17 @@ export default function BetaGate(){
       return;
     }
     setParentMessage("");
-    const {data,error}=await supabase.rpc("parent_create_managed_athlete",{
+    const {data,error}=await supabase.rpc("parent_create_managed_athlete_private",{
       p_name:childName.trim(),
       p_sport:childSport,
       p_age:age,
       p_position:childPosition.trim(),
-      p_team_name:childTeam.trim()
+      p_team_name:childTeam.trim(),
+      p_guardian_attestation:true,
+      p_policy_version:PRIVACY_POLICY_VERSION
     });
     if(error){setParentMessage(cleanConnectionError(error.message));return}
-    setChildName("");setChildAge("");setChildPosition("");setChildTeam("");
+    setChildName("");setChildAge("");setChildPosition("");setChildTeam("");setGuardianAttested(false);
     setParentSetupMode("choose");
     setParentMessage("Player added. This is one Parent-managed athlete record. A Player login or Coach can be connected later without creating another Player.");
     await loadParentPlayers();
@@ -647,6 +693,7 @@ export default function BetaGate(){
 
   const parentJoinTeam=async()=>runConnectionAction("parent-team",async()=>{
     if(!supabase||access?.role!=="Parent"||!parentJoinAthleteId||!parentJoinCode.trim())return;
+    if(!parentCoachConsent){setParentMessage("Confirm Coach access before connecting this Player to the team.");return}
     setParentMessage("");
     const {data,error}=await supabase.rpc("join_team_with_code",{
       p_athlete_id:parentJoinAthleteId,
@@ -654,6 +701,7 @@ export default function BetaGate(){
     });
     if(error){setParentMessage(cleanConnectionError(error.message));return}
     setParentJoinCode("");
+    setParentCoachConsent(false);
     setParentMessage(`Player connected to ${data||"the Coach team"}. The Coach now sees this same athlete workspace.`);
     await loadParentConnectionStatuses();
   });
@@ -718,6 +766,7 @@ export default function BetaGate(){
 
   const playerJoinTeam=async()=>runConnectionAction("player-team",async()=>{
     if(!supabase||access?.role!=="Player"||!selfAthlete||!playerJoinCode.trim())return;
+    if(!playerCoachConsent){setPlayerJoinMessage("Confirm Coach access before joining this team.");return}
     setPlayerJoinMessage("");
     const {data,error}=await supabase.rpc("join_team_with_code",{
       p_athlete_id:selfAthlete.id,
@@ -725,6 +774,7 @@ export default function BetaGate(){
     });
     if(error){setPlayerJoinMessage(cleanConnectionError(error.message));return}
     setPlayerJoinCode("");
+    setPlayerCoachConsent(false);
     setPlayerJoinMessage(`Connected to ${data||"the Coach team"}. Your Coach now sees this same athlete workspace.`);
     await loadPlayerConnectionStatus();
   });
@@ -879,7 +929,7 @@ export default function BetaGate(){
     const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
     return [
       "Beta diagnostic context",
-      "Version: 72.3.95 RC45",
+      "Version: 72.3.97 RC47",
       `Role: ${access?.role||"Unknown"}`,
       `Athlete: ${athlete}`,
       `Sport: ${sport}`,
@@ -904,8 +954,10 @@ export default function BetaGate(){
       workspace_id:selectedCloudWorkspaceId||access.workspace_id,
       user_id:access.user_id,
       category:feedbackType,
+      severity:feedbackSeverity,
+      status:"Open",
       message,
-      app_version:"72.3.95",
+      app_version:"72.3.97",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -927,11 +979,21 @@ export default function BetaGate(){
     if(!supabase||access?.role!=="Admin")return;
     setFeedbackInboxMessage("");
     const {data,error}=await supabase.from("beta_feedback")
-      .select("id,workspace_id,user_id,category,message,app_version,page_url,created_at")
+      .select("id,workspace_id,user_id,category,message,app_version,page_url,severity,status,created_at")
       .order("created_at",{ascending:false})
       .limit(200);
     if(error){setFeedbackInboxMessage(error.message);return}
     setFeedbackInbox((data||[]) as BetaFeedbackRow[]);
+  };
+
+  const loadAdminPrivacyRequests=async()=>{
+    if(!supabase||access?.role!=="Admin")return;
+    const {data,error}=await supabase.from("privacy_requests")
+      .select("id,user_id,athlete_id,request_type,status,details,created_at,updated_at")
+      .order("created_at",{ascending:false})
+      .limit(200);
+    if(error){setAdminMessage(cleanConnectionError(error.message));return}
+    setAdminPrivacyRequests((data||[]) as PrivacyRequestRow[]);
   };
 
   const loadFamilyDiagnostics=async()=>{
@@ -970,6 +1032,7 @@ export default function BetaGate(){
     void loadMembers();
     void loadFeedbackInbox();
     void loadFamilyDiagnostics();
+    void loadAdminPrivacyRequests();
   },[showAdmin]);
 
   useEffect(()=>{
@@ -986,6 +1049,9 @@ export default function BetaGate(){
   const feedbackCategories=["All",...Array.from(new Set(feedbackInbox.map(x=>x.category)))];
   const feedbackReporter=(userId:string)=>members.find(x=>x.user_id===userId);
   const formatFeedbackDate=(value:string)=>new Date(value).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"});
+  const activeMemberTotal=members.filter(x=>x.active).length;
+  const openFeedbackTotal=feedbackInbox.filter(x=>x.status!=="Closed").length;
+  const openPrivacyTotal=adminPrivacyRequests.filter(x=>!["completed","declined"].includes(x.status)).length;
 
   const createInvite=async()=>{
     if(!supabase||access?.role!=="Admin"||!inviteEmail.trim())return;
@@ -1034,6 +1100,107 @@ export default function BetaGate(){
       ?teamMembers.find(x=>x.athlete?.workspace_id===selectedCloudWorkspaceId)?.athlete?.sport
       :undefined;
 
+  const selectedPrivacyAthleteId=
+    access?.role==="Player"?selfAthlete?.id:
+    access?.role==="Parent"?(parentPlayers.find(x=>x.workspace_id===selectedCloudWorkspaceId)?.id||parentManagedAthleteId||parentPlayers[0]?.id):
+    access?.role==="Coach"?(selectedCoachAthleteId||teamMembers.find(x=>x.athlete?.workspace_id===selectedCloudWorkspaceId)?.athlete_id):
+    undefined;
+
+  const loadPrivacyCenter=async()=>{
+    if(!supabase||!access)return;
+    setPrivacyLoading(true);
+    setPrivacyMessage("");
+    try{
+      if(selectedPrivacyAthleteId){
+        const {data,error}=await supabase.rpc("privacy_access_summary",{p_athlete_id:selectedPrivacyAthleteId});
+        if(error)throw error;
+        const row=(Array.isArray(data)?data[0]:data) as PrivacyAccessRow|undefined;
+        setPrivacySummary(row?{...row,parent_count:Number(row.parent_count||0),coach_count:Number(row.coach_count||0),coach_access:Array.isArray(row.coach_access)?row.coach_access:[]}:null);
+      }else setPrivacySummary(null);
+
+      if(access.role!=="Coach"){
+        const {data,error}=await supabase.from("privacy_requests")
+          .select("id,user_id,athlete_id,request_type,status,details,created_at,updated_at")
+          .eq("user_id",access.user_id)
+          .order("created_at",{ascending:false})
+          .limit(25);
+        if(error)throw error;
+        setPrivacyRequests((data||[]) as PrivacyRequestRow[]);
+      }
+    }catch(error){setPrivacyMessage(cleanConnectionError(error instanceof Error?error.message:String(error)))}
+    finally{setPrivacyLoading(false)}
+  };
+
+  const openPrivacyCenter=()=>{
+    setShowPrivacy(true);
+    void loadPrivacyCenter();
+  };
+
+  const acceptBetaNotice=async()=>{
+    if(supabase&&access){
+      const {error}=await supabase.rpc("record_privacy_consent",{
+        p_consent_type:"account_privacy",
+        p_policy_version:PRIVACY_POLICY_VERSION,
+        p_athlete_id:null,
+        p_team_id:null,
+        p_granted:true,
+        p_relationship:access.role
+      });
+      if(error){setPrivacyMessage(cleanConnectionError(error.message));return}
+    }
+    try{localStorage.setItem(`betaDisclaimerAccepted:${access?.user_id}`,"1")}catch{}
+    setShowDisclaimer(false);
+    try{if(localStorage.getItem(`betaLaunchChecklist:${access?.user_id}`)!=="1")setShowLaunchChecklist(true)}catch{}
+  };
+
+  const downloadPrivacyExport=async()=>{
+    if(!supabase||!access||access.role==="Coach")return;
+    setPrivacyMessage("Preparing your privacy export…");
+    try{
+      const workspaceId=selectedCloudWorkspaceId||access.workspace_id;
+      const {data:workspace,error}=await supabase.from("workspace_state").select("data,updated_at").eq("workspace_id",workspaceId).maybeSingle();
+      if(error)throw error;
+      const exportData={
+        exportedAt:new Date().toISOString(),
+        appVersion:"72.3.97 RC47",
+        account:{email:access.email,displayName:access.display_name,role:access.role},
+        athlete:privacySummary,
+        workspace:workspace||null,
+        privacyRequests
+      };
+      const blob=new Blob([JSON.stringify(exportData,null,2)],{type:"application/json"});
+      const url=URL.createObjectURL(blob);
+      const link=document.createElement("a");
+      link.href=url;
+      link.download=`athlete-performance-privacy-export-${new Date().toISOString().slice(0,10)}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      setPrivacyMessage("Export downloaded. It contains app data only—never your password or authentication token.");
+    }catch(error){setPrivacyMessage(cleanConnectionError(error instanceof Error?error.message:String(error)))}
+  };
+
+  const submitPrivacyRequest=async(type:PrivacyRequestRow["request_type"])=>{
+    if(!supabase||!access||access.role==="Coach")return;
+    const label=type==="delete_account"?"delete this account":type==="delete_athlete"?"delete this Player record":"revoke Coach access";
+    if(typeof window!=="undefined"&&!window.confirm(`Submit a request to ${label}? Nothing is deleted immediately; an Admin reviews the request first.`))return;
+    setPrivacyMessage("Submitting privacy request…");
+    const {error}=await supabase.rpc("submit_privacy_request",{
+      p_request_type:type,
+      p_athlete_id:type==="delete_account"?null:(selectedPrivacyAthleteId||null),
+      p_details:type==="revoke_coach_access"?"Please remove current Coach/team access for this Player.":"Submitted from the RC47 Privacy Center."
+    });
+    if(error){setPrivacyMessage(cleanConnectionError(error.message));return}
+    setPrivacyMessage("Request submitted. An Admin can review its status in Beta Readiness.");
+    await loadPrivacyCenter();
+  };
+
+  const updatePrivacyRequestStatus=async(item:PrivacyRequestRow,status:PrivacyRequestRow["status"])=>{
+    if(!supabase||access?.role!=="Admin")return;
+    const {error}=await supabase.from("privacy_requests").update({status,updated_at:new Date().toISOString()}).eq("id",item.id);
+    if(error){setAdminMessage(cleanConnectionError(error.message));return}
+    await loadAdminPrivacyRequests();
+  };
+
   const bridge:BetaBridge|null=useMemo(()=>access&&user?{
     session:{
       role:access.role==="Parent"&&parentPlayerMode?"Player":access.role,
@@ -1054,6 +1221,8 @@ export default function BetaGate(){
     selectCoachRosterAthlete:["Coach","Admin"].includes(access.role)?selectCoachRosterAthlete:undefined,
     onSignOut:signOut,
     openFeedback:()=>openFeedbackWithContext(),
+    openPrivacyCenter,
+    openLaunchChecklist:()=>setShowLaunchChecklist(true),
     openParentPlayers:access.role==="Parent"?()=>{void loadParentPlayers();setParentSetupMode("choose");setShowParentPlayers(true)}:undefined,
     openPlayerJoinTeam:access.role==="Player"?()=>{void loadPlayerConnectionStatus();setShowPlayerJoinTeam(true)}:undefined,
     openCoachTeams:access.role==="Coach"?()=>{setCoachTeamsMode("manage");setShowTeams(true)}:undefined,
@@ -1106,18 +1275,19 @@ export default function BetaGate(){
   </div></div>;
 
   if(!user)return <div className="betaAuthShell"><div className="betaAuthCard">
-    <div className="betaAuthBrand"><span>AP</span><div><small>ATHLETE PERFORMANCE</small><h1>{authMode==="signin"?"Beta sign in":"Create beta account"}</h1><p>Secure accounts with cloud-backed athlete data.</p></div></div>
+    <div className="betaAuthBrand"><span>AP</span><div><small>ATHLETE PERFORMANCE · CLOSED BETA</small><h1>{authMode==="signin"?"Beta sign in":"Activate invited account"}</h1><p>Secure accounts with cloud-backed athlete data.</p></div></div>
     <div className="betaModeSwitch"><button className={authMode==="signin"?"active":""} onClick={()=>{setAuthMode("signin");setMessage("")}}>Sign In</button><button className={authMode==="signup"?"active":""} onClick={()=>{setAuthMode("signup");setMessage("")}}>Create Account</button></div>
 
-    {authMode==="signup"&&<><div className="selfSignupRole"><small>ACCOUNT TYPE</small><div>{(["Player","Parent"] as const).map(r=><button key={r} className={signupRole===r?"active":""} onClick={()=>setSignupRole(r)}><b>{r}</b><span>{r==="Player"?"Create my own athlete account":"Create one Parent account and add multiple players"}</span></button>)}</div><p>Players and Parents can sign up directly. Coach accounts require approval. Only Coaches manage teams and team rosters.</p></div><label>Display name<input value={displayName} onChange={e=>setDisplayName(e.target.value)} placeholder="Name"/></label></>}
+    {authMode==="signup"&&<><div className="closedBetaNotice"><b>Invitation required</b><span>Use the exact email address approved by the Beta Admin. Unapproved accounts remain pending and cannot open athlete data.</span></div><div className="selfSignupRole"><small>ACCOUNT TYPE</small><div>{(["Player","Parent"] as const).map(r=><button key={r} className={signupRole===r?"active":""} onClick={()=>setSignupRole(r)}><b>{r}</b><span>{r==="Player"?"Create my own athlete account":"Create one Parent account and add multiple players"}</span></button>)}</div><p>Choose the role from your invitation. Only Coaches manage teams and team rosters.</p></div><label>Display name<input value={displayName} onChange={e=>setDisplayName(e.target.value)} placeholder="Name"/></label></>}
 
     {authMode==="signup"&&signupRole==="Player"&&<div className="playerAccessSignup"><small>ALREADY ADDED BY A PARENT?</small><b>Link to your existing Player record</b><p>If a Parent already created your Player profile, enter the Player Access Code they gave you. Leave this blank if you are creating a brand-new Player.</p><label>Player Access Code <span>Optional</span><input value={playerAccessCode} onChange={e=>setPlayerAccessCode(e.target.value.toUpperCase())} placeholder="e.g. A1B2C3D4E5"/></label></div>}
     <label>Email<input type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></label>
     <label>Password<input type="password" autoComplete={authMode==="signin"?"current-password":"new-password"} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password"/></label>
+    {authMode==="signup"&&<label className="privacyConsentCheck"><input type="checkbox" checked={privacyAccepted} onChange={e=>setPrivacyAccepted(e.target.checked)}/><span><b>I agree to the beta privacy notice.</b> I understand this app stores athlete and performance information in Supabase, Coach access requires a team-code opt-in, and tracker connections are disabled.</span></label>}
     {message&&<div className="betaMessage">{message}</div>}
     <button className="betaPrimary" onClick={submitAuth}>{authMode==="signin"?"Sign In":"Create Account"}</button>
     {authMode==="signin"&&<button type="button" className="betaRecoveryLink" onClick={sendPasswordReset}>Forgot password?</button>}
-    <small className="betaFinePrint">Parents can add multiple players after signing in. Coaches can create teams and send player invite codes.</small>
+    <small className="betaFinePrint">Parents can add multiple players after signing in. Junior Players require a Parent/guardian attestation. This workflow supports privacy compliance but is not legal certification.</small>
   </div></div>;
 
   if(!access||!access.active)return <div className="betaAuthShell"><div className="betaAuthCard">
@@ -1128,7 +1298,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · RC45 · v72.3.95</div>
+    <div className="betaRibbon">CLOSED BETA · RC47 · v72.3.97</div>
     {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
     <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>
@@ -1140,10 +1310,38 @@ export default function BetaGate(){
     {access.role==="Coach"&&selectedAthleteName&&<div className="coachViewingBanner"><small>COACH VIEWING</small><b>{selectedAthleteName}</b><span>Changes are saving to this player's cloud workspace.</span></div>}
 
     {showDisclaimer&&<div className="betaModalOverlay"><div className="betaModalCard">
-      <div className="betaMark">BETA NOTICE</div><h2>Testing version</h2>
-      <p>This is pre-release software. Features may change and occasional bugs or data issues may occur. Only enter athlete information you are authorized to share.</p>
-      <p>Use the Report a Problem button whenever something does not work as expected.</p>
-      <button className="betaPrimary" onClick={()=>{try{localStorage.setItem(`betaDisclaimerAccepted:${access.user_id}`,"1")}catch{}setShowDisclaimer(false)}}>I Understand</button>
+      <div className="betaMark">PRIVACY + BETA NOTICE</div><h2>Before you continue</h2>
+      <p>This is pre-release software. Only enter athlete information you are authorized to share. Parent or guardian permission is required before creating a junior Player.</p>
+      <p>Coach access starts only when a Player or Parent uses a Coach Team Invite Code. Tracker and wearable connections remain disabled.</p>
+      {privacyMessage&&<div className="betaMessage">{privacyMessage}</div>}
+      <button className="betaPrimary" onClick={()=>void acceptBetaNotice()}>Accept & Continue</button>
+    </div></div>}
+
+    {showLaunchChecklist&&!showDisclaimer&&<div className="betaModalOverlay"><div className="betaModalCard betaLaunchChecklist">
+      <div className="sectionHead"><div><small>RC47 CLOSED BETA</small><h2>{access.role} Start Checklist</h2></div><button aria-label="Close checklist" onClick={()=>setShowLaunchChecklist(false)}>×</button></div>
+      <p>Use this short checklist before entering real athlete information.</p>
+      <div className="launchChecklistSteps">
+        <div><span>1</span><div><b>Confirm the right account</b><small>Signed in as {access.email} · {access.role}.</small></div></div>
+        {access.role==="Parent"&&<><div><span>2</span><div><b>Add or connect the correct Player</b><small>Create a junior Player only with Parent/guardian authority. Connect an existing Player to avoid duplicates.</small></div></div><div><span>3</span><div><b>Choose Coach access deliberately</b><small>A Team Invite Code grants that Coach access to the Player's app performance workspace.</small></div></div></>}
+        {access.role==="Player"&&<><div><span>2</span><div><b>Complete your Player profile</b><small>If a Parent already created it, use the Player Access Code instead of creating a duplicate.</small></div></div><div><span>3</span><div><b>Review every Coach invite</b><small>Joining a team is your opt-in for that Coach to access your app performance workspace.</small></div></div></>}
+        {access.role==="Coach"&&<><div><span>2</span><div><b>Create your team</b><small>Send the Team Invite Code; never create a Player record on an athlete's behalf.</small></div></div><div><span>3</span><div><b>Wait for Player/Parent opt-in</b><small>The athlete appears only after the Player or Parent accepts the team connection.</small></div></div></>}
+        {access.role==="Admin"&&<><div><span>2</span><div><b>Approve invited emails</b><small>RC47 registration is email-approved for every role.</small></div></div><div><span>3</span><div><b>Watch privacy requests</b><small>Review export, deletion, and Coach-access requests in Beta Readiness.</small></div></div></>}
+        <div><span>4</span><div><b>Report beta issues</b><small>Use Report a Problem. Tracker and wearable connectivity remains disabled.</small></div></div>
+      </div>
+      <div className="launchChecklistActions"><button onClick={()=>{setShowLaunchChecklist(false);openPrivacyCenter()}}>Open Privacy Center</button><button className="betaPrimary" onClick={()=>{try{localStorage.setItem(`betaLaunchChecklist:${access.user_id}`,"1")}catch{}setShowLaunchChecklist(false)}}>Start Using App</button></div>
+    </div></div>}
+
+    {showPrivacy&&<div className="betaModalOverlay"><div className="betaAdminCard privacyCenterCard">
+      <div className="sectionHead"><div><small>RC46 PRIVACY CONTROLS</small><h2>Privacy & Account Center</h2></div><button aria-label="Close privacy center" onClick={()=>setShowPrivacy(false)}>×</button></div>
+      <div className="privacyPlainLanguage"><b>Your data, in plain language</b><p>Athlete Performance stores information you enter in the app. Wearable and tracker connections are disabled. A Coach can access a Player's app workspace only after the Player or Parent joins that Coach's team with an invite code.</p></div>
+      {privacyLoading?<div className="feedbackEmpty"><b>Loading privacy status…</b><span>Checking account and Coach access.</span></div>:<>
+        <div className="privacyIdentityGrid"><div><small>ACCOUNT</small><b>{access.display_name||access.email}</b><span>{access.role} · {access.email}</span></div><div><small>PLAYER RECORD</small><b>{privacySummary?.display_name||"Not selected"}</b><span>{privacySummary?.athlete_age?`Age ${privacySummary.athlete_age}`:"Choose a Player to see access"}</span></div><div><small>TRACKERS</small><b>Disabled</b><span>No wearable connection routes are installed.</span></div></div>
+        {privacySummary&&<section className="privacyAccessSection"><div className="sectionHead"><div><small>WHO CAN ACCESS THIS PLAYER</small><h3>{privacySummary.display_name}</h3></div><button onClick={()=>void loadPrivacyCenter()}>Refresh</button></div><div className="privacyAccessCounts"><div><b>{privacySummary.parent_count}</b><span>linked Parent{privacySummary.parent_count===1?"":"s"}</span></div><div><b>{privacySummary.coach_count}</b><span>connected Coach{privacySummary.coach_count===1?"":"es"}</span></div></div>{privacySummary.coach_access.length?<div className="privacyCoachList">{privacySummary.coach_access.map(item=><div key={item.team_id}><div><b>{item.coach_name}</b><span>{item.team_name}</span></div><small>Connected by Team Invite Code</small></div>)}</div>:<div className="privacyNoCoach"><b>No Coach access</b><span>This Player has not joined a Coach team.</span></div>}</section>}
+        {access.role!=="Coach"&&<section className="privacyActionsSection"><div className="settingLabel"><b>Data choices & requests</b><span>Exports download immediately. Deletion and access-removal requests are reviewed before anything changes.</span></div><div className="privacyActionGrid"><button className="betaPrimary" onClick={()=>void downloadPrivacyExport()}>Download My Data</button><button disabled={!selectedPrivacyAthleteId||!privacySummary?.coach_count} onClick={()=>void submitPrivacyRequest("revoke_coach_access")}>Request Coach Access Removal</button><button disabled={!selectedPrivacyAthleteId} onClick={()=>void submitPrivacyRequest("delete_athlete")}>Request Player Deletion</button><button className="privacyDanger" onClick={()=>void submitPrivacyRequest("delete_account")}>Request Account Deletion</button></div></section>}
+        {access.role!=="Coach"&&privacyRequests.length>0&&<section className="privacyRequestHistory"><small>MY REQUESTS</small>{privacyRequests.map(item=><div key={item.id}><span>{item.request_type.replaceAll("_"," ")}</span><b>{item.status.replaceAll("_"," ")}</b><time>{new Date(item.created_at).toLocaleDateString()}</time></div>)}</section>}
+      </>}
+      {privacyMessage&&<div className="betaMessage">{privacyMessage}</div>}
+      <div className="privacyCenterFooter"><span>Policy version {PRIVACY_POLICY_VERSION} · This is a product control, not legal advice.</span><button className="betaPrimary" onClick={()=>setShowPrivacy(false)}>Done</button></div>
     </div></div>}
 
     {showParentPlayers&&access.role==="Parent"&&<div className="betaModalOverlay"><div className="betaAdminCard parentFamilyCard connectionSetupCard">
@@ -1171,7 +1369,8 @@ export default function BetaGate(){
         <label>Sport<select value={childSport} onChange={e=>setChildSport(e.target.value)}>{sports.map(x=><option key={x}>{x}</option>)}</select></label>
         <label>Position<input value={childPosition} onChange={e=>setChildPosition(e.target.value)} placeholder="Optional"/></label>
         <label>Team<input value={childTeam} onChange={e=>setChildTeam(e.target.value)} placeholder="Optional"/></label>
-        <button className="betaPrimary" disabled={!!connectionAction||!childName.trim()} onClick={createParentPlayer}>{connectionAction==="parent-create"?"Creating…":"Create Parent-Managed Player"}</button>
+        <label className="privacyConsentCheck"><input type="checkbox" checked={guardianAttested} onChange={e=>setGuardianAttested(e.target.checked)}/><span><b>I am this Player's Parent or legal guardian.</b> I consent to creating and managing this junior Player account and understand I can request export or deletion from the Privacy Center.</span></label>
+        <button className="betaPrimary" disabled={!!connectionAction||!childName.trim()||!guardianAttested} onClick={createParentPlayer}>{connectionAction==="parent-create"?"Creating…":"Create Parent-Managed Player"}</button>
       </div>}
 
       {parentSetupMode==="existing"&&<div className="familyConnectExisting connectionExistingPanel">
@@ -1210,7 +1409,8 @@ export default function BetaGate(){
         <div><small>COACH CONNECTION</small><h3>Connect a Player to a Coach's Team</h3><p>The Coach sends a Team Invite Code. Select the existing Player below so the Coach is linked to that same athlete record.</p></div>
         <label>Player<select value={parentJoinAthleteId} onChange={e=>setParentJoinAthleteId(e.target.value)}>{parentPlayers.map(x=><option key={x.id} value={x.id}>{x.display_name}</option>)}</select></label>
         <label>Team Invite Code<input value={parentJoinCode} onChange={e=>setParentJoinCode(e.target.value.toUpperCase())} placeholder="ABCDEFGH"/></label>
-        <button className="betaPrimary" disabled={!!connectionAction||!parentJoinAthleteId||!parentJoinCode.trim()} onClick={parentJoinTeam}>{connectionAction==="parent-team"?"Connecting…":"Connect to Coach Team"}</button>
+        <label className="privacyConsentCheck"><input type="checkbox" checked={parentCoachConsent} onChange={e=>setParentCoachConsent(e.target.checked)}/><span><b>I approve this Coach connection.</b> The Coach will be able to access this Player's app performance workspace until team membership is removed.</span></label>
+        <button className="betaPrimary" disabled={!!connectionAction||!parentJoinAthleteId||!parentJoinCode.trim()||!parentCoachConsent} onClick={parentJoinTeam}>{connectionAction==="parent-team"?"Connecting…":"Approve & Connect to Coach Team"}</button>
       </div>}
     </div></div>}
 
@@ -1237,8 +1437,9 @@ export default function BetaGate(){
         <div className="playerTeamConnect connectionPrimaryCard">
           <small>COACH TEAM</small><h3>Join a Coach's Team</h3><p>Enter the Team Invite Code your Coach sent you. This connects the Coach to your existing Player record.</p>
           <label>Team Invite Code<input value={playerJoinCode} onChange={e=>setPlayerJoinCode(e.target.value.toUpperCase())} placeholder="ABCDEFGH"/></label>
+          <label className="privacyConsentCheck"><input type="checkbox" checked={playerCoachConsent} onChange={e=>setPlayerCoachConsent(e.target.checked)}/><span><b>I choose to share my app performance workspace with this Coach.</b> I can request access removal from the Privacy Center.</span></label>
           {playerJoinMessage&&<div className="betaMessage">{playerJoinMessage}</div>}
-          <button className="betaPrimary" disabled={!!connectionAction||!playerJoinCode.trim()} onClick={playerJoinTeam}>{connectionAction==="player-team"?"Connecting…":"Join Coach Team"}</button>
+          <button className="betaPrimary" disabled={!!connectionAction||!playerJoinCode.trim()||!playerCoachConsent} onClick={playerJoinTeam}>{connectionAction==="player-team"?"Connecting…":"Approve & Join Coach Team"}</button>
         </div>
       </div>
 
@@ -1322,7 +1523,7 @@ export default function BetaGate(){
 
     {showFeedback&&<div className="betaModalOverlay"><div className="betaModalCard">
       <div className="sectionHead"><div><small>BETA FEEDBACK</small><h2>Report a problem</h2></div><button onClick={()=>setShowFeedback(false)}>×</button></div>
-      <label>Type<select value={feedbackType} onChange={e=>setFeedbackType(e.target.value)}><option>Bug</option><option>Confusing</option><option>Feature Request</option><option>Other</option></select></label>
+      <div className="feedbackClassifyGrid"><label>Type<select value={feedbackType} onChange={e=>setFeedbackType(e.target.value)}><option>Bug</option><option>Confusing</option><option>Privacy / Account</option><option>Accessibility</option><option>Feature Request</option><option>Other</option></select></label><label>Impact<select value={feedbackSeverity} onChange={e=>setFeedbackSeverity(e.target.value)}><option>Low</option><option>Normal</option><option>High</option><option>Blocking</option></select></label></div>
       <label>What happened?<textarea rows={5} value={feedbackBody} onChange={e=>setFeedbackBody(e.target.value)} placeholder="Tell us what you expected and what happened instead."/></label>
       <div className="betaDiagnosticNotice"><b>Automatic beta context will be included</b><span>Version, account role, selected athlete, sport, online/offline status, and page path. No password or authentication token is included.</span></div>
       {feedbackSeed&&<details className="betaFeedbackSeed"><summary>Captured error details</summary><pre>{feedbackSeed}</pre></details>}
@@ -1331,15 +1532,21 @@ export default function BetaGate(){
     </div></div>}
 
     {showAdmin&&access.role==="Admin"&&<div className="betaModalOverlay"><div className="betaAdminCard betaAdminInboxCard">
-      <div className="sectionHead"><div><small>BETA ADMIN</small><h2>{adminSection==="accounts"?"Account Access":adminSection==="family"?"Family & Account Diagnostics":"Beta Feedback Inbox"}</h2></div><button onClick={()=>setShowAdmin(false)}>×</button></div>
+      <div className="sectionHead"><div><small>BETA ADMIN · RC47</small><h2>{adminSection==="readiness"?"Closed Beta Readiness":adminSection==="accounts"?"Account Access":adminSection==="family"?"Family & Account Diagnostics":"Beta Feedback Inbox"}</h2></div><button onClick={()=>setShowAdmin(false)}>×</button></div>
       <div className="betaAdminTabs">
+        <button className={adminSection==="readiness"?"active":""} onClick={()=>{setAdminSection("readiness");void loadAdminPrivacyRequests()}}>Readiness <span>{openPrivacyTotal}</span></button>
         <button className={adminSection==="accounts"?"active":""} onClick={()=>setAdminSection("accounts")}>Accounts</button>
         <button className={adminSection==="family"?"active":""} onClick={()=>setAdminSection("family")}>Family <span>{familyIssueTotal}</span></button>
         <button className={adminSection==="feedback"?"active":""} onClick={()=>{setAdminSection("feedback");void loadFeedbackInbox()}}>Feedback <span>{feedbackInbox.length}</span></button>
       </div>
 
-      {adminSection==="accounts"?<>
-        <p className="coachGroupIntro">Players and Parents self-register. Use Admin approval primarily for Coach and Admin accounts.</p>
+      {adminSection==="readiness"?<div className="betaReadinessPanel">
+        <div className="readinessMetricGrid"><div><small>ACTIVE ACCOUNTS</small><b>{activeMemberTotal}</b><span>{members.length-activeMemberTotal} disabled</span></div><div><small>ATHLETES</small><b>{familyDiagnostics.length}</b><span>{familyIssueTotal} diagnostic issues</span></div><div><small>OPEN FEEDBACK</small><b>{openFeedbackTotal}</b><span>{feedbackInbox.filter(x=>x.severity==="Blocking").length} blocking</span></div><div><small>PRIVACY REQUESTS</small><b>{openPrivacyTotal}</b><span>need review</span></div></div>
+        <div className="readinessGuardrails"><b>Launch guardrails</b><span>✓ Email-approved accounts · ✓ versioned privacy acceptance · ✓ guardian attestation · ✓ Team Invite Coach opt-in · ✓ tracker connectivity disabled</span></div>
+        <div className="sectionHead"><div><small>PRIVACY OPERATIONS</small><h3>Requests requiring Admin review</h3></div><button onClick={()=>void loadAdminPrivacyRequests()}>Refresh</button></div>
+        {adminPrivacyRequests.length===0?<div className="feedbackEmpty"><b>No privacy requests</b><span>Export, deletion, and Coach-access requests will appear here.</span></div>:<div className="privacyAdminList">{adminPrivacyRequests.map(item=>{const requester=feedbackReporter(item.user_id);return <article key={item.id}><div><span className="tag">{item.request_type.replaceAll("_"," ")}</span><b>{requester?.display_name||requester?.email||"Beta member"}</b><small>{new Date(item.created_at).toLocaleString()}</small></div><p>{item.details||"No additional details."}</p><label>Status<select value={item.status} onChange={e=>void updatePrivacyRequestStatus(item,e.target.value as PrivacyRequestRow["status"])}><option value="submitted">Submitted</option><option value="in_review">In review</option><option value="completed">Completed</option><option value="declined">Declined</option></select></label></article>})}</div>}
+      </div>:adminSection==="accounts"?<>
+        <p className="coachGroupIntro">RC47 is email-approved. Approve the exact email for every Player, Parent, Coach, or Admin before they create an account.</p>
         <div className="accountVsAthleteNotice"><span>ACCOUNT ≠ ATHLETE</span><div><b>Accounts shows logins, not every Player record.</b><p>A Parent-managed Junior Player appears in <strong>Family</strong> as an athlete but does not appear in <strong>Accounts</strong> until that Player has their own login. This is expected and does not mean the athlete is missing.</p></div></div>
         <div className="betaInviteGrid">
           <label>Email<input type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="coach@example.com"/></label>
@@ -1395,7 +1602,7 @@ export default function BetaGate(){
         <div className="feedbackInboxToolbar"><div><small>REPORTS</small><b>{filteredFeedback.length} shown · {feedbackInbox.length} total</b></div><div><select aria-label="Filter feedback" value={feedbackFilter} onChange={e=>setFeedbackFilter(e.target.value)}>{feedbackCategories.map(x=><option key={x}>{x}</option>)}</select><button onClick={()=>void loadFeedbackInbox()}>Refresh</button></div></div>
         {feedbackInboxMessage&&<div className="betaMessage">{feedbackInboxMessage}</div>}
         {filteredFeedback.length===0?<div className="feedbackEmpty"><b>No feedback reports yet</b><span>Reports submitted with Report Problem will appear here.</span></div>:<div className="feedbackInboxList">{filteredFeedback.map(item=>{const reporter=feedbackReporter(item.user_id);return <article className="feedbackInboxItem" key={item.id}>
-          <div className="feedbackInboxTop"><div><span className="tag">{item.category}</span><b>{reporter?.display_name||reporter?.email||"Beta tester"}</b></div><time>{formatFeedbackDate(item.created_at)}</time></div>
+          <div className="feedbackInboxTop"><div><span className="tag">{item.category}</span><span className={`feedbackSeverity ${item.severity.toLowerCase()}`}>{item.severity}</span><b>{reporter?.display_name||reporter?.email||"Beta tester"}</b></div><time>{formatFeedbackDate(item.created_at)}</time></div>
           <p>{item.message}</p>
           <div className="feedbackInboxMeta"><span>{reporter?.email||"User ID: "+item.user_id.slice(0,8)+"…"}</span>{item.app_version&&<span>v{item.app_version}</span>}</div>
           {item.page_url&&<a href={item.page_url} target="_blank" rel="noreferrer">Open reported page ↗</a>}
