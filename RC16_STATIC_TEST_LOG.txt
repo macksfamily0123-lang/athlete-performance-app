@@ -1,0 +1,582 @@
+=== scripts/admin-preview-check.mjs ===
+PASS  Persistent Admin Preview bar exists
+PASS  Admin Preview is based on actual Admin role
+PASS  Preview role dropdown remains Admin/Coach/Player/Parent
+PASS  Preview role changes adminView
+PASS  Preview switch returns to Home
+PASS  Persistent bar includes athlete selector
+PASS  Athlete selector changes active athlete
+PASS  Return to Admin button exists
+PASS  Beta Admin remains accessible from preview bar
+PASS  Junior preview is visibly identified
+PASS  Normal context no longer duplicates Admin preview picker
+PASS  Junior CSS explicitly preserves Admin Preview bar
+PASS  Admin Preview bar is sticky
+PASS  Admin Preview mobile layout exists
+PASS  Admin Preview narrow-phone layout exists
+PASS  Junior context bar can still be hidden
+PASS  Junior goal entry retained
+PASS  Junior How Am I Doing retained
+PASS  Junior Back to Today retained
+PASS  Admin role-preview logic retained
+PASS  Migration 007 diagnostics query uses qualified alias
+PASS  Migration 007 no ambiguous lower(display_name)
+PASS  Migration 007 family diagnostics retained
+PASS  Migration 007 safe repair retained
+PASS  Parent scheduling retained
+PASS  Parent competition result retained
+PASS  Shared development communication retained
+PASS  No practice-plan generator
+PASS  RC16 ribbon
+
+PASS: 29/29 persistent Admin Preview checks.
+=== scripts/beta-release-readiness-check.mjs ===
+PASS  Combined version is 72.3.66
+PASS  RC16 ribbon
+PASS  Feedback version is 72.3.66
+PASS  Admin health version is RC16
+PASS  Connection operations have double-submit lock
+PASS  Parent create button disables while busy
+PASS  Parent existing connect disables while busy
+PASS  Player team connect disables while busy
+PASS  Parent team connect disables while busy
+PASS  Friendly invalid Parent code error
+PASS  Friendly invalid Team code error
+PASS  Friendly migration/schema error
+PASS  Friendly network error
+PASS  Parent status refreshes after create
+PASS  Parent status refreshes after team join
+PASS  Player status refreshes after team join
+PASS  Coach status refreshes with roster
+PASS  Parent modal refreshes when opened
+PASS  Player Connections refreshes when opened
+PASS  One canonical athlete message retained
+PASS  No automatic merge in migration
+PASS  Parent RPC role-gated
+PASS  Player RPC role-gated
+PASS  Coach RPC role-gated
+PASS  Coach team ownership enforced
+PASS  No practice plan generator
+PASS  Player-owned goal permission preserved
+PASS  Coach cannot edit Player profile preserved
+PASS  Parent normal writeTraining false preserved
+PASS  Persistent Admin Preview retained
+PASS  Junior More fix retained
+PASS  Junior Goal Entry retained
+PASS  Junior Back to Today retained
+PASS  Cloud retry retained
+PASS  Migration contains no service role key
+PASS  Release check still includes tests and build
+
+PASS: 36/36 combined beta readiness checks.
+=== scripts/coach-invite-check.mjs ===
+PASS  Coach Roster has Invite Player button
+PASS  Coach Roster has Manage Teams button
+PASS  Roster explains Player ownership
+PASS  Invite callback exists in bridge
+PASS  Roster receives invite callback
+PASS  Beta bridge exposes invite mode
+PASS  Teams callback opens manage mode
+PASS  Invite modal has explicit tabs
+PASS  Invite modal selects team
+PASS  Invite code is visible
+PASS  Copy Invite Message exists
+PASS  Copy Code Only exists
+PASS  Invite message uses beta origin
+PASS  Invite explains Join Team
+PASS  Invite preserves Player ownership
+PASS  No fake email send button
+PASS  Joined roster is visible
+PASS  Manage mode can regenerate code
+PASS  Coach Help contains invite guidance
+PASS  Coach setup points to Roster
+
+PASS: 20/20 Coach invite checks.
+=== scripts/commercial-hockey-ui-check.mjs ===
+PASS  Phase version is 72.3.66
+PASS  RC16 ribbon
+PASS  Player Profile has photo field
+PASS  Mobile photo resize helper
+PASS  Profile photo picker
+PASS  Home avatar uses Player photo
+PASS  Roster uses Player photos
+PASS  Parent My Players loads photos
+PASS  Fallback hockey avatar
+PASS  Recognizable hockey hero asset
+PASS  Commercial accent palette
+PASS  Commercial rink hero used
+PASS  Bright Start Today action
+PASS  Commercial More sheet
+PASS  Player More fix retained
+PASS  Junior mode retained
+PASS  Cloud test athletes retained
+PASS  Migration 009 retained
+PASS  No Phase 72.3.65 source marker
+
+PASS: 19/19 Commercial Hockey UI / Player Photo checks.
+=== scripts/connection-setup-check.mjs ===
+PASS  Parent setup separates create vs connect
+PASS  Parent one-athlete warning
+PASS  Parent frontend duplicate preflight
+PASS  Parent database duplicate guard
+PASS  Duplicate guard is scoped to signed-in Parent
+PASS  Duplicate guard does not merge athletes
+PASS  Parent connection status RPC
+PASS  Player connection status RPC
+PASS  Coach team connection status RPC
+PASS  Connection RPCs are authenticated only
+PASS  Connection status returns relationship counts only
+PASS  Parent Player cards show login status
+PASS  Parent Player cards show Parent status
+PASS  Parent Player cards show Coach status
+PASS  Player Connections summary
+PASS  Player Parent next step
+PASS  Player Coach next step
+PASS  Player Parent invite explains existing record
+PASS  Player team join explains same workspace
+PASS  Parent team join explains same workspace
+PASS  Parent-created Player recovery is secondary
+PASS  Coach invite says connect existing Player
+PASS  Coach roster shows Player login status
+PASS  Coach roster shows Parent connection status
+PASS  Admin Accounts explains login vs athlete
+PASS  Admin Family explains healthy relationships
+PASS  Admin Family guidance helper
+PASS  Admin Family View Athlete
+PASS  Connection UI has mobile layout
+PASS  Connection chips use project green
+PASS  No blue/purple connection styling
+PASS  Migration 008 reloads schema
+
+PASS: 32/32 connection & account setup checks.
+=== scripts/family-junior-check.mjs ===
+PASS  Migration 005 exists
+PASS  Athlete account-management field
+PASS  Athlete age field
+PASS  Unique Player Access Code
+PASS  Parent creates managed athlete
+PASS  Parent-managed athlete links to Parent
+PASS  Parent-managed save RPC
+PASS  Managed save preserves formal development
+PASS  Managed save only merges Player reflections
+PASS  Managed save does not merge practice observations
+PASS  Player can claim existing record
+PASS  Claim refuses connected duplicate
+PASS  Claim refuses developed duplicate
+PASS  Signup trigger accepts claim code
+PASS  Privileged Coach/Admin invite precedence
+PASS  Claim links same athlete workspace
+PASS  Parent access survives Player claim
+PASS  New Parent Player requires age
+PASS  My Players shows management status
+PASS  Parent can open managed Player
+PASS  Junior mode label is automatic age 10 and under
+PASS  Parent can give Player login later
+PASS  Player signup has optional access code
+PASS  Existing Player can link record
+PASS  Parent managed save uses restricted RPC
+PASS  Parent managed session presents Player role
+PASS  Return to Parent workspace exists
+PASS  Junior Player mode calculation
+PASS  Junior Player has simplified bottom nav
+PASS  Junior Player has child-friendly labels
+PASS  Junior Player Home has one-step language
+PASS  Junior Goals simplified
+PASS  Junior readiness uses easy choices
+PASS  Junior readiness still saves normal readiness data
+PASS  Junior mode hides advanced tools via data attribute
+PASS  Coach team-link workflow retained
+PASS  One athlete model retained
+PASS  No direct-email fiction added
+PASS  Migration grants only intended family RPCs
+PASS  Private claim-code generator not granted
+PASS  RC16 ribbon
+
+PASS: 41/41 family/junior checks.
+=== scripts/family-reliability-check.mjs ===
+PASS  Migration 007 exists
+PASS  Parent Connection Code column added
+PASS  Parent Connection Code unique index
+PASS  Private Parent code generator
+PASS  Player can rotate Parent Connection Code
+PASS  Player-code RPC requires Player
+PASS  Parent can link existing Player
+PASS  Parent-link RPC requires Parent
+PASS  Parent linking keeps Player management
+PASS  Parent link uses same athlete record
+PASS  Parent link expires one-time code
+PASS  No automatic athlete merge added
+PASS  Player Connections has Invite Parent
+PASS  Player calls parent-link code RPC
+PASS  Player invite explains same athlete record
+PASS  Parent My Players has Connect Existing Player
+PASS  Parent calls existing-player link RPC
+PASS  Parent refreshes My Players after link
+PASS  Admin Family tab exists
+PASS  Admin family diagnostic RPC exists
+PASS  Admin diagnostic RPC requires Admin
+PASS  Diagnostics report Player login
+PASS  Diagnostics report Parent count
+PASS  Diagnostics report Coach count
+PASS  Diagnostics report team count
+PASS  Diagnostics report workspace state
+PASS  Diagnostics report workspace mismatch
+PASS  Diagnostics report stale access code
+PASS  Diagnostics flag manual-review workspace duplicates
+PASS  Safe Admin repair RPC exists
+PASS  Repair RPC requires Admin
+PASS  Repair can sync Player workspace
+PASS  Repair validates linked user is Player
+PASS  Repair can set Parent-managed conservatively
+PASS  Parent-managed repair requires Parent relation
+PASS  Repair can set Player-managed
+PASS  Repair can clear stale Player code
+PASS  Repair can create missing workspace_state
+PASS  Repair does not delete athlete
+PASS  Repair UI warns no automatic merge
+PASS  Cloud status supports waiting
+PASS  Offline saves queue locally
+PASS  Offline message says changes queued
+PASS  Online retry retained
+PASS  Visible cloud sync notice exists
+PASS  Cloud notice has Retry Now
+PASS  Cloud button shows Saved timestamp
+PASS  Cloud button shows Saving
+PASS  Cloud button shows Waiting
+PASS  Cloud button shows Failed
+PASS  Junior Back to Today route exists
+PASS  Junior context bar hidden
+PASS  Junior controls have 48px touch target
+PASS  Junior inputs avoid mobile zoom
+PASS  Junior bottom nav has larger touch target
+PASS  Junior Parent View remains available
+PASS  Junior advanced header clutter hidden
+PASS  Junior goal entry retained
+PASS  Junior How Am I Doing fix retained
+PASS  Parent workout scheduling retained
+PASS  Parent competition result entry retained
+PASS  Coach Schedule Workout shortcut retained
+PASS  Coach competition result shortcut retained
+PASS  Parent managed Player save retained
+PASS  Parent support save retained
+PASS  Player claim Parent-managed athlete retained
+PASS  Coach team linking retained
+PASS  Shared Development Focus card exists
+PASS  Player sees what am I working on
+PASS  Junior gets simplified shared focus
+PASS  Coach sees what Player needs next
+PASS  Parent sees how can I help this week
+PASS  Coach card preserves no-practice-planning boundary
+PASS  Shared focus is mobile one-column
+PASS  RC16 ribbon
+
+PASS: 75/75 family reliability / beta hardening checks.
+=== scripts/junior-goal-check.mjs ===
+PASS  Junior Goal mode has explicit owner fallback
+PASS  Junior Goal owner can create goals
+PASS  Junior goal card is immediately available
+PASS  Junior goal card uses setup anchor
+PASS  Junior goal has visible text input
+PASS  Junior goal input has accessible label
+PASS  Junior goal has category selector
+PASS  Junior goal has success criteria input
+PASS  Junior goal has optional note
+PASS  Junior goal has Save My Goal action
+PASS  Junior save disabled until goal text exists
+PASS  Junior goal saves as short-term
+PASS  Standard goal button uses safe zero-argument wrapper
+PASS  Goal add accepts explicit type
+PASS  Goal add still requires ownership and title
+PASS  Junior normal goal form is not duplicated
+PASS  Junior mode does not show read-only warning
+PASS  Junior goal fields forced visible
+PASS  Junior goal fields are touch-enabled
+PASS  Junior Save button is forest-green primary
+PASS  Junior mobile layout retained
+PASS  Managed Parent session still presents Player role
+PASS  Managed Parent goal save RPC retained
+PASS  Normal Parent role still cannot create goal
+PASS  Coach still cannot create goal
+PASS  Player still can create goal
+PASS  RC16 ribbon
+
+PASS: 27/27 Junior Goal checks.
+=== scripts/junior-more-check.mjs ===
+PASS  Junior More still lists core secondary features
+PASS  Junior All Features button exists
+PASS  Junior button opens command palette
+PASS  Junior command overlay has dedicated class
+PASS  Junior command palette has dedicated class
+PASS  Junior palette has child-friendly title
+PASS  Junior palette has child-friendly search
+PASS  Junior empty-search state exists
+PASS  Junior quick action Today label
+PASS  Junior quick action My Goal label
+PASS  Junior quick action Training label
+PASS  Junior quick action My Tests label
+PASS  Junior quick action How I'm Doing label
+PASS  Junior quick action How I Feel label
+PASS  Junior quick action My Skills label
+PASS  Junior quick action Games label
+PASS  Junior palette is no longer hidden
+PASS  Advanced Junior tools remain hidden
+PASS  Junior palette explicitly visible
+PASS  Junior overlay explicitly visible
+PASS  Junior feature rows use large touch target
+PASS  Junior search uses 16px text
+PASS  Junior all-features button is green
+PASS  Persistent Admin Preview retained
+PASS  Junior Goal Entry retained
+PASS  Junior How Am I Doing retained
+PASS  Junior Back to Today retained
+PASS  Parent scheduling retained
+PASS  Parent competition result retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+PASS  RC16 ribbon
+
+PASS: 32/32 Junior More / All Features checks.
+=== scripts/player-more-cloud-check.mjs ===
+PASS  Player More explicitly opens More sheet
+PASS  Player More no longer shortcuts directly to Competition
+PASS  More sheet still exposes Search All Features
+PASS  Junior See All My Features retained
+PASS  Junior feature palette retained
+PASS  BetaBridge exposes Admin test athlete creator
+PASS  Roster receives Admin test athlete creator
+PASS  Admin add uses cloud creator when available
+PASS  Cloud test athlete copy explains persistence
+PASS  Cloud test creation success message exists
+PASS  Standalone fallback remains local
+PASS  Roster cloud rows identify persistence
+PASS  BetaGate implements admin_create_test_athlete RPC
+PASS  Admin bridge exposes cloud creator
+PASS  Duplicate test athlete error cleaned
+PASS  Admin Test diagnostics label supported
+PASS  Admin Test diagnostics guidance exists
+PASS  Admin Test player login says not required
+PASS  Migration 009 adds beta_test column
+PASS  Migration 009 Admin role guard
+PASS  Migration 009 creates cloud workspace
+PASS  Migration 009 creates athlete
+PASS  Migration 009 creates workspace state
+PASS  Migration 009 blocks exact test duplicate
+PASS  Migration 009 grants authenticated execution
+PASS  Diagnostics skip missing Player login for test athlete
+PASS  Diagnostics returns Admin Test label
+PASS  Migration reloads PostgREST schema
+PASS  Persistent Admin Preview retained
+PASS  Junior Goal Entry retained
+PASS  Parent connection cleanup retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+PASS  RC16 ribbon
+PASS  Cloud create message styled
+
+PASS: 35/35 Player More / cloud athlete checks.
+=== scripts/premium-ui-check.mjs ===
+PASS  Premium home component exists
+PASS  Premium home rendered only on Home tab
+PASS  Role-aware premium copy exists
+PASS  Player quick actions exist
+PASS  Coach quick actions exist
+PASS  Parent quick actions exist
+PASS  Admin quick actions exist
+PASS  Home metric strip exists
+PASS  Readiness orb exists
+PASS  Root exposes tab for UI targeting
+PASS  Root exposes sport for future art direction
+PASS  Premium visual system CSS block exists
+PASS  Home duplicate page guide hidden
+PASS  Old Home hero hidden under premium home
+PASS  Premium home hero styled
+PASS  Athlete avatar styled
+PASS  Readiness orb uses conic gradient
+PASS  Metric strip is scan-first
+PASS  Quick actions are app launchers
+PASS  Bottom nav is floating dock
+PASS  Navigation sheet is bottom sheet
+PASS  Commercial card treatment retained
+PASS  Motion respects reduced-motion preference
+PASS  Junior Premium Home treatment exists
+PASS  Mobile premium layout exists
+PASS  72.3.63 visual hierarchy retained
+PASS  Player More gateway fix retained
+PASS  Cloud test athlete creator retained
+PASS  Migration 009 retained
+PASS  Persistent Admin Preview retained
+PASS  Junior All Features retained
+PASS  Junior Goal Entry retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+PASS  RC16 ribbon
+
+PASS: 35/35 Premium Performance UI checks.
+=== scripts/regression-check.mjs ===
+PASS  Coach Home 2.0
+PASS  Coach Home review-next
+PASS  Coach Home goal feedback metric
+PASS  Coach Home plan review metric
+PASS  Coach Home observations metric
+PASS  7-step development review
+PASS  Roster Command Center preserved
+PASS  Roster goal-feedback priority
+PASS  Roster plan-review priority
+PASS  Player Simple Mode retained
+PASS  Athlete Development Plan retained
+PASS  Player Progress simplification retained
+PASS  Player Development simplification retained
+PASS  Coach profile read-only retained
+PASS  Player-owned goals retained
+PASS  Admin full access retained
+PASS  Parent support retained
+PASS  Cloud retry retained
+PASS  Coach cloud roster retained
+PASS  Coach setup each login retained
+PASS  Migration 004 retained
+PASS  No practice planner
+PASS  Practice design boundary retained
+PASS  trainingAge fix retained
+PASS  Analytics brace fix retained
+
+PASS: 25/25 regression checks.
+=== scripts/reliability-check.mjs ===
+PASS  Runtime error boundary exists
+PASS  Athlete app is wrapped
+PASS  Crash recovery reload exists
+PASS  Crash report path exists
+PASS  Offline state listener
+PASS  Offline banner
+PASS  Feedback diagnostic context
+PASS  No passwords in diagnostics
+PASS  No auth tokens in diagnostics
+PASS  Feedback app version
+PASS  Feedback diagnostic transparency
+PASS  RC16 ribbon
+PASS  Cloud retry retained
+PASS  Pending cloud save retained
+PASS  Migration 004 retained
+
+PASS: 15/15 reliability checks.
+=== scripts/role-permission-audit.mjs ===
+PASS  central permission matrix
+PASS  Player owns profile
+PASS  Coach cannot edit profile
+PASS  Parent cannot edit profile
+PASS  Admin profile override
+PASS  Player can create goal
+PASS  Coach cannot create goal
+PASS  Parent cannot create goal
+PASS  Coach goal feedback allowed
+PASS  Admin goal override allowed
+PASS  Goals page uses actual-role guard plus Junior Player path
+PASS  Coach goal create UI removed
+PASS  Coach goal feedback UI present
+PASS  Player Daily Check-In allowed
+PASS  Coach Daily Check-In denied
+PASS  Parent Daily Check-In denied
+PASS  Daily save uses permission guard
+PASS  Player Weekly Review allowed
+PASS  Coach Player Weekly denied
+PASS  Parent Player Weekly denied
+PASS  Coach Weekly Review permission
+PASS  Player Coach Review denied
+PASS  Parent Coach Review denied
+PASS  Coach manages Development Plan
+PASS  Player cannot manage Development Plan
+PASS  Parent cannot manage Development Plan
+PASS  Development objectives use role guard
+PASS  Player gets read-only development objective notice
+PASS  Parent cloud write restricted to managed-Player or support RPCs
+PASS  Coach cloud save preserves Player readiness/reviews
+PASS  Admin full cloud access retained
+PASS  Admin Coach review save retained
+PASS  Analytics writes require current real role
+PASS  Analytics formal development action Coach/Admin only
+PASS  Testing write permission centralized
+PASS  Parent may schedule workout support
+PASS  Parent may enter competition result support
+PASS  Parent still cannot broadly write training
+PASS  Parent still cannot broadly write competition
+PASS  Training write permission centralized
+PASS  Competition write permission centralized
+
+PASS: 41/41 role & permission checks.
+=== scripts/shared-support-check.mjs ===
+PASS  Junior progress button is explicit primary action
+PASS  Junior progress button opens Analytics
+PASS  Junior progress button is pointer-enabled
+PASS  Junior progress button uses forest theme
+PASS  Narrow schedule permission exists
+PASS  Parent schedule permission allowed
+PASS  Parent competition-result permission allowed
+PASS  Parent broad training write still denied
+PASS  Parent broad competition write still denied
+PASS  Parent Schedule has Schedule Workout card
+PASS  Parent schedule creates Workout
+PASS  Parent schedule receives setWorkouts
+PASS  Root passes setWorkouts to Parent Schedule
+PASS  Parent Competition has score/result card
+PASS  Parent result is factual score-only entry
+PASS  Parent score-only entry has no invented rating
+PASS  Root passes setCompetitions to Parent Competition
+PASS  Parent history labels score-only entries
+PASS  Coach Home exposes Schedule Workout
+PASS  Coach Home exposes competition result
+PASS  Coach already has full training write
+PASS  Coach already has full competition write
+PASS  Migration 006 exists
+PASS  Migration has restricted Parent support RPC
+PASS  RPC requires Parent role
+PASS  RPC requires linked athlete
+PASS  RPC only handles workouts and competitions
+PASS  RPC preserves non-Parent workouts
+PASS  RPC preserves non-Parent competitions
+PASS  RPC only accepts Parent score entries
+PASS  RPC does not grant unrestricted workspace policy
+PASS  BetaGate uses support RPC in Parent view
+PASS  Managed Junior Player RPC is still retained
+PASS  Score-only results excluded from Player progress ratings
+PASS  Score-only results excluded from Home performance rating
+PASS  Score-only results excluded from Analytics rating
+PASS  Score-only results excluded from Reports rating
+PASS  Competition history shows result instead of 0/10
+PASS  Coach/Parent help mentions scheduling
+PASS  Parent help mentions competition score
+PASS  No practice-plan generator added
+PASS  RC16 ribbon
+
+PASS: 42/42 Junior/shared-support checks.
+=== scripts/visual-hierarchy-check.mjs ===
+PASS  RC16 ribbon
+PASS  Page guide title scale increased
+PASS  Page guide purpose remains readable
+PASS  Page guide action is compact pill
+PASS  Role orientation accent retained
+PASS  Hero title uses strong scale
+PASS  Card headings increased
+PASS  Body copy uses readable 13px scale
+PASS  Forms use 15px desktop text
+PASS  Forms use 16px mobile text
+PASS  Primary actions use readable 13px
+PASS  Metrics use large numeric scale
+PASS  Navigation has stronger active contrast
+PASS  Navigation labels are readable
+PASS  Nav sheets use larger feature labels
+PASS  Nested cards visually recede
+PASS  Advanced tools visually subordinate
+PASS  Junior page title is larger
+PASS  Global page help copy shortened
+PASS  Player page copy shortened
+PASS  Junior page copy shortened
+PASS  Parent page copy shortened
+PASS  Player More gateway fix retained
+PASS  Cloud test athlete bridge retained
+PASS  Migration 009 retained
+PASS  Persistent Admin Preview retained
+PASS  Junior All Features fix retained
+PASS  Junior Goal Entry retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+
+PASS: 30/30 visual hierarchy / navigation checks.

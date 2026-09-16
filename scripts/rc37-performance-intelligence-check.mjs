@@ -3,7 +3,7 @@ const app=fs.readFileSync('components/AthleteApp.tsx','utf8');
 const css=fs.readFileSync('app/globals.css','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const checks=[
- ['version is 72.3.89',pkg.version==='72.3.92'],
+ ['version is 72.3.89',pkg.version==='72.3.95'],
  ['performance intelligence surface exists',app.includes('className="performanceIntelligence"')],
  ['performance index calculation exists',app.includes('const intelligenceScore=Math.round')],
  ['readiness can drive recovery-first guidance',app.includes('"Recovery-first plan"')],

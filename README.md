@@ -1,4 +1,10 @@
-# Athlete Performance App — Phase 72.3.88 RC38
+# Athlete Performance App — Phase 72.3.95 RC45
+
+## RC45 — Tracker connectivity removed for now
+
+This safety release removes all tracker connection, sync, imported-data display, and Coach tracker-sharing entry points from Player, Parent, Coach, and Admin experiences. The tracker API routes and provider connection/sync modules are removed.
+
+No tracker provider credentials are required. Historical migrations 010, 011, and 012 remain in the package only to preserve databases where they were already applied; do not roll them back or delete existing rows manually. Manual testing, readiness, workouts, goals, analytics, Supabase, roles, Junior mode, photos, cloud test athletes, and all unrelated functionality remain available.
 
 
 ## RC42 — Clear Tracker Connection Center

@@ -181,3 +181,13 @@ Admin test athletes are cloud-persistent sandbox athletes. They do not automatic
 
 ## Migration 010 — Connected Trackers
 Run `010_connected_trackers_player_parent_only.sql` after migration 009. It creates server-only OAuth connection storage plus Player/Parent-readable normalized tracker metrics. Coach and Admin are explicitly denied tracker-data access.
+
+## Migration 011 — Google Health / Fitbit
+
+Run `011_google_health_fitbit_migration.sql` after migration 010. It adds the `google-health` provider while preserving legacy `fitbit` rows.
+
+## Migration 012 — KINEXON + opt-in Coach sharing
+
+Run `012_kinexon_opt_in_coach_sharing.sql` after migration 011. It adds KINEXON as a provider, normalized movement/load columns, and revocable per-Coach category grants.
+
+Migration 010's direct Player/Parent-only tracker policies remain intact. Coaches receive only server-filtered fields after an active grant from the Player or linked Parent. Admin remains blocked.

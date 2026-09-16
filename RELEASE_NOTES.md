@@ -1,3 +1,30 @@
+# Phase 72.3.95 RC45 — Tracker Connectivity Removed
+
+- Removes all tracker connection, setup, sync, imported-data display, and Coach tracker-sharing entry points from the live UI.
+- Removes every `/api/trackers/*` endpoint and the provider connection/sync modules so direct requests cannot connect providers, import data, or expose stored tracker data.
+- Removes Google Health/Fitbit, Oura, WHOOP, Strava, and KINEXON secrets from the environment-variable template.
+- Preserves migrations 010, 011, and 012 and any existing database rows without querying or displaying them.
+- Preserves Supabase, roles and permissions, Junior mode, Player More, cloud test athletes, manual workouts/readiness/testing, goals, analytics, photos, and all unrelated RC44 functionality.
+
+# Phase 72.3.94 RC44 — KINEXON + Opt-in Coach Sharing
+
+- Adds KINEXON as a server-side partner REST API connection for Player and linked Parent accounts.
+- Normalizes KINEXON session duration, distance, heart rate, strain/training load, high-speed distance, sprint distance, maximum speed, accelerations, decelerations, and player load when supplied by the tenant API.
+- Adds a KINEXON athlete-ID linking control. Organization credentials and endpoint details remain server-only.
+- Adds explicit sharing controls for every current Coach connected through a Team.
+- Player or linked Parent can independently select Sleep, Recovery, Workouts, Heart rate, and Movement & load.
+- Sharing is off by default, revocable at any time, and read-only for Coaches.
+- Coach responses are filtered by category on the server. Provider credentials, external athlete IDs, and unselected columns are never returned.
+- Admin remains blocked from tracker data.
+- Adds migration 012. Migrations 010 and 011 are preserved unchanged.
+- Preserves Google Health/Fitbit, Oura, WHOOP, Strava, Garmin-ready architecture, Apple Health/Health Connect future bridges, Supabase, roles, Junior mode, and all RC43 functionality.
+
+# Phase 72.3.93 RC43 — Dedicated Tracker Setup Flow
+
+- Moves tracker authorization into a dedicated full-screen setup flow with clear connection actions.
+- Preserves the RC42 discovery points on Home, Recovery, and Settings.
+- No database change; migrations 010 and 011 remain the required tracker migrations for RC43.
+
 # Phase 72.3.92 RC42 — Clear Tracker Connection Center
 
 - Adds a large primary **Connect Google Health** action at the top of Connected Trackers.

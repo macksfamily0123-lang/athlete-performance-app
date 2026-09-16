@@ -172,6 +172,7 @@ export default function BetaGate(){
 
   const [selectedCloudWorkspaceId,setSelectedCloudWorkspaceId]=useState("");
   const [selectedAthleteName,setSelectedAthleteName]=useState("");
+  const [selectedCoachAthleteId,setSelectedCoachAthleteId]=useState("");
 
   // Parent-managed players
   const [showParentPlayers,setShowParentPlayers]=useState(false);
@@ -500,11 +501,11 @@ export default function BetaGate(){
     if(!access||!["Coach","Admin"].includes(access.role))return;
     const athlete=access.role==="Coach"?teamMembers.find(x=>x.athlete?.workspace_id===workspaceId)?.athlete:null;
     setSelectedCloudWorkspaceId(workspaceId);
-    if(athlete?.display_name)setSelectedAthleteName(athlete.display_name);
+    if(athlete?.display_name){setSelectedAthleteName(athlete.display_name);setSelectedCoachAthleteId(athlete.id)}
     else{
       void loadCoachRosterStates().then(rows=>{
         const found=rows.find((x:any)=>x.workspaceId===workspaceId);
-        if(found?.name)setSelectedAthleteName(found.name);
+        if(found?.name){setSelectedAthleteName(found.name);setSelectedCoachAthleteId(found.athleteId)}
       }).catch(()=>{});
     }
   };
@@ -843,6 +844,7 @@ export default function BetaGate(){
     if(access?.role!=="Coach"||!member.athlete)return;
     setSelectedCloudWorkspaceId(member.athlete.workspace_id);
     setSelectedAthleteName(member.athlete.display_name);
+    setSelectedCoachAthleteId(member.athlete.id);
     setShowTeams(false);
   };
 
@@ -853,6 +855,7 @@ export default function BetaGate(){
     if(member.athlete?.workspace_id===selectedCloudWorkspaceId){
       setSelectedCloudWorkspaceId(access.workspace_id);
       setSelectedAthleteName("");
+      setSelectedCoachAthleteId("");
     }
     await loadTeamMembers(selectedTeamId);
   };
@@ -861,6 +864,7 @@ export default function BetaGate(){
     if(!access)return;
     setSelectedCloudWorkspaceId(access.workspace_id);
     setSelectedAthleteName("");
+    setSelectedCoachAthleteId("");
   };
 
   useEffect(()=>{
@@ -875,7 +879,7 @@ export default function BetaGate(){
     const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
     return [
       "Beta diagnostic context",
-      "Version: 72.3.93 RC43",
+      "Version: 72.3.95 RC45",
       `Role: ${access?.role||"Unknown"}`,
       `Athlete: ${athlete}`,
       `Sport: ${sport}`,
@@ -901,7 +905,7 @@ export default function BetaGate(){
       user_id:access.user_id,
       category:feedbackType,
       message,
-      app_version:"72.3.93",
+      app_version:"72.3.95",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -1062,11 +1066,11 @@ export default function BetaGate(){
     returnToParentWorkspace:access.role==="Parent"&&parentPlayerMode?returnToParentWorkspace:undefined,
     selectedAthleteName,
     selectedAthleteSport,
-    trackerAthleteId:access.role==="Player"?(selfAthlete?.id||undefined):access.role==="Parent"?(parentPlayers.find(x=>x.workspace_id===selectedCloudWorkspaceId)?.id||parentManagedAthleteId||parentPlayers[0]?.id||undefined):undefined,
+    trackerAthleteId:access.role==="Player"?(selfAthlete?.id||undefined):access.role==="Parent"?(parentPlayers.find(x=>x.workspace_id===selectedCloudWorkspaceId)?.id||parentManagedAthleteId||parentPlayers[0]?.id||undefined):access.role==="Coach"?(selectedCoachAthleteId||teamMembers.find(x=>x.athlete?.workspace_id===selectedCloudWorkspaceId)?.athlete_id||undefined):undefined,
     saveSharedNotes,
     loadCoachWeeklyReviews,
     saveCoachWeeklyReview:["Coach","Admin"].includes(access.role)?saveCoachWeeklyReview:undefined
-  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,parentPlayerMode,parentManagedAthleteId,selectedAthleteName,selectedAthleteSport,selfAthlete,teamMembers]);
+  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,parentPlayerMode,parentManagedAthleteId,selectedAthleteName,selectedAthleteSport,selectedCoachAthleteId,selfAthlete,teamMembers]);
 
   if(!betaConfigured())return <div className="betaSetupShell"><div className="betaSetupCard">
     <div className="betaMark">BETA</div><h1>Beta backend needs configuration</h1>
@@ -1124,7 +1128,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">BETA · RC43 · v72.3.93</div>
+    <div className="betaRibbon">BETA · RC45 · v72.3.95</div>
     {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
     <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>
