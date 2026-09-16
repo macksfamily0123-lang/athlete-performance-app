@@ -1,4 +1,10 @@
-# Athlete Performance App — Phase 72.3.97 RC47
+# Athlete Performance App — Phase 72.3.98 RC48
+
+## RC48 — Readable Parent Player Creation
+
+The Parent **Create New Player** form now uses large, full-width, 16px controls that remain readable on mobile. The compressed six-column desktop form is replaced by a spacious two-column layout, and small screens use one full-width column. Position is now a sport-specific dropdown and resets automatically when Sport changes, preventing incompatible sport/position combinations.
+
+No new Supabase migration is required. RC47 privacy controls, migration 013, closed-beta access, all existing functionality, and disabled tracker connectivity are preserved.
 
 ## RC47 — Combined RC46 privacy + RC47 closed beta
 

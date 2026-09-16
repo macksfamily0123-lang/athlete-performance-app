@@ -37,7 +37,7 @@ const checks=[
  ["Parent competition result retained", athlete.includes("parentCompetitionResultCard")],
  ["Shared development communication retained", athlete.includes("What does this Player need next?")&&athlete.includes("How can I help this week?")],
  ["No practice-plan generator", !athlete.includes("Generate Practice Plan")&&!athlete.includes("Practice Plan Generator")],
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC47 · v72.3.97")]
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC48 · v72.3.98")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);

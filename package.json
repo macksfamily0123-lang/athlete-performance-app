@@ -1,6 +1,6 @@
 {
   "name": "athlete-performance-app",
-  "version": "72.3.97",
+  "version": "72.3.98",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,7 @@
     "start": "next start",
     "test:roles": "node scripts/role-permission-audit.mjs",
     "test:regression": "node scripts/regression-check.mjs",
-    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:viewport-shell && npm run test:always-active-nav && npm run test:coach-roster-more && npm run test:elite-visual && npm run test:elite-home-goals-recovery && npm run test:professional-athletic && npm run test:photo-framing && npm run test:settings-player-hero && npm run test:text180-role-heroes && npm run test:performance-intelligence && npm run test:beta-hardening && npm run test:tracker-disabled && npm run test:rc47 && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui && npm run test:role-specific-hero",
+    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:viewport-shell && npm run test:always-active-nav && npm run test:coach-roster-more && npm run test:elite-visual && npm run test:elite-home-goals-recovery && npm run test:professional-athletic && npm run test:photo-framing && npm run test:settings-player-hero && npm run test:text180-role-heroes && npm run test:performance-intelligence && npm run test:beta-hardening && npm run test:tracker-disabled && npm run test:rc47 && npm run test:rc48 && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui && npm run test:role-specific-hero",
     "test:typecheck": "tsc --noEmit",
     "release:check": "npm test && npm run build",
     "test:reliability": "node scripts/reliability-check.mjs",
@@ -48,7 +48,8 @@
     "test:performance-intelligence": "node scripts/rc37-performance-intelligence-check.mjs",
     "test:beta-hardening": "node scripts/rc38-beta-hardening-check.mjs",
     "test:tracker-disabled": "node scripts/rc45-tracker-disabled-check.mjs",
-    "test:rc47": "node scripts/rc47-privacy-closed-beta-check.mjs"
+    "test:rc47": "node scripts/rc47-privacy-closed-beta-check.mjs",
+    "test:rc48": "node scripts/rc48-parent-player-form-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",

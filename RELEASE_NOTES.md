@@ -1,3 +1,11 @@
+# Phase 72.3.98 RC48 — Parent Player Form Readability
+
+- Replaces the compressed Create New Player form with readable two-column desktop and single-column mobile layouts.
+- Gives Player name, Age, Sport, Position, and Team controls a minimum 54px height and 16px entry text.
+- Replaces free-text Position with a sport-specific dropdown for all eight supported sports.
+- Clears Position automatically when Sport changes.
+- Requires no new migration and preserves migration 013, RC47 privacy controls, and disabled tracker connectivity.
+
 # Phase 72.3.97 RC47 — Combined RC46 + RC47
 
 - Adds email-approved closed-beta registration for every role.

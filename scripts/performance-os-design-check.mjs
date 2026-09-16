@@ -6,7 +6,7 @@ const pkg=JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url)
 
 const checks=[
  ['Performance OS root class is active', /className="app performanceOS"/.test(app)],
- ['Release version is 72.3.83', pkg.version==='72.3.97'],
+ ['Release version is 72.3.83', pkg.version==='72.3.98'],
  ['Performance OS test script exists', pkg.scripts?.['test:performance-os']==='node scripts/performance-os-design-check.mjs'],
  ['Global cards use sharp geometry', /\.performanceOS \.card[\s\S]*?border-radius:2px!important/.test(css)],
  ['Home hero is hard-edged', /\.performanceOS \.premiumHomeHero\.nativeSportsHero[\s\S]*?border-radius:0!important/.test(css)],

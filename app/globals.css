@@ -9379,3 +9379,36 @@ input:focus,select:focus,textarea:focus{
 .trackerSharingPanel{margin-top:20px;padding-top:2px}.trackerCoachShareList{display:grid;gap:10px}.trackerCoachShareCard{padding:14px;border:1px solid rgba(171,204,193,.15);background:#081513}.trackerCoachShareCard.active{border-color:rgba(70,229,148,.34);box-shadow:inset 3px 0 0 #36dc89}.trackerCoachShareHead{display:flex;align-items:center;justify-content:space-between;gap:14px}.trackerCoachShareHead small{display:block;color:#78948a;font-size:.58rem;letter-spacing:.13em;font-weight:900}.trackerCoachShareHead b{display:block;margin-top:3px;color:#effaf5;font-size:.96rem}.trackerMasterShare{display:flex;align-items:center;gap:8px;color:#b8cbc3;font-size:.75rem;font-weight:850}.trackerMasterShare input,.trackerShareCategoryGrid input{accent-color:#38df8e;width:18px;height:18px}.trackerShareCategoryGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:13px}.trackerShareCategoryGrid label{display:grid;grid-template-columns:20px minmax(0,1fr);gap:9px;align-items:start;padding:11px;border:1px solid rgba(168,199,188,.13);background:#07110f;cursor:pointer}.trackerShareCategoryGrid label.selected{border-color:rgba(69,229,149,.28);background:#0a1c16}.trackerShareCategoryGrid b{display:block;color:#e9f6f0;font-size:.78rem}.trackerShareCategoryGrid small{display:block;margin-top:2px;color:#80978e;font-size:.65rem;line-height:1.35}.trackerShareStatus{margin:10px 0 0!important;color:#88a198!important;font-size:.69rem!important}.trackerNoCoaches{display:grid;gap:4px;margin-top:16px;padding:14px;border:1px dashed rgba(160,194,181,.2);color:#a7bbb3}.trackerNoCoaches b{color:#e6f3ed;font-size:.85rem}.trackerNoCoaches span{font-size:.73rem;line-height:1.45}.trackerPrivacyNote.consent{border-left-color:#a77bf0}.trackerPrivacyNote.consent b{color:#c5a3ff}
 .coachSharedTrackerPanel{display:grid;gap:14px;margin-top:18px}.coachSharedTrackerBanner{padding:16px;border:1px solid rgba(166,122,240,.27);border-left:4px solid #a87cf0;background:linear-gradient(112deg,#17112a,#0a1717 65%)}.coachSharedTrackerBanner small{color:#c2a1fa;font-size:.6rem;letter-spacing:.14em;font-weight:900}.coachSharedTrackerBanner h3{margin:5px 0;color:#f7f2ff;font-size:1.2rem}.coachSharedTrackerBanner p{margin:0;color:#9eacaa;font-size:.76rem;line-height:1.5}.trackerSharedCategoryPills{display:flex;gap:7px;flex-wrap:wrap}.trackerSharedCategoryPills span{padding:6px 9px;border:1px solid rgba(72,224,149,.25);background:#0a2119;color:#7cecaf;font-size:.66rem;font-weight:850}.coachTrackerSnapshot{margin-top:0}.kinexonPerformanceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid rgba(174,135,239,.18);background:#0b1118}.kinexonPerformanceGrid>div{padding:12px;border-right:1px solid rgba(174,135,239,.12);border-bottom:1px solid rgba(174,135,239,.12)}.kinexonPerformanceGrid>div:nth-child(3n){border-right:0}.kinexonPerformanceGrid>div:nth-last-child(-n+3){border-bottom:0}.kinexonPerformanceGrid small{display:block;color:#9483b1;font-size:.57rem;letter-spacing:.12em;font-weight:900}.kinexonPerformanceGrid b{display:block;margin-top:4px;color:#f0e9fb;font-size:.9rem}
 @media(max-width:620px){.kinexonConnectForm{grid-template-columns:1fr}.kinexonConnectForm small{grid-column:auto}.trackerCoachShareHead{align-items:flex-start}.trackerShareCategoryGrid{grid-template-columns:1fr}.kinexonPerformanceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.kinexonPerformanceGrid>div:nth-child(3n){border-right:1px solid rgba(174,135,239,.12)}.kinexonPerformanceGrid>div:nth-child(2n){border-right:0}.kinexonPerformanceGrid>div:nth-last-child(-n+3){border-bottom:1px solid rgba(174,135,239,.12)}.kinexonPerformanceGrid>div:nth-last-child(-n+2){border-bottom:0}}
+
+/* ============================================================
+   Phase 72.3.98 RC48 — Readable Parent Player Creation
+   ============================================================ */
+.connectionCreatePanel.parentPlayerCreate{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:14px!important;padding:18px!important;align-items:stretch!important
+}
+.connectionCreatePanel .connectionPanelIntro,
+.connectionCreatePanel .createPlayerName,
+.connectionCreatePanel .privacyConsentCheck,
+.connectionCreatePanel>.betaPrimary{grid-column:1/-1!important}
+.connectionCreatePanel .createPlayerField{
+ display:flex!important;flex-direction:column;align-items:stretch!important;gap:7px!important;
+ min-width:0;color:#eef7f2;font-size:13px;font-weight:850
+}
+.connectionCreatePanel .createPlayerField input,
+.connectionCreatePanel .createPlayerField select{
+ display:block;width:100%!important;min-width:0!important;min-height:54px!important;
+ padding:12px 14px!important;border:1px solid rgba(183,218,204,.24)!important;
+ border-radius:8px!important;background:#091410!important;color:#f4fbf7!important;
+ font-size:16px!important;line-height:1.25!important
+}
+.connectionCreatePanel .createPlayerField input::placeholder{color:#81968d!important;opacity:1}
+.connectionCreatePanel .createPlayerField input:focus,
+.connectionCreatePanel .createPlayerField select:focus{border-color:#63e6a4!important;box-shadow:0 0 0 3px rgba(69,222,145,.14)!important}
+.connectionCreatePanel>.betaPrimary{width:100%!important;min-height:54px!important;font-size:15px!important}
+@media(max-width:650px){
+ .connectionCreatePanel.parentPlayerCreate{grid-template-columns:1fr!important;gap:12px!important;padding:15px!important}
+ .connectionCreatePanel .connectionPanelIntro,.connectionCreatePanel .createPlayerName,
+ .connectionCreatePanel .privacyConsentCheck,.connectionCreatePanel>.betaPrimary{grid-column:auto!important}
+ .parentFamilyCard{width:calc(100vw - 18px)!important;max-height:94dvh!important;padding:16px!important}
+}

@@ -4,8 +4,8 @@ const css=fs.readFileSync("app/globals.css","utf8");
 const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.97"],
- ["RC24 beta ribbon",beta.includes("CLOSED BETA · RC47 · v72.3.97")],
+ ["RC24 version",pkg.version==="72.3.98"],
+ ["RC24 beta ribbon",beta.includes("CLOSED BETA · RC48 · v72.3.98")],
  ["native sports home architecture",app.includes("nativeSportsHome")&&css.includes("Phase 72.3.74 RC24 — Native Sports App Redesign")],
  ["edge-to-edge mobile hero",css.includes("width:calc(100% + 24px)!important")&&css.includes("margin-left:-12px!important")],
  ["hero separates topline and bottom identity",app.includes("nativeHeroTopline")&&app.includes("nativeHeroBottom")],
