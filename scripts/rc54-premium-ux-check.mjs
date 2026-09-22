@@ -6,10 +6,10 @@ const athlete=read("components/AthleteApp.tsx");
 const beta=read("components/BetaGate.tsx");
 const css=read("app/globals.css");
 const pkg=JSON.parse(read("package.json"));
-const rc54=css.slice(css.indexOf("Phase 72.3.106 RC56 — Premium UX + Dashboard Correction"));
+const rc54=css.slice(css.indexOf("Phase 72.3.107 RC57 — Premium UX + Dashboard Correction"));
 
-check(pkg.version==="72.3.106","release version is Phase 72.3.106");
-check(beta.includes("CLOSED BETA · RC56 · v72.3.106"),"RC54 release ribbon is present");
+check(pkg.version==="72.3.107","release version is Phase 72.3.107");
+check(beta.includes("CLOSED BETA · RC57 · v72.3.107"),"RC54 release ribbon is present");
 check(athlete.includes('aria-label="Athlete performance summary"'),"dashboard exposes one shared performance summary");
 check(athlete.includes('label:"READINESS"')&&athlete.includes('label:"GOAL EXECUTION"')&&athlete.includes('label:"PROGRESS"')&&athlete.includes('label:"TRAINING"'),"all four required dashboard tiles are present");
 check((athlete.match(/className={`rc54PerformanceTile/g)||[]).length===1,"all four dashboard tiles render through the same component template");

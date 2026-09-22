@@ -1,3 +1,14 @@
+# Phase 72.3.107 RC57 — Player Home Safe Content Gutters
+
+- Adds 24px desktop side gutters to the Player Home Progress panel.
+- Adds 24px desktop side gutters to Recovery Tips and its right-side action.
+- Adds 24px desktop side gutters to the Move Forward heading and all four shortcut rows.
+- Uses 14px side gutters on phones to preserve screen space while preventing border collisions.
+- Keeps headings, row numbers, arrows, and action text clear of both panel borders.
+- Preserves RC56 larger Admin Home icons and inset **Open →** actions.
+- Preserves RC55 account connections, Supabase, migrations 010–014, and all existing features.
+- Keeps tracker connectivity disabled. No new database migration is required.
+
 # Phase 72.3.106 RC56 — Larger Admin Home Shortcut Icons
 
 - Enlarges the Admin Home shortcut icon panels to 64px with 36px icon artwork.

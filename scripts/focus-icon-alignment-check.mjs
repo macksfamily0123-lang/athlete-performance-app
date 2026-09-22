@@ -3,7 +3,7 @@ const app=fs.readFileSync("components/AthleteApp.tsx","utf8");
 const css=fs.readFileSync("app/globals.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.106"],
+ ["RC24 version",pkg.version==="72.3.107"],
  ["shared focus icon component exists",app.includes("function PremiumRoleFocusIcon")],
  ["role focus uses shared component",app.includes("<PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/>")],
  ["Player/Admin use solid trend mark",app.includes("premiumRoleFocusSolid")&&app.includes('fill="currentColor"')],

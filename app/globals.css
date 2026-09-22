@@ -10185,7 +10185,7 @@ h2,h3{letter-spacing:-.01em!important}
 }
 
 /* =========================================================
-   Phase 72.3.106 RC56 — Premium UX + Dashboard Correction
+   Phase 72.3.107 RC57 — Premium UX + Dashboard Correction
    One forest / metallic-silver / graphite product language.
    ========================================================= */
 :root,
@@ -10547,7 +10547,7 @@ h2,h3{letter-spacing:-.01em!important}
 }
 
 /* =========================================================
-   Phase 72.3.106 RC56 — Home Connection Center
+   Phase 72.3.107 RC57 — Home Connection Center
    One visible connection entry point and one guided walkthrough.
    ========================================================= */
 .connectionHomeHub{
@@ -10738,4 +10738,41 @@ h2,h3{letter-spacing:-.01em!important}
  .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows .premiumQuickIcon .premiumAppIcon{width:32px!important;height:32px!important}
  .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows b{font-size:16px!important}
  .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows small{font-size:11px!important}
+}
+
+/* =========================================================
+   Phase 72.3.107 RC57 — Player Home safe content gutters
+   Keep copy and actions visibly clear of both panel borders.
+   ========================================================= */
+.app.performanceOS .nativePlayerHome .eliteVisualPerformance.eliteProgressHome{
+ box-sizing:border-box!important;
+ padding:20px 24px!important;
+}
+.app.performanceOS .nativePlayerHome .eliteRecoveryHome{
+ box-sizing:border-box!important;
+ padding:16px 24px!important;
+}
+.app.performanceOS .nativePlayerHome .nativeEditorialSection.eliteActionSection{
+ box-sizing:border-box!important;
+ padding:30px 24px 4px!important;
+}
+.app.performanceOS .nativePlayerHome .eliteProgressHome :is(.eliteProgressHeading,.eliteVisualAction),
+.app.performanceOS .nativePlayerHome .eliteRecoveryHome>strong,
+.app.performanceOS .nativePlayerHome .eliteActionSection :is(.nativeSectionKicker,.nativeActionList){
+ min-width:0!important;
+}
+.app.performanceOS .nativePlayerHome .eliteRecoveryHome>strong,
+.app.performanceOS .nativePlayerHome .eliteActionSection .nativeActionList>button>strong{
+ margin-right:2px!important;
+}
+@media(max-width:700px){
+ .app.performanceOS .nativePlayerHome .eliteVisualPerformance.eliteProgressHome{
+  padding:16px 14px!important;
+ }
+ .app.performanceOS .nativePlayerHome .eliteRecoveryHome{
+  padding:14px!important;
+ }
+ .app.performanceOS .nativePlayerHome .nativeEditorialSection.eliteActionSection{
+  padding:24px 14px 4px!important;
+ }
 }

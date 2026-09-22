@@ -7,8 +7,8 @@ const athlete=read("components/AthleteApp.tsx");
 const css=read("app/globals.css");
 const pkg=JSON.parse(read("package.json"));
 
-check(pkg.version==="72.3.106","release version is Phase 72.3.106");
-check(beta.includes("CLOSED BETA · RC56 · v72.3.106"),"RC54 release ribbon is present");
+check(pkg.version==="72.3.107","release version is Phase 72.3.107");
+check(beta.includes("CLOSED BETA · RC57 · v72.3.107"),"RC54 release ribbon is present");
 check(css.includes("Phase 72.3.101 RC51 — Forest + Silver visual system"),"RC51 visual system remains present");
 check(css.includes("--forest-deep:#03130d")&&css.includes("--forest:#0b3a29"),"dark forest palette is defined");
 check(css.includes("--silver:#aeb8b4")&&css.includes("--silver-sheen:"),"metallic silver palette is defined");

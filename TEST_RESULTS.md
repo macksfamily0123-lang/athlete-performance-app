@@ -1,4 +1,15 @@
-# Phase 72.3.106 RC56 — Admin Home Shortcut Validation
+# Phase 72.3.107 RC57 — Player Home Gutter Validation
+
+- RC57 Player Home gutter checks: passed.
+- Confirmed Progress, Recovery Tips, and Move Forward use 24px desktop side gutters.
+- Confirmed phone layouts use 14px side gutters.
+- Confirmed headings, row numbers, right arrows, and action labels remain inside panel borders.
+- RC56 larger Admin Home icons and inset actions remain preserved.
+- RC55 Home account connections and walkthroughs remain preserved.
+- No database migration added; migrations 010–014 remain preserved.
+- Tracker connectivity remains disabled.
+
+## RC56 compatibility
 
 - RC56 Admin Home launch-row checks: passed.
 - Confirmed icon panels are 64px on desktop and 58px on phones.

@@ -7,7 +7,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const migration=fs.readFileSync('supabase/migrations/009_player_more_cloud_test_athletes.sql');
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.106'],
+ ['version is 72.3.83',pkg.version==='72.3.107'],
  ['RC31 beta ribbon/version references updated',app.includes('72.3.90 RC40')],
  ['new RC31 test registered',pkg.scripts['test:elite-home-goals-recovery']?.includes('elite-home-goals-recovery-check.mjs')],
  ['hero circular pseudo geometry is reset',css.includes('.performanceOS .elitePerformanceHero::before')&&css.includes('border-radius:0!important')&&css.includes('box-shadow:none!important')],

@@ -7,8 +7,8 @@ const app=read("components/AthleteApp.tsx");
 const migration=read("supabase/migrations/013_youth_privacy_closed_beta.sql");
 const pkg=JSON.parse(read("package.json"));
 
-check(pkg.version==="72.3.106","combined release version is Phase 72.3.106");
-check(beta.includes("CLOSED BETA · RC56 · v72.3.106"),"RC47 closed-beta ribbon is present");
+check(pkg.version==="72.3.107","combined release version is Phase 72.3.107");
+check(beta.includes("CLOSED BETA · RC57 · v72.3.107"),"RC47 closed-beta ribbon is present");
 check(beta.includes("Invitation required")&&migration.includes("if inv.email is null then return new"),"new access is email-approved");
 check(beta.includes("privacyAccepted")&&beta.includes("privacy_policy_version"),"signup requires versioned privacy acceptance");
 check(beta.includes("guardianAttested")&&migration.includes("parent_create_managed_athlete_private"),"junior creation requires guardian attestation");

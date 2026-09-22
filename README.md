@@ -1,4 +1,10 @@
-# Athlete Performance App — Phase 72.3.106 RC56
+# Athlete Performance App — Phase 72.3.107 RC57
+
+## RC57 — Player Home Safe Content Gutters
+
+Player Home now keeps text and actions safely inside the Progress, Recovery, and Move Forward panels. Desktop layouts use 24px left/right gutters, while phone layouts use 14px gutters so headings, row numbers, action arrows, and labels never touch the panel borders.
+
+RC56 larger Admin Home icons, RC55 account connections, the RC54 dashboard and premium design, Supabase, migrations 010–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled. RC57 requires no new database migration.
 
 ## RC56 — Larger Home Shortcut Icons + Safe Action Placement
 
