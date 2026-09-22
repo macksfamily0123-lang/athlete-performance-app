@@ -54,7 +54,7 @@ const checks=[
  ["Coach/Parent help mentions scheduling", athlete.includes("How do I schedule a workout?")],
  ["Parent help mentions competition score", athlete.includes("How do I enter a competition score?")],
  ["No practice-plan generator added", !athlete.includes("Generate Practice Plan")&&!athlete.includes("Practice Plan Generator")],
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC57 · v72.3.107")]
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC58 · v72.3.108")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);

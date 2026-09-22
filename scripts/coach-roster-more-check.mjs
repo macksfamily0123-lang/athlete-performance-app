@@ -4,8 +4,8 @@ const css=fs.readFileSync("app/globals.css","utf8");
 const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC31 version",pkg.version==="72.3.107"],
- ["RC31 ribbon",beta.includes("CLOSED BETA · RC57 · v72.3.107")],
+ ["RC31 version",pkg.version==="72.3.108"],
+ ["RC31 ribbon",beta.includes("CLOSED BETA · RC58 · v72.3.108")],
  ["More sheet uses SVG-aware nav icon renderer",athlete.includes("function NavMetaIcon")&&athlete.includes('className="simpleNavChoiceIcon"><NavMetaIcon')],
  ["Roster internal icon name is not rendered as visible text in sheet",!athlete.includes('<span>{navMeta[x]?.icon||"•"}</span>')&&!athlete.includes('<span>{navMeta[a.tab]?.icon||"•"}</span>')],
  ["More choice copy can shrink without overlap",css.includes(".simpleNavChoiceCopy{min-width:0;overflow:hidden}")],

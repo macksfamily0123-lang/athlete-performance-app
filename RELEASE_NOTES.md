@@ -1,11 +1,13 @@
-# Phase 72.3.107 RC57 — Player Home Safe Content Gutters
+# Phase 72.3.108 RC58 — Global Alignment + Consistent Gutters
 
-- Adds 24px desktop side gutters to the Player Home Progress panel.
-- Adds 24px desktop side gutters to Recovery Tips and its right-side action.
-- Adds 24px desktop side gutters to the Move Forward heading and all four shortcut rows.
-- Uses 14px side gutters on phones to preserve screen space while preventing border collisions.
-- Keeps headings, row numbers, arrows, and action text clear of both panel borders.
-- Preserves RC56 larger Admin Home icons and inset **Open →** actions.
+- Establishes one centered 1280px reading rail for every role and page.
+- Aligns the Admin preview bar, active-athlete context, reliability notices, page body, profile sport, page guide, and section navigation to the same horizontal gutter.
+- Uses a responsive 18–28px desktop page gutter and 18–24px bordered-panel inset.
+- Uses a consistent 12px page gutter and 14px panel inset on phones.
+- Aligns hero, card, stat, report, goal, readiness, and development copy across page types.
+- Removes the extra hidden left indent from section headings so titles align with their panel content.
+- Corrects the Goals hero copy that previously touched its left border.
+- Preserves RC57 Player Home safe gutters and RC56 larger Admin Home icons with inset **Open →** actions.
 - Preserves RC55 account connections, Supabase, migrations 010–014, and all existing features.
 - Keeps tracker connectivity disabled. No new database migration is required.
 

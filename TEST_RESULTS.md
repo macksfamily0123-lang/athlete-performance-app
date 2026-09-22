@@ -1,10 +1,18 @@
-# Phase 72.3.107 RC57 — Player Home Gutter Validation
+# Phase 72.3.108 RC58 — Global Alignment Validation
 
-- RC57 Player Home gutter checks: passed.
-- Confirmed Progress, Recovery Tips, and Move Forward use 24px desktop side gutters.
-- Confirmed phone layouts use 14px side gutters.
-- Confirmed headings, row numbers, right arrows, and action labels remain inside panel borders.
-- RC56 larger Admin Home icons and inset actions remain preserved.
+- RC58 global content-rail and gutter checks: passed.
+- Confirmed Player, Parent, Coach, Admin, and Junior pages share one centered reading rail.
+- Confirmed account/context bars and page content use the same horizontal alignment target.
+- Confirmed desktop page gutters scale from 18–28px and panel insets scale from 18–24px.
+- Confirmed phone pages use a 12px outer gutter and 14px panel inset.
+- Confirmed section headings no longer add a second hidden left indent.
+- Confirmed the Goals hero copy is inset from both borders.
+- RC57 Player Home gutters and RC56 larger Admin Home icons remain preserved.
+- Full registered `npm test` regression suite: passed.
+- TypeScript (`tsc --noEmit`): passed.
+- Next.js 15.5.21 optimized production build: passed.
+- Production routes remain `/` and `/_not-found`; no tracker API routes were generated.
+- Build emitted only the existing non-blocking Autoprefixer compatibility warnings for legacy `end` alignment values.
 - RC55 Home account connections and walkthroughs remain preserved.
 - No database migration added; migrations 010–014 remain preserved.
 - Tracker connectivity remains disabled.

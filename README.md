@@ -1,10 +1,12 @@
-# Athlete Performance App — Phase 72.3.107 RC57
+# Athlete Performance App — Phase 72.3.108 RC58
 
-## RC57 — Player Home Safe Content Gutters
+## RC58 — Global Alignment + Consistent Gutters
 
-Player Home now keeps text and actions safely inside the Progress, Recovery, and Move Forward panels. Desktop layouts use 24px left/right gutters, while phone layouts use 14px gutters so headings, row numbers, action arrows, and labels never touch the panel borders.
+Every Player, Parent, Coach, Admin, and Junior page now uses one centered reading rail, one responsive page gutter, and one consistent inset for bordered panels. The Admin preview bar, active-athlete bar, profile sport, page guide, tabs, heroes, cards, stats, and section headings now align instead of drifting between pages.
 
-RC56 larger Admin Home icons, RC55 account connections, the RC54 dashboard and premium design, Supabase, migrations 010–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled. RC57 requires no new database migration.
+Desktop pages use a responsive 18–28px outer gutter and 18–24px panel inset. Phones use a 12px outer gutter and 14px panel inset. The Goals hero no longer places copy against its border, and the extra hidden indentation on section headings has been removed.
+
+RC57 Player Home safe gutters, RC56 larger Admin Home icons, RC55 account connections, the RC54 dashboard and premium design, Supabase, migrations 010–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled. RC58 requires no new database migration.
 
 ## RC56 — Larger Home Shortcut Icons + Safe Action Placement
 

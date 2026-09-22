@@ -1,6 +1,6 @@
-# Phase 72.3.107 RC57 — GitHub and Vercel Deployment
+# Phase 72.3.108 RC58 — GitHub and Vercel Deployment
 
-Run these commands after RC57 passes `npm run release:check` in Codespaces.
+Run these commands after RC58 passes `npm run release:check` in Codespaces.
 
 ## 1. Review the changed files
 
@@ -14,10 +14,10 @@ git status
 git add .
 ```
 
-## 3. Commit RC57
+## 3. Commit RC58
 
 ```bash
-git commit -m "Release Phase 72.3.107 RC57 Player Home gutter repair"
+git commit -m "Release Phase 72.3.108 RC58 global gutter alignment"
 ```
 
 ## 4. Push to GitHub

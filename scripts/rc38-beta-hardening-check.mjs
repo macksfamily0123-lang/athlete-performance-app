@@ -5,8 +5,8 @@ const css=fs.readFileSync('app/globals.css','utf8');
 const sw=fs.readFileSync('public/sw.js','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const checks=[
- ['combined version is 72.3.89',pkg.version==='72.3.107'],
- ['beta ribbon is RC38',beta.includes('CLOSED BETA · RC57 · v72.3.107')],
+ ['combined version is 72.3.89',pkg.version==='72.3.108'],
+ ['beta ribbon is RC38',beta.includes('CLOSED BETA · RC58 · v72.3.108')],
  ['in-app alerts state exists',app.includes('showNotifications')&&app.includes('notificationPrefs')],
  ['alerts are derived from performance data',app.includes('const appNotices=useMemo<InAppNotice[]>')],
  ['cloud save issues can generate alerts',app.includes('Changes are waiting to sync')],
