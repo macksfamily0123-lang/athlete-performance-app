@@ -1,4 +1,10 @@
-# Athlete Performance App — Phase 72.3.105 RC55
+# Athlete Performance App — Phase 72.3.106 RC56
+
+## RC56 — Larger Home Shortcut Icons + Safe Action Placement
+
+The Admin Home shortcut rows now use large 64px forest-and-silver icon panels with 36px icon artwork. The **Open →** action has moved underneath each shortcut description, so it remains clearly visible and can no longer sit against or be clipped by the right border.
+
+The phone layout keeps the icons large at 58px while preserving readable copy and touch spacing. RC55 account connections, the RC54 dashboard and premium design, Supabase, migrations 010–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled. RC56 requires no new database migration.
 
 ## RC55 — Home Account Connections
 

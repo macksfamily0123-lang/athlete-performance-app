@@ -1,6 +1,6 @@
-# Phase 72.3.105 RC55 — GitHub and Vercel Deployment
+# Phase 72.3.106 RC56 — GitHub and Vercel Deployment
 
-Run these commands after RC55 passes `npm run release:check` in Codespaces.
+Run these commands after RC56 passes `npm run release:check` in Codespaces.
 
 ## 1. Review the changed files
 
@@ -14,10 +14,10 @@ git status
 git add .
 ```
 
-## 3. Commit RC55
+## 3. Commit RC56
 
 ```bash
-git commit -m "Release Phase 72.3.105 RC55 account connections"
+git commit -m "Release Phase 72.3.106 RC56 Admin Home icon repair"
 ```
 
 ## 4. Push to GitHub

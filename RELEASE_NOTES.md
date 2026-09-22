@@ -1,3 +1,13 @@
+# Phase 72.3.106 RC56 — Larger Admin Home Shortcut Icons
+
+- Enlarges the Admin Home shortcut icon panels to 64px with 36px icon artwork.
+- Uses forest-green, metallic-silver, and graphite styling for stronger visibility.
+- Moves **Open →** underneath each shortcut description instead of against the right border.
+- Adds a phone layout with 58px icon panels and inset action labels.
+- Preserves RC55 Home account connections and walkthroughs.
+- Preserves Supabase, migrations 010–014, roles, permissions, and all existing features.
+- Keeps tracker connectivity disabled. No new database migration is required.
+
 # Phase 72.3.105 RC55 — Home Account Connections
 
 - Adds a prominent **Connect Accounts** action at the top of Home for Player, Parent, Coach, and Admin accounts.

@@ -10185,7 +10185,7 @@ h2,h3{letter-spacing:-.01em!important}
 }
 
 /* =========================================================
-   Phase 72.3.105 RC55 — Premium UX + Dashboard Correction
+   Phase 72.3.106 RC56 — Premium UX + Dashboard Correction
    One forest / metallic-silver / graphite product language.
    ========================================================= */
 :root,
@@ -10547,7 +10547,7 @@ h2,h3{letter-spacing:-.01em!important}
 }
 
 /* =========================================================
-   Phase 72.3.105 RC55 — Home Connection Center
+   Phase 72.3.106 RC56 — Home Connection Center
    One visible connection entry point and one guided walkthrough.
    ========================================================= */
 .connectionHomeHub{
@@ -10646,4 +10646,96 @@ h2,h3{letter-spacing:-.01em!important}
  .connectionCodeGuide{margin:0 14px 14px}
  .connectionHelpFooter{padding:14px}
  .connectionHelpFooter>div{grid-template-columns:1fr}
+}
+
+/* =========================================================
+   Phase 72.3.106 RC56 — Admin Home launch-row repair
+   Large, visible icons with the action safely inside the copy column.
+   ========================================================= */
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows button{
+ grid-template-columns:72px minmax(0,1fr)!important;
+ min-height:112px!important;
+ gap:18px!important;
+ padding:16px 24px 16px 16px!important;
+ overflow:hidden!important;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows .premiumQuickIcon{
+ position:relative;
+ width:64px!important;
+ height:64px!important;
+ min-width:64px!important;
+ flex-basis:64px!important;
+ display:grid!important;
+ place-items:center!important;
+ border:1px solid var(--rc54-silver-1)!important;
+ background:linear-gradient(145deg,var(--rc54-forest-2),var(--rc54-graphite-3))!important;
+ color:var(--rc54-silver-3)!important;
+ box-shadow:inset 3px 0 0 var(--rc54-forest-4),0 8px 18px rgba(0,0,0,.24)!important;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows .premiumQuickIcon::after{
+ content:"";
+ position:absolute;
+ inset:7px;
+ border:1px solid rgba(215,220,218,.12);
+ pointer-events:none;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows .premiumQuickIcon .premiumAppIcon{
+ width:36px!important;
+ height:36px!important;
+ stroke-width:1.9!important;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows button>div{
+ min-width:0!important;
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ align-content:center!important;
+ justify-items:start!important;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows b{
+ font-size:18px!important;
+ line-height:1.2!important;
+ color:var(--rc54-text)!important;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows small{
+ margin-top:4px!important;
+ font-size:12px!important;
+ line-height:1.4!important;
+ color:var(--rc54-muted)!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows .adminLaunchAction{
+ margin-top:9px!important;
+ padding:6px 11px!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-self:start!important;
+ border:1px solid var(--rc54-silver-1)!important;
+ background:var(--rc54-forest-2)!important;
+ color:var(--rc54-silver-3)!important;
+ font-size:10px!important;
+ line-height:1!important;
+ font-weight:900!important;
+ letter-spacing:.1em!important;
+ text-transform:uppercase!important;
+ white-space:nowrap!important;
+}
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows button:hover .premiumQuickIcon,
+.app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows button:focus-visible .premiumQuickIcon{
+ background:linear-gradient(145deg,var(--rc54-forest-3),var(--rc54-graphite-3))!important;
+ border-color:var(--rc54-silver-2)!important;
+}
+@media(max-width:560px){
+ .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows button{
+  grid-template-columns:62px minmax(0,1fr)!important;
+  min-height:104px!important;
+  gap:13px!important;
+  padding:14px 16px 14px 12px!important;
+ }
+ .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows .premiumQuickIcon{
+  width:58px!important;height:58px!important;min-width:58px!important;flex-basis:58px!important;
+ }
+ .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows .premiumQuickIcon .premiumAppIcon{width:32px!important;height:32px!important}
+ .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows b{font-size:16px!important}
+ .app.performanceOS .nativeAdminCommandList.rc56AdminLaunchRows small{font-size:11px!important}
 }

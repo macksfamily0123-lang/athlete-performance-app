@@ -1,4 +1,15 @@
-# Phase 72.3.105 RC55 — Home Account Connections Validation
+# Phase 72.3.106 RC56 — Admin Home Shortcut Validation
+
+- RC56 Admin Home launch-row checks: passed.
+- Confirmed icon panels are 64px on desktop and 58px on phones.
+- Confirmed the icon artwork is enlarged to 36px on desktop.
+- Confirmed **Open →** is inside the copy column and inset from the right border.
+- Confirmed the former edge-aligned markup is removed.
+- RC55 Home account connections and walkthroughs remain preserved.
+- No database migration added; migrations 010–014 remain preserved.
+- Tracker connectivity remains disabled.
+
+## RC55 compatibility
 
 - RC55 Home connection checks: Player, Parent, Coach, and Admin entry points passed.
 - Confirmed each role opens its existing secure connection workflow.
