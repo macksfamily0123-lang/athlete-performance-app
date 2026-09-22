@@ -1,12 +1,48 @@
-# Athlete Performance App — Phase 72.3.99 RC49
+# Athlete Performance App — Phase 72.3.105 RC55
 
-## RC49 — Parent-managed Junior UX repair
+## RC55 — Larger Admin Icons + Clearer Open Actions
 
-RC49 keeps the Junior Player Mode banner above the fixed navigation so every tab remains visible and tappable. Managed Junior Player mode now keeps **Report Problem** visible and adds a direct **Edit Player** action that opens the Player Profile editor. The Parent **My Players → Coach Connection** Player and Invite Code controls are now full-size, touch-friendly fields on desktop and mobile.
+RC55 enlarges the four Admin shortcut icons and gives them a stronger forest-green, metallic-silver, and graphite instrument treatment. Each icon now sits in a high-contrast 68 px square tile with a larger 34 px symbol. On phones, the icon remains a prominent 60 px tile with a 30 px symbol.
+
+The separate far-right **OPEN** label has been removed. A compact **Open →** action now sits directly below each shortcut description, where it is easier to see and cannot be clipped by the panel edge.
+
+All RC54 dashboard fixes, the three-color premium UX system, Supabase, migrations 010–014, roles and permissions, Junior mode, Player More, cloud test athletes, and all app functionality remain preserved. Tracker connectivity remains disabled.
+
+## RC54 — Premium UX + RC53 Dashboard Correction
+
+RC54 combines the dashboard correction and full premium UX pass in one release. Readiness, Goal Execution, Progress, and Training now use the same square tile structure, spacing, typography, status placement, detail line, and progress rule. Empty Progress shows **NO DATA** and **Add first test result**. Once data exists, dashboard tiles use only **Improving**, **Steady**, or **Needs Attention**. Progress no longer has blue or special one-off styling.
+
+The visual system is restricted to forest green, metallic silver, and graphite. Player, Parent, Coach, Admin, and Junior views now share clearer hierarchy, larger mobile touch targets, consistent buttons, simpler empty states, improved narrow-screen stacking, more readable navigation, and plain-language labels. AI-sounding interface wording was replaced with direct terms such as **Today's Plan**, **Performance Summary**, and **Development Next Step**.
+
+RC50–RC52 fixes, Supabase, migrations 010–014, roles and permissions, Junior mode, Player More, cloud test athletes, photos, testing, analytics, goals, schedules, and all other app features remain preserved. Tracker connectivity remains disabled; tracker API routes and provider server modules are not included.
+
+## RC52 — Premium Performance Product System
+
+RC52 removes the remaining orange, violet, and blue role styling by remapping every legacy visual token to forest green, metallic silver, or graphite. Primary actions are consistently forest green; secondary controls use dark graphite with silver borders; status and role accents stay inside the same restrained palette.
+
+Rounded “bubble” cards have been replaced with architectural performance panels. Cards, forms, dashboards, settings, privacy screens, overlays, banners, and navigation now use square or restrained 1–2 px corners, flatter surfaces, tighter borders, and less decorative glow. Avatars and true circular performance instruments remain circular because their shape communicates function.
+
+The full-width technical navigation, disciplined typography, uppercase instrumentation labels, flat graphite panels, forest action hierarchy, and metallic-silver structural lines are shared by Player, Parent, Coach, Admin, and Junior views.
+
+RC51 and RC50 functionality remains preserved, including the compact Junior banner and reliable **Edit Player** action. Migrations 010–014, Supabase, all roles and permissions, and all existing features remain intact. Tracker connectivity remains disabled.
+
+## RC51 — Forest + Silver visual system
+
+RC51 applies one calm, premium visual language across Player, Parent, Coach, Admin, and Junior experiences. Deep forest-green backgrounds and layered card surfaces replace the flatter charcoal treatment. Metallic-silver borders, highlights, progress finishes, navigation indicators, and key metrics add definition without making the interface visually busy.
+
+Typography now uses stronger weight and contrast for headings, labels, controls, and important values while secondary explanations remain softer. Forms, settings, privacy screens, overlays, navigation, cards, dashboards, and role-specific Home pages all share the same system.
+
+RC50's compact translucent Junior Player Mode banner and reliable **Edit Player** action remain intact. RC49 Report Problem and Coach Connection fixes, RC48 Create Player improvements, RC47 privacy controls, migrations 010–014, Supabase, every role, and all existing functionality remain preserved. Tracker connectivity stays disabled.
+
+## RC50 — Compact Junior banner and reliable Edit Player
+
+RC50 turns the Junior Player Mode banner into a compact translucent 30px strip below the navigation tabs. The portaled Junior navigation is lifted above that strip, keeping every tab visible and tappable without a large green block.
+
+The **Edit Player** header action now closes any open navigation/settings overlays, returns to Home, opens the Player Profile editor after Home mounts, scrolls to it, and uses the visible profile button as a fallback. This replaces the one short timer used by RC49.
 
 Migration 014 permanently carries forward the claim-code repair used to create Parent-managed Players without the unavailable random-byte helper. It is safe to run after migration 013 and does not delete or replace athlete data.
 
-RC48's readable Create Player form, RC47 privacy controls, migrations 010–013, closed-beta access, all existing functionality, and disabled tracker connectivity are preserved.
+RC49's Report Problem and Coach Connection fixes, RC48's readable Create Player form, RC47 privacy controls, migrations 010–014, closed-beta access, all existing functionality, and disabled tracker connectivity are preserved.
 
 ## RC47 — Combined RC46 privacy + RC47 closed beta
 

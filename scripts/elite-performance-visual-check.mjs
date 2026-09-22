@@ -5,7 +5,7 @@ const css=fs.readFileSync('app/globals.css','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.99'],
+ ['version is 72.3.83',pkg.version==='72.3.105'],
  ['RC29 coach roster repair remains',pkg.scripts['test:coach-roster-more']?.includes('coach-roster-more-check.mjs')],
  ['elite visual check registered',pkg.scripts['test:elite-visual']?.includes('elite-performance-visual-check.mjs')],
  ['sparkline component exists',app.includes('function EliteSparkline')],

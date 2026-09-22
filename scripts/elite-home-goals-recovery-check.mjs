@@ -7,11 +7,11 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const migration=fs.readFileSync('supabase/migrations/009_player_more_cloud_test_athletes.sql');
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.99'],
+ ['version is 72.3.83',pkg.version==='72.3.105'],
  ['RC31 beta ribbon/version references updated',app.includes('72.3.90 RC40')],
  ['new RC31 test registered',pkg.scripts['test:elite-home-goals-recovery']?.includes('elite-home-goals-recovery-check.mjs')],
  ['hero circular pseudo geometry is reset',css.includes('.performanceOS .elitePerformanceHero::before')&&css.includes('border-radius:0!important')&&css.includes('box-shadow:none!important')],
- ['Home Progress signal is explicitly labeled',app.includes('<small>PROGRESS</small>')&&app.includes('aria-label="Open Progress"')],
+ ['Home Progress signal is explicitly labeled',app.includes('label:"PROGRESS"')&&app.includes('aria-label="Athlete performance summary"')],
  ['visual Progress action contains explicit Progress text',app.includes('<b>VIEW PROGRESS</b><span>Open analytics ↗</span>')],
  ['recovery tips are computed from readiness',(app.includes('const recoveryTips=latestReadiness?[')||app.includes('const recoveryTips=trackerSleepHours!=null?['))&&app.includes('recoveryHeadline')],
  ['Player Home has prominent Recovery Tips destination',app.includes('className="eliteRecoveryHome"')&&app.includes('RECOVERY TIPS')&&app.includes('OPEN RECOVERY →')],

@@ -6,8 +6,8 @@ const beta=read("components/BetaGate.tsx");
 const css=read("app/globals.css");
 const pkg=JSON.parse(read("package.json"));
 
-check(pkg.version==="72.3.99","release version is Phase 72.3.99");
-check(beta.includes("CLOSED BETA · RC49 · v72.3.99"),"RC49 release ribbon is present");
+check(pkg.version==="72.3.105","release version is Phase 72.3.105");
+check(beta.includes("CLOSED BETA · RC55 · v72.3.105"),"RC55 release ribbon is present");
 check(beta.includes("const sportPositions:Record<string,string[]>"),"Parent creation has sport-specific position data");
 check(beta.includes('Position<select value={childPosition}'),"Position is a dropdown, not a text input");
 check(beta.includes('setChildSport(e.target.value);setChildPosition("")'),"changing sport clears an incompatible position");
@@ -19,4 +19,4 @@ check(css.includes(".connectionCreatePanel.parentPlayerCreate{grid-template-colu
 check(beta.includes("guardianAttested")&&beta.includes("parent_create_managed_athlete_private"),"RC47 guardian consent remains intact");
 check(beta.includes("const TRACKER_CONNECTIVITY_ENABLED=false")||read("components/AthleteApp.tsx").includes("const TRACKER_CONNECTIVITY_ENABLED=false"),"tracker connectivity remains disabled");
 
-console.log("RC49 Parent Player form checks passed.");
+console.log("RC55 Parent Player form checks passed.");

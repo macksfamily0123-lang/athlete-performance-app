@@ -3,7 +3,7 @@ const app=fs.readFileSync(new URL('../components/AthleteApp.tsx', import.meta.ur
 const css=fs.readFileSync(new URL('../app/globals.css', import.meta.url),'utf8');
 const pkg=JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url),'utf8'));
 const checks=[
- ['RC31 version',pkg.version==='72.3.99'],
+ ['RC31 version',pkg.version==='72.3.105'],
  ['React portal is imported',app.includes('import {createPortal} from "react-dom";')],
  ['ViewportPortal helper exists',app.includes('function ViewportPortal')&&app.includes('createPortal(children,document.body)')],
  ['guided setup is portaled',app.includes('{showGuide&&accountSession&&<ViewportPortal><div className="guideOverlay"')],

@@ -1,11 +1,50 @@
-# Phase 72.3.99 RC49 — Parent-managed Junior UX Repair
+# Phase 72.3.105 RC55 — Admin Command Row Polish
 
-- Moves the green Junior Player Mode banner above the fixed navigation and reserves enough page space for both elements.
-- Keeps **Report Problem** available while a Parent is using managed Junior Player mode.
-- Adds a prominent **Edit Player** action that opens and scrolls directly to the Player Profile editor.
-- Enlarges the Parent **Coach Connection** Player selector and Team Invite Code input for mobile and desktop use.
-- Adds migration 014 to preserve the successful Parent Player claim-code generator repair.
-- Preserves the RC48 Create Player form, migrations 010–013, RC47 privacy controls, all existing features, and disabled tracker connectivity.
+- Enlarges Admin shortcut icon tiles from the small legacy treatment to 68 px desktop and 60 px mobile.
+- Enlarges the icon artwork itself to 34 px desktop and 30 px mobile.
+- Adds a higher-contrast forest, graphite, and metallic-silver instrument treatment.
+- Removes the far-right **OPEN** label.
+- Places a compact **Open →** action directly below each shortcut description.
+- Preserves every RC54 dashboard and premium UX fix, Supabase, migrations 010–014, roles, Junior mode, Player More, cloud test athletes, and disabled tracker connectivity.
+
+# Phase 72.3.104 RC54 — Premium UX + RC53 Dashboard Correction
+
+- Makes Readiness, Goal Execution, Progress, and Training visually identical dashboard tiles.
+- Replaces the empty Progress wording with **NO DATA** and **Add first test result**.
+- Uses **Improving**, **Steady**, or **Needs Attention** when tile data exists.
+- Removes blue and one-off Progress styling.
+- Applies forest green, metallic silver, and graphite across every role.
+- Strengthens panel geometry, information hierarchy, spacing, action priority, empty states, navigation, and small-screen behavior.
+- Replaces AI-sounding interface wording with direct, plain-language guidance.
+- Preserves RC50–RC52, Supabase, migrations 010–014, permissions, Junior mode, Player More, cloud test athletes, and all app features.
+- Keeps tracker connectivity disabled and tracker server routes absent.
+
+# Phase 72.3.102 RC52 — Premium Performance Product System
+
+- Removes orange, violet, and blue UI accents from rendered components by neutralizing legacy role and feature tokens.
+- Restricts the visual system to dark forest green, metallic silver, and dark graphite.
+- Replaces rounded bubble cards with square or restrained 1–2 px architectural panels.
+- Replaces floating rounded navigation with a full-width technical navigation rail.
+- Flattens decorative gradients and glow while preserving measured depth and clear interaction states.
+- Standardizes primary actions as forest green and secondary actions as graphite with silver structure.
+- Preserves RC51, RC50, migrations 010–014, Supabase, every role and permission, all existing functionality, and disabled tracker connectivity.
+
+# Phase 72.3.101 RC51 — Forest + Metallic Silver Visual Upgrade
+
+- Introduces a deep forest-green background and layered surface palette across the entire app.
+- Adds restrained metallic-silver borders, highlights, navigation indicators, progress finishes, and key-number treatments.
+- Strengthens headings, labels, buttons, inputs, and important values for easier reading without making every line visually loud.
+- Restyles shared cards, forms, settings, modals, privacy screens, dashboards, bottom navigation, and role-specific Home experiences.
+- Preserves the RC50 compact Junior banner and reliable Edit Player action.
+- Preserves migrations 010–014, Supabase, roles and permissions, all existing functionality, and disabled tracker connectivity.
+
+# Phase 72.3.100 RC50 — Compact Junior Banner + Edit Player Repair
+
+- Replaces the large green Junior Player Mode banner with a compact translucent strip below the navigation tabs.
+- Lifts the portaled Junior navigation above the banner so the two surfaces never overlap.
+- Rebuilds **Edit Player** as a reliable action that works from every Junior tab, opens the profile editor, and scrolls to it.
+- Preserves RC49 Report Problem and Coach Connection fixes.
+- Preserves migration 014, migrations 010–013, the RC48 Create Player form, RC47 privacy controls, all existing features, and disabled tracker connectivity.
 
 # Phase 72.3.97 RC47 — Combined RC46 + RC47
 
