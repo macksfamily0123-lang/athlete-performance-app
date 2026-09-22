@@ -1,10 +1,12 @@
-# Athlete Performance App — Phase 72.3.98 RC48
+# Athlete Performance App — Phase 72.3.99 RC49
 
-## RC48 — Readable Parent Player Creation
+## RC49 — Parent-managed Junior UX repair
 
-The Parent **Create New Player** form now uses large, full-width, 16px controls that remain readable on mobile. The compressed six-column desktop form is replaced by a spacious two-column layout, and small screens use one full-width column. Position is now a sport-specific dropdown and resets automatically when Sport changes, preventing incompatible sport/position combinations.
+RC49 keeps the Junior Player Mode banner above the fixed navigation so every tab remains visible and tappable. Managed Junior Player mode now keeps **Report Problem** visible and adds a direct **Edit Player** action that opens the Player Profile editor. The Parent **My Players → Coach Connection** Player and Invite Code controls are now full-size, touch-friendly fields on desktop and mobile.
 
-No new Supabase migration is required. RC47 privacy controls, migration 013, closed-beta access, all existing functionality, and disabled tracker connectivity are preserved.
+Migration 014 permanently carries forward the claim-code repair used to create Parent-managed Players without the unavailable random-byte helper. It is safe to run after migration 013 and does not delete or replace athlete data.
+
+RC48's readable Create Player form, RC47 privacy controls, migrations 010–013, closed-beta access, all existing functionality, and disabled tracker connectivity are preserved.
 
 ## RC47 — Combined RC46 privacy + RC47 closed beta
 

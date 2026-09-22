@@ -3,7 +3,7 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 import {getSupabase} from "../lib/supabase";
-// Phase 72.3.98 RC48: all external tracker connectivity remains intentionally
+// Phase 72.3.99 RC49: all external tracker connectivity remains intentionally
 // disabled. Keeping the archived types below makes this change reversible,
 // while the false gate prevents tracker UI, loading, syncing, and sharing.
 const TRACKER_CONNECTIVITY_ENABLED=false;
@@ -1165,7 +1165,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.98",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.99",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
@@ -1882,6 +1882,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  return <div className="app performanceOS" data-text-size={textSize} data-role={effectiveRole} data-junior={juniorPlayerMode?"true":"false"} data-tab={tab} data-sport={sport}><a className="skipLink" href="#main-content">Skip to main content</a>
   <header className="appHeader"><div className="brandBlock"><div className="logo hockeyDevLogo">HD</div><div><strong>HOCKEY <em>DEV</em></strong><small>PLAY TODAY. A STRONGER TOMORROW.</small></div>{betaBridge&&<button type="button" className={"cloudStatus cloudStatusButton "+cloudStatus} onClick={()=>{if(cloudStatus==="error"||cloudStatus==="waiting"||pendingCloudSave)void retryPendingCloudSave()}} title={cloudErrorMessage||undefined}>{cloudStatus==="saved"?(cloudLastSavedAt?`Saved ${new Date(cloudLastSavedAt).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:"Cloud ready"):cloudStatus==="loading"?"Saving…":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Save failed · Retry":"Local"}{pendingCloudSave&&<i>{cloudOnline?"Retry copy ready":"Changes queued"}</i>}</button>}</div><div className="headerActions"><span className="accountHeaderRole">{betaBridge?.managedByParent?"Player · Parent Managed":accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span>
    {betaBridge?.returnToParentWorkspace&&<button className="headerUtilityButton parentReturnButton" onClick={betaBridge.returnToParentWorkspace}>← Parent View</button>}
+   {betaBridge?.managedByParent&&<button className="headerUtilityButton managedProfileButton" onClick={()=>{setTab("Home");window.setTimeout(()=>setEditProfileRequest(x=>x+1),80)}}>Edit Player</button>}
    {betaBridge?.openParentPlayers&&accountRole==="Parent"&&<button className="headerUtilityButton" onClick={betaBridge.openParentPlayers}>My Players</button>}
    {betaBridge?.openPlayerJoinTeam&&accountRole==="Player"&&!betaBridge?.managedByParent&&<button className="headerUtilityButton" onClick={betaBridge.openPlayerJoinTeam}>Connections</button>}
    {betaBridge?.openCoachTeams&&accountRole==="Coach"&&<button className="headerUtilityButton" onClick={betaBridge.openCoachTeams}>Teams</button>}
@@ -5918,7 +5919,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.98 RC48","good"],
+  ["App Version","72.3.99 RC49","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],

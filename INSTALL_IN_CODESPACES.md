@@ -1,10 +1,10 @@
-# Phase 72.3.98 RC48 — Parent Player Form Fix
+# Phase 72.3.99 RC49 — Parent-managed Junior UX Repair
 
-This is one full release. It includes the RC48 readable Create Player form plus all RC46/RC47 privacy and closed-beta functionality. Tracker connectivity remains disabled.
+This is one full release. It includes the RC49 Parent-managed Junior fixes, the RC48 readable Create Player form, and all RC46/RC47 privacy and closed-beta functionality. Tracker connectivity remains disabled.
 
 ## Codespaces
 
-1. Upload `athlete-performance-app-phase-72-3-98-RC48-parent-player-form.zip` to the root of your Codespace.
+1. Upload `athlete-performance-app-phase-72-3-99-RC49-parent-managed-junior-ux.zip` to the root of your Codespace.
 
 2. Open the terminal and go to the repository folder.
 
@@ -15,7 +15,7 @@ cd /workspaces/athlete-performance-app
 3. Extract the release over the existing app.
 
 ```bash
-unzip -o athlete-performance-app-phase-72-3-98-RC48-parent-player-form.zip
+unzip -o athlete-performance-app-phase-72-3-99-RC49-parent-managed-junior-ux.zip
 ```
 
 4. Remove the old Next.js build cache.
@@ -36,10 +36,10 @@ npm install
 npm run release:check
 ```
 
-7. If migration 013 already ran for RC47, do not run it again. RC48 has no new database migration. For a fresh database only, print migration 013 and run it after migrations 001–012.
+7. Print migration 014, copy its output, and run it once in the Supabase SQL Editor. The migration is idempotent and matches the repair already proven in the test database.
 
 ```bash
-cat supabase/migrations/013_youth_privacy_closed_beta.sql
+cat supabase/migrations/014_parent_player_claim_code_repair.sql
 ```
 
 8. Start the Codespaces preview.
@@ -65,7 +65,7 @@ git add .
 11. Commit the combined release.
 
 ```bash
-git commit -m "Release Phase 72.3.98 RC48 parent player form"
+git commit -m "Release Phase 72.3.99 RC49 parent managed junior UX"
 ```
 
 12. Push to GitHub. If your Vercel project tracks `main`, this push starts the deployment.
