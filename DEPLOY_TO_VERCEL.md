@@ -1,6 +1,6 @@
-# Phase 72.3.108 RC58 — GitHub and Vercel Deployment
+# Phase 72.3.109 RC59 — GitHub and Vercel Deployment
 
-Run these commands after RC58 passes `npm run release:check` in Codespaces.
+Run these commands after RC59 passes `npm run release:check` in Codespaces.
 
 ## 1. Review the changed files
 
@@ -14,10 +14,10 @@ git status
 git add .
 ```
 
-## 3. Commit RC58
+## 3. Commit RC59
 
 ```bash
-git commit -m "Release Phase 72.3.108 RC58 global gutter alignment"
+git commit -m "Release Phase 72.3.109 RC59 mobile header visibility"
 ```
 
 ## 4. Push to GitHub

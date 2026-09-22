@@ -1,12 +1,12 @@
-# Athlete Performance App — Phase 72.3.108 RC58
+# Athlete Performance App — Phase 72.3.109 RC59
 
-## RC58 — Global Alignment + Consistent Gutters
+## RC59 — Mobile Header Visibility
 
-Every Player, Parent, Coach, Admin, and Junior page now uses one centered reading rail, one responsive page gutter, and one consistent inset for bordered panels. The Admin preview bar, active-athlete bar, profile sport, page guide, tabs, heroes, cards, stats, and section headings now align instead of drifting between pages.
+Phone headers now use a readable multi-row action grid instead of a horizontally clipped button strip. Connections, Teams, Beta Admin, Report Problem, Alerts, Settings, Help, and role-return actions remain fully visible with 42px touch targets and wrapping labels.
 
-Desktop pages use a responsive 18–28px outer gutter and 18–24px panel inset. Phones use a 12px outer gutter and 14px panel inset. The Goals hero no longer places copy against its border, and the extra hidden indentation on section headings has been removed.
+The HD mark is enlarged to a clear 46px square with 16px lettering. On extra-small phones it remains 44px. The phone header and Admin preview controls no longer compete as overlapping sticky bars.
 
-RC57 Player Home safe gutters, RC56 larger Admin Home icons, RC55 account connections, the RC54 dashboard and premium design, Supabase, migrations 010–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled. RC58 requires no new database migration.
+RC58 global alignment and consistent gutters, RC57 Player Home safe gutters, RC56 larger Admin Home icons, RC55 account connections, the RC54 dashboard and premium design, Supabase, migrations 010–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled. RC59 requires no new database migration.
 
 ## RC56 — Larger Home Shortcut Icons + Safe Action Placement
 

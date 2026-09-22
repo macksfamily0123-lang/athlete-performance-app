@@ -1,13 +1,13 @@
-# Phase 72.3.108 RC58 — Global Alignment Validation
+# Phase 72.3.109 RC59 — Mobile Header Validation
 
-- RC58 global content-rail and gutter checks: passed.
-- Confirmed Player, Parent, Coach, Admin, and Junior pages share one centered reading rail.
-- Confirmed account/context bars and page content use the same horizontal alignment target.
-- Confirmed desktop page gutters scale from 18–28px and panel insets scale from 18–24px.
-- Confirmed phone pages use a 12px outer gutter and 14px panel inset.
-- Confirmed section headings no longer add a second hidden left indent.
-- Confirmed the Goals hero copy is inset from both borders.
-- RC57 Player Home gutters and RC56 larger Admin Home icons remain preserved.
+- RC59 mobile-header checks: passed.
+- Confirmed standard phones show all actions in three readable columns.
+- Confirmed extra-small phones show actions in two columns.
+- Confirmed action labels wrap instead of clipping or showing ellipses.
+- Confirmed every phone-header action is at least 42px high.
+- Confirmed the HD logo is 46px with 16px lettering and no clipped shape.
+- Confirmed the Admin preview bar no longer overlaps the phone header.
+- RC58 global alignment, RC57 Player Home gutters, and RC56 larger Admin Home icons remain preserved.
 - Full registered `npm test` regression suite: passed.
 - TypeScript (`tsc --noEmit`): passed.
 - Next.js 15.5.21 optimized production build: passed.

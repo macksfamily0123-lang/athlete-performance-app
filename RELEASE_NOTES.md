@@ -1,13 +1,13 @@
-# Phase 72.3.108 RC58 — Global Alignment + Consistent Gutters
+# Phase 72.3.109 RC59 — Mobile Header Visibility
 
-- Establishes one centered 1280px reading rail for every role and page.
-- Aligns the Admin preview bar, active-athlete context, reliability notices, page body, profile sport, page guide, and section navigation to the same horizontal gutter.
-- Uses a responsive 18–28px desktop page gutter and 18–24px bordered-panel inset.
-- Uses a consistent 12px page gutter and 14px panel inset on phones.
-- Aligns hero, card, stat, report, goal, readiness, and development copy across page types.
-- Removes the extra hidden left indent from section headings so titles align with their panel content.
-- Corrects the Goals hero copy that previously touched its left border.
-- Preserves RC57 Player Home safe gutters and RC56 larger Admin Home icons with inset **Open →** actions.
+- Replaces the clipped horizontal phone-header scroller with a complete action grid.
+- Uses three readable action columns on standard phones and two columns below 380px.
+- Keeps every role-specific header action visible without ellipsis or cropped text.
+- Gives every phone-header action a minimum 42px touch target.
+- Enlarges the HD logo to 46px with 16px lettering and removes the desktop cut-corner mask on phones.
+- Prevents the Admin preview bar from overlapping the app header on mobile.
+- Keeps Admin preview fields and buttons full-width, readable, and at least 44px high.
+- Preserves RC58 global alignment, RC57 Player Home safe gutters, and RC56 larger Admin Home icons with inset **Open →** actions.
 - Preserves RC55 account connections, Supabase, migrations 010–014, and all existing features.
 - Keeps tracker connectivity disabled. No new database migration is required.
 

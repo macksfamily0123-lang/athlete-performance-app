@@ -8,9 +8,9 @@ const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const checks=[];
 const check=(condition,label)=>checks.push({condition:Boolean(condition),label});
 
-check(pkg.version==="72.3.108","release version is Phase 72.3.108");
-check(beta.includes("CLOSED BETA · RC58 · v72.3.108"),"RC58 release ribbon is present");
-check(css.includes("Phase 72.3.108 RC58 — Player Home safe content gutters"),"RC58 gutter layer is installed");
+check(pkg.version==="72.3.109","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC59 · v72.3.109"),"RC59 release ribbon is present");
+check(css.includes("Phase 72.3.109 RC59 — Player Home safe content gutters"),"RC59 gutter layer is installed");
 check(css.includes(".nativePlayerHome .eliteVisualPerformance.eliteProgressHome"),"Progress panel receives a protected gutter");
 check(css.includes("padding:20px 24px!important"),"Progress uses 24px desktop side spacing");
 check(css.includes(".nativePlayerHome .eliteRecoveryHome"),"Recovery panel receives a protected gutter");
@@ -27,4 +27,4 @@ if(failed.length){
  console.error(failed.map(x=>`FAIL: ${x.label}`).join("\n"));
  process.exit(1);
 }
-console.log(`RC58 Player Home gutter checks passed (${checks.length}/${checks.length}).`);
+console.log(`RC59 Player Home gutter checks passed (${checks.length}/${checks.length}).`);

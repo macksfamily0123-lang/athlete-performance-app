@@ -88,7 +88,7 @@ const checks=[
  ["Coach card preserves no-practice-planning boundary", athlete.includes("not a practice-plan generator")],
  ["Shared focus is mobile one-column", css.includes(".sharedFocusGrid{grid-template-columns:1fr}")],
 
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC58 · v72.3.108")]
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC59 · v72.3.109")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);

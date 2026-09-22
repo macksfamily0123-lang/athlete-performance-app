@@ -8,9 +8,9 @@ const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const checks=[];
 const check=(condition,label)=>checks.push({condition:Boolean(condition),label});
 
-check(pkg.version==="72.3.108","release version is Phase 72.3.108");
-check(beta.includes("CLOSED BETA · RC58 · v72.3.108"),"RC58 release ribbon is present");
-check(css.includes("Phase 72.3.108 RC58 — Global content rails and gutters"),"RC58 global gutter layer is installed");
+check(pkg.version==="72.3.109","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC59 · v72.3.109"),"RC59 release ribbon is present");
+check(css.includes("Phase 72.3.109 RC59 — Global content rails and gutters"),"RC59 global gutter layer is installed");
 check(css.includes("--rc58-content-max:1280px"),"one maximum reading width is defined");
 check(css.includes("--rc58-page-gutter:clamp(18px,2.4vw,28px)"),"responsive desktop page gutter is defined");
 check(css.includes("--rc58-panel-gutter:clamp(18px,2vw,24px)"),"responsive panel gutter is defined");
@@ -30,4 +30,4 @@ if(failed.length){
  console.error(failed.map(x=>`FAIL: ${x.label}`).join("\n"));
  process.exit(1);
 }
-console.log(`RC58 global gutter alignment checks passed (${checks.length}/${checks.length}).`);
+console.log(`RC59 global gutter alignment checks passed (${checks.length}/${checks.length}).`);

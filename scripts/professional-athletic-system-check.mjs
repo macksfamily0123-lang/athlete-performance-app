@@ -8,7 +8,7 @@ const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const migration=fs.readFileSync('supabase/migrations/009_player_more_cloud_test_athletes.sql');
 const coachAsset='public/commercial-scenes/ice-hockey-coach-role.webp';
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.108'],
+ ['version is 72.3.83',pkg.version==='72.3.109'],
  ['RC32 app version reference updated',app.includes('72.3.90 RC40')],
  ['RC32 regression command registered',pkg.scripts['test:professional-athletic']?.includes('professional-athletic-system-check.mjs')],
  ['Player Home has dedicated Progress heading',app.includes('className="eliteProgressHeading"')&&app.includes('<span>PROGRESS</span>')],

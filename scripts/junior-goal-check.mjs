@@ -31,7 +31,7 @@ const checks=[
  ["Normal Parent role still cannot create goal", /Parent:\{[\s\S]*?createPlayerGoal:false/.test(athlete)],
  ["Coach still cannot create goal", /Coach:\{[\s\S]*?createPlayerGoal:false/.test(athlete)],
  ["Player still can create goal", /Player:\{[\s\S]*?createPlayerGoal:true/.test(athlete)],
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC58 · v72.3.108")]
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC59 · v72.3.109")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);
