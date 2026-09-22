@@ -1,12 +1,12 @@
 # Athlete Performance App — Phase 72.3.105 RC55
 
-## RC55 — Larger Admin Icons + Clearer Open Actions
+## RC55 — Home Account Connections
 
-RC55 enlarges the four Admin shortcut icons and gives them a stronger forest-green, metallic-silver, and graphite instrument treatment. Each icon now sits in a high-contrast 68 px square tile with a larger 34 px symbol. On phones, the icon remains a prominent 60 px tile with a 30 px symbol.
+Every signed-in role now has a consistent **Connect Accounts** panel at the top of Home. The primary action opens the existing secure workflow for that role: Player Connections, Parent My Players, Coach Team Invites, or Admin Account Tools.
 
-The separate far-right **OPEN** label has been removed. A compact **Open →** action now sits directly below each shortcut description, where it is easier to see and cannot be clipped by the panel edge.
+A new **Need help connecting accounts?** bar opens a role-specific walkthrough. It explains who starts the connection, which code to use, where consent is required, and how the app preserves one Player record and one development history. The guide distinguishes Parent Connection Codes, Team Invite Codes, and Player Access Codes.
 
-All RC54 dashboard fixes, the three-color premium UX system, Supabase, migrations 010–014, roles and permissions, Junior mode, Player More, cloud test athletes, and all app functionality remain preserved. Tracker connectivity remains disabled.
+The RC54 premium forest-green, metallic-silver, and graphite design remains intact. RC50–RC54 fixes, Supabase, migrations 010–014, roles and permissions, Junior mode, Player More, cloud test athletes, and all current features are preserved. Tracker connectivity remains disabled. RC55 requires no new database migration.
 
 ## RC54 — Premium UX + RC53 Dashboard Correction
 

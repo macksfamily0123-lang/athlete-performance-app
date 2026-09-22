@@ -1,14 +1,14 @@
-# Phase 72.3.105 RC55 — Admin Command Row Polish Validation
+# Phase 72.3.105 RC55 — Home Account Connections Validation
 
-- Full registered `npm test` regression suite: passed.
-- RC55 Admin command-row checks: 18/18 passed.
-- Confirmed larger icon columns, larger icon tiles, and larger SVG artwork on desktop and mobile.
-- Confirmed the old far-right **OPEN** label is removed.
-- Confirmed **Open →** now sits beside the shortcut description and remains inside the row padding.
-- Confirmed RC54 dashboard checks, RC50–RC52 compatibility, TypeScript, roles, permissions, Supabase, migrations 010–014, and tracker-disable safety remain intact.
-- Next.js 15.5.21 optimized production build passed.
+- RC55 Home connection checks: Player, Parent, Coach, and Admin entry points passed.
+- Confirmed each role opens its existing secure connection workflow.
+- Confirmed the Home help bar opens a role-specific walkthrough.
+- Confirmed all three codes are explained: Parent Connection Code, Team Invite Code, and Player Access Code.
+- Confirmed small-screen layout rules for the connection panel and walkthrough.
+- No database migration added; migrations 010–014 remain preserved.
+- Tracker connectivity remains disabled.
 
-# Phase 72.3.104 RC54 — Combined Dashboard + Premium UX Validation
+## RC54 compatibility
 
 - Full registered `npm test` regression suite: passed.
 - RC54 dashboard and premium UX checks: 25/25 passed.

@@ -17,7 +17,7 @@ git add .
 ## 3. Commit RC55
 
 ```bash
-git commit -m "Release Phase 72.3.105 RC55 Admin command polish"
+git commit -m "Release Phase 72.3.105 RC55 account connections"
 ```
 
 ## 4. Push to GitHub

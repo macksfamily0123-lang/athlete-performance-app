@@ -1,10 +1,10 @@
 # Phase 72.3.105 RC55 — Codespaces Installation
 
-This is one full combined release. It includes the RC55 Admin shortcut polish, RC54 premium UX upgrade, RC53 dashboard correction, all RC50–RC52 fixes, Supabase, migrations 010–014, and all existing features. Tracker connectivity remains disabled.
+This is one full combined release. It adds the RC55 Home connection center and walkthrough while preserving the RC53 dashboard correction, RC54 premium UX upgrade, all RC50–RC52 fixes, Supabase, migrations 010–014, and all existing features. Tracker connectivity remains disabled.
 
 ## 1. Upload the ZIP
 
-Upload `athlete-performance-app-phase-72-3-105-RC55-admin-command-polish.zip` into the root of your existing Codespace. You do not need a second Codespace.
+Upload `athlete-performance-app-phase-72-3-105-RC55-home-account-connections.zip` into the root of your existing Codespace. You do not need a second Codespace.
 
 ## 2. Open the terminal and enter the app folder
 
@@ -15,13 +15,13 @@ cd /workspaces/athlete-performance-app
 ## 3. Extract RC55 over the existing app
 
 ```bash
-unzip -o athlete-performance-app-phase-72-3-105-RC55-admin-command-polish.zip
+unzip -o athlete-performance-app-phase-72-3-105-RC55-home-account-connections.zip
 ```
 
 ## 4. Remove only the uploaded ZIP
 
 ```bash
-rm athlete-performance-app-phase-72-3-105-RC55-admin-command-polish.zip
+rm athlete-performance-app-phase-72-3-105-RC55-home-account-connections.zip
 ```
 
 ## 5. Clear the old Next.js cache

@@ -8,7 +8,7 @@ const css=read("app/globals.css");
 const pkg=JSON.parse(read("package.json"));
 
 check(pkg.version==="72.3.105","release version is Phase 72.3.105");
-check(beta.includes("CLOSED BETA · RC55 · v72.3.105"),"RC55 release ribbon is present");
+check(beta.includes("CLOSED BETA · RC55 · v72.3.105"),"RC54 release ribbon is present");
 check(beta.includes("Parent-managed access")&&!beta.includes("Entries here are saved as the Player's own check-ins"),"Junior banner copy is compact");
 check(css.includes("Phase 72.3.100 RC50 — Compact Junior banner + profile action"),"RC50 layout overrides remain present");
 check(css.includes(".simpleBottomNav.juniorBottomNav.customBottomNav.viewportBottomNav")&&css.includes("bottom:calc(30px + env(safe-area-inset-bottom))!important"),"Junior navigation sits above the banner");

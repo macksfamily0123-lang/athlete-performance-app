@@ -55,7 +55,7 @@
     "test:rc51": "node scripts/rc51-forest-silver-visual-check.mjs",
     "test:rc52": "node scripts/rc52-premium-performance-product-check.mjs",
     "test:rc54": "node scripts/rc54-premium-ux-check.mjs",
-    "test:rc55": "node scripts/rc55-admin-command-polish-check.mjs"
+    "test:rc55": "node scripts/rc55-home-connections-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",

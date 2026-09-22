@@ -1238,7 +1238,7 @@ export default function BetaGate(){
     openCoachTeams:access.role==="Coach"?()=>{setCoachTeamsMode("manage");setShowTeams(true)}:undefined,
     openCoachInvitePlayer:access.role==="Coach"?()=>{setCoachTeamsMode("invite");setShowTeams(true)}:undefined,
     createAdminTestAthlete:access.role==="Admin"?createAdminTestAthlete:undefined,
-    openBetaAdmin:access.role==="Admin"?()=>setShowAdmin(true):undefined,
+    openBetaAdmin:access.role==="Admin"?()=>{setAdminSection("accounts");setShowAdmin(true)}:undefined,
     returnToCoachWorkspace:access.role==="Coach"&&selectedAthleteName?returnToCoachWorkspace:undefined,
     managedByParent:access.role==="Parent"&&parentPlayerMode,
     juniorPlayerMode:access.role==="Parent"&&parentPlayerMode&&Number(parentPlayers.find(x=>x.id===parentManagedAthleteId)?.age||0)<=10,

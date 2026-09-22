@@ -1,11 +1,13 @@
-# Phase 72.3.105 RC55 — Admin Command Row Polish
+# Phase 72.3.105 RC55 — Home Account Connections
 
-- Enlarges Admin shortcut icon tiles from the small legacy treatment to 68 px desktop and 60 px mobile.
-- Enlarges the icon artwork itself to 34 px desktop and 30 px mobile.
-- Adds a higher-contrast forest, graphite, and metallic-silver instrument treatment.
-- Removes the far-right **OPEN** label.
-- Places a compact **Open →** action directly below each shortcut description.
-- Preserves every RC54 dashboard and premium UX fix, Supabase, migrations 010–014, roles, Junior mode, Player More, cloud test athletes, and disabled tracker connectivity.
+- Adds a prominent **Connect Accounts** action at the top of Home for Player, Parent, Coach, and Admin accounts.
+- Routes each role into its existing permission-safe workflow rather than adding a second connection system.
+- Adds a clickable **Need help connecting accounts?** bar with a role-specific step-by-step walkthrough.
+- Explains Parent Connection Codes, Team Invite Codes, and Player Access Codes in plain language.
+- Reinforces one Player record, explicit Coach consent, and the rule that Coaches never create Player accounts.
+- Adds responsive phone formatting for the Home connection panel and help walkthrough.
+- Preserves the RC54 dashboard correction and premium visual upgrade, RC50–RC53 fixes, Supabase, migrations 010–014, and all existing functionality.
+- Keeps tracker connectivity disabled. No new database migration is required.
 
 # Phase 72.3.104 RC54 — Premium UX + RC53 Dashboard Correction
 

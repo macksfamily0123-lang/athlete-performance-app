@@ -953,8 +953,72 @@ function PremiumHomeOverview({
   {hero}
   {elitePerformanceBand}
   <button type="button" className="premiumRoleFocusCard nativeAdminFocus" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Inspect →</strong></button>
-  <div className="nativeAdminCommandList">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div className="nativeAdminCommandCopy"><b>{action.label}</b><small>{action.detail}</small><span className="adminOpenAction">Open <i aria-hidden="true">→</i></span></div></button>)}</div>
+  <div className="nativeAdminCommandList">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>setTab(action.tab)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>Open</strong></button>)}</div>
  </section>;
+}
+
+function ConnectionHomeHub({role,onConnect,onHelp}:{role:AccountRole;onConnect:()=>void;onHelp:()=>void}){
+ const copy:Record<AccountRole,{eyebrow:string;title:string;detail:string;action:string}>={
+  Player:{eyebrow:"ACCOUNT CONNECTIONS",title:"Connect Accounts",detail:"Join a Coach team, invite a Parent, or link a Player record your Parent created.",action:"Open Connections"},
+  Parent:{eyebrow:"FAMILY CONNECTIONS",title:"Connect Accounts",detail:"Connect an existing Player, manage your Players, or approve a Coach team connection.",action:"Open My Players"},
+  Coach:{eyebrow:"TEAM CONNECTIONS",title:"Connect Accounts",detail:"Create a team invite for a Player or Parent to approve. Coaches never create Player accounts.",action:"Invite / Connect Player"},
+  Admin:{eyebrow:"ACCOUNT CONNECTIONS",title:"Connect Accounts",detail:"Review account approvals, family links, team access, and connection health.",action:"Open Account Tools"}
+ };
+ const item=copy[role];
+ return <section className="connectionHomeHub" aria-label={`${role} account connections`} data-connection-role={role}>
+  <button type="button" className="connectionHomePrimary" onClick={onConnect}>
+   <span className="connectionHomeIcon"><PremiumAppIcon name={role==="Coach"?"roster":"support"}/></span>
+   <span className="connectionHomeCopy"><small>{item.eyebrow}</small><b>{item.title}</b><span>{item.detail}</span></span>
+   <strong>{item.action}<i>→</i></strong>
+  </button>
+  <button type="button" className="connectionHelpBar" onClick={onHelp} aria-haspopup="dialog">
+   <span className="connectionHelpMark">?</span>
+   <span><b>Need help connecting accounts?</b><small>Open a simple step-by-step guide for your {role} account.</small></span>
+   <strong>View Walkthrough →</strong>
+  </button>
+ </section>;
+}
+
+function ConnectionHelpModal({role,onClose,onConnect}:{role:AccountRole;onClose:()=>void;onConnect:()=>void}){
+ const guides:Record<AccountRole,{intro:string;steps:Array<{title:string;detail:string}>}>={
+  Player:{intro:"Use Connections to join a Coach team, invite a Parent, or attach your login to a Player record a Parent already created.",steps:[
+   {title:"Open Connections",detail:"Use the Connect Accounts button on Home."},
+   {title:"Choose the connection",detail:"Enter a Coach Team Invite Code, create a Parent Connection Code, or enter a Player Access Code from your Parent."},
+   {title:"Review access",detail:"Read the consent message before sharing your Player workspace with a Coach."},
+   {title:"Keep one Player record",detail:"If your Parent already created your Player, use the Player Access Code instead of creating another record."}
+  ]},
+  Parent:{intro:"Use My Players to connect an existing Player, create a new Parent-managed Player only when needed, or approve a Coach team connection.",steps:[
+   {title:"Open My Players",detail:"Use the Connect Accounts button on Home."},
+   {title:"Choose the correct Player path",detail:"Use Connect Existing Player when the Player already has an account. Use Create New Player only when no Player record exists."},
+   {title:"Enter the right code",detail:"Use the Player's Parent Connection Code to link accounts, or the Coach's Team Invite Code to connect a selected Player to a team."},
+   {title:"Confirm the Player and access",detail:"Check the selected Player and approve Coach access before completing a team connection."}
+  ]},
+  Coach:{intro:"Coaches create team invitations. A Player or Parent must approve the invitation before the Player appears on the Coach roster.",steps:[
+   {title:"Open Invite / Connect Player",detail:"Use the Connect Accounts button on Home."},
+   {title:"Create or select a team",detail:"Every Team Invite Code belongs to a specific Coach team."},
+   {title:"Send the Team Invite Code",detail:"Send the code to the Player or Parent outside the app."},
+   {title:"Wait for approval",detail:"The Player appears after the Player or Parent enters the code and approves Coach access. Do not create a Player account for them."}
+  ]},
+  Admin:{intro:"Admin connection tools help verify that each Parent, Player, and Coach points to the correct athlete workspace.",steps:[
+   {title:"Open Account Tools",detail:"Use the Connect Accounts button on Home."},
+   {title:"Approve the correct email and role",detail:"Confirm whether the person is registering as Player, Parent, Coach, or Admin."},
+   {title:"Review connection health",detail:"Use Family & Account Diagnostics to confirm Parent, Player login, and Coach team links."},
+   {title:"Protect the original athlete record",detail:"Resolve connection problems without creating a duplicate Player or replacing development history."}
+  ]}
+ };
+ const guide=guides[role];
+ return <ViewportPortal><div className="connectionHelpOverlay" role="dialog" aria-modal="true" aria-labelledby="connection-help-title" onClick={onClose}>
+  <div className="connectionHelpModal" onClick={event=>event.stopPropagation()}>
+   <div className="connectionHelpHeader"><div><small>{role.toUpperCase()} CONNECTION HELP</small><h2 id="connection-help-title">Connect Accounts Walkthrough</h2><p>{guide.intro}</p></div><button type="button" onClick={onClose} aria-label="Close connection help">×</button></div>
+   <div className="connectionHelpSteps">{guide.steps.map((step,index)=><div key={step.title}><span>{index+1}</span><div><b>{step.title}</b><p>{step.detail}</p></div></div>)}</div>
+   <div className="connectionCodeGuide" aria-label="Connection code guide">
+    <div><small>PLAYER → PARENT</small><b>Parent Connection Code</b></div>
+    <div><small>COACH → FAMILY</small><b>Team Invite Code</b></div>
+    <div><small>PARENT → PLAYER LOGIN</small><b>Player Access Code</b></div>
+   </div>
+   <div className="connectionHelpFooter"><p><b>One Player. One record.</b> Connections add approved access to the original athlete workspace.</p><div><button type="button" onClick={onClose}>Close</button><button type="button" className="connectionHelpOpen" onClick={()=>{onClose();onConnect()}}>Open {role==="Parent"?"My Players":role==="Coach"?"Team Invites":role==="Admin"?"Account Tools":"Connections"}</button></div></div>
+  </div>
+ </div></ViewportPortal>;
 }
 
 
@@ -1034,6 +1098,7 @@ export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
  const [showFeatureOverview,setShowFeatureOverview]=useState(false);
  const [featureOverviewSource,setFeatureOverviewSource]=useState<"setup"|"help">("help");
  const [showSettings,setShowSettings]=useState(false);
+ const [showConnectionHelp,setShowConnectionHelp]=useState(false);
  const [showInstallHelp,setShowInstallHelp]=useState(false);
  const [installPrompt,setInstallPrompt]=useState<InstallPromptEvent|null>(null);
  const [showTrackerSetup,setShowTrackerSetup]=useState(false);
@@ -1897,6 +1962,12 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    (profileCard as HTMLElement|null)?.focus({preventScroll:true});
   },620);
  };
+ const openAccountConnections=()=>{
+  if(accountRole==="Parent"){betaBridge?.openParentPlayers?.();return}
+  if(accountRole==="Player"){betaBridge?.openPlayerJoinTeam?.();return}
+  if(accountRole==="Coach"){betaBridge?.openCoachInvitePlayer?.();return}
+  betaBridge?.openBetaAdmin?.();
+ };
  useEffect(()=>{
   const handler=(e:KeyboardEvent)=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();setCommandOpen(x=>!x)}if(e.key==="Escape"){setCommandOpen(false);setShowSettings(false);setShowNotifications(false)}};
   window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)
@@ -1946,6 +2017,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    <div className="sportSelectorBlock lockedProfileSport"><div className="sportSelectorHead"><small>PROFILE SPORT</small><span>Locked to this athlete</span></div><div className="lockedSportDisplay"><button className="sel lockedSportButton" type="button" disabled aria-label={`${sport} is locked to this athlete profile`}>{sport}</button><span>Sport changes only through <b>Edit Profile</b>.</span></div></div>
    {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>{guideSteps.find(x=>x.id===guideWaitingFor)?.complete?"Complete this step and the guide will continue automatically.":"Explore this feature, then return to the guide when you're ready."}</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
    <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Review, support, and communicate":effectiveRole==="Player"?(juniorPlayerMode?"One thing at a time. Have fun and keep improving.":"Keep today simple: check in, train, improve"):"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{effectiveRole==="Parent"?(parentPageHelp[tab]?.title||roleNavLabel(tab)):effectiveRole==="Player"?(playerPageHelp[tab]?.title||roleNavLabel(tab)):pageHelp[tab]?.title||tab}</small><b>{effectiveRole==="Parent"?(parentPageHelp[tab]?.purpose||""):effectiveRole==="Player"?(playerPageHelp[tab]?.purpose||""):pageHelp[tab]?.purpose||""}</b></div><span>{effectiveRole==="Parent"?(parentPageHelp[tab]?.primary||""):effectiveRole==="Player"?(playerPageHelp[tab]?.primary||""):pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
+   {tab==="Home"&&betaBridge&&<ConnectionHomeHub role={accountRole} onConnect={openAccountConnections} onHelp={()=>setShowConnectionHelp(true)}/>}
    {tab==="Home"&&<PremiumHomeOverview accountRole={effectiveRole} juniorMode={juniorPlayerMode} profile={profile} sport={sport} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} dev={dev} setTab={setTab}/>}
    {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/></>:<Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/>)} 
    {tab==="Goals"&&<Goals viewRole={effectiveRole} actualRole={accountRole} authorName={accountSession.displayName} goals={goals} setGoals={setGoals} juniorMode={juniorPlayerMode}/>}
@@ -1963,6 +2035,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    
     
   </main>
+  {showConnectionHelp&&<ConnectionHelpModal role={accountRole} onClose={()=>setShowConnectionHelp(false)} onConnect={openAccountConnections}/>}
   {showGuide&&accountSession&&<ViewportPortal><div className="guideOverlay" role="dialog" aria-modal="true" aria-label="Getting started guide"><div className="guideCard">
    <div className="guideTop"><div><small>{effectiveRole.toUpperCase()} SETUP</small><b>Step {guideStep+1} of {guideSteps.length}</b></div><button onClick={requestSkipSetup} aria-label="Skip setup">Skip setup</button></div>
    <div className="guideProgress"><i style={{width:`${Math.round((guideStep+1)/guideSteps.length*100)}%`}}/></div>
