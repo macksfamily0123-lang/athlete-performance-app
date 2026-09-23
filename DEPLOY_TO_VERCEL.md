@@ -1,6 +1,6 @@
-# Phase 72.3.110 RC60 — GitHub and Vercel Deployment
+# Phase 72.3.111 RC61 — GitHub and Vercel Deployment
 
-Run these commands after RC60 passes `npm run release:check` in Codespaces.
+Run these commands after RC61 passes `npm run release:check` in Codespaces and migration 015 has been run in Supabase.
 
 ## 1. Review the changed files
 
@@ -14,10 +14,10 @@ git status
 git add .
 ```
 
-## 3. Commit RC60
+## 3. Commit RC61
 
 ```bash
-git commit -m "Release Phase 72.3.110 RC60 routine priority navigation"
+git commit -m "Release Phase 72.3.111 RC61 multi-sport team family profiles"
 ```
 
 ## 4. Integrate any newer GitHub commit
@@ -40,4 +40,4 @@ If the Vercel project is connected to this GitHub repository and watches `main`,
 npx vercel --prod
 ```
 
-Use the same Supabase environment variables already configured for RC52. No tracker-provider credentials are needed because tracker connectivity remains disabled.
+Use the same Supabase environment variables already configured. No tracker-provider credentials are needed because tracker connectivity remains disabled.

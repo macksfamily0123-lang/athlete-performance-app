@@ -1,4 +1,14 @@
-# Athlete Performance App — Phase 72.3.110 RC60
+# Athlete Performance App — Phase 72.3.111 RC61
+
+## RC61 — Multi-Sport, Multi-Team + Shared Family Access
+
+One Player can now keep multiple sport workspaces inside the same athlete account. Each sport has its own position, primary team, goals, workouts, testing, schedule, readiness, reviews, and development data. The Player can switch sports from the top of the app, review combined totals on Home, and manage sports and teams from Connections.
+
+One Player can belong to multiple Coach teams, including multiple teams in the same sport. Team membership no longer replaces a team from another sport. The Player chooses a primary team per sport and can remove a team connection, which removes that team's Coach access.
+
+Multiple Parents continue to use separate logins connected to the same Player record. The Connections screen now clearly labels **Invite Another Parent** and explains that each Parent receives a fresh one-time code. Migration `015_multi_sport_team_family_profiles.sql` upgrades existing Players into a primary sport profile without duplicating Players or changing existing Parent links.
+
+RC60 exact navigation, RC59 phone headers, RC58 global alignment, RC55 account connections, the RC54 premium design, Supabase, migrations 001–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled.
 
 ## RC60 — Exact Navigation + Routine Priority
 

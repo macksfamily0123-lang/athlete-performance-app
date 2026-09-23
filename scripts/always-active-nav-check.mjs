@@ -4,7 +4,7 @@ const app=fs.readFileSync('components/AthleteApp.tsx','utf8');
 const css=fs.readFileSync('app/globals.css','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.110'],
+ ['version is 72.3.83',pkg.version==='72.3.111'],
  ['primary navigation is portaled',app.includes('<ViewportPortal>{juniorPlayerMode?')],
  ['viewport nav class is present',app.includes('viewportBottomNav')],
  ['nav sheet is portaled',app.includes('{navSheet&&<ViewportPortal><div className="simpleNavOverlay viewportNavOverlay"')],

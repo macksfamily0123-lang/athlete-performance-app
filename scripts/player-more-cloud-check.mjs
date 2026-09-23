@@ -43,7 +43,7 @@ const checks=[
  ["Parent connection cleanup retained", beta.includes("Create New Player")&&beta.includes("Connect Existing Player")],
  ["Family diagnostics retained", beta.includes("Family & Account Diagnostics")],
  ["No practice-plan generator", !athlete.includes("Generate Practice Plan")&&!athlete.includes("Practice Plan Generator")],
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC60 · v72.3.110")],
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC61 · v72.3.111")],
  ["Cloud create message styled", css.includes(".rosterCloudCreateMessage")]
 ];
 

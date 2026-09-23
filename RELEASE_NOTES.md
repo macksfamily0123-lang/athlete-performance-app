@@ -1,3 +1,19 @@
+# Phase 72.3.111 RC61 — Multi-Sport, Multi-Team + Shared Family Access
+
+- Adds normalized Player sport profiles with exactly one primary sport.
+- Adds a Player-facing **Sports & Teams** manager in Connections.
+- Supports multiple teams per sport and teams across different sports.
+- Adds one primary team per sport without overwriting another sport's team.
+- Adds a top-of-app sport workspace switcher.
+- Separates goals, workouts, tests, schedules, readiness, reviews, and development data by sport workspace.
+- Adds an **All Sports Overview** with combined goals, completed workouts, tests, and teams.
+- Adds Player-controlled team removal and sport-specific primary-team selection.
+- Clarifies that every additional Parent uses a separate login and fresh one-time Parent Connection Code.
+- Preserves the existing many-to-many Parent relationship and one shared Player record.
+- Adds migration `015_multi_sport_team_family_profiles.sql` and safely seeds every existing Player's current sport.
+- Preserves RC54–RC60 UX repairs, Supabase, migrations 001–014, roles, permissions, and all existing features.
+- Keeps tracker connectivity disabled.
+
 # Phase 72.3.110 RC60 — Exact Navigation + Routine Priority
 
 - Adds one destination-navigation system that opens a tab and focuses the exact requested section.

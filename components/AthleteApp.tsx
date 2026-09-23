@@ -3,7 +3,7 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 import {getSupabase} from "../lib/supabase";
-// Phase 72.3.110 RC60: all external tracker connectivity remains intentionally
+// Phase 72.3.111 RC61: all external tracker connectivity remains intentionally
 // disabled. Keeping the archived types below makes this change reversible,
 // while the false gate prevents tracker UI, loading, syncing, and sharing.
 const TRACKER_CONNECTIVITY_ENABLED=false;
@@ -101,6 +101,14 @@ export type CoachCloudAthleteState={
  data:Record<string,unknown>|null;
  updatedAt?:string;
 };
+export type AthleteSportProfile={
+ sport:string;
+ athlete_position:string;
+ is_primary:boolean;
+ primary_team_id:string|null;
+ primary_team_name:string|null;
+ teams:{team_id:string;team_name:string;sport:string;coach_name:string;joined_at:string;is_primary:boolean}[];
+};
 export type BetaBridge={
  userId:string;
  email:string;
@@ -127,6 +135,9 @@ export type BetaBridge={
  returnToParentWorkspace?:()=>void;
  selectedAthleteName?:string;
  selectedAthleteSport?:string;
+ sportProfiles?:AthleteSportProfile[];
+ setPrimarySport?:(sport:string)=>Promise<void>|void;
+ saveSportProfile?:(sport:string,position:string)=>Promise<void>|void;
  trackerAthleteId?:string;
  saveSharedNotes?:(notes:unknown[])=>Promise<void>;
  loadCoachWeeklyReviews?:()=>Promise<CoachWeeklyReview[]>;
@@ -151,7 +162,7 @@ type ReleaseCheck={label:string;done:boolean;detail:string};
 
 
 
-type AthleteSnapshot={profile:Profile;goals:Goal[];workouts:Workout[];results:Result[];development:DevelopmentItem[];program:TrainingProgram|null;readiness:ReadinessLog[];coachNotes:CoachNote[];competitions:CompetitionLog[];reportNotes:ReportNote[];developmentSystem?:DevelopmentSystemState};
+type AthleteSnapshot={profile:Profile;goals:Goal[];workouts:Workout[];results:Result[];development:DevelopmentItem[];program:TrainingProgram|null;readiness:ReadinessLog[];coachNotes:CoachNote[];competitions:CompetitionLog[];reportNotes:ReportNote[];developmentSystem?:DevelopmentSystemState;custom?:CustomTest[];milestones?:Milestone[];seasonEvents?:SeasonEvent[];trainingBlocks?:TrainingBlock[];weeklyReviews?:WeeklyReview[];testTargets?:TestTarget[]};
 type BackupEnvelope={version:string;created:string;activeAthleteId:string;roster:AthleteRecord[];athletes:Record<string,AthleteSnapshot>};
 type Achievement={id:string;title:string;description:string;category:string;earned:boolean;progress:number};
 type Milestone={id:number;date:string;title:string;detail:string;category:string};
@@ -978,6 +989,22 @@ function PlayerRoutinePriorityBanners({readiness,weeklyReviews,onNavigate}:{read
  </section>;
 }
 
+function MultiSportOverview({profiles,activeSport,sportWorkspaces,goals,workouts,results,onSwitch,busy}:{profiles:AthleteSportProfile[];activeSport:Sport;sportWorkspaces:Partial<Record<Sport,AthleteSnapshot>>;goals:Goal[];workouts:Workout[];results:Result[];onSwitch:(sport:Sport)=>void;busy:boolean}){
+ const sportStats=profiles.map(item=>{
+  const itemSport=item.sport as Sport;
+  const snapshot=itemSport===activeSport?null:sportWorkspaces[itemSport];
+  const sportGoals=itemSport===activeSport?goals:(snapshot?.goals||[]);
+  const sportWorkouts=itemSport===activeSport?workouts:(snapshot?.workouts||[]);
+  const sportResults=itemSport===activeSport?results:(snapshot?.results||[]);
+  return {...item,itemSport,goalCount:sportGoals.filter(goal=>(goal.status||"Active")!=="Complete").length,workoutCount:sportWorkouts.filter(workout=>workout.completed).length,testCount:sportResults.length};
+ });
+ const totals=sportStats.reduce((sum,item)=>({goals:sum.goals+item.goalCount,workouts:sum.workouts+item.workoutCount,tests:sum.tests+item.testCount,teams:sum.teams+item.teams.length}),{goals:0,workouts:0,tests:0,teams:0});
+ return <section className="multiSportOverview" aria-label="All sports overview">
+  <div className="multiSportOverviewHead"><div><small>ALL SPORTS OVERVIEW</small><h2>{profiles.length} sport workspaces</h2><p>Each sport keeps its own development work. Switch sports without mixing goals, training, schedules, or testing.</p></div><div className="multiSportTotals"><span><b>{totals.goals}</b> Goals</span><span><b>{totals.workouts}</b> Workouts</span><span><b>{totals.tests}</b> Tests</span><span><b>{totals.teams}</b> Teams</span></div></div>
+  <div className="multiSportOverviewGrid">{sportStats.map(item=><button type="button" className={item.itemSport===activeSport?"active":""} disabled={busy} onClick={()=>onSwitch(item.itemSport)} key={item.sport}><div><small>{item.itemSport===activeSport?"ACTIVE SPORT":item.is_primary?"PRIMARY SPORT":"SPORT"}</small><b>{item.sport}</b><span>{item.athlete_position||"Position not selected"}{item.primary_team_name?` · ${item.primary_team_name}`:""}</span></div><div className="sportWorkspaceMetrics"><span>{item.goalCount} goals</span><span>{item.workoutCount} workouts</span><span>{item.testCount} tests</span></div><strong>{item.itemSport===activeSport?"OPEN":"SWITCH →"}</strong></button>)}</div>
+ </section>;
+}
+
 function ConnectionHomeHub({role,onConnect,onHelp}:{role:AccountRole;onConnect:()=>void;onHelp:()=>void}){
  const copy:Record<AccountRole,{eyebrow:string;title:string;detail:string;action:string}>={
   Player:{eyebrow:"ACCOUNT CONNECTIONS",title:"Connect Accounts",detail:"Join a Coach team, invite a Parent, or link a Player record your Parent created.",action:"Open Connections"},
@@ -1151,6 +1178,8 @@ export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
  const [cloudOnline,setCloudOnline]=useState(true);
  const [coachCloudRoster,setCoachCloudRoster]=useState<CoachCloudAthleteState[]>([]);
  const [coachRosterCloudStatus,setCoachRosterCloudStatus]=useState<"idle"|"loading"|"ready"|"error">("idle");
+ const [sportWorkspaces,setSportWorkspaces]=useState<Partial<Record<Sport,AthleteSnapshot>>>({});
+ const [sportSwitching,setSportSwitching]=useState(false);
 
 
 
@@ -1286,12 +1315,48 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  const storageKey=(id:string)=>`athleteData:${id}`;
 
  const buildSnapshot=():AthleteSnapshot=>({
-   profile:{...profile},goals:[...goals],workouts:[...workouts],results:[...results],development:[...dev],program:program?{...program,sessions:program.sessions.map(x=>({...x}))}:null,readiness:[...readiness],coachNotes:[...coachNotes],competitions:[...competitions],reportNotes:[...reportNotes],developmentSystem:normalizeDevelopmentSystem(developmentSystem)
+   profile:{...profile},goals:[...goals],workouts:[...workouts],results:[...results],development:[...dev],program:program?{...program,sessions:program.sessions.map(x=>({...x}))}:null,readiness:[...readiness],coachNotes:[...coachNotes],competitions:[...competitions],reportNotes:[...reportNotes],developmentSystem:normalizeDevelopmentSystem(developmentSystem),custom:[...custom],milestones:[...milestones],seasonEvents:[...seasonEvents],trainingBlocks:[...trainingBlocks],weeklyReviews:[...weeklyReviews],testTargets:[...testTargets]
  });
+
+ const applySportWorkspace=(snapshot:AthleteSnapshot|undefined,nextSport:Sport)=>{
+   const sportProfile=betaBridge?.sportProfiles?.find(item=>item.sport===nextSport);
+   const baseProfile=snapshot?.profile||profile;
+   setSport(nextSport);
+   setProfile({...baseProfile,sport:nextSport,position:sportProfile?.athlete_position??baseProfile.position??"",team:sportProfile?.primary_team_name??baseProfile.team??""});
+   setGoals(Array.isArray(snapshot?.goals)?snapshot!.goals:[]);
+   setWorkouts(Array.isArray(snapshot?.workouts)?snapshot!.workouts:[]);
+   setResults(Array.isArray(snapshot?.results)?snapshot!.results:[]);
+   setCustom(Array.isArray(snapshot?.custom)?snapshot!.custom:[]);
+   setDev(Array.isArray(snapshot?.development)?snapshot!.development:[]);
+   setProgram(snapshot?.program||null);
+   setReadiness(Array.isArray(snapshot?.readiness)?snapshot!.readiness:[]);
+   setCoachNotes(Array.isArray(snapshot?.coachNotes)?snapshot!.coachNotes:[]);
+   setCompetitions(Array.isArray(snapshot?.competitions)?snapshot!.competitions:[]);
+   setReportNotes(Array.isArray(snapshot?.reportNotes)?snapshot!.reportNotes:[]);
+   setDevelopmentSystem(snapshot?.developmentSystem?normalizeDevelopmentSystem(snapshot.developmentSystem):createDefaultDevelopmentSystem());
+   setMilestones(Array.isArray(snapshot?.milestones)?snapshot!.milestones:[]);
+   setSeasonEvents(Array.isArray(snapshot?.seasonEvents)?snapshot!.seasonEvents:[]);
+   setTrainingBlocks(Array.isArray(snapshot?.trainingBlocks)?snapshot!.trainingBlocks:[]);
+   setWeeklyReviews(Array.isArray(snapshot?.weeklyReviews)?snapshot!.weeklyReviews:[]);
+   setTestTargets(Array.isArray(snapshot?.testTargets)?snapshot!.testTargets:[]);
+ };
+
+ const switchSportWorkspace=async(nextSport:Sport)=>{
+   if(nextSport===sport||sportSwitching)return;
+   setSportSwitching(true);
+   const nextWorkspaces={...sportWorkspaces,[sport]:buildSnapshot()};
+   setSportWorkspaces(nextWorkspaces);
+   try{
+     await betaBridge?.setPrimarySport?.(nextSport);
+     applySportWorkspace(nextWorkspaces[nextSport],nextSport);
+     setTab("Home");
+     window.scrollTo({top:0,left:0,behavior:"smooth"});
+   }finally{setSportSwitching(false)}
+ };
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.110",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.111",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
@@ -1320,28 +1385,31 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    betaBridge.loadState().then((raw:any)=>{
      if(betaBridge.workspaceId!==workspaceId)return;
      if(raw){
-      const cloudSport=(raw.profile?.sport&&sports.includes(raw.profile.sport as Sport)?raw.profile.sport:raw.sport&&sports.includes(raw.sport as Sport)?raw.sport:betaBridge?.selectedAthleteSport&&sports.includes(betaBridge.selectedAthleteSport as Sport)?betaBridge.selectedAthleteSport:sport) as Sport;
-      if(raw.profile)setProfile({...raw.profile,sport:cloudSport});
+      const cloudSport=(betaBridge?.selectedAthleteSport&&sports.includes(betaBridge.selectedAthleteSport as Sport)?betaBridge.selectedAthleteSport:raw.activeSport&&sports.includes(raw.activeSport as Sport)?raw.activeSport:raw.profile?.sport&&sports.includes(raw.profile.sport as Sport)?raw.profile.sport:raw.sport&&sports.includes(raw.sport as Sport)?raw.sport:sport) as Sport;
+      const storedWorkspaces=(raw.sportWorkspaces&&typeof raw.sportWorkspaces==="object"?raw.sportWorkspaces:{}) as Partial<Record<Sport,AthleteSnapshot>>;
+      const activeRaw=(storedWorkspaces[cloudSport]||raw) as any;
+      setSportWorkspaces(storedWorkspaces);
+      if(activeRaw.profile)setProfile({...activeRaw.profile,sport:cloudSport,position:betaBridge?.sportProfiles?.find(item=>item.sport===cloudSport)?.athlete_position??activeRaw.profile.position,team:betaBridge?.sportProfiles?.find(item=>item.sport===cloudSport)?.primary_team_name??activeRaw.profile.team});
       else setProfile(x=>({...x,sport:cloudSport}));
       setSport(cloudSport);
-      if(Array.isArray(raw.goals))setGoals(raw.goals);
-      if(Array.isArray(raw.workouts))setWorkouts(raw.workouts);
-      if(Array.isArray(raw.results))setResults(raw.results);
-      if(Array.isArray(raw.custom))setCustom(raw.custom);
-      if(Array.isArray(raw.development))setDev(raw.development);
-      setProgram(raw.program||null);
-      if(Array.isArray(raw.readiness))setReadiness(raw.readiness);
-      if(Array.isArray(raw.coachNotes))setCoachNotes(raw.coachNotes);
-      if(Array.isArray(raw.competitions))setCompetitions(raw.competitions);
-      if(Array.isArray(raw.reportNotes))setReportNotes(raw.reportNotes);
-      if(Array.isArray(raw.roster))setRoster(raw.roster);
-      if(Array.isArray(raw.milestones))setMilestones(raw.milestones);
-      if(Array.isArray(raw.seasonEvents))setSeasonEvents(raw.seasonEvents);
-      if(Array.isArray(raw.trainingBlocks))setTrainingBlocks(raw.trainingBlocks);
-      if(Array.isArray(raw.weeklyReviews))setWeeklyReviews(raw.weeklyReviews);
-      setDevelopmentSystem(raw.developmentSystem?normalizeDevelopmentSystem(raw.developmentSystem):createDefaultDevelopmentSystem());
-      if(Array.isArray(raw.testTargets))setTestTargets(raw.testTargets);
-      if(raw.activeAthleteId)setActiveAthleteId(String(raw.activeAthleteId));
+      if(Array.isArray(activeRaw.goals))setGoals(activeRaw.goals);
+      if(Array.isArray(activeRaw.workouts))setWorkouts(activeRaw.workouts);
+      if(Array.isArray(activeRaw.results))setResults(activeRaw.results);
+      if(Array.isArray(activeRaw.custom))setCustom(activeRaw.custom);
+      if(Array.isArray(activeRaw.development))setDev(activeRaw.development);
+      setProgram(activeRaw.program||null);
+      if(Array.isArray(activeRaw.readiness))setReadiness(activeRaw.readiness);
+      if(Array.isArray(activeRaw.coachNotes))setCoachNotes(activeRaw.coachNotes);
+      if(Array.isArray(activeRaw.competitions))setCompetitions(activeRaw.competitions);
+      if(Array.isArray(activeRaw.reportNotes))setReportNotes(activeRaw.reportNotes);
+      if(Array.isArray(activeRaw.roster||raw.roster))setRoster(activeRaw.roster||raw.roster);
+      if(Array.isArray(activeRaw.milestones))setMilestones(activeRaw.milestones);
+      if(Array.isArray(activeRaw.seasonEvents))setSeasonEvents(activeRaw.seasonEvents);
+      if(Array.isArray(activeRaw.trainingBlocks))setTrainingBlocks(activeRaw.trainingBlocks);
+      if(Array.isArray(activeRaw.weeklyReviews))setWeeklyReviews(activeRaw.weeklyReviews);
+      setDevelopmentSystem(activeRaw.developmentSystem?normalizeDevelopmentSystem(activeRaw.developmentSystem):createDefaultDevelopmentSystem());
+      if(Array.isArray(activeRaw.testTargets))setTestTargets(activeRaw.testTargets);
+      if(activeRaw.activeAthleteId||raw.activeAthleteId)setActiveAthleteId(String(activeRaw.activeAthleteId||raw.activeAthleteId));
      }else if(betaBridge?.selectedAthleteSport&&sports.includes(betaBridge.selectedAthleteSport as Sport)){
       const fallbackSport=betaBridge.selectedAthleteSport as Sport;
       setSport(fallbackSport);
@@ -1388,7 +1456,8 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
  const cloudPayload=()=>({
    profile,goals,workouts,results,custom,development:dev,program,readiness,coachNotes,
    competitions,reportNotes,roster,milestones,seasonEvents,trainingBlocks,weeklyReviews,
-   developmentSystem,testTargets,activeAthleteId,sport
+   developmentSystem,testTargets,activeAthleteId,sport,activeSport:sport,
+   sportWorkspaces:{...sportWorkspaces,[sport]:buildSnapshot()}
  });
  const pendingCloudKey=()=>betaBridge?`pendingCloudSave:${betaBridge.workspaceId}`:"";
  const saveCloudPayload=async(payload:Record<string,unknown>)=>{
@@ -1433,7 +1502,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    setCloudStatus("loading");
    cloudSaveTimerRef.current=window.setTimeout(()=>{void saveCloudPayload(cloudPayload())},900);
    return()=>{if(cloudSaveTimerRef.current)window.clearTimeout(cloudSaveTimerRef.current)}
- },[betaBridge?.workspaceId,profile,goals,workouts,results,custom,dev,program,readiness,coachNotes,competitions,reportNotes,roster,milestones,seasonEvents,trainingBlocks,weeklyReviews,developmentSystem,testTargets,activeAthleteId,sport]);
+ },[betaBridge?.workspaceId,profile,goals,workouts,results,custom,dev,program,readiness,coachNotes,competitions,reportNotes,roster,milestones,seasonEvents,trainingBlocks,weeklyReviews,developmentSystem,testTargets,activeAthleteId,sport,sportWorkspaces]);
 
  useEffect(()=>{
    if(!betaBridge)return;
@@ -1798,8 +1867,10 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   try{localStorage.setItem("guidedTourResumeStep",String(guideStep))}catch{}
   if(step.id==="profile"&&canEditPlayerProfile){setProfileSavedForGuide(false);setEditProfileRequest(x=>x+1);}
  };
- const handleProfileSaved=()=>{
+ const handleProfileSaved=(savedProfile?:Profile)=>{
   if(guideWaitingFor==="profile")setProfileSavedForGuide(true);
+  const next=savedProfile||profile;
+  if(betaBridge?.saveSportProfile&&next.sport)void Promise.resolve(betaBridge.saveSportProfile(next.sport,next.position)).catch(()=>{});
  };
  const nextIncompleteGuideStep=()=>{
   const currentIndex=guideSteps.findIndex(x=>x.id===guideWaitingFor);
@@ -2058,13 +2129,14 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    </div>}
   <div className="contextBar cleanContext"><div className="athleteContext"><small>ACTIVE ATHLETE</small><b>{profile.name}</b><span>{sport}{profile.position?` · ${profile.position}`:""}{profile.team?` · ${profile.team}`:""}</span></div><div className="contextControls">{accountRole!=="Player"&&allowedAthletes.length>0&&<label className="athleteSelector"><small>Viewing</small><select value={activeAthleteId} onChange={e=>selectAthleteById(e.target.value)}>{allowedAthletes.map(a=><option value={a.id} key={a.id}>{a.name} · {a.sport}{a.team?` · ${a.team}`:""}</option>)}</select></label>}<div className="sessionIdentity"><small>SIGNED IN</small><b>{accountSession.displayName}</b><span>{accountRole}</span></div><button className="signOutButton" onClick={signOutRole}>Sign out</button></div></div>
   <main>
-   <div className="sportSelectorBlock lockedProfileSport"><div className="sportSelectorHead"><small>PROFILE SPORT</small><span>Locked to this athlete</span></div><div className="lockedSportDisplay"><button className="sel lockedSportButton" type="button" disabled aria-label={`${sport} is locked to this athlete profile`}>{sport}</button><span>Sport changes only through <b>Edit Profile</b>.</span></div></div>
+   {betaBridge?.sportProfiles?.length?<div className="sportSelectorBlock multiSportSelector"><div className="sportSelectorHead"><div><small>ACTIVE SPORT WORKSPACE</small><span>{sportSwitching?"Switching…":"Goals, training, schedule, and testing stay separated by sport."}</span></div><button type="button" onClick={betaBridge.openPlayerJoinTeam}>Manage Sports &amp; Teams</button></div><div className="multiSportSelectorButtons">{betaBridge.sportProfiles.map(item=><button type="button" className={item.sport===sport?"sel":""} disabled={sportSwitching} onClick={()=>void switchSportWorkspace(item.sport as Sport)} key={item.sport}><b>{item.sport}</b><span>{item.athlete_position||"Choose position"}{item.primary_team_name?` · ${item.primary_team_name}`:""}</span>{item.is_primary&&<small>PRIMARY</small>}</button>)}</div></div>:<div className="sportSelectorBlock lockedProfileSport"><div className="sportSelectorHead"><small>PROFILE SPORT</small><span>Locked to this athlete</span></div><div className="lockedSportDisplay"><button className="sel lockedSportButton" type="button" disabled aria-label={`${sport} is locked to this athlete profile`}>{sport}</button><span>Sport changes through <b>Edit Profile</b>.</span></div></div>}
    {guideWaitingFor&&<div className="setupWaitingBanner"><div><small>SETUP IN PROGRESS</small><b>{guideSteps.find(x=>x.id===guideWaitingFor)?.complete?"Complete this step and the guide will continue automatically.":"Explore this feature, then return to the guide when you're ready."}</b></div><button onClick={()=>{setGuideWaitingFor(null);resumeGuide()}}>Return to Guide</button></div>}
    <div className="workspaceGuide"><div><small>{effectiveRole.toUpperCase()} WORKSPACE</small><b>{effectiveRole==="Coach"?"Manage athletes and training decisions":effectiveRole==="Parent"?"Review, support, and communicate":effectiveRole==="Player"?(juniorPlayerMode?"One thing at a time. Have fun and keep improving.":"Keep today simple: check in, train, improve"):"Full access and role testing"}</b></div><span>{roleNavLabel(tab)}</span></div><div className="pageGuide"><div><small>{effectiveRole==="Parent"?(parentPageHelp[tab]?.title||roleNavLabel(tab)):effectiveRole==="Player"?(playerPageHelp[tab]?.title||roleNavLabel(tab)):pageHelp[tab]?.title||tab}</small><b>{effectiveRole==="Parent"?(parentPageHelp[tab]?.purpose||""):effectiveRole==="Player"?(playerPageHelp[tab]?.purpose||""):pageHelp[tab]?.purpose||""}</b></div><span>{effectiveRole==="Parent"?(parentPageHelp[tab]?.primary||""):effectiveRole==="Player"?(playerPageHelp[tab]?.primary||""):pageHelp[tab]?.primary||""}</span></div>{activeGroupTabs.length>1&&<div className="sectionSubnav">{activeGroupTabs.map(x=><button key={x} className={tab===x?"active":""} onClick={()=>setTab(x)}>{roleNavLabel(x)}</button>)}</div>}
    {tab==="Home"&&effectiveRole==="Player"&&<PlayerRoutinePriorityBanners readiness={readiness} weeklyReviews={weeklyReviews} onNavigate={navigateTo}/>}
    {tab==="Home"&&betaBridge&&<ConnectionHomeHub role={accountRole} onConnect={openAccountConnections} onHelp={()=>setShowConnectionHelp(true)}/>}
+   {tab==="Home"&&effectiveRole==="Player"&&Boolean(betaBridge?.sportProfiles&&betaBridge.sportProfiles.length>1)&&<MultiSportOverview profiles={betaBridge!.sportProfiles!} activeSport={sport} sportWorkspaces={sportWorkspaces} goals={goals} workouts={workouts} results={results} onSwitch={next=>void switchSportWorkspace(next)} busy={sportSwitching}/>}
    {tab==="Home"&&<PremiumHomeOverview accountRole={effectiveRole} juniorMode={juniorPlayerMode} profile={profile} sport={sport} goals={goals} workouts={workouts} results={results} readiness={readiness} competitions={competitions} dev={dev} setTab={setTab} onNavigate={navigateTo}/>}
-   {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} onNavigate={navigateTo} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/></>:<Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} onNavigate={navigateTo} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/>)} 
+   {tab==="Home"&&(effectiveRole==="Parent"?<ParentHome profile={profile} sport={sport} goals={goals} workouts={workouts} readiness={readiness} weeklyReviews={weeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} competitions={competitions} dev={dev} program={program} setTab={setTab}/>:effectiveRole==="Admin"?<><AdminHome profile={profile} sport={sport} roster={roster}/><Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} onNavigate={navigateTo} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete}/></>:<Home accountRole={effectiveRole} juniorMode={juniorPlayerMode} sport={sport} setSport={setSport} goals={goals} workouts={workouts} results={results} profile={profile} setProfile={setProfile} onProfileSaved={handleProfileSaved} readiness={readiness} competitions={competitions} dev={dev} program={program} weeklyReviews={weeklyReviews} setWeeklyReviews={setWeeklyReviews} coachWeeklyReviews={coachWeeklyReviews} developmentSystem={developmentSystem} testTargets={testTargets} workspaceRole={roleToWorkspace(effectiveRole)} onboardingDismissed={onboardingDismissed} setOnboardingDismissed={setOnboardingDismissed} setTab={setTab} onNavigate={navigateTo} editProfileRequest={editProfileRequest} openCoachTeams={betaBridge?.openCoachTeams} coachSelectedAthleteName={betaBridge?.selectedAthleteName} loginSessionKey={betaBridge?.loginSessionKey} coachCloudRoster={coachCloudRoster} coachRosterCloudStatus={coachRosterCloudStatus} selectCoachRosterAthlete={betaBridge?.selectCoachRosterAthlete} multiSportManaged={Boolean(betaBridge?.sportProfiles?.length)}/>)}  
    {tab==="Goals"&&<Goals viewRole={effectiveRole} actualRole={accountRole} authorName={accountSession.displayName} goals={goals} setGoals={setGoals} juniorMode={juniorPlayerMode}/>}
    {tab==="Calendar"&&(effectiveRole==="Parent"?<ParentSchedule sport={sport} workouts={workouts} setWorkouts={setWorkouts} competitions={competitions} seasonEvents={seasonEvents} setTab={setTab}/>:<Calendar accountRole={effectiveRole} sport={sport} workouts={workouts} setWorkouts={setWorkouts} profile={profile} seasonEvents={seasonEvents} setSeasonEvents={setSeasonEvents} trainingBlocks={trainingBlocks} setTrainingBlocks={setTrainingBlocks} competitions={competitions}/>)} 
    {tab==="Testing"&&<Testing accountRole={effectiveRole} sport={sport} library={[...definitions(sport),...custom.filter(x=>x.sport===sport)]} custom={custom} setCustom={setCustom} results={results} setResults={setResults} testTargets={testTargets} setTestTargets={setTestTargets}/>} 
@@ -3575,7 +3647,7 @@ function CoachHomeDevelopmentDashboard({roster,status,selectedAthleteName,select
  </section>;
 }
 
-function Home({accountRole,juniorMode,sport,setSport,goals,workouts,results,profile,setProfile,onProfileSaved,readiness,competitions,dev,program,weeklyReviews,setWeeklyReviews,coachWeeklyReviews,developmentSystem,testTargets,workspaceRole,onboardingDismissed,setOnboardingDismissed,setTab,onNavigate,editProfileRequest,openCoachTeams,coachSelectedAthleteName,loginSessionKey,coachCloudRoster,coachRosterCloudStatus,selectCoachRosterAthlete}:{accountRole:AccountRole;juniorMode?:boolean;sport:Sport;setSport:React.Dispatch<React.SetStateAction<Sport>>;goals:Goal[];workouts:Workout[];results:Result[];profile:Profile;setProfile:React.Dispatch<React.SetStateAction<Profile>>;onProfileSaved?:()=>void;readiness:ReadinessLog[];competitions:CompetitionLog[];dev:DevelopmentItem[];program:TrainingProgram|null;weeklyReviews:WeeklyReview[];setWeeklyReviews:React.Dispatch<React.SetStateAction<WeeklyReview[]>>;coachWeeklyReviews:CoachWeeklyReview[];developmentSystem:DevelopmentSystemState;testTargets:TestTarget[];workspaceRole:WorkspaceRole;onboardingDismissed:boolean;setOnboardingDismissed:React.Dispatch<React.SetStateAction<boolean>>;setTab:React.Dispatch<React.SetStateAction<Tab>>;onNavigate:NavigateTo;editProfileRequest:number;openCoachTeams?:()=>void;coachSelectedAthleteName?:string;loginSessionKey?:string;coachCloudRoster?:CoachCloudAthleteState[];coachRosterCloudStatus?:"idle"|"loading"|"ready"|"error";selectCoachRosterAthlete?:((workspaceId:string)=>void)}){
+function Home({accountRole,juniorMode,sport,setSport,goals,workouts,results,profile,setProfile,onProfileSaved,readiness,competitions,dev,program,weeklyReviews,setWeeklyReviews,coachWeeklyReviews,developmentSystem,testTargets,workspaceRole,onboardingDismissed,setOnboardingDismissed,setTab,onNavigate,editProfileRequest,openCoachTeams,coachSelectedAthleteName,loginSessionKey,coachCloudRoster,coachRosterCloudStatus,selectCoachRosterAthlete,multiSportManaged=false}:{accountRole:AccountRole;juniorMode?:boolean;sport:Sport;setSport:React.Dispatch<React.SetStateAction<Sport>>;goals:Goal[];workouts:Workout[];results:Result[];profile:Profile;setProfile:React.Dispatch<React.SetStateAction<Profile>>;onProfileSaved?:(profile?:Profile)=>void;readiness:ReadinessLog[];competitions:CompetitionLog[];dev:DevelopmentItem[];program:TrainingProgram|null;weeklyReviews:WeeklyReview[];setWeeklyReviews:React.Dispatch<React.SetStateAction<WeeklyReview[]>>;coachWeeklyReviews:CoachWeeklyReview[];developmentSystem:DevelopmentSystemState;testTargets:TestTarget[];workspaceRole:WorkspaceRole;onboardingDismissed:boolean;setOnboardingDismissed:React.Dispatch<React.SetStateAction<boolean>>;setTab:React.Dispatch<React.SetStateAction<Tab>>;onNavigate:NavigateTo;editProfileRequest:number;openCoachTeams?:()=>void;coachSelectedAthleteName?:string;loginSessionKey?:string;coachCloudRoster?:CoachCloudAthleteState[];coachRosterCloudStatus?:"idle"|"loading"|"ready"|"error";selectCoachRosterAthlete?:((workspaceId:string)=>void);multiSportManaged?:boolean}){
  const [editingProfile,setEditingProfile]=useState(false);
  const [roleSetupDismissed,setRoleSetupDismissed]=useState(false);
  const [roleSetupTemporarilyHidden,setRoleSetupTemporarilyHidden]=useState(false);
@@ -3623,7 +3695,7 @@ function Home({accountRole,juniorMode,sport,setSport,goals,workouts,results,prof
    setProfile(x=>({...x,photoUrl}));
    setProfileDraft(x=>({...x,photoUrl}));
    setPhotoMessage("Player photo updated.");
-   onProfileSaved?.();
+   onProfileSaved?.({...profile,photoUrl});
   }catch(err:any){setPhotoMessage(err?.message||"Could not update the Player photo.")}finally{setPhotoBusy(false)}
  };
  const beginProfileEdit=()=>{
@@ -3673,7 +3745,7 @@ function Home({accountRole,juniorMode,sport,setSport,goals,workouts,results,prof
   setProfile(clean);
   setProfileSaveError("");
   setEditingProfile(false);
-  onProfileSaved?.();
+  onProfileSaved?.(clean);
  };
  const gs=goals.length?Math.round(goals.reduce((a,g)=>a+g.progress,0)/goals.length):0;
  const ws=workouts.filter(x=>x.sport===sport),done=ws.filter(x=>x.completed).length;
@@ -3971,10 +4043,10 @@ const signals:PerformanceSignal[]=[
    </div>
    :
    <div className="profileEditPanel">
-    <div className="profileSetupNotice"><b>Choose sport and enter age first</b><span>The selected sport is saved to this athlete profile and stays locked until Edit Profile is used again. Sport updates the Position menu. Age adjusts workout volume, session length, and exercise progression.</span></div>
+    <div className="profileSetupNotice"><b>{multiSportManaged?`${sport} profile details`:"Choose sport and enter age first"}</b><span>{multiSportManaged?"Use Manage Sports & Teams above to add or switch sports. Position changes here apply only to the active sport workspace.":"The selected sport is saved to this athlete profile and stays locked until Edit Profile is used again. Sport updates the Position menu. Age adjusts workout volume, session length, and exercise progression."}</span></div>
     <div className="profileGrid">
      <label className="playerNameField"><span>Player name <b>Required</b></span><input id="player-profile-name" autoComplete="name" value={profileDraft.name==="Athlete"?"":profileDraft.name||""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,name:e.target.value}));setProfileSaveError("")}} placeholder="Enter player name"/></label>
-     <label>Sport<select value={sportDraft} onChange={e=>{const next=e.target.value as Sport;setSportDraft(next);setProfileDraft((x:Profile)=>({...x,position:""}));setProfileSaveError("")}}>{sports.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
+     <label>Sport<select value={sportDraft} disabled={multiSportManaged} onChange={e=>{const next=e.target.value as Sport;setSportDraft(next);setProfileDraft((x:Profile)=>({...x,position:""}));setProfileSaveError("")}}>{sports.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
      <label>Age<input type="number" inputMode="numeric" min="6" max="99" value={profileDraft.age||""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,age:e.target.value}));setProfileSaveError("")}} placeholder="e.g. 14"/></label>
      <label>Position<select value={positions[sportDraft].includes(profileDraft.position)?profileDraft.position:""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,position:e.target.value}));setProfileSaveError("")}}><option value="">Select position</option>{positions[sportDraft].map(x=><option key={x} value={x}>{x}</option>)}</select></label>
      <label>Team<input value={profileDraft.team||""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,team:e.target.value}));setProfileSaveError("")}} placeholder="Enter team"/></label>
@@ -6057,7 +6129,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.110 RC60","good"],
+  ["App Version","72.3.111 RC61","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],

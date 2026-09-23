@@ -191,3 +191,24 @@ Run `011_google_health_fitbit_migration.sql` after migration 010. It adds the `g
 Run `012_kinexon_opt_in_coach_sharing.sql` after migration 011. It adds KINEXON as a provider, normalized movement/load columns, and revocable per-Coach category grants.
 
 Migration 010's direct Player/Parent-only tracker policies remain intact. Coaches receive only server-filtered fields after an active grant from the Player or linked Parent. Admin remains blocked.
+
+## Migration 013 — Closed-beta privacy
+
+Run `013_youth_privacy_closed_beta.sql` after migration 012. It adds privacy consent, guardian attestation, access summaries, and reviewed privacy requests.
+
+## Migration 014 — Parent/Player claim repair
+
+Run `014_parent_player_claim_code_repair.sql` after migration 013. It repairs Parent-created Player claim-code behavior without changing existing family relationships.
+
+## Migration 015 — Multi-sport and multi-team Player profiles
+
+Run `015_multi_sport_team_family_profiles.sql` after migration 014. It:
+
+- creates one sport profile per Player and sport;
+- safely converts every existing Player's current sport into their primary profile;
+- allows multiple team memberships without replacing another sport's team;
+- adds one primary team per sport;
+- preserves multiple Parent logins connected to the same Player;
+- keeps Coach access tied to explicit team membership and Player/Parent consent.
+
+Migration 015 does not enable tracker connectivity.
