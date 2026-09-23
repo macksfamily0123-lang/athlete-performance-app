@@ -7,7 +7,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const migration=fs.readFileSync('supabase/migrations/009_player_more_cloud_test_athletes.sql');
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.109'],
+ ['version is 72.3.83',pkg.version==='72.3.110'],
  ['RC31 beta ribbon/version references updated',app.includes('72.3.90 RC40')],
  ['new RC31 test registered',pkg.scripts['test:elite-home-goals-recovery']?.includes('elite-home-goals-recovery-check.mjs')],
  ['hero circular pseudo geometry is reset',css.includes('.performanceOS .elitePerformanceHero::before')&&css.includes('border-radius:0!important')&&css.includes('box-shadow:none!important')],
@@ -15,7 +15,7 @@ const checks=[
  ['visual Progress action contains explicit Progress text',app.includes('<b>VIEW PROGRESS</b><span>Open analytics ↗</span>')],
  ['recovery tips are computed from readiness',(app.includes('const recoveryTips=latestReadiness?[')||app.includes('const recoveryTips=trackerSleepHours!=null?['))&&app.includes('recoveryHeadline')],
  ['Player Home has prominent Recovery Tips destination',app.includes('className="eliteRecoveryHome"')&&app.includes('RECOVERY TIPS')&&app.includes('OPEN RECOVERY →')],
- ['Recovery Home opens readiness/recovery tab',app.includes('className="eliteRecoveryHome" onClick={()=>setTab("Coach")}')],
+ ['Recovery Home opens exact readiness/recovery destination',app.includes('className="eliteRecoveryHome" onClick={()=>onNavigate("Coach","setup-readiness")}')],
  ['Goals page has scoped elite wrapper',app.includes('className="eliteGoalsPage"')&&app.includes('data-junior={juniorMode?"true":"false"}')],
  ['Goals page has performance signal rail',app.includes('eliteGoalsSignalRail')&&app.includes('NEAR FINISH')],
  ['non-Junior Goals cards are explicitly square',css.includes('.eliteGoalsPage[data-junior="false"] :is(.card,.goalCard')&&css.includes('border-radius:0!important')],

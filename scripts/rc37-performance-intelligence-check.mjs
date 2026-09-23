@@ -3,13 +3,13 @@ const app=fs.readFileSync('components/AthleteApp.tsx','utf8');
 const css=fs.readFileSync('app/globals.css','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const checks=[
- ['version is 72.3.89',pkg.version==='72.3.109'],
+ ['version is 72.3.89',pkg.version==='72.3.110'],
  ['performance intelligence surface exists',app.includes('className="performanceIntelligence"')],
  ['performance index calculation exists',app.includes('const intelligenceScore=Math.round')],
  ['readiness can drive recovery-first guidance',app.includes('"Make recovery the priority"')],
  ['training can drive direct training guidance',app.includes('"Ready for today\'s training"')],
  ['performance momentum guidance exists',app.includes('"Keep building on recent progress"')],
- ['performance intelligence links to action tab',app.includes('onClick={()=>setTab(intelligenceTab)}')],
+ ['performance intelligence links to exact action destination',app.includes('onClick={()=>onNavigate(intelligenceTab')],
  ['subtle hero motion exists',css.includes('@keyframes rc38HeroIn')],
  ['signal motion exists',css.includes('@keyframes rc38SignalIn')],
  ['sparkline draw animation exists',css.includes('@keyframes rc38LineDraw')],

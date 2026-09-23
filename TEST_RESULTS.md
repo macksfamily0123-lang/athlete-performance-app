@@ -1,4 +1,20 @@
-# Phase 72.3.109 RC59 — Mobile Header Validation
+# Phase 72.3.110 RC60 — Navigation and Routine Priority Validation
+
+- RC60 exact-destination and routine-priority checks: 15/15 passed.
+- Confirmed Daily Check-In banners and reminder popups focus `setup-readiness` after the Train page renders.
+- Confirmed Weekly Review banners and reminder popups focus `setup-weekly-review`, including same-page Home navigation.
+- Confirmed incomplete Daily Check-In is first on Player Home and incomplete Weekly Review follows it.
+- Confirmed each priority banner is removed when its corresponding routine is complete.
+- Confirmed both existing reminder popups remain present and connected.
+- Full registered `npm test` regression suite: passed.
+- TypeScript (`tsc --noEmit`): passed.
+- Next.js 15.5.21 optimized production build: passed.
+- Production routes remain `/` and `/_not-found`; no tracker API routes were generated.
+- Build emitted only the existing non-blocking Autoprefixer compatibility warnings for legacy `end` alignment values.
+- No database migration added; migrations 010–014 remain preserved.
+- Tracker connectivity remains disabled.
+
+## RC59 compatibility
 
 - RC59 mobile-header checks: passed.
 - Confirmed standard phones show all actions in three readable columns.

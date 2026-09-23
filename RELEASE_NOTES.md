@@ -1,3 +1,17 @@
+# Phase 72.3.110 RC60 — Exact Navigation + Routine Priority
+
+- Adds one destination-navigation system that opens a tab and focuses the exact requested section.
+- Makes every Daily Check-In action land directly on the Player-owned check-in form.
+- Makes every Weekly Review action land directly on the current weekly-review form.
+- Places incomplete Daily Check-In first at the top of Player Home.
+- Places incomplete Weekly Review directly after Daily Check-In at the top of Player Home.
+- Removes each priority banner automatically when its routine is complete.
+- Preserves both reminder popups: daily while today's check-in is incomplete and end-of-week while the current review is incomplete.
+- Directs Player Home training actions to the workout log or schedule form instead of only opening Calendar.
+- Preserves RC59 phone-header visibility, RC58 global gutters, RC57 Player Home gutters, and RC56–RC54 UI repairs.
+- Preserves Supabase, migrations 010–014, role permissions, Junior mode, account connections, and all existing features.
+- Keeps tracker connectivity disabled. No new database migration is required.
+
 # Phase 72.3.109 RC59 — Mobile Header Visibility
 
 - Replaces the clipped horizontal phone-header scroller with a complete action grid.

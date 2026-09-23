@@ -8,8 +8,8 @@ const css=read("app/globals.css");
 const pkg=JSON.parse(read("package.json"));
 const rc54=css.slice(css.indexOf("Phase 72.3.109 RC59 — Premium UX + Dashboard Correction"));
 
-check(pkg.version==="72.3.109","release version is Phase 72.3.109");
-check(beta.includes("CLOSED BETA · RC59 · v72.3.109"),"RC54 release ribbon is present");
+check(pkg.version==="72.3.110","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC60 · v72.3.110"),"RC54 release ribbon is present");
 check(athlete.includes('aria-label="Athlete performance summary"'),"dashboard exposes one shared performance summary");
 check(athlete.includes('label:"READINESS"')&&athlete.includes('label:"GOAL EXECUTION"')&&athlete.includes('label:"PROGRESS"')&&athlete.includes('label:"TRAINING"'),"all four required dashboard tiles are present");
 check((athlete.match(/className={`rc54PerformanceTile/g)||[]).length===1,"all four dashboard tiles render through the same component template");

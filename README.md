@@ -1,4 +1,12 @@
-# Athlete Performance App — Phase 72.3.109 RC59
+# Athlete Performance App — Phase 72.3.110 RC60
+
+## RC60 — Exact Navigation + Routine Priority
+
+Every Player Home action that names a specific destination now opens that exact section instead of stopping at the top of its page. Daily Check-In actions focus the Player-owned check-in form, Weekly Review actions focus the current weekly-review form, and training actions focus the workout list or scheduling form as appropriate.
+
+If today's Daily Check-In is incomplete, **Start Daily Check-In** is the first banner on Player Home. If the current Weekly Review is incomplete, **Complete Weekly Review** appears directly beneath it. Each banner disappears as soon as its task is complete. The existing Daily Check-In popup and end-of-week Weekly Review popup remain active and now use the same reliable exact-section navigation.
+
+RC59 phone-header visibility, RC58 global alignment, RC57 Player Home gutters, RC56 Admin shortcut repairs, RC55 account connections, the RC54 dashboard and premium design, Supabase, migrations 010–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled. RC60 requires no new database migration.
 
 ## RC59 — Mobile Header Visibility
 

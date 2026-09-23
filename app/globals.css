@@ -2530,6 +2530,93 @@ input,select,textarea{min-height:42px}
  .parentQuickActions{grid-template-columns:1fr}
 }
 
+/* =========================================================
+   Phase 72.3.110 RC60 — Exact destinations + routine priority
+   ========================================================= */
+.routinePriorityStack{
+ display:grid;
+ gap:8px;
+ width:100%;
+ margin:0 0 16px;
+}
+.routinePriorityBanner{
+ width:100%;
+ min-width:0;
+ min-height:92px;
+ display:grid;
+ grid-template-columns:58px minmax(0,1fr) auto;
+ align-items:center;
+ gap:16px;
+ padding:15px 18px;
+ text-align:left;
+ color:var(--rc54-silver-1,#e4e8e6);
+ background:var(--rc54-graphite-2,#101513);
+ border:1px solid var(--rc54-silver-5,#47504c);
+ border-left:4px solid var(--rc54-forest-4,#3f8f6b);
+ border-radius:1px!important;
+ box-shadow:0 12px 28px rgba(0,0,0,.24);
+ overflow:hidden;
+}
+.routinePriorityBanner:hover,.routinePriorityBanner:focus-visible{
+ color:#fff;
+ border-color:var(--rc54-silver-3,#8e9894);
+ border-left-color:var(--rc54-forest-3,#63b38d);
+ background:var(--rc54-graphite-1,#151c19);
+}
+.routinePriorityIcon{
+ width:58px;
+ height:58px;
+ display:grid;
+ place-items:center;
+ color:var(--rc54-silver-1,#e4e8e6);
+ background:#10261d;
+ border:1px solid #4c6e5f;
+}
+.routinePriorityIcon svg{width:32px;height:32px;stroke-width:1.9}
+.routinePriorityCopy{display:grid;gap:3px;min-width:0}
+.routinePriorityCopy small{
+ color:var(--rc54-forest-2,#83c7a7);
+ font-size:.65rem;
+ line-height:1.25;
+ font-weight:900;
+ letter-spacing:.13em;
+}
+.routinePriorityCopy b{font-size:1.18rem;line-height:1.18;color:#f2f5f3}
+.routinePriorityCopy span{font-size:.82rem;line-height:1.4;color:var(--rc54-silver-3,#a9b1ad)}
+.routinePriorityBanner>strong{
+ justify-self:end;
+ padding:10px 12px;
+ color:#edf3f0;
+ background:#163c2b;
+ border:1px solid #56826e;
+ font-size:.72rem;
+ letter-spacing:.1em;
+ white-space:nowrap;
+}
+.routinePriorityBanner.weekly{border-left-color:var(--rc54-silver-3,#8e9894)}
+.routinePriorityBanner.weekly .routinePriorityIcon{background:#181e1b;border-color:#68736e}
+.routinePriorityBanner.weekly .routinePriorityCopy small{color:var(--rc54-silver-2,#c0c7c3)}
+
+@media(max-width:700px){
+ .routinePriorityStack{gap:7px;margin-bottom:12px}
+ .routinePriorityBanner{
+  grid-template-columns:50px minmax(0,1fr);
+  gap:11px;
+  min-height:0;
+  padding:13px 14px;
+ }
+ .routinePriorityIcon{width:50px;height:50px}
+ .routinePriorityIcon svg{width:28px;height:28px}
+ .routinePriorityCopy b{font-size:1rem}
+ .routinePriorityCopy span{font-size:.76rem}
+ .routinePriorityBanner>strong{
+  grid-column:2;
+  justify-self:start;
+  margin-top:3px;
+  padding:8px 10px;
+ }
+}
+
 
 /* Phase 72.3.22 — Beta feedback inbox, signup verification, mobile recovery alignment */
 .signupConfirmationCard{text-align:center;max-width:560px}

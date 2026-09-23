@@ -8,8 +8,8 @@ const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const checks=[];
 const check=(condition,label)=>checks.push({condition:Boolean(condition),label});
 
-check(pkg.version==="72.3.109","release version is Phase 72.3.109");
-check(beta.includes("CLOSED BETA · RC59 · v72.3.109"),"RC56 release ribbon is present");
+check(pkg.version==="72.3.110","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC60 · v72.3.110"),"RC56 release ribbon is present");
 check(app.includes('className="nativeAdminCommandList rc56AdminLaunchRows"'),"Admin Home uses repaired launch rows");
 check(app.includes('className="adminLaunchAction">Open →</strong>'),"Open action is inside the copy column");
 check(!app.includes('<div className="nativeAdminCommandList">'),"old edge-aligned Admin list is removed");
