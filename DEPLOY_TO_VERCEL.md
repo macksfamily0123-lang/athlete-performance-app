@@ -1,6 +1,6 @@
-# Elite Performance · Phase 72.3.115 RC65 — GitHub and Vercel Deployment
+# Phase 72.3.112 RC62 — GitHub and Vercel Deployment
 
-Run these commands after RC65 passes `npm run release:check` in Codespaces and migration 015 has been run in Supabase.
+Run these commands after RC62 passes `npm run release:check` in Codespaces and migration 016 has been run in Supabase.
 
 ## 1. Review the changed files
 
@@ -14,10 +14,10 @@ git status
 git add .
 ```
 
-## 3. Commit RC65
+## 3. Commit RC62
 
 ```bash
-git commit -m "Release Phase 72.3.115 RC65 Home icon system"
+git commit -m "Release Phase 72.3.112 RC62 combat tennis volleyball"
 ```
 
 ## 4. Integrate any newer GitHub commit

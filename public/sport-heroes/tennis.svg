@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Tennis athlete</title>
+  <desc id="desc">A premium graphite and forest green tennis scene with an athlete, racket, ball, and court lines.</desc>
+  <rect width="1600" height="900" fill="#07110d"/>
+  <path d="M0 735L1600 505V900H0Z" fill="#101a15"/>
+  <path d="M80 820L1510 610M560 900L1440 560" stroke="#9aa59f" stroke-width="6" opacity=".5"/>
+  <circle cx="1080" cy="195" r="58" fill="#c8cfcb"/>
+  <path d="M1025 255Q1080 220 1135 260L1190 475 1050 510 975 370Z" fill="#d8ddda"/>
+  <path d="M1000 290L850 405M1125 285L1280 405" stroke="#d8ddda" stroke-width="56" stroke-linecap="round"/>
+  <path d="M1060 485L915 705M1165 475L1290 700" stroke="#d8ddda" stroke-width="68" stroke-linecap="round"/>
+  <ellipse cx="1365" cy="430" rx="92" ry="124" fill="none" stroke="#71c29f" stroke-width="18" transform="rotate(-28 1365 430)"/>
+  <path d="M1308 535L1245 650" stroke="#71c29f" stroke-width="20" stroke-linecap="round"/>
+  <path d="M1300 350L1430 500M1260 400L1410 555" stroke="#50665c" stroke-width="4" opacity=".9"/>
+  <circle cx="760" cy="350" r="24" fill="#71c29f"/>
+  <text x="110" y="190" fill="#71c29f" font-family="Arial,sans-serif" font-size="42" font-weight="700" letter-spacing="10">TENNIS</text>
+  <text x="110" y="272" fill="#edf1ef" font-family="Arial,sans-serif" font-size="70" font-weight="800">Own the next point.</text>
+</svg>

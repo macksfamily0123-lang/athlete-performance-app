@@ -1,51 +1,13 @@
-# Phase 72.3.115 RC65 — Consistent Home Icon System
+# Phase 72.3.112 RC62 — Combat Sports, Tennis + Volleyball
 
-- Replaces the distorted Admin **Beta Focus · Review Athlete** mark with the normalized Progress icon.
-- Removes the legacy clipping shape that could crop or stretch focus-card icons.
-- Gives every Home shortcut one shared SVG badge component across Player, Junior, Coach, Parent, and Admin roles.
-- Standardizes icon bounds, stroke weight, scale, alignment, square panel geometry, and mobile sizing.
-- Adds restrained emerald, mint, forest-green, and metallic-silver accents for clearer visual recognition.
-- Moves Parent Home Schedule, Recovery, Progress, and Support icons into the left diamond timeline position.
-- Prevents the Parent Progress page from panning sideways on a phone and makes its analytics controls responsive.
-- Centers the Recovery Reminder callout and allows its copy to wrap cleanly.
-- Advances the offline application cache to `v115` so deployed and installed pages receive the icon repair.
-- Preserves Supabase, migrations 001–015, all roles and permissions, multi-sport/team/family support, workout creation, the Elite Performance brand, and all existing functionality.
-- Keeps tracker connectivity disabled. No new database migration is required.
-
-# Phase 72.3.113 RC63 — Speed E Logo Refinement
-
-- Replaces the enclosed EP crest with an open, forward-leaning **Speed E**.
-- Uses metallic-silver E bars, a forest-green spine, and restrained motion accents.
-- Keeps the approved Elite Performance wordmark and High Performance Athlete Development line unchanged.
-- Updates the app header, loading state, authentication, workspace chooser, PWA icons, and Apple touch icon.
-- Preserves Supabase, migrations 001–015, every role and permission, RC61–RC62 functionality, and disabled tracker connectivity.
-- Requires no new database migration.
-
-# Phase 72.3.112 RC62 — Elite Performance Brand System
-
-- Renames the product from Hockey Dev / Athlete Performance to **Elite Performance**.
-- Replaces the HD and AP letter badges with a purpose-built **EP performance crest**.
-- Adds scalable mark and full horizontal logo assets in forest green, metallic silver, and graphite.
-- Updates the top-left header, loading state, authentication, password recovery, workspace chooser, installation prompts, privacy copy, invitations, page metadata, and installed app identity.
-- Regenerates the 192px, 512px, and Apple touch icons from the EP crest.
-- Keeps the logo large, sharp, and fully visible on standard and extra-small phones.
-- Preserves RC61 multi-sport/team/family functionality, Supabase, migrations 001–015, role permissions, workout creation, Junior mode, and all existing features.
-- Keeps tracker connectivity disabled. No new database migration is required.
-
-# Phase 72.3.111 RC61 — Multi-Sport, Multi-Team + Shared Family Access
-
-- Adds normalized Player sport profiles with exactly one primary sport.
-- Adds a Player-facing **Sports & Teams** manager in Connections.
-- Supports multiple teams per sport and teams across different sports.
-- Adds one primary team per sport without overwriting another sport's team.
-- Adds a top-of-app sport workspace switcher.
-- Separates goals, workouts, tests, schedules, readiness, reviews, and development data by sport workspace.
-- Adds an **All Sports Overview** with combined goals, completed workouts, tests, and teams.
-- Adds Player-controlled team removal and sport-specific primary-team selection.
-- Clarifies that every additional Parent uses a separate login and fresh one-time Parent Connection Code.
-- Preserves the existing many-to-many Parent relationship and one shared Player record.
-- Adds migration `015_multi_sport_team_family_profiles.sql` and safely seeds every existing Player's current sport.
-- Preserves RC54–RC60 UX repairs, Supabase, migrations 001–014, roles, permissions, and all existing features.
+- Adds **Combat Sports** with MMA, Boxing, Kickboxing, Grappling, Karate, Tae Kwon Do, and Judo disciplines.
+- Adds **Tennis** with Singles, Doubles, and Singles & Doubles formats.
+- Adds **Volleyball** with seven position options.
+- Adds sport-specific testing, competition statistics, skill trees, development priorities, training templates, and workout guidance.
+- Uses plain-language **Discipline** and **Format** labels where the generic Position label does not fit.
+- Adds premium graphite, forest-green, and metallic-silver artwork for all three sports.
+- Adds migration `016_combat_tennis_volleyball_sports.sql` to expand the existing sport-profile validation safely.
+- Preserves RC61 multi-sport/team/family workspaces, Supabase, migrations 001–015, roles, permissions, and all existing features.
 - Keeps tracker connectivity disabled.
 
 # Phase 72.3.110 RC60 — Exact Navigation + Routine Priority

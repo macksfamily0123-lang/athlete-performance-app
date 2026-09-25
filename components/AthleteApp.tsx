@@ -3,12 +3,12 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 import {getSupabase} from "../lib/supabase";
-// Phase 72.3.115 RC65: all external tracker connectivity remains intentionally
+// Phase 72.3.112 RC62: all external tracker connectivity remains intentionally
 // disabled. Keeping the archived types below makes this change reversible,
 // while the false gate prevents tracker UI, loading, syncing, and sharing.
 const TRACKER_CONNECTIVITY_ENABLED=false;
 
-type Sport="Baseball"|"Football"|"Ice Hockey"|"Basketball"|"Lacrosse"|"Wrestling"|"Soccer"|"Figure Skating";
+type Sport="Baseball"|"Football"|"Ice Hockey"|"Basketball"|"Lacrosse"|"Wrestling"|"Soccer"|"Figure Skating"|"Combat Sports"|"Tennis"|"Volleyball";
 type TestDef={id:string;name:string;category:string;unit:string;lowerBetter:boolean};
 type CustomTest=TestDef&{sport:Sport};
 type Result={id:number;testId:string;name:string;category:string;unit:string;value:number;date:string;sport:Sport};
@@ -238,7 +238,7 @@ const navMeta:Record<string,{icon:string;label:string}>={
  Competition:{icon:"◆",label:"Competition"},
  Roster:{icon:"roster" as PremiumIconName,label:"Roster"}
 };
-const sports:Sport[]=["Baseball","Football","Ice Hockey","Basketball","Lacrosse","Wrestling","Soccer","Figure Skating"];
+const sports:Sport[]=["Baseball","Football","Ice Hockey","Basketball","Lacrosse","Wrestling","Soccer","Figure Skating","Combat Sports","Tennis","Volleyball"];
 const sportHeroAsset=(sport:Sport)=>({
  "Baseball":"/sport-heroes/baseball.svg",
  "Football":"/sport-heroes/football.svg",
@@ -247,7 +247,10 @@ const sportHeroAsset=(sport:Sport)=>({
  "Lacrosse":"/sport-heroes/lacrosse.svg",
  "Wrestling":"/sport-heroes/wrestling.svg",
  "Soccer":"/sport-heroes/soccer.svg",
- "Figure Skating":"/sport-heroes/figure-skating.svg"
+ "Figure Skating":"/sport-heroes/figure-skating.svg",
+ "Combat Sports":"/sport-heroes/combat-sports.svg",
+ "Tennis":"/sport-heroes/tennis.svg",
+ "Volleyball":"/sport-heroes/volleyball.svg"
 }[sport]);
 
 const realisticSportHeroAsset=(sport:Sport)=>({
@@ -258,7 +261,10 @@ const realisticSportHeroAsset=(sport:Sport)=>({
  "Lacrosse":"/commercial-scenes/lacrosse-player.webp",
  "Wrestling":"/commercial-scenes/wrestling-player.webp",
  "Soccer":"/commercial-scenes/soccer-player.webp",
- "Figure Skating":"/commercial-scenes/figure-skating-player.webp"
+ "Figure Skating":"/commercial-scenes/figure-skating-player.webp",
+ "Combat Sports":"/sport-heroes/combat-sports.svg",
+ "Tennis":"/sport-heroes/tennis.svg",
+ "Volleyball":"/sport-heroes/volleyball.svg"
 }[sport]);
 
 const premiumHomeHeroAsset=(sport:Sport,accountRole:AccountRole,juniorMode:boolean)=>{
@@ -340,6 +346,18 @@ const competitionStatsFor=(sport:Sport,position:string):string[]=>{
   if(p.includes("synchronized"))return ["Total Score","Technical Element Score","Program Component Score","Elements Completed","Level 4 Elements","Deductions"];
   return ["Total Score","Technical Element Score","Program Component Score","Jumps Landed","Spins Completed","Step Sequences Completed","Deductions"];
  }
+ if(sport==="Combat Sports"){
+  if(p.includes("grappling"))return ["Takedowns","Sweeps","Guard Passes","Submission Attempts","Submissions","Escapes","Match Points"];
+  if(p.includes("judo"))return ["Throws","Takedowns","Pins","Submission Attempts","Penalties","Match Points"];
+  if(p.includes("mma"))return ["Significant Strikes Landed","Takedowns","Takedown Attempts","Submission Attempts","Knockdowns","Rounds Won"];
+  return ["Rounds Won","Strikes Landed","Knockdowns","Standing Counts","Penalties","Match Points"];
+ }
+ if(sport==="Tennis")return ["Aces","Double Faults","First Serves In","First Serve Attempts","Winners","Unforced Errors","Break Points Won","Games Won","Sets Won"];
+ if(sport==="Volleyball"){
+  if(p.includes("setter"))return ["Assists","Kills","Aces","Digs","Blocks","Service Errors"];
+  if(p.includes("libero")||p.includes("defensive"))return ["Digs","Serve Receptions","Reception Errors","Assists","Aces","Service Errors"];
+  return ["Kills","Attack Attempts","Hitting Errors","Blocks","Aces","Digs","Service Errors"];
+ }
  return [];
 };
 
@@ -364,8 +382,12 @@ const positions:Record<Sport,string[]>={
  "Ice Hockey":["Goaltender","Left defense","Right defense","Left wing","Right wing","Center"],
  Basketball:["Point Guard","Shooting Guard","Small Forward","Power Forward","Center"],
  Lacrosse:["Attack","Midfield","Defense","Faceoff Specialist","Goalie"],
- Wrestling:["Wrestler"]
+ Wrestling:["Wrestler"],
+ "Combat Sports":["MMA","Boxing","Kickboxing","Grappling","Karate","Tae Kwon Do","Judo"],
+ Tennis:["Singles","Doubles","Singles & Doubles"],
+ Volleyball:["Setter","Outside Hitter","Opposite Hitter","Middle Blocker","Libero","Defensive Specialist","Serving Specialist"]
 };
+const sportRoleLabel=(sport:Sport)=>sport==="Combat Sports"?"Discipline":sport==="Tennis"?"Format":"Position";
 
 const raw:Record<Sport,string[][]>={
  Baseball:[["10-yard sprint","Speed","sec","1"],["20-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Bench press","Strength","lb","0"]],
@@ -375,7 +397,10 @@ const raw:Record<Sport,string[][]>={
  Lacrosse:[["20-yard sprint","Speed","sec","1"],["Pro agility shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Bench press","Strength","lb","0"]],
  Wrestling:[["20-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Squat","Strength","lb","0"],["Pull-ups","Strength","reps","0"]],
  Soccer:[["10-yard sprint","Speed","sec","1"],["20-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"]],
- "Figure Skating":[["Single-leg balance","Skill","sec","0"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["30-second jump count","Endurance","reps","0"],["Spin rotations","Skill","reps","0"],["Edge control course","Agility","sec","1"]]
+ "Figure Skating":[["Single-leg balance","Skill","sec","0"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["30-second jump count","Endurance","reps","0"],["Spin rotations","Skill","reps","0"],["Edge control course","Agility","sec","1"]],
+ "Combat Sports":[["10-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Pull-ups","Strength","reps","0"]],
+ Tennis:[["10-yard sprint","Speed","sec","1"],["20-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"]],
+ Volleyball:[["10-yard sprint","Speed","sec","1"],["5-10-5 shuttle","Agility","sec","1"],["Vertical jump","Power","in","0"],["Broad jump","Power","in","0"],["Squat","Strength","lb","0"]]
 };
 const definitions=(sport:Sport):TestDef[]=>raw[sport].map((x,i)=>({id:`${sport}-${i}`,name:x[0],category:x[1],unit:x[2],lowerBetter:x[3]==="1"}));
 const localDate=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -434,7 +459,10 @@ const sportSkillTrees:Record<Sport,string[]>={
  Lacrosse:["Stick Skills","Passing & Catching","Shooting","Dodging","Ground Balls","Defensive Footwork","Transition Play","Decision-Making"],
  Wrestling:["Stance & Motion","Hand Fighting","Takedown Entries","Takedown Finishes","Defense & Sprawl","Mat Returns","Escapes & Reversals","Match Management"],
  Soccer:["First Touch","Passing","Dribbling","Finishing","Defending","Off-Ball Movement","Transition Decisions","Position-Specific Play"],
- "Figure Skating":["Edge Control","Turns & Steps","Jump Technique","Landing Control","Spins","Balance & Posture","Program Execution","Performance Quality"]
+ "Figure Skating":["Edge Control","Turns & Steps","Jump Technique","Landing Control","Spins","Balance & Posture","Program Execution","Performance Quality"],
+ "Combat Sports":["Stance & Guard","Footwork & Distance","Striking Technique","Clinch Control","Takedowns & Throws","Ground Control","Defense & Escapes","Tactical Decisions"],
+ Tennis:["Serve","Return","Forehand","Backhand","Volley","Court Movement","Point Construction","Match Management"],
+ Volleyball:["Serving","Passing","Setting","Attacking","Blocking","Defense","Court Movement","Game Decisions"]
 };
 
 type DevelopmentStage="Foundation"|"Build"|"Performance";
@@ -508,6 +536,18 @@ const positionSkillPriorities=(sport:Sport,position:string):string[]=>{
   if(p.includes("synch"))return ["Edge Control","Turns & Steps","Program Execution","Balance & Posture","Performance Quality"];
   return ["Jump Technique","Landing Control","Spins","Edge Control","Program Execution"];
  }
+ if(sport==="Combat Sports"){
+  if(p.includes("boxing")||p.includes("kickboxing")||p.includes("karate")||p.includes("tae kwon"))return ["Stance & Guard","Footwork & Distance","Striking Technique","Defense & Escapes","Tactical Decisions"];
+  if(p.includes("grappling")||p.includes("judo"))return ["Takedowns & Throws","Ground Control","Defense & Escapes","Clinch Control","Tactical Decisions"];
+  return ["Stance & Guard","Footwork & Distance","Striking Technique","Takedowns & Throws","Tactical Decisions"];
+ }
+ if(sport==="Tennis")return ["Serve","Return","Court Movement","Point Construction","Match Management"];
+ if(sport==="Volleyball"){
+  if(p.includes("setter"))return ["Setting","Game Decisions","Court Movement","Serving","Defense"];
+  if(p.includes("libero")||p.includes("defensive"))return ["Passing","Defense","Court Movement","Serving","Game Decisions"];
+  if(p.includes("middle"))return ["Blocking","Attacking","Court Movement","Serving","Game Decisions"];
+  return ["Attacking","Passing","Serving","Blocking","Game Decisions"];
+ }
  if(sport==="Wrestling")return ["Stance & Motion","Hand Fighting","Takedown Entries","Defense & Sprawl","Match Management"];
  return base.slice(0,5);
 };
@@ -542,6 +582,9 @@ const testingEmphasisFor=(sport:Sport,position:string):string[]=>{
  if(sport==="Baseball")return p.includes("pitcher")?["Power","Strength","Speed"]:["Speed","Power","Agility"];
  if(sport==="Lacrosse")return p.includes("goal")?["Agility","Power","Speed"]:["Speed","Agility","Power"];
  if(sport==="Wrestling")return ["Strength","Power","Speed"];
+ if(sport==="Combat Sports")return ["Power","Agility","Conditioning"];
+ if(sport==="Tennis")return ["Agility","Speed","Power"];
+ if(sport==="Volleyball")return ["Power","Agility","Strength"];
  return ["Power","Agility","Strength"];
 };
 
@@ -616,7 +659,7 @@ function SmoothReadinessRing({value,label,status,statusClass}:{value:number|null
 type PremiumIconName="home"|"goal"|"calendar"|"train"|"progress"|"more"|"readiness"|"development"|"testing"|"competition"|"roster"|"support"|"recovery";
 
 function PremiumAppIcon({name,className=""}:{name:PremiumIconName;className?:string}){
- const common={viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,"aria-hidden":true,focusable:false};
+ const common={viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:1.9,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,"aria-hidden":true,focusable:false};
  const path=(()=>{
   switch(name){
    case "home": return <><path d="M3.8 10.8 12 4l8.2 6.8"/><path d="M5.8 9.8V20h12.4V9.8"/><path d="M9.4 20v-6h5.2v6"/></>;
@@ -635,14 +678,7 @@ function PremiumAppIcon({name,className=""}:{name:PremiumIconName;className?:str
    default: return <circle cx="12" cy="12" r="7"/>;
   }
  })();
- return <svg className={`premiumAppIcon premiumAppIcon-${name} ${className}`} data-icon={name} {...common}>{path}</svg>;
-}
-
-type HomeIconTone="emerald"|"mint"|"silver"|"forest";
-const homeIconTones:HomeIconTone[]=["emerald","mint","silver","forest"];
-
-function HomeIconBadge({name,tone="emerald",className=""}:{name:PremiumIconName;tone?:HomeIconTone;className?:string}){
- return <span className={`homeIconBadge homeIconTone-${tone} ${className}`.trim()} aria-hidden="true"><PremiumAppIcon name={name}/></span>;
+ return <svg className={`premiumAppIcon ${className}`} {...common}>{path}</svg>;
 }
 
 const premiumNavIconNames:PremiumIconName[]=["home","goal","calendar","train","progress","more","readiness","development","testing","competition","roster","support","recovery"];
@@ -652,9 +688,11 @@ function NavMetaIcon({icon}:{icon?:string}){
 }
 
 function PremiumRoleFocusIcon({role,juniorMode}:{role:AccountRole;juniorMode:boolean}){
- const icon:PremiumIconName=role==="Coach"?"goal":role==="Parent"?"support":juniorMode?"development":role==="Admin"?"progress":"train";
- const tone:HomeIconTone=role==="Admin"?"emerald":role==="Coach"?"mint":role==="Parent"?"silver":"forest";
- return <HomeIconBadge name={icon} tone={tone} className={`premiumRoleFocusIcon premiumRoleFocus${role}`}/>;
+ if(role==="Coach")return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="goal"/></span>;
+ if(role==="Parent")return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="support"/></span>;
+ if(juniorMode)return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="development"/></span>;
+ // Player and Admin use a filled trend mark so the icon has no open "hole" that reveals the tile background.
+ return <span className="premiumRoleFocusIcon premiumRoleFocusSolid" aria-hidden="true"><svg viewBox="0 0 24 24" className="premiumAppIcon" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4.25 17.8 9.5 12.55l3.25 2.85 5.12-5.36h-2.62a1.5 1.5 0 0 1 0-3h5.5v5.5a1.5 1.5 0 0 1-3 0v-.4l-4.82 5.03a1.5 1.5 0 0 1-2.08.08l-3.23-2.82-2.25 2.25a1.5 1.5 0 1 1-2.12-2.12Z"/></svg></span>;
 }
 
 function EliteSparkline({values,label}:{values:number[];label:string}){
@@ -883,7 +921,7 @@ function PremiumHomeOverview({
  const hero=<div className={`premiumHomeHero nativeSportsHero elitePerformanceHero rc34RoleHero ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-role={accountRole} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
   {realisticHero&&<div className="eliteRoleHeroMedia" aria-hidden="true"><img className="eliteRoleHeroBackdrop" src={heroAsset} alt=""/><img className="eliteRoleHeroForeground" src={heroAsset} alt=""/></div>}
   <div className="nativeHeroTopline"><span>{roleCopy[accountRole].eyebrow}</span><span>{sport}</span></div>
-  {!juniorMode&&<div className="eliteHeroTelemetry" aria-hidden="true"><span>EP / HIGH PERFORMANCE</span><i/><span>{accountRole.toUpperCase()}</span></div>}
+  {!juniorMode&&<div className="eliteHeroTelemetry" aria-hidden="true"><span>HD / PERFORMANCE</span><i/><span>{accountRole.toUpperCase()}</span></div>}
   <div className="nativeHeroBottom">
    <div className="premiumHeroIdentity nativeHeroIdentity">
     <PlayerPhotoAvatar name={profile.name} photoUrl={profile.photoUrl} size={72} className="premiumAthleteAvatar"/>
@@ -913,7 +951,7 @@ function PremiumHomeOverview({
    {trackerDiscoveryCta}
    <button type="button" className="commercialStartToday nativeJuniorPrimary" onClick={()=>onNavigate(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach",nextWorkout?"workout-log":latestReadiness?undefined:"setup-readiness")}><span>Start Today</span><strong>→</strong></button>
    <div className="nativeJuniorTiles premiumQuickGrid">
-    {quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="premiumQuickIcon"/><div><b>{action.label}</b><small>{action.detail}</small></div><strong>›</strong></button>)}
+    {quickActions.map(action=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>›</strong></button>)}
    </div>
    <button type="button" className="premiumRoleFocusCard nativeJuniorFocus" onClick={()=>onNavigate(roleFocus.tab,roleFocus.tab==="Calendar"?"workout-log":roleFocus.tab==="Coach"?"setup-readiness":undefined)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>{roleFocus.action} →</strong></button>
   </section>;
@@ -936,7 +974,7 @@ function PremiumHomeOverview({
      <div className="eliteRecoveryMiniTips">{recoveryTips.slice(1).map((tip,index)=><span key={index}>{tip}</span>)}</div>
      <strong>OPEN RECOVERY →</strong>
     </button>
-    <div className="nativeEditorialSection eliteActionSection"><div className="nativeSectionKicker"><span>MOVE FORWARD</span><b>Four ways into your day</b></div><div className="nativeActionList">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="nativeActionIndex">0{index+1}</span><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="premiumQuickIcon"/><div><b>{action.label}</b><small>{action.detail}</small></div><strong>↗</strong></button>)}</div></div>
+    <div className="nativeEditorialSection eliteActionSection"><div className="nativeSectionKicker"><span>MOVE FORWARD</span><b>Four ways into your day</b></div><div className="nativeActionList">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="nativeActionIndex">0{index+1}</span><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>↗</strong></button>)}</div></div>
    </div>
   </section>;
  }
@@ -951,7 +989,7 @@ function PremiumHomeOverview({
     <div className="nativeCoachSignalBand"><div><small>PLAYER READINESS</small><b>{readinessValue!==null?`${readinessValue}/100`:"No check-in"}</b></div><div><small>ACTIVE GOALS</small><b>{activeGoals.length}</b></div><div className="wide"><small>DEVELOPMENT PRIORITY</small><b>{developmentFocus}</b></div></div>
     <button type="button" className="premiumRoleFocusCard nativeCoachPriority" onClick={()=>onNavigate(roleFocus.tab,roleFocus.tab==="Coach"?"setup-readiness":undefined)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Review →</strong></button>
     {eliteVisualPerformance}
-    <nav className="nativeCoachActionBar" aria-label="Coach shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]}/><span>{action.label}</span></button>)}</nav>
+    <nav className="nativeCoachActionBar" aria-label="Coach shortcuts">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><PremiumAppIcon name={action.icon}/><span>{action.label}</span></button>)}</nav>
    </div>
   </section>;
  }
@@ -963,7 +1001,7 @@ function PremiumHomeOverview({
    {trackerHomeStrip}
    {trackerDiscoveryCta}
    <button type="button" className="premiumRoleFocusCard nativeParentStory" onClick={()=>onNavigate(roleFocus.tab,roleFocus.tab==="Coach"?"parent-recovery-summary":roleFocus.tab==="Calendar"?"workout-log":undefined)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Support →</strong></button>
-   <div className="nativeParentTimeline" aria-label="Parent support shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="parentTimelineIcon"/><div><small>{action.label}</small><b>{action.detail}</b></div><strong className="parentTimelineAction">↗</strong></button>)}</div>
+   <div className="nativeParentTimeline" aria-label="Parent support shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="nativeTimelineMarker">{index+1}</span><div><small>{action.label}</small><b>{action.detail}</b></div><PremiumAppIcon name={action.icon}/></button>)}</div>
   </section>;
  }
 
@@ -971,7 +1009,7 @@ function PremiumHomeOverview({
   {hero}
   {elitePerformanceBand}
   <button type="button" className="premiumRoleFocusCard nativeAdminFocus" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Inspect →</strong></button>
-  <div className="nativeAdminCommandList rc56AdminLaunchRows">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="premiumQuickIcon"/><div><b>{action.label}</b><small>{action.detail}</small><strong className="adminLaunchAction">Open →</strong></div></button>)}</div>
+  <div className="nativeAdminCommandList rc56AdminLaunchRows">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small><strong className="adminLaunchAction">Open →</strong></div></button>)}</div>
  </section>;
 }
 
@@ -1361,11 +1399,11 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.115",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.112",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
-   a.href=url;a.download=`elite-performance-backup-${(profile.name||"athlete").replace(/[^a-z0-9]+/gi,"-").toLowerCase()}-${today()}.json`;
+   a.href=url;a.download=`athlete-performance-backup-${(profile.name||"athlete").replace(/[^a-z0-9]+/gi,"-").toLowerCase()}-${today()}.json`;
    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
   }catch{}
  };
@@ -2093,10 +2131,10 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)
  },[]);
 
- if(!mounted)return <div className="app hydrationShell"><header><div className="logo elitePerformanceLogo"><img src="/elite-performance-speed-e.svg" alt=""/></div><div><strong>Elite Performance</strong><small>Loading athlete dashboard…</small></div></header><main id="main-content" tabIndex={-1}><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading your performance data</b><small>Your saved athlete data will appear in a moment.</small></div></div></main></div>;
+ if(!mounted)return <div className="app hydrationShell"><header><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Loading athlete dashboard…</small></div></header><main id="main-content" tabIndex={-1}><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading your performance data</b><small>Your saved athlete data will appear in a moment.</small></div></div></main></div>;
  if(!accountSession)return betaBridge?<div className="app hydrationShell"><main><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading secure beta workspace</b><small>Verifying your account permissions…</small></div></div></main></div>:<RoleLogin profile={profile} activeAthleteId={activeAthleteId} roster={roster} onLogin={completeRoleLogin}/>;
  return <div className="app performanceOS" data-text-size={textSize} data-role={effectiveRole} data-junior={juniorPlayerMode?"true":"false"} data-tab={tab} data-sport={sport}><a className="skipLink" href="#main-content">Skip to main content</a>
-  <header className="appHeader"><div className="brandBlock"><div className="logo elitePerformanceLogo"><img src="/elite-performance-speed-e.svg" alt=""/></div><div><strong>ELITE <em>PERFORMANCE</em></strong><small>HIGH PERFORMANCE ATHLETE DEVELOPMENT</small></div>{betaBridge&&<button type="button" className={"cloudStatus cloudStatusButton "+cloudStatus} onClick={()=>{if(cloudStatus==="error"||cloudStatus==="waiting"||pendingCloudSave)void retryPendingCloudSave()}} title={cloudErrorMessage||undefined}>{cloudStatus==="saved"?(cloudLastSavedAt?`Saved ${new Date(cloudLastSavedAt).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:"Cloud ready"):cloudStatus==="loading"?"Saving…":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Save failed · Retry":"Local"}{pendingCloudSave&&<i>{cloudOnline?"Retry copy ready":"Changes queued"}</i>}</button>}</div><div className="headerActions"><span className="accountHeaderRole">{betaBridge?.managedByParent?"Player · Parent Managed":accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span>
+  <header className="appHeader"><div className="brandBlock"><div className="logo hockeyDevLogo">HD</div><div><strong>HOCKEY <em>DEV</em></strong><small>PLAY TODAY. A STRONGER TOMORROW.</small></div>{betaBridge&&<button type="button" className={"cloudStatus cloudStatusButton "+cloudStatus} onClick={()=>{if(cloudStatus==="error"||cloudStatus==="waiting"||pendingCloudSave)void retryPendingCloudSave()}} title={cloudErrorMessage||undefined}>{cloudStatus==="saved"?(cloudLastSavedAt?`Saved ${new Date(cloudLastSavedAt).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:"Cloud ready"):cloudStatus==="loading"?"Saving…":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Save failed · Retry":"Local"}{pendingCloudSave&&<i>{cloudOnline?"Retry copy ready":"Changes queued"}</i>}</button>}</div><div className="headerActions"><span className="accountHeaderRole">{betaBridge?.managedByParent?"Player · Parent Managed":accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span>
    {betaBridge?.returnToParentWorkspace&&<button className="headerUtilityButton parentReturnButton" onClick={betaBridge.returnToParentWorkspace}>← Parent View</button>}
    {betaBridge?.managedByParent&&<button type="button" className="headerUtilityButton managedProfileButton" onClick={openManagedPlayerProfile}>Edit Player</button>}
    {betaBridge?.openParentPlayers&&accountRole==="Parent"&&<button className="headerUtilityButton" onClick={betaBridge.openParentPlayers}>My Players</button>}
@@ -2214,7 +2252,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    {accountRole==="Admin"?<div className="trackerAccessLocked trackerPreviewLock"><b>PLAYER / PARENT SIGN-IN REQUIRED</b><span>Tracker authorization and Player-controlled Coach sharing cannot be changed from an Admin preview.</span></div>:accountRole==="Coach"?<CoachSharedTrackerPanel data={trackerData} loading={trackerLoading} message={trackerMessage}/>:!trackerAthleteId?<div className="trackerAccessLocked"><b>{accountRole==="Parent"?"CHOOSE A PLAYER":"PLAYER CLOUD RECORD REQUIRED"}</b><span>{accountRole==="Parent"?"Select the Player whose private workout and sleep data you want to connect.":"This Player login is not yet linked to its canonical cloud athlete record. Complete Player setup, then return here."}</span>{accountRole==="Parent"&&betaBridge?.openParentPlayers?<button type="button" className="featureAction trackerChoosePlayer" onClick={()=>{setShowTrackerSetup(false);betaBridge.openParentPlayers?.()}}>Choose Player</button>:<button type="button" className="featureAction trackerChoosePlayer" onClick={()=>{setShowTrackerSetup(false);setGuideStep(0);setShowGuide(true)}}>Open Player Setup</button>}</div>:<>
     <div className={`trackerConnectHero trackerSetupPrimary ${googleHealthConnection?.status==="connected"?"connected":""}`}>
      <div className="trackerConnectHeroIcon"><PremiumAppIcon name="recovery"/></div>
-     <div className="trackerConnectHeroCopy"><small>RECOMMENDED · FITBIT + PIXEL WATCH</small><h3>{googleHealthConnection?.status==="connected"?"Google Health connected":"Connect Google Health"}</h3><p>Authorize read-only workout, sleep, resting-heart-rate and HRV data. You will leave Elite Performance briefly to approve access with Google, then return automatically.</p>{googleHealthConnection?.last_synced_at&&<span>Last sync {new Date(googleHealthConnection.last_synced_at).toLocaleString()}</span>}</div>
+     <div className="trackerConnectHeroCopy"><small>RECOMMENDED · FITBIT + PIXEL WATCH</small><h3>{googleHealthConnection?.status==="connected"?"Google Health connected":"Connect Google Health"}</h3><p>Authorize read-only workout, sleep, resting-heart-rate and HRV data. You will leave Athlete Performance briefly to approve access with Google, then return automatically.</p>{googleHealthConnection?.last_synced_at&&<span>Last sync {new Date(googleHealthConnection.last_synced_at).toLocaleString()}</span>}</div>
      <div className="trackerConnectHeroAction">{googleHealthConnection?.status==="connected"?<><button type="button" className="featureAction trackerPrimaryConnect" disabled={googleHealthBusy} onClick={()=>void syncTracker("google-health")}>{googleHealthBusy?"Syncing…":"Sync Google Health"}</button><button type="button" className="trackerSecondaryAction" disabled={googleHealthBusy} onClick={()=>void disconnectTracker("google-health")}>Disconnect</button></>:<button type="button" className="featureAction trackerPrimaryConnect" disabled={googleHealthBusy} onClick={()=>void connectTracker("google-health")}>{googleHealthBusy?"Opening Google…":"Connect Google Health →"}</button>}<small>Private to Player + authorized Parent</small></div>
     </div>
     {trackerMessage&&<div className="trackerMessage" role="status">{trackerMessage}</div>}
@@ -2259,7 +2297,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
     <div className="settingsActionGrid"><button type="button" className="featureAction" onClick={()=>{setShowSettings(false);betaBridge.openPrivacyCenter?.()}}>Open Privacy Center</button><button type="button" onClick={()=>{setShowSettings(false);betaBridge.openLaunchChecklist?.()}}>Open Beta Start Checklist</button></div>
    </div>}
    <div className="installSettings">
-    <div className="settingLabel"><b>Install Elite Performance</b><span>Add the closed beta to a phone, tablet, or desktop for faster access. Installation does not enable trackers.</span></div>
+    <div className="settingLabel"><b>Install Athlete Performance</b><span>Add the closed beta to a phone, tablet, or desktop for faster access. Installation does not enable trackers.</span></div>
     <button type="button" className="recoveryBackupButton" onClick={()=>void installApp()}>{installPrompt?"Install App":"Show Install Steps"}</button>
    </div>
    <div className="reliabilitySettings">
@@ -2269,7 +2307,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    </div>
    <div className="settingsFooter"><button onClick={()=>changeTextSize("comfortable")}>Use Recommended Size</button><button className="featureAction" onClick={()=>setShowSettings(false)}>Done</button></div>
   </div></div></ViewportPortal>}
-  {showInstallHelp&&<ViewportPortal><div className="settingsOverlay" role="dialog" aria-modal="true" aria-label="Install app instructions" onClick={()=>setShowInstallHelp(false)}><div className="settingsCard installHelpCard" onClick={e=>e.stopPropagation()}><div className="settingsHead"><div><small>INSTALL APP</small><h2>Add Elite Performance</h2><p>Use the steps for your device.</p></div><button className="settingsClose" onClick={()=>setShowInstallHelp(false)}>×</button></div><div className="installStepGrid"><div><b>iPhone / iPad</b><span>Open in Safari → tap Share → Add to Home Screen → Add.</span></div><div><b>Android / Chrome</b><span>Open the browser menu → Install app or Add to Home screen.</span></div><div><b>Desktop Chrome / Edge</b><span>Use the install icon in the address bar, or Browser menu → Install Elite Performance.</span></div></div><div className="settingsFooter"><button className="featureAction" onClick={()=>setShowInstallHelp(false)}>Done</button></div></div></div></ViewportPortal>}
+  {showInstallHelp&&<ViewportPortal><div className="settingsOverlay" role="dialog" aria-modal="true" aria-label="Install app instructions" onClick={()=>setShowInstallHelp(false)}><div className="settingsCard installHelpCard" onClick={e=>e.stopPropagation()}><div className="settingsHead"><div><small>INSTALL APP</small><h2>Add Athlete Performance</h2><p>Use the steps for your device.</p></div><button className="settingsClose" onClick={()=>setShowInstallHelp(false)}>×</button></div><div className="installStepGrid"><div><b>iPhone / iPad</b><span>Open in Safari → tap Share → Add to Home Screen → Add.</span></div><div><b>Android / Chrome</b><span>Open the browser menu → Install app or Add to Home screen.</span></div><div><b>Desktop Chrome / Edge</b><span>Use the install icon in the address bar, or Browser menu → Install Athlete Performance.</span></div></div><div className="settingsFooter"><button className="featureAction" onClick={()=>setShowInstallHelp(false)}>Done</button></div></div></div></ViewportPortal>}
   {commandOpen&&<div className={"commandOverlay "+(juniorPlayerMode?"juniorFeatureOverlay":"")} role="dialog" aria-modal="true" aria-label={juniorPlayerMode?"All Junior Player features":"Quick navigation"} onClick={()=>setCommandOpen(false)}><div className={"commandPalette "+(juniorPlayerMode?"juniorFeaturePalette":"")} onClick={e=>e.stopPropagation()}><div className="sectionHead"><div><small>{juniorPlayerMode?"JUNIOR PLAYER":"QUICK NAVIGATION"}</small><h2>{juniorPlayerMode?"All My Features":"Go to a section"}</h2></div><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder={juniorPlayerMode?"Search my features…":"Search Overview, Goals, Testing, Roster…"}/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{navigateTo(a.tab,a.target);setCommandOpen(false);setCommandQuery("")}}><span className="commandResultIcon"><NavMetaIcon icon={navMeta[a.tab]?.icon}/></span><b>{a.label}</b><small>{juniorPlayerMode?(playerPageHelp[a.tab]?.purpose||"Open this feature"):a.keywords.join(" · ")}</small></button>)}</div>{juniorPlayerMode&&filteredActions.length===0&&<div className="juniorFeatureEmpty">No matching feature. Try a different word.</div>}</div></div>}
  {navSheet&&<ViewportPortal><div className="simpleNavOverlay viewportNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
    <div className="sectionHead"><div><small>{navSheet.toUpperCase()}</small><h2>{navSheet==="More"?"More Features":navSheet}</h2></div><button onClick={()=>setNavSheet(null)}>×</button></div>
@@ -2314,7 +2352,7 @@ function RoleLogin({profile,activeAthleteId,roster,onLogin}:{profile:Profile;act
  const toggleParentLink=(id:string)=>setParentLinks(x=>x.includes(id)?x.filter(a=>a!==id):[...x,id]);
  return <div className="roleLoginShell">
   <div className="roleLoginCard">
-   <div className="roleLoginBrand"><div className="logo elitePerformanceLogo"><img src="/elite-performance-speed-e.svg" alt=""/></div><div><small>ELITE PERFORMANCE</small><h1>Choose your workspace</h1><p>Each account type gets the tools and information appropriate for that role.</p></div></div>
+   <div className="roleLoginBrand"><div className="logo hockeyDevLogo">HD</div><div><small>HOCKEY DEV</small><h1>Choose your workspace</h1><p>Each account type gets the tools and information appropriate for that role.</p></div></div>
    <div className="roleChoiceGrid">{(["Player","Coach","Parent","Admin"] as AccountRole[]).map(r=><button key={r} className={"roleChoice "+(role===r?"active":"")} onClick={()=>setRole(r)}><span>{r==="Player"?"◆":r==="Coach"?"✦":r==="Parent"?"◎":"★"}</span><b>{r}</b><small>{descriptions[r]}</small></button>)}</div>
    <div className="roleLoginForm"><label>Your name<input value={name} onChange={e=>setName(e.target.value)} placeholder={role==="Player"?profile.name||"Player name":role==="Coach"?"Coach name":role==="Parent"?"Parent / guardian name":"Admin name"}/></label>
     <div className="linkedAthlete"><small>ACTIVE ATHLETE</small><b>{profile.name}</b><span>{profile.team||"No team saved"} · {profile.position||"Position not set"}</span></div>
@@ -4039,7 +4077,7 @@ const signals:PerformanceSignal[]=[
    <div className="profileSummaryGrid">
     <div><small>Sport</small><b>{sport}</b></div>
     <div><small>Age</small><b>{profile.age||"Not set"}</b></div>
-    <div><small>Position</small><b>{profile.position||"Not set"}</b></div>
+    <div><small>{sportRoleLabel(sport)}</small><b>{profile.position||"Not set"}</b></div>
     <div><small>Team</small><b>{profile.team||"Not set"}</b></div>
     <div><small>Season</small><b>{profile.season||"Not set"}</b></div>
     <div><small>Height</small><b>{profile.height||"Not set"}</b></div>
@@ -4053,7 +4091,7 @@ const signals:PerformanceSignal[]=[
      <label className="playerNameField"><span>Player name <b>Required</b></span><input id="player-profile-name" autoComplete="name" value={profileDraft.name==="Athlete"?"":profileDraft.name||""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,name:e.target.value}));setProfileSaveError("")}} placeholder="Enter player name"/></label>
      <label>Sport<select value={sportDraft} disabled={multiSportManaged} onChange={e=>{const next=e.target.value as Sport;setSportDraft(next);setProfileDraft((x:Profile)=>({...x,position:""}));setProfileSaveError("")}}>{sports.map(x=><option key={x} value={x}>{x}</option>)}</select></label>
      <label>Age<input type="number" inputMode="numeric" min="6" max="99" value={profileDraft.age||""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,age:e.target.value}));setProfileSaveError("")}} placeholder="e.g. 14"/></label>
-     <label>Position<select value={positions[sportDraft].includes(profileDraft.position)?profileDraft.position:""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,position:e.target.value}));setProfileSaveError("")}}><option value="">Select position</option>{positions[sportDraft].map(x=><option key={x} value={x}>{x}</option>)}</select></label>
+     <label>{sportRoleLabel(sportDraft)}<select value={positions[sportDraft].includes(profileDraft.position)?profileDraft.position:""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,position:e.target.value}));setProfileSaveError("")}}><option value="">Select {sportRoleLabel(sportDraft).toLowerCase()}</option>{positions[sportDraft].map(x=><option key={x} value={x}>{x}</option>)}</select></label>
      <label>Team<input value={profileDraft.team||""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,team:e.target.value}));setProfileSaveError("")}} placeholder="Enter team"/></label>
      <label>Season<input value={profileDraft.season||""} onChange={e=>setProfileDraft((x:Profile)=>({...x,season:e.target.value}))} placeholder="e.g. 2026-27"/></label>
      <label>Height<input value={profileDraft.height||""} onChange={e=>{setProfileDraft((x:Profile)=>({...x,height:e.target.value}));setProfileSaveError("")}} placeholder="e.g. 5'10&quot;"/></label>
@@ -4571,7 +4609,7 @@ function Analytics({sport,profile,results,goals,workouts,readiness,competitions,
 
 
  return <><div className="hero analyticsCockpitHero">
-  <div><small>ELITE PERFORMANCE · PRIMARY DISPLAY</small><h1>Analytics Cockpit</h1><p>{profile.name} · {sport}{profile.position?` · ${profile.position}`:""} · One shared dashboard for Player, Parent, and Coach.</p></div>
+  <div><small>ATHLETE PERFORMANCE · PRIMARY DISPLAY</small><h1>Analytics Cockpit</h1><p>{profile.name} · {sport}{profile.position?` · ${profile.position}`:""} · One shared dashboard for Player, Parent, and Coach.</p></div>
   <div className="cockpitLiveBadge"><i/><span><small>DATA SOURCE</small><b>Shared athlete profile</b></span></div>
  </div>
 
@@ -4775,7 +4813,10 @@ const sportProgramTemplates:Record<Sport,{speed:string[];strength:string[];skill
  Lacrosse:{speed:["20-yard acceleration","Reactive cuts","Crossover sprint mechanics"],strength:["Rotational power","Single-leg strength","Upper-body push/pull"],skill:["Stick-skill tempo","Dodging footwork","Passing on the move"],conditioning:["Field intervals","Repeated sprint conditioning","Mobility recovery"]},
  Wrestling:{speed:["Short acceleration","Sprawl reaction","Lateral movement"],strength:["Total-body strength","Grip strength","Posterior-chain strength"],skill:["Stance and motion","Shot-entry technique","Hand-fighting drill"],conditioning:["Match intervals","Bike intervals","Mobility recovery"]},
  Soccer:{speed:["10-meter acceleration","Flying sprint","Change-of-direction sprint"],strength:["Single-leg strength","Hamstring strength","Core stability"],skill:["First-touch drill","Passing on the move","Dribbling change of direction"],conditioning:["Repeated sprint intervals","Aerobic tempo work","Mobility recovery"]},
- "Figure Skating":{speed:["Quick-step acceleration","Lateral quickness","Rotation-speed drill"],strength:["Single-leg strength","Landing strength","Core stability"],skill:["Edge-control practice","Jump technique","Spin and balance practice"],conditioning:["Skating intervals","Jump endurance","Mobility recovery"]}
+ "Figure Skating":{speed:["Quick-step acceleration","Lateral quickness","Rotation-speed drill"],strength:["Single-leg strength","Landing strength","Core stability"],skill:["Edge-control practice","Jump technique","Spin and balance practice"],conditioning:["Skating intervals","Jump endurance","Mobility recovery"]},
+ "Combat Sports":{speed:["Stance reaction start","Lateral angle change","Short acceleration"],strength:["Total-body strength","Rotational power","Grip and trunk strength"],skill:["Footwork and distance","Defense reaction","Discipline technique rounds"],conditioning:["Round-based intervals","Heavy-bag or shadow intervals","Mobility recovery"]},
+ Tennis:{speed:["First-step acceleration","Lateral court movement","Forward-backward transition"],strength:["Single-leg strength","Rotational power","Shoulder and trunk strength"],skill:["Serve and return practice","Groundstroke footwork","Point-pattern movement"],conditioning:["Court intervals","Repeated point simulation","Mobility recovery"]},
+ Volleyball:{speed:["Approach acceleration","Lateral block movement","Defensive reaction step"],strength:["Jump strength","Landing strength","Shoulder and trunk strength"],skill:["Serve and pass practice","Approach timing","Position-specific court movement"],conditioning:["Rally intervals","Jump-repeat conditioning","Mobility recovery"]}
 };
 
 
@@ -5108,6 +5149,22 @@ function positionTrainingProfile(sport:Sport,position:string):PositionTrainingPr
   return {...base,role:"Singles",priorities:["Jump power","Landing control","Single-leg strength","Rotation speed"],speed:"Quick-step jump-entry drill",power:"Countermovement jump + rotational landing control",gymStrength:["Split squat","Romanian deadlift","Cable row","Pallof press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Side plank","Push-up"],robustness:"Calf isometric + hip stability",conditioning:"6 rounds · 30 sec strong / 90 sec easy",skill:"Jump-entry + spin-balance sequence"};
  }
 
+ if(sport==="Combat Sports"){
+  const grappling=p.includes("grappling")||p.includes("judo");
+  const striking=p.includes("boxing")||p.includes("kickboxing")||p.includes("karate")||p.includes("tae kwon");
+  return {...base,role:position||"Combat Athlete",priorities:grappling?["Takedown power","Grip strength","Hip mobility","Round conditioning"]:striking?["Footwork speed","Rotational power","Trunk control","Round conditioning"]:["Reaction speed","Total-body power","Grip and trunk strength","Round conditioning"],speed:grappling?"Stance reaction → level change":"Stance reaction → angle step",power:grappling?"Broad jump → controlled shot entry":"Rotational medicine-ball throw",gymStrength:["Front squat","Romanian deadlift","Pull-up / lat pulldown","Landmine press"],bodyStrength:["Tempo squat","Reverse lunge","Push-up","Bear crawl"],robustness:"Neck isometric + anti-rotation hold",conditioning:"4 rounds · 2 min strong / 1 min easy",skill:grappling?"Grip-fight → takedown-entry footwork":striking?"Guard → angle step → defensive exit":"Strike-to-takedown reaction pattern"};
+ }
+
+ if(sport==="Tennis"){
+  return {...base,role:position||"Tennis Player",priorities:["First-step speed","Lateral court movement","Rotational power","Repeat-point conditioning"],speed:"Split step → court-direction acceleration",power:"Rotational medicine-ball throw",gymStrength:["Split squat","Romanian deadlift","Single-arm cable row","Landmine press"],bodyStrength:["Reverse lunge","Single-leg hip bridge","Push-up","Side plank"],robustness:"Calf isometric + shoulder stability",conditioning:"8 rounds · 20 sec court work / 40 sec easy",skill:"Split step → stroke-position recovery"};
+ }
+
+ if(sport==="Volleyball"){
+  const backRow=p.includes("libero")||p.includes("defensive");
+  const setter=p.includes("setter");
+  return {...base,role:position||"Volleyball Player",priorities:backRow?["Defensive reaction","Lateral movement","Low-position strength","Repeat-rally conditioning"]:setter?["Court movement","Jump and landing","Shoulder control","Decision speed"]:["Approach power","Jump height","Landing control","Shoulder strength"],speed:backRow?"Ready position → defensive reaction step":"Ready position → approach acceleration",power:backRow?"Lateral bound to balanced landing":"Approach jump to controlled landing",gymStrength:["Front squat","Romanian deadlift","Split squat","Cable row"],bodyStrength:["Tempo squat","Reverse lunge","Single-leg hip bridge","Push-up"],robustness:"Calf isometric + shoulder stability",conditioning:"8 rounds · 15 sec rally work / 45 sec easy",skill:setter?"Pass cue → setter movement pattern":backRow?"Read → platform-position footwork":"Approach timing → block/attack transition"};
+ }
+
  if(sport==="Wrestling"){
   return {...base,role:"Wrestler",priorities:["Explosive entry","Total-body strength","Grip","Repeated high-intensity efforts"],speed:"Stance reaction → penetration step",power:"Broad jump → sprawl reaction",gymStrength:["Trap-bar deadlift","Front squat","Pull-up / lat pulldown","Farmer carry"],bodyStrength:["Tempo squat","Reverse lunge","Towel row","Bear crawl"],robustness:"Grip isometric + anti-rotation hold",conditioning:"3 rounds · 2 min hard / 1 min easy",skill:"Shot-entry → sprawl → re-attack reaction"};
  }
@@ -5149,7 +5206,7 @@ const verifiedExerciseBlockCatalog:RoutineReference[]=[
   url:"https://youtu.be/_sqm-VmIlqk",
   source:"Goalie Training Pro · Maria Mountain",
   section:"Young Goalie Stretch Series",
-  matchNote:"This source is explicitly a video for young hockey goalies. Elite Performance uses it for the 9–13 development group only for the seven mobility exercises demonstrated in the source. It is not presented as a demo for strength, speed, or reaction exercises that may follow.",
+  matchNote:"This source is explicitly a video for young hockey goalies. Athlete Performance uses it for the 9–13 development group only for the seven mobility exercises demonstrated in the source. It is not presented as a demo for strength, speed, or reaction exercises that may follow.",
   sport:"Ice Hockey",
   positions:["Goaltender"],
   ageMin:9,
@@ -5317,6 +5374,17 @@ function sportSessionProfile(sport:Sport,position:string):SportSessionProfile{
   if(p.includes("synch"))return {warmup:"Synchro ankle + hip movement prep",prep:"Quick-step timing + line-position drill",speedSecondary:"Formation-entry quick-step acceleration",reactive:"Count-cue position reaction",skillSecondary:"Timing + edge-position sequence",conditioningSecondary:"Formation repeat interval",cooldown:"Hip + calf recovery mobility"};
   if(p.includes("pair"))return {warmup:"Pairs landing + shoulder movement prep",prep:"Entry footwork + landing-position rehearsal",speedSecondary:"Quick-step lift/jump entry",reactive:"Partner-cue entry reaction",skillSecondary:"Entry → landing-control sequence",conditioningSecondary:"Program-element repeat interval",cooldown:"Hip + shoulder recovery mobility"};
   return {warmup:"Singles ankle + hip movement prep",prep:"Jump-entry steps + landing rehearsal",speedSecondary:"Quick-step jump-entry acceleration",reactive:"Entry-cue jump-footwork reaction",skillSecondary:"Jump entry → landing stick → balance",conditioningSecondary:"Jump-quality repeat interval",cooldown:"Calf + hip recovery mobility"};
+ }
+ if(sport==="Combat Sports"){
+  const grappling=p.includes("grappling")||p.includes("judo");
+  return grappling
+   ?{warmup:"Combat hip + shoulder movement prep",prep:"Stance motion + level-change rehearsal",speedSecondary:"Stance reaction → takedown entry",reactive:"Partner-cue entry or sprawl reaction",skillSecondary:"Grip fight → entry → controlled finish",conditioningSecondary:"Round-based grappling intervals",cooldown:"Hip + shoulder recovery mobility"}
+   :{warmup:"Combat ankle + hip + shoulder movement prep",prep:"Guard stance → angle-step rehearsal",speedSecondary:"Stance reaction → short angle acceleration",reactive:"Partner-cue defense and counter footwork",skillSecondary:"Combination → defensive exit footwork",conditioningSecondary:"Round-based striking intervals",cooldown:"Hip + shoulder recovery mobility"};
+ }
+ if(sport==="Tennis")return {warmup:"Tennis ankle + hip + shoulder movement prep",prep:"Split step → lateral crossover pattern",speedSecondary:"Split step → first-ball acceleration",reactive:"Ball-direction court reaction",skillSecondary:"Stroke position → recover to base",conditioningSecondary:"Repeated point court interval",cooldown:"Calf + hip + shoulder recovery mobility"};
+ if(sport==="Volleyball"){
+  if(p.includes("libero")||p.includes("defensive"))return {warmup:"Volleyball ankle + hip + shoulder movement prep",prep:"Ready position → shuffle → platform set",speedSecondary:"Defensive read → short acceleration",reactive:"Ball-direction dig reaction",skillSecondary:"Read → move → platform → recover",conditioningSecondary:"Rally-length defensive repeat interval",cooldown:"Hip + calf + shoulder recovery mobility"};
+  return {warmup:"Volleyball ankle + hip + shoulder movement prep",prep:"Approach steps + landing rehearsal",speedSecondary:"Ready position → approach acceleration",reactive:"Set-direction block/attack reaction",skillSecondary:"Approach → jump → controlled landing",conditioningSecondary:"Rally-length jump repeat interval",cooldown:"Calf + hip + shoulder recovery mobility"};
  }
  return {warmup:"Wrestling hip + shoulder movement prep",prep:"Stance motion + level-change rehearsal",speedSecondary:"Stance reaction → penetration step",reactive:"Opponent-cue shot/sprawl reaction",skillSecondary:"Shot entry → sprawl → re-attack",conditioningSecondary:"Match-position repeat interval",cooldown:"Hip + shoulder recovery mobility"};
 }
@@ -6073,7 +6141,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
   ];
   const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="elite-performance-summary.csv";a.click();URL.revokeObjectURL(url);
+  a.href=url;a.download="athlete-performance-summary.csv";a.click();URL.revokeObjectURL(url);
  };
  const copySummary=async()=>{
   const text=`${profile.name} · ${sport}\nOverall ${overall}/100 (${reportGrade})\nGoals ${goalProgress}%\nTraining ${trainingConsistency}%\nReadiness ${avgReadiness||"—"}\nCompetition ${avgRating||"—"}`;
@@ -6134,7 +6202,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.115 RC65","good"],
+  ["App Version","72.3.112 RC62","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],
@@ -6751,7 +6819,7 @@ function DataCenter({profile,sport,roster,activeAthleteId,goals,workouts,results
     }
   });
   const envelope:BackupEnvelope={version:"17.0",created:new Date().toISOString(),activeAthleteId,roster:athleteRecords,athletes};
-  download("elite-performance-full-backup.json",envelope);
+  download("athlete-performance-full-backup.json",envelope);
   setMessage("Full roster backup created.");
  };
 
@@ -6793,7 +6861,7 @@ function DataCenter({profile,sport,roster,activeAthleteId,goals,workouts,results
         if(data.sport)setSport(data.sport);
         setMessage("Athlete backup restored.");
       }else{
-        setMessage("That file is not a valid Elite Performance backup.");
+        setMessage("That file is not a valid Athlete Performance backup.");
       }
     }catch{
       setMessage("Could not read the backup file.");

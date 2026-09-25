@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Volleyball athlete</title>
+  <desc id="desc">A premium graphite and forest green volleyball scene with an athlete jumping near a net.</desc>
+  <rect width="1600" height="900" fill="#07110d"/>
+  <path d="M0 730L1600 560V900H0Z" fill="#111a16"/>
+  <path d="M1310 120V760M1310 300H1580M1350 300V690M1400 300V680M1450 300V670M1500 300V660M1550 300V650M1310 355H1580M1310 415H1580M1310 475H1580M1310 535H1580M1310 595H1580" stroke="#849189" stroke-width="5" opacity=".7"/>
+  <circle cx="1050" cy="245" r="55" fill="#c8cfcb"/>
+  <path d="M995 305Q1050 270 1110 310L1160 500 1025 520 950 400Z" fill="#d8ddda"/>
+  <path d="M980 330L860 205M1100 325L1195 175" stroke="#d8ddda" stroke-width="54" stroke-linecap="round"/>
+  <path d="M1040 500L930 710M1135 490L1240 700" stroke="#d8ddda" stroke-width="68" stroke-linecap="round"/>
+  <circle cx="1230" cy="120" r="67" fill="#71c29f"/>
+  <path d="M1180 95Q1230 145 1285 125M1210 55Q1220 110 1270 165" fill="none" stroke="#edf1ef" stroke-width="8"/>
+  <ellipse cx="1090" cy="745" rx="330" ry="38" fill="#2d8b67" opacity=".2"/>
+  <text x="110" y="190" fill="#71c29f" font-family="Arial,sans-serif" font-size="42" font-weight="700" letter-spacing="10">VOLLEYBALL</text>
+  <text x="110" y="272" fill="#edf1ef" font-family="Arial,sans-serif" font-size="70" font-weight="800">Rise. Read. Respond.</text>
+</svg>

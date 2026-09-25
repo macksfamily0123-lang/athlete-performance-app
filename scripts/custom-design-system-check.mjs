@@ -3,9 +3,9 @@ const app=fs.readFileSync("components/AthleteApp.tsx","utf8");
 const css=fs.readFileSync("app/globals.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.115"],
+ ["RC24 version",pkg.version==="72.3.112"],
  ["custom icon family exists",app.includes("function PremiumAppIcon")&&app.includes('type PremiumIconName=')],
- ["Home quick actions use normalized SVG badges",app.includes('<HomeIconBadge name={action.icon}')&&app.includes("function HomeIconBadge")],
+ ["Home quick actions use SVG icon family",app.includes('<PremiumAppIcon name={action.icon}/>')],
  ["bottom navigation uses SVG icon family",app.includes("customBottomNav")&&app.includes('<PremiumAppIcon name="home"/>')&&app.includes('<PremiumAppIcon name="more"/>')],
  ["role design tokens exist",css.includes("--role-accent")&&css.includes('.app[data-role="Coach"]')&&css.includes('.app[data-role="Parent"]')&&css.includes('.app[data-role="Admin"]')],
  ["editorial hero system exists",css.includes("Signature editorial hero")&&css.includes(".premiumHomeHero.premiumRealisticSportHero::before")],
@@ -14,7 +14,7 @@ const checks=[
  ["custom bottom nav active indicator exists",css.includes(".simpleBottomNav.customBottomNav button.active::before")],
  ["global cards are restrained",css.includes("less rounded-box repetition")&&css.includes("box-shadow:0 10px 28px rgba(0,0,0,.14)")],
  ["mobile hero is explicitly tuned",css.includes("@media(max-width:700px)")&&css.includes("min-height:430px!important")],
- ["Player/Admin focus icons use the normalized badge system",!app.includes("premiumRoleFocusSolid")&&app.includes('role==="Admin"?"progress":"train"')&&css.includes("clip-path:none!important")],
+ ["solid Player/Admin focus mark fixes center artifact",app.includes("premiumRoleFocusSolid")&&css.includes(".premiumRoleFocusSolid")],
  ["realistic all-sport assets remain",["baseball","football","ice-hockey","basketball","lacrosse","wrestling","soccer","figure-skating"].every(x=>app.includes(`/commercial-scenes/${x}-player.webp`))],
  ["Junior still uses illustrated sport hero",app.includes("if(juniorMode)return sportHeroAsset(sport)")],
  ["readiness SVG preserved",app.includes("premiumReadinessSvg")&&app.includes("premiumReadinessProgress")]

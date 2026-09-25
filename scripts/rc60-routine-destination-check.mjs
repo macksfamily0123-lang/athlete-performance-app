@@ -8,8 +8,8 @@ const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const checks=[];
 const check=(condition,label)=>checks.push({condition:Boolean(condition),label});
 
-check(pkg.version==="72.3.115","release version is Phase 72.3.115");
-check(beta.includes("CLOSED BETA · RC65 · v72.3.115"),"RC60 release ribbon is present");
+check(pkg.version==="72.3.112","release version is Phase 72.3.112");
+check(beta.includes("CLOSED BETA · RC62 · v72.3.112"),"RC60 release ribbon is present");
 check(app.includes("function PlayerRoutinePriorityBanners"),"Player routine priority banners are installed");
 check(app.indexOf('className="routinePriorityBanner daily"')<app.indexOf('className="routinePriorityBanner weekly"'),"Daily Check-In is ordered before Weekly Review");
 check(app.includes('!dailyComplete&&<button type="button" className="routinePriorityBanner daily"'),"Daily Check-In banner only appears while incomplete");

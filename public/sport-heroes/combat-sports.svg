@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Combat sports athlete</title>
+  <desc id="desc">A premium graphite and forest green scene with a combat athlete in guard stance.</desc>
+  <rect width="1600" height="900" fill="#07110d"/>
+  <path d="M0 690L1600 500V900H0Z" fill="#111a16"/>
+  <path d="M1020 100L1460 540M1120 80L1510 470" stroke="#214b3a" stroke-width="6" opacity=".65"/>
+  <circle cx="1120" cy="190" r="62" fill="#c8cfcb"/>
+  <path d="M1060 250Q1115 215 1175 252L1245 430 1160 520 1020 440Z" fill="#d8ddda"/>
+  <path d="M1045 280L900 365 955 425 1080 355M1175 282L1320 350 1285 420 1145 360" fill="none" stroke="#d8ddda" stroke-width="62" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M1040 432L915 680M1168 452L1280 685" stroke="#d8ddda" stroke-width="72" stroke-linecap="round"/>
+  <path d="M875 345L940 330 970 390 910 430Z" fill="#2d8b67"/>
+  <path d="M1300 330L1360 365 1320 430 1260 392Z" fill="#2d8b67"/>
+  <ellipse cx="1100" cy="720" rx="390" ry="45" fill="#2d8b67" opacity=".22"/>
+  <text x="110" y="190" fill="#71c29f" font-family="Arial,sans-serif" font-size="42" font-weight="700" letter-spacing="10">COMBAT SPORTS</text>
+  <text x="110" y="272" fill="#edf1ef" font-family="Arial,sans-serif" font-size="70" font-weight="800">Speed. Skill. Control.</text>
+</svg>
