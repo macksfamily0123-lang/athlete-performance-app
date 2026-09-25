@@ -1,10 +1,10 @@
-# Phase 72.3.112 RC62 — Codespaces Installation
+# Elite Performance · Phase 72.3.116 RC66 — Codespaces Installation
 
-This is one full combined release. It adds Combat Sports, Tennis, and Volleyball while preserving RC61 multi-sport/team/family workspaces and all earlier functionality. Tracker connectivity remains disabled.
+This full combined release corrects the live Hockey Dev/HD regression by installing the Elite Performance Speed E identity while preserving the expanded sports, Home icon system, multi-sport, multi-team, shared-family access, and all prior functionality. Tracker connectivity remains disabled.
 
 ## 1. Upload the ZIP
 
-Upload `athlete-performance-app-phase-72-3-112-RC62-combat-tennis-volleyball.zip` into the root of your existing Codespace. You do not need a second Codespace.
+Upload `elite-performance-app-phase-72-3-116-RC66-brand-sports-combined.zip` into the root of your existing Codespace. You do not need a second Codespace.
 
 ## 2. Open the terminal and enter the app folder
 
@@ -18,16 +18,16 @@ cd /workspaces/athlete-performance-app
 git pull --rebase origin main
 ```
 
-## 4. Extract RC62 over the existing app
+## 4. Extract RC66 over the existing app
 
 ```bash
-unzip -o athlete-performance-app-phase-72-3-112-RC62-combat-tennis-volleyball.zip
+unzip -o elite-performance-app-phase-72-3-116-RC66-brand-sports-combined.zip
 ```
 
 ## 5. Remove only the uploaded ZIP
 
 ```bash
-rm athlete-performance-app-phase-72-3-112-RC62-combat-tennis-volleyball.zip
+rm elite-performance-app-phase-72-3-116-RC66-brand-sports-combined.zip
 ```
 
 ## 6. Clear the old Next.js cache
@@ -54,14 +54,14 @@ npm run release:check
 npm run dev -- -H 0.0.0.0 -p 3001
 ```
 
-Open the forwarded port `3001` when Codespaces offers it. The release ribbon must say `CLOSED BETA · RC62 · v72.3.112`.
+Open the forwarded port `3001` when Codespaces offers it. The release ribbon must say `CLOSED BETA · RC66 · v72.3.116`.
 
-## 10. Install the new Supabase migration
+## 10. Confirm the database status
 
-Open the Supabase SQL Editor, copy the complete contents of the following file, paste it into a new query, and select **Run**:
+RC66 includes migration 016 for Combat Sports, Tennis, and Volleyball:
 
 ```text
 supabase/migrations/016_combat_tennis_volleyball_sports.sql
 ```
 
-Run migration 016 once, after migration 015. Do not remove or rerun the older migrations. Migration 016 only expands the supported sport list and preserves existing Players, Parent links, team memberships, and saved workspace data.
+You already installed migration 016 successfully, so do not rerun it. Migrations 001–015 remain preserved.

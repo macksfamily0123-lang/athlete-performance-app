@@ -1,6 +1,6 @@
 {
-  "name": "athlete-performance-app",
-  "version": "72.3.112",
+  "name": "elite-performance-app",
+  "version": "72.3.116",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,7 @@
     "start": "next start",
     "test:roles": "node scripts/role-permission-audit.mjs",
     "test:regression": "node scripts/regression-check.mjs",
-    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:viewport-shell && npm run test:always-active-nav && npm run test:coach-roster-more && npm run test:elite-visual && npm run test:elite-home-goals-recovery && npm run test:professional-athletic && npm run test:photo-framing && npm run test:settings-player-hero && npm run test:text180-role-heroes && npm run test:performance-intelligence && npm run test:beta-hardening && npm run test:tracker-disabled && npm run test:rc47 && npm run test:rc48 && npm run test:rc49 && npm run test:rc50 && npm run test:rc51 && npm run test:rc52 && npm run test:rc54 && npm run test:rc55 && npm run test:rc56 && npm run test:rc57 && npm run test:rc58 && npm run test:rc59 && npm run test:rc60 && npm run test:rc61 && npm run test:rc62 && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui && npm run test:role-specific-hero",
+    "test": "npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:viewport-shell && npm run test:always-active-nav && npm run test:coach-roster-more && npm run test:elite-visual && npm run test:elite-home-goals-recovery && npm run test:professional-athletic && npm run test:photo-framing && npm run test:settings-player-hero && npm run test:text180-role-heroes && npm run test:performance-intelligence && npm run test:beta-hardening && npm run test:tracker-disabled && npm run test:rc47 && npm run test:rc48 && npm run test:rc49 && npm run test:rc50 && npm run test:rc51 && npm run test:rc52 && npm run test:rc54 && npm run test:rc55 && npm run test:rc56 && npm run test:rc57 && npm run test:rc58 && npm run test:rc59 && npm run test:rc60 && npm run test:rc61 && npm run test:rc62 && npm run test:rc63 && npm run test:rc64 && npm run test:rc65 && npm run test:rc66 && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui && npm run test:role-specific-hero",
     "test:typecheck": "tsc --noEmit",
     "release:check": "npm test && npm run build",
     "test:reliability": "node scripts/reliability-check.mjs",
@@ -62,7 +62,11 @@
     "test:rc59": "node scripts/rc59-mobile-header-check.mjs",
     "test:rc60": "node scripts/rc60-routine-destination-check.mjs",
     "test:rc61": "node scripts/rc61-multi-sport-team-family-check.mjs",
-    "test:rc62": "node scripts/rc62-combat-tennis-volleyball-check.mjs"
+    "test:rc62": "node scripts/rc62-elite-performance-brand-check.mjs",
+    "test:rc63": "node scripts/rc63-speed-e-logo-check.mjs",
+    "test:rc64": "node scripts/rc64-brand-cache-reset-check.mjs",
+    "test:rc65": "node scripts/rc65-home-icon-system-check.mjs",
+    "test:rc66": "node scripts/rc66-combined-brand-sports-check.mjs"
   },
   "dependencies": {
     "next": "15.5.21",

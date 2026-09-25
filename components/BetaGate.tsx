@@ -336,7 +336,7 @@ export default function BetaGate(){
 
   useEffect(()=>{
     if(!("serviceWorker" in navigator))return;
-    navigator.serviceWorker.register("/sw.js").catch(()=>{});
+    navigator.serviceWorker.register("/sw.js?v=116",{updateViaCache:"none"}).then(registration=>registration.update()).catch(()=>{});
   },[]);
 
   useEffect(()=>{
@@ -797,7 +797,7 @@ export default function BetaGate(){
     if(error){setParentMessage(cleanConnectionError(error.message));return}
     const code=String(data||"");
     const text=[
-      `${athlete.display_name} already has an Athlete Performance Player record managed by a Parent.`,
+      `${athlete.display_name} already has an Elite Performance Player record managed by a Parent.`,
       `Open ${window.location.origin}`,
       `Create a Player account and enter this Player Access Code during signup: ${code}`,
       `This links the login to the existing Player record so development history is not duplicated.`
@@ -907,7 +907,7 @@ export default function BetaGate(){
     if(error){setParentInviteMessage(cleanConnectionError(error.message));return}
     const code=String(data||"");
     const text=[
-      `${selfAthlete.display_name} invited you to connect as a Parent in Athlete Performance.`,
+      `${selfAthlete.display_name} invited you to connect as a Parent in Elite Performance.`,
       `Open ${window.location.origin}`,
       `Sign in or create a Parent account.`,
       `Open My Players → Connect Existing Player and enter code: ${code}`,
@@ -978,7 +978,7 @@ export default function BetaGate(){
   const copyTeamInvite=async()=>{
     if(!selectedTeam)return;
     const text=[
-      `You've been invited to join ${selectedTeam.name} in Athlete Performance.`,
+      `You've been invited to join ${selectedTeam.name} in Elite Performance.`,
       `Open ${window.location.origin}`,
       `Create or sign in to your Player or Parent account.`,
       `Choose Join Team and enter code: ${selectedTeam.invite_code}`,
@@ -1050,7 +1050,7 @@ export default function BetaGate(){
     const sport=selectedAthleteSport||selfAthlete?.sport||"Unknown";
     return [
       "Beta diagnostic context",
-      "Version: 72.3.112 RC62",
+      "Version: 72.3.116 RC66",
       `Role: ${access?.role||"Unknown"}`,
       `Athlete: ${athlete}`,
       `Sport: ${sport}`,
@@ -1078,7 +1078,7 @@ export default function BetaGate(){
       severity:feedbackSeverity,
       status:"Open",
       message,
-      app_version:"72.3.112",
+      app_version:"72.3.116",
       page_url:window.location.href
     });
     if(error){setFeedbackMessage(error.message);return}
@@ -1283,7 +1283,7 @@ export default function BetaGate(){
       if(error)throw error;
       const exportData={
         exportedAt:new Date().toISOString(),
-        appVersion:"72.3.112 RC62",
+        appVersion:"72.3.116 RC66",
         account:{email:access.email,displayName:access.display_name,role:access.role},
         athlete:privacySummary,
         workspace:workspace||null,
@@ -1293,7 +1293,7 @@ export default function BetaGate(){
       const url=URL.createObjectURL(blob);
       const link=document.createElement("a");
       link.href=url;
-      link.download=`athlete-performance-privacy-export-${new Date().toISOString().slice(0,10)}.json`;
+      link.download=`elite-performance-privacy-export-${new Date().toISOString().slice(0,10)}.json`;
       link.click();
       URL.revokeObjectURL(url);
       setPrivacyMessage("Export downloaded. It contains app data only—never your password or authentication token.");
@@ -1308,7 +1308,7 @@ export default function BetaGate(){
     const {error}=await supabase.rpc("submit_privacy_request",{
       p_request_type:type,
       p_athlete_id:type==="delete_account"?null:(selectedPrivacyAthleteId||null),
-      p_details:type==="revoke_coach_access"?"Please remove current Coach/team access for this Player.":"Submitted from the RC62 Privacy Center."
+      p_details:type==="revoke_coach_access"?"Please remove current Coach/team access for this Player.":"Submitted from the RC66 Privacy Center."
     });
     if(error){setPrivacyMessage(cleanConnectionError(error.message));return}
     setPrivacyMessage("Request submitted. An Admin can review its status in Beta Readiness.");
@@ -1380,7 +1380,7 @@ export default function BetaGate(){
     <h1>Check your email</h1>
     <p>We sent a verification email to <b>{signupComplete.email}</b>.</p>
     <div className="signupConfirmationSteps">
-      <div><span>1</span><p>Open the verification email from Athlete Performance / Supabase.</p></div>
+      <div><span>1</span><p>Open the verification email from Elite Performance / Supabase.</p></div>
       <div><span>2</span><p>Tap the <b>verification / confirmation link</b> in that email.</p></div>
       <div><span>3</span><p>Return to the beta website and sign in with the email and password you just created.</p></div>
     </div>
@@ -1391,7 +1391,7 @@ export default function BetaGate(){
   </div></div>;
 
   if(passwordRecovery&&user)return <div className="betaAuthShell"><div className="betaAuthCard betaRecoveryCard">
-    <div className="betaAuthBrand"><span>AP</span><div><small>ACCOUNT RECOVERY</small><h1>Set a new password</h1><p>Choose a new password for your Athlete Performance beta account.</p></div></div>
+    <div className="betaAuthBrand"><span><img src="/elite-performance-speed-e.svg" alt=""/></span><div><small>ACCOUNT RECOVERY</small><h1>Set a new password</h1><p>Choose a new password for your Elite Performance beta account.</p></div></div>
     <label>New password<input type="password" autoComplete="new-password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder="At least 8 characters"/></label>
     {newPasswordMessage&&<div className="betaMessage">{newPasswordMessage}</div>}
     <button className="betaPrimary" onClick={completePasswordRecovery}>Update Password</button>
@@ -1399,7 +1399,7 @@ export default function BetaGate(){
   </div></div>;
 
   if(!user)return <div className="betaAuthShell"><div className="betaAuthCard">
-    <div className="betaAuthBrand"><span>AP</span><div><small>ATHLETE PERFORMANCE · CLOSED BETA</small><h1>{authMode==="signin"?"Beta sign in":"Activate invited account"}</h1><p>Secure accounts with cloud-backed athlete data.</p></div></div>
+    <div className="betaAuthBrand"><span><img src="/elite-performance-speed-e.svg" alt=""/></span><div><small>ELITE PERFORMANCE · CLOSED BETA</small><h1>{authMode==="signin"?"Beta sign in":"Activate invited account"}</h1><p>Secure accounts with cloud-backed athlete data.</p></div></div>
     <div className="betaModeSwitch"><button className={authMode==="signin"?"active":""} onClick={()=>{setAuthMode("signin");setMessage("")}}>Sign In</button><button className={authMode==="signup"?"active":""} onClick={()=>{setAuthMode("signup");setMessage("")}}>Create Account</button></div>
 
     {authMode==="signup"&&<><div className="closedBetaNotice"><b>Invitation required</b><span>Use the exact email address approved by the Beta Admin. Unapproved accounts remain pending and cannot open athlete data.</span></div><div className="selfSignupRole"><small>ACCOUNT TYPE</small><div>{(["Player","Parent"] as const).map(r=><button key={r} className={signupRole===r?"active":""} onClick={()=>setSignupRole(r)}><b>{r}</b><span>{r==="Player"?"Create my own athlete account":"Create one Parent account and add multiple players"}</span></button>)}</div><p>Choose the role from your invitation. Only Coaches manage teams and team rosters.</p></div><label>Display name<input value={displayName} onChange={e=>setDisplayName(e.target.value)} placeholder="Name"/></label></>}
@@ -1422,7 +1422,7 @@ export default function BetaGate(){
   </div></div>;
 
   return <div className="betaAppShell">
-    <div className="betaRibbon">CLOSED BETA · RC62 · v72.3.112</div>
+    <div className="betaRibbon">CLOSED BETA · RC66 · v72.3.116</div>
     {!isOnline&&<div className="betaOfflineBanner"><b>Offline</b><span>You can keep reviewing local data. Cloud saves will retry after your connection returns.</span></div>}
 
     <BetaErrorBoundary onReport={(details)=>openFeedbackWithContext(details)}>
@@ -1442,14 +1442,14 @@ export default function BetaGate(){
     </div></div>}
 
     {showLaunchChecklist&&!showDisclaimer&&<div className="betaModalOverlay"><div className="betaModalCard betaLaunchChecklist">
-      <div className="sectionHead"><div><small>RC62 CLOSED BETA</small><h2>{access.role} Start Checklist</h2></div><button aria-label="Close checklist" onClick={()=>setShowLaunchChecklist(false)}>×</button></div>
+      <div className="sectionHead"><div><small>RC66 CLOSED BETA</small><h2>{access.role} Start Checklist</h2></div><button aria-label="Close checklist" onClick={()=>setShowLaunchChecklist(false)}>×</button></div>
       <p>Use this short checklist before entering real athlete information.</p>
       <div className="launchChecklistSteps">
         <div><span>1</span><div><b>Confirm the right account</b><small>Signed in as {access.email} · {access.role}.</small></div></div>
         {access.role==="Parent"&&<><div><span>2</span><div><b>Add or connect the correct Player</b><small>Create a junior Player only with Parent/guardian authority. Connect an existing Player to avoid duplicates.</small></div></div><div><span>3</span><div><b>Choose Coach access deliberately</b><small>A Team Invite Code grants that Coach access to the Player's app performance workspace.</small></div></div></>}
         {access.role==="Player"&&<><div><span>2</span><div><b>Complete your Player profile</b><small>If a Parent already created it, use the Player Access Code instead of creating a duplicate.</small></div></div><div><span>3</span><div><b>Review every Coach invite</b><small>Joining a team is your opt-in for that Coach to access your app performance workspace.</small></div></div></>}
         {access.role==="Coach"&&<><div><span>2</span><div><b>Create your team</b><small>Send the Team Invite Code; never create a Player record on an athlete's behalf.</small></div></div><div><span>3</span><div><b>Wait for Player/Parent opt-in</b><small>The athlete appears only after the Player or Parent accepts the team connection.</small></div></div></>}
-        {access.role==="Admin"&&<><div><span>2</span><div><b>Approve invited emails</b><small>RC62 registration is email-approved for every role.</small></div></div><div><span>3</span><div><b>Watch privacy requests</b><small>Review export, deletion, and Coach-access requests in Beta Readiness.</small></div></div></>}
+        {access.role==="Admin"&&<><div><span>2</span><div><b>Approve invited emails</b><small>RC66 registration is email-approved for every role.</small></div></div><div><span>3</span><div><b>Watch privacy requests</b><small>Review export, deletion, and Coach-access requests in Beta Readiness.</small></div></div></>}
         <div><span>4</span><div><b>Report beta issues</b><small>Use Report a Problem. Tracker and wearable connectivity remains disabled.</small></div></div>
       </div>
       <div className="launchChecklistActions"><button onClick={()=>{setShowLaunchChecklist(false);openPrivacyCenter()}}>Open Privacy Center</button><button className="betaPrimary" onClick={()=>{try{localStorage.setItem(`betaLaunchChecklist:${access.user_id}`,"1")}catch{}setShowLaunchChecklist(false)}}>Start Using App</button></div>
@@ -1457,7 +1457,7 @@ export default function BetaGate(){
 
     {showPrivacy&&<div className="betaModalOverlay"><div className="betaAdminCard privacyCenterCard">
       <div className="sectionHead"><div><small>RC46 PRIVACY CONTROLS</small><h2>Privacy & Account Center</h2></div><button aria-label="Close privacy center" onClick={()=>setShowPrivacy(false)}>×</button></div>
-      <div className="privacyPlainLanguage"><b>Your data, in plain language</b><p>Athlete Performance stores information you enter in the app. Wearable and tracker connections are disabled. A Coach can access a Player's app workspace only after the Player or Parent joins that Coach's team with an invite code.</p></div>
+      <div className="privacyPlainLanguage"><b>Your data, in plain language</b><p>Elite Performance stores information you enter in the app. Wearable and tracker connections are disabled. A Coach can access a Player's app workspace only after the Player or Parent joins that Coach's team with an invite code.</p></div>
       {privacyLoading?<div className="feedbackEmpty"><b>Loading privacy status…</b><span>Checking account and Coach access.</span></div>:<>
         <div className="privacyIdentityGrid"><div><small>ACCOUNT</small><b>{access.display_name||access.email}</b><span>{access.role} · {access.email}</span></div><div><small>PLAYER RECORD</small><b>{privacySummary?.display_name||"Not selected"}</b><span>{privacySummary?.athlete_age?`Age ${privacySummary.athlete_age}`:"Choose a Player to see access"}</span></div><div><small>TRACKERS</small><b>Disabled</b><span>No wearable connection routes are installed.</span></div></div>
         {privacySummary&&<section className="privacyAccessSection"><div className="sectionHead"><div><small>WHO CAN ACCESS THIS PLAYER</small><h3>{privacySummary.display_name}</h3></div><button onClick={()=>void loadPrivacyCenter()}>Refresh</button></div><div className="privacyAccessCounts"><div><b>{privacySummary.parent_count}</b><span>linked Parent{privacySummary.parent_count===1?"":"s"}</span></div><div><b>{privacySummary.coach_count}</b><span>connected Coach{privacySummary.coach_count===1?"":"es"}</span></div></div>{privacySummary.coach_access.length?<div className="privacyCoachList">{privacySummary.coach_access.map(item=><div key={item.team_id}><div><b>{item.coach_name}</b><span>{item.team_name}</span></div><small>Connected by Team Invite Code</small></div>)}</div>:<div className="privacyNoCoach"><b>No Coach access</b><span>This Player has not joined a Coach team.</span></div>}</section>}
@@ -1474,7 +1474,7 @@ export default function BetaGate(){
 
       <div className="connectionRuleNotice">
         <span>1 ATHLETE</span>
-        <div><b>Choose the correct way to add a Player</b><p>If the Player already has an Athlete Performance account, use <strong>Connect Existing Player</strong>. Only use <strong>Create New Player</strong> when no Player record exists yet.</p></div>
+        <div><b>Choose the correct way to add a Player</b><p>If the Player already has an Elite Performance account, use <strong>Connect Existing Player</strong>. Only use <strong>Create New Player</strong> when no Player record exists yet.</p></div>
       </div>
 
       <div className="familySetupChooser">
@@ -1666,7 +1666,7 @@ export default function BetaGate(){
     </div></div>}
 
     {showAdmin&&access.role==="Admin"&&<div className="betaModalOverlay"><div className="betaAdminCard betaAdminInboxCard">
-      <div className="sectionHead"><div><small>BETA ADMIN · RC62</small><h2>{adminSection==="readiness"?"Closed Beta Readiness":adminSection==="accounts"?"Account Access":adminSection==="family"?"Family & Account Diagnostics":"Beta Feedback Inbox"}</h2></div><button onClick={()=>setShowAdmin(false)}>×</button></div>
+      <div className="sectionHead"><div><small>BETA ADMIN · RC66</small><h2>{adminSection==="readiness"?"Closed Beta Readiness":adminSection==="accounts"?"Account Access":adminSection==="family"?"Family & Account Diagnostics":"Beta Feedback Inbox"}</h2></div><button onClick={()=>setShowAdmin(false)}>×</button></div>
       <div className="betaAdminTabs">
         <button className={adminSection==="readiness"?"active":""} onClick={()=>{setAdminSection("readiness");void loadAdminPrivacyRequests()}}>Readiness <span>{openPrivacyTotal}</span></button>
         <button className={adminSection==="accounts"?"active":""} onClick={()=>setAdminSection("accounts")}>Accounts</button>
@@ -1680,7 +1680,7 @@ export default function BetaGate(){
         <div className="sectionHead"><div><small>PRIVACY OPERATIONS</small><h3>Requests requiring Admin review</h3></div><button onClick={()=>void loadAdminPrivacyRequests()}>Refresh</button></div>
         {adminPrivacyRequests.length===0?<div className="feedbackEmpty"><b>No privacy requests</b><span>Export, deletion, and Coach-access requests will appear here.</span></div>:<div className="privacyAdminList">{adminPrivacyRequests.map(item=>{const requester=feedbackReporter(item.user_id);return <article key={item.id}><div><span className="tag">{item.request_type.replaceAll("_"," ")}</span><b>{requester?.display_name||requester?.email||"Beta member"}</b><small>{new Date(item.created_at).toLocaleString()}</small></div><p>{item.details||"No additional details."}</p><label>Status<select value={item.status} onChange={e=>void updatePrivacyRequestStatus(item,e.target.value as PrivacyRequestRow["status"])}><option value="submitted">Submitted</option><option value="in_review">In review</option><option value="completed">Completed</option><option value="declined">Declined</option></select></label></article>})}</div>}
       </div>:adminSection==="accounts"?<>
-        <p className="coachGroupIntro">RC62 is email-approved. Approve the exact email for every Player, Parent, Coach, or Admin before they create an account.</p>
+        <p className="coachGroupIntro">RC66 is email-approved. Approve the exact email for every Player, Parent, Coach, or Admin before they create an account.</p>
         <div className="accountVsAthleteNotice"><span>ACCOUNT ≠ ATHLETE</span><div><b>Accounts shows logins, not every Player record.</b><p>A Parent-managed Junior Player appears in <strong>Family</strong> as an athlete but does not appear in <strong>Accounts</strong> until that Player has their own login. This is expected and does not mean the athlete is missing.</p></div></div>
         <div className="betaInviteGrid">
           <label>Email<input type="email" value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)} placeholder="coach@example.com"/></label>

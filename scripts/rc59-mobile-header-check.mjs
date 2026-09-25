@@ -8,8 +8,8 @@ const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const checks=[];
 const check=(condition,label)=>checks.push({condition:Boolean(condition),label});
 
-check(pkg.version==="72.3.112","release version is Phase 72.3.109");
-check(beta.includes("CLOSED BETA · RC62 · v72.3.112"),"RC59 release ribbon is present");
+check(pkg.version==="72.3.116","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC66 · v72.3.116"),"RC59 release ribbon is present");
 check(css.includes("Phase 72.3.109 RC59 — Phone header visibility repair"),"RC59 phone header layer is installed");
 check(css.includes("grid-template-columns:repeat(3,minmax(0,1fr))!important"),"phone actions use three readable columns");
 check(css.includes("grid-template-columns:repeat(2,minmax(0,1fr))!important"),"extra-small phones use two readable columns");

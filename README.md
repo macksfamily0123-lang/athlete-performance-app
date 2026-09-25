@@ -1,14 +1,46 @@
-# Athlete Performance App — Phase 72.3.112 RC62
+# Elite Performance App — Phase 72.3.116 RC66
 
-## RC62 — Combat Sports, Tennis + Volleyball
+## RC66 — Elite Performance Brand + Expanded Sports
 
-Adds **Combat Sports**, **Tennis**, and **Volleyball** as complete sport workspaces. Combat Sports includes MMA, Boxing, Kickboxing, Grappling, Karate, Tae Kwon Do, and Judo disciplines. Tennis includes Singles, Doubles, and Singles & Doubles formats. Volleyball includes Setter, Outside Hitter, Opposite Hitter, Middle Blocker, Libero, Defensive Specialist, and Serving Specialist positions.
+RC66 is the corrected combined release. It merges the Elite Performance Speed E identity and consistent Home icon system with the RC62 expansion for Combat Sports, Tennis, and Volleyball. The live header, sign-in screen, installation metadata, app icons, exports, and mobile branding use **Elite Performance** while the new sports retain their positions, tests, development priorities, training plans, and analytics.
 
-Each new sport includes appropriate performance tests, competition statistics, skill trees, development priorities, workout templates, position or discipline training guidance, and premium sport artwork. Combat Sports displays **Discipline** instead of **Position**, and Tennis displays **Format**.
+Migration `016_combat_tennis_volleyball_sports.sql` is included and tracker connectivity remains disabled.
 
-Migration `016_combat_tennis_volleyball_sports.sql` safely expands the existing sport-profile rules. It does not duplicate Players, teams, Parent links, Coach access, or saved sport data.
+### Home icon system
 
-RC61 multi-sport/team/family workspaces, RC60 exact navigation, RC59 phone headers, RC58 global alignment, RC55 account connections, the RC54 premium design, Supabase, migrations 001–015, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled.
+RC66 replaces the distorted one-off **Beta Focus · Review Athlete** graphic with the same crisp, outlined Progress icon used throughout Elite Performance. The old clipped icon shape has been removed.
+
+Player, Junior, Coach, Parent, and Admin Home shortcuts now use one shared square icon badge: consistent SVG bounds, stroke weight, artwork scale, alignment, and mobile sizing. Restrained emerald, mint, forest-green, and metallic-silver accents add visibility while staying inside the approved Elite Performance palette.
+
+Parent Home places Schedule, Recovery, Progress, and Support icons in the left diamond timeline position. Parent Progress is locked to the phone viewport with responsive analytics grids and filter controls, and the Recovery Reminder note is centered at every screen size.
+
+The service-worker cache advances to `v116` so deployed phones receive the repaired icons. Supabase, migrations 001–016, all roles and permissions, multi-sport/team/family support, workout creation, Junior mode, the Elite Performance brand, and disabled tracker connectivity remain preserved.
+
+## RC63 — Speed E Logo Refinement
+
+The enclosed EP crest has been replaced with a cleaner **Speed E** mark. Three forward-cut metallic-silver bars form the E, while a forest-green spine and short motion bars give it a high-performance identity without a shield or badge.
+
+The approved Elite Performance wordmark, High Performance Athlete Development line, forest-green/silver/graphite styling, header sizing, mobile formatting, and all application functionality remain unchanged. The replacement mark is used in the top-left header, loading state, authentication, password recovery, workspace chooser, PWA icons, and Apple touch icon.
+
+RC63 requires no database migration. Supabase, migration 015, prior migrations 001–014, all roles and permissions, multi-sport/team/family support, workout creation, Junior mode, and disabled tracker connectivity remain preserved.
+
+## RC62 — Elite Performance Brand System
+
+The app is now branded **Elite Performance** everywhere users encounter the product: the primary header, loading state, sign-in and password-recovery screens, workspace chooser, installation prompts, privacy copy, invitation copy, browser metadata, and installed app name.
+
+The new **EP performance crest** combines an angular high-performance shield, metallic-silver structure, forest-green identity, graphite depth, and an upward performance mark. The crest is supplied as a scalable SVG, a full horizontal brand lockup, Android/PWA icons, and an Apple touch icon. The phone header keeps the logo large and visible without clipping the name or header actions.
+
+RC61 multi-sport, multi-team, and shared-family access remains intact. Supabase, migration 015, prior migrations 001–014, all roles and permissions, workout creation, Junior mode, exact navigation, mobile alignment, and all existing functionality are preserved. Tracker connectivity remains disabled. RC62 requires no new database migration.
+
+## RC61 — Multi-Sport, Multi-Team + Shared Family Access
+
+One Player can now keep multiple sport workspaces inside the same athlete account. Each sport has its own position, primary team, goals, workouts, testing, schedule, readiness, reviews, and development data. The Player can switch sports from the top of the app, review combined totals on Home, and manage sports and teams from Connections.
+
+One Player can belong to multiple Coach teams, including multiple teams in the same sport. Team membership no longer replaces a team from another sport. The Player chooses a primary team per sport and can remove a team connection, which removes that team's Coach access.
+
+Multiple Parents continue to use separate logins connected to the same Player record. The Connections screen now clearly labels **Invite Another Parent** and explains that each Parent receives a fresh one-time code. Migration `015_multi_sport_team_family_profiles.sql` upgrades existing Players into a primary sport profile without duplicating Players or changing existing Parent links.
+
+RC60 exact navigation, RC59 phone headers, RC58 global alignment, RC55 account connections, the RC54 premium design, Supabase, migrations 001–014, every role and permission, and all existing functionality remain preserved. Tracker connectivity remains disabled.
 
 ## RC60 — Exact Navigation + Routine Priority
 

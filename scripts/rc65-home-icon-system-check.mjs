@@ -5,16 +5,16 @@ const css=fs.readFileSync("app/globals.css","utf8");
 const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[];
-const check=(ok,label)=>{if(!ok)throw new Error(`RC65 check failed: ${label}`);checks.push(label)};
+const check=(ok,label)=>{if(!ok)throw new Error(`RC66 check failed: ${label}`);checks.push(label)};
 
-check(pkg.version==="72.3.115","release version is Phase 72.3.115");
-check(beta.includes("CLOSED BETA · RC65 · v72.3.115"),"RC65 release ribbon is present");
+check(pkg.version==="72.3.116","release version is Phase 72.3.116");
+check(beta.includes("CLOSED BETA · RC66 · v72.3.116"),"RC66 release ribbon is present");
 check(app.includes("function HomeIconBadge"),"shared Home icon badge component exists");
 check(app.includes('data-icon={name}'),"each SVG exposes its normalized icon name");
 check(app.includes('strokeWidth:2'),"shared icons use one consistent stroke weight");
 check(app.includes('role==="Admin"?"progress":"train"'),"Admin Review Athlete uses the normalized Progress icon");
 check(!app.includes("premiumRoleFocusSolid"),"distorted one-off filled focus icon is removed");
-check(css.includes("Phase 72.3.115 RC65 — Home icon system"),"RC65 icon CSS is installed last in the cascade");
+check(css.includes("Phase 72.3.116 RC66 — Home icon system"),"RC66 icon CSS is installed last in the cascade");
 check(css.includes("clip-path:none!important"),"focus icon clipping is disabled");
 check(css.includes("vector-effect:non-scaling-stroke"),"SVG strokes stay crisp at every icon size");
 check(css.includes(".app.performanceOS .homeIconBadge"),"square shared icon geometry is defined");
@@ -28,4 +28,4 @@ check(css.includes("@media(max-width:700px)")&&css.includes("width:52px!importan
 check(css.includes('[data-role="Parent"][data-tab="Analytics"]')&&css.includes("overflow-x:clip!important"),"Parent Progress cannot pan beyond the viewport");
 check(css.includes(".app.performanceOS .sleepGuideNote")&&css.includes("text-align:center!important"),"Recovery reminder copy is centered");
 
-console.log(`RC65 Home icon-system checks passed (${checks.length}/${checks.length}).`);
+console.log(`RC66 Home icon-system checks passed (${checks.length}/${checks.length}).`);

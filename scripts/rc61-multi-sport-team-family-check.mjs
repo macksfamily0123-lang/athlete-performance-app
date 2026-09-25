@@ -7,10 +7,10 @@ const migration=fs.readFileSync("supabase/migrations/015_multi_sport_team_family
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 
 const checks=[];
-const check=(ok,label)=>{if(!ok)throw new Error(`RC62 check failed: ${label}`);checks.push(label)};
+const check=(ok,label)=>{if(!ok)throw new Error(`RC61 check failed: ${label}`);checks.push(label)};
 
-check(pkg.version==="72.3.112","release version is Phase 72.3.112");
-check(beta.includes("CLOSED BETA · RC62 · v72.3.112"),"RC62 release ribbon is present");
+check(pkg.version==="72.3.116","release version is Phase 72.3.116");
+check(beta.includes("CLOSED BETA · RC66 · v72.3.116"),"RC61 release ribbon is present");
 check(migration.includes("create table if not exists public.athlete_sport_profiles"),"normalized sport profiles are created");
 check(migration.includes("primary key (athlete_id,sport)"),"one profile per Player and sport is enforced");
 check(migration.includes("athlete_one_primary_sport"),"one primary sport per Player is enforced");
@@ -32,4 +32,4 @@ check(css.includes(".multiSportSelector")&&css.includes(".multiSportTeamManager"
 check(fs.existsSync("supabase/migrations/014_parent_player_claim_code_repair.sql"),"migration 014 remains preserved");
 check(athlete.includes("fallbackTrackerProviders:TrackerProviderStatus[]=[]"),"tracker connectivity remains disabled");
 
-console.log(`RC62 multi-sport/team/family checks passed (${checks.length}/${checks.length}).`);
+console.log(`RC61 multi-sport/team/family checks passed (${checks.length}/${checks.length}).`);

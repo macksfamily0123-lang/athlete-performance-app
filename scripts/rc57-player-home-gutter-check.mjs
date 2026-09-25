@@ -8,8 +8,8 @@ const beta=fs.readFileSync("components/BetaGate.tsx","utf8");
 const checks=[];
 const check=(condition,label)=>checks.push({condition:Boolean(condition),label});
 
-check(pkg.version==="72.3.112","release version is Phase 72.3.109");
-check(beta.includes("CLOSED BETA · RC62 · v72.3.112"),"RC59 release ribbon is present");
+check(pkg.version==="72.3.116","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC66 · v72.3.116"),"RC59 release ribbon is present");
 check(css.includes("Phase 72.3.109 RC59 — Player Home safe content gutters"),"RC59 gutter layer is installed");
 check(css.includes(".nativePlayerHome .eliteVisualPerformance.eliteProgressHome"),"Progress panel receives a protected gutter");
 check(css.includes("padding:20px 24px!important"),"Progress uses 24px desktop side spacing");

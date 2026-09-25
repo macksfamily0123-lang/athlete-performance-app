@@ -6,8 +6,8 @@ const beta=read("components/BetaGate.tsx");
 const css=read("app/globals.css");
 const pkg=JSON.parse(read("package.json"));
 
-check(pkg.version==="72.3.112","release version is Phase 72.3.109");
-check(beta.includes("CLOSED BETA · RC62 · v72.3.112"),"RC54 release ribbon is present");
+check(pkg.version==="72.3.116","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC66 · v72.3.116"),"RC54 release ribbon is present");
 check(beta.includes("const sportPositions:Record<string,string[]>"),"Parent creation has sport-specific position data");
 check(beta.includes('sportRoleLabel(childSport)}<select value={childPosition}'),"Position, discipline, or format is a dropdown, not a text input");
 check(beta.includes('setChildSport(e.target.value);setChildPosition("")'),"changing sport clears an incompatible position");
