@@ -54,7 +54,7 @@ using (
   public.current_beta_role()='Admin'
   or exists(select 1 from public.athletes a where a.id=athlete_id and a.linked_user_id=auth.uid())
   or public.can_parent_view_athlete(athlete_id)
-  or public.can_coach_view_athlete(athlete_id)
+  or public.can_coach_manage_athlete(athlete_id)
 );
 
 revoke all on public.athlete_sport_profiles from public,anon;
@@ -97,7 +97,7 @@ begin
     public.current_beta_role()='Admin'
     or exists(select 1 from public.athletes a where a.id=p_athlete_id and a.linked_user_id=auth.uid())
     or public.can_parent_view_athlete(p_athlete_id)
-    or public.can_coach_view_athlete(p_athlete_id)
+    or public.can_coach_manage_athlete(p_athlete_id)
   ) then
     raise exception 'You do not have permission to view this Player';
   end if;

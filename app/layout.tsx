@@ -2,10 +2,11 @@ import type {Metadata,Viewport} from "next";
 import "./globals.css";
 
 export const metadata:Metadata={
-  title:"Athlete Performance Beta",
-  description:"Athlete performance, development, testing, readiness, and training tools.",
-  applicationName:"Athlete Performance",
-  manifest:"/manifest.webmanifest"
+  title:"Elite Performance Beta",
+  description:"High-performance athlete development, training, testing, readiness, and progress tools.",
+  applicationName:"Elite Performance",
+  manifest:"/manifest.webmanifest?v=115",
+  icons:{icon:"/elite-performance-speed-e.svg",apple:"/elite-performance-apple-touch-icon.png"}
 };
 
 export const viewport:Viewport={

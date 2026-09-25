@@ -3,7 +3,7 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 import {getSupabase} from "../lib/supabase";
-// Phase 72.3.111 RC61: all external tracker connectivity remains intentionally
+// Phase 72.3.115 RC65: all external tracker connectivity remains intentionally
 // disabled. Keeping the archived types below makes this change reversible,
 // while the false gate prevents tracker UI, loading, syncing, and sharing.
 const TRACKER_CONNECTIVITY_ENABLED=false;
@@ -616,7 +616,7 @@ function SmoothReadinessRing({value,label,status,statusClass}:{value:number|null
 type PremiumIconName="home"|"goal"|"calendar"|"train"|"progress"|"more"|"readiness"|"development"|"testing"|"competition"|"roster"|"support"|"recovery";
 
 function PremiumAppIcon({name,className=""}:{name:PremiumIconName;className?:string}){
- const common={viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:1.9,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,"aria-hidden":true,focusable:false};
+ const common={viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:2,strokeLinecap:"round" as const,strokeLinejoin:"round" as const,"aria-hidden":true,focusable:false};
  const path=(()=>{
   switch(name){
    case "home": return <><path d="M3.8 10.8 12 4l8.2 6.8"/><path d="M5.8 9.8V20h12.4V9.8"/><path d="M9.4 20v-6h5.2v6"/></>;
@@ -635,7 +635,14 @@ function PremiumAppIcon({name,className=""}:{name:PremiumIconName;className?:str
    default: return <circle cx="12" cy="12" r="7"/>;
   }
  })();
- return <svg className={`premiumAppIcon ${className}`} {...common}>{path}</svg>;
+ return <svg className={`premiumAppIcon premiumAppIcon-${name} ${className}`} data-icon={name} {...common}>{path}</svg>;
+}
+
+type HomeIconTone="emerald"|"mint"|"silver"|"forest";
+const homeIconTones:HomeIconTone[]=["emerald","mint","silver","forest"];
+
+function HomeIconBadge({name,tone="emerald",className=""}:{name:PremiumIconName;tone?:HomeIconTone;className?:string}){
+ return <span className={`homeIconBadge homeIconTone-${tone} ${className}`.trim()} aria-hidden="true"><PremiumAppIcon name={name}/></span>;
 }
 
 const premiumNavIconNames:PremiumIconName[]=["home","goal","calendar","train","progress","more","readiness","development","testing","competition","roster","support","recovery"];
@@ -645,11 +652,9 @@ function NavMetaIcon({icon}:{icon?:string}){
 }
 
 function PremiumRoleFocusIcon({role,juniorMode}:{role:AccountRole;juniorMode:boolean}){
- if(role==="Coach")return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="goal"/></span>;
- if(role==="Parent")return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="support"/></span>;
- if(juniorMode)return <span className="premiumRoleFocusIcon" aria-hidden="true"><PremiumAppIcon name="development"/></span>;
- // Player and Admin use a filled trend mark so the icon has no open "hole" that reveals the tile background.
- return <span className="premiumRoleFocusIcon premiumRoleFocusSolid" aria-hidden="true"><svg viewBox="0 0 24 24" className="premiumAppIcon" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4.25 17.8 9.5 12.55l3.25 2.85 5.12-5.36h-2.62a1.5 1.5 0 0 1 0-3h5.5v5.5a1.5 1.5 0 0 1-3 0v-.4l-4.82 5.03a1.5 1.5 0 0 1-2.08.08l-3.23-2.82-2.25 2.25a1.5 1.5 0 1 1-2.12-2.12Z"/></svg></span>;
+ const icon:PremiumIconName=role==="Coach"?"goal":role==="Parent"?"support":juniorMode?"development":role==="Admin"?"progress":"train";
+ const tone:HomeIconTone=role==="Admin"?"emerald":role==="Coach"?"mint":role==="Parent"?"silver":"forest";
+ return <HomeIconBadge name={icon} tone={tone} className={`premiumRoleFocusIcon premiumRoleFocus${role}`}/>;
 }
 
 function EliteSparkline({values,label}:{values:number[];label:string}){
@@ -878,7 +883,7 @@ function PremiumHomeOverview({
  const hero=<div className={`premiumHomeHero nativeSportsHero elitePerformanceHero rc34RoleHero ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-role={accountRole} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
   {realisticHero&&<div className="eliteRoleHeroMedia" aria-hidden="true"><img className="eliteRoleHeroBackdrop" src={heroAsset} alt=""/><img className="eliteRoleHeroForeground" src={heroAsset} alt=""/></div>}
   <div className="nativeHeroTopline"><span>{roleCopy[accountRole].eyebrow}</span><span>{sport}</span></div>
-  {!juniorMode&&<div className="eliteHeroTelemetry" aria-hidden="true"><span>HD / PERFORMANCE</span><i/><span>{accountRole.toUpperCase()}</span></div>}
+  {!juniorMode&&<div className="eliteHeroTelemetry" aria-hidden="true"><span>EP / HIGH PERFORMANCE</span><i/><span>{accountRole.toUpperCase()}</span></div>}
   <div className="nativeHeroBottom">
    <div className="premiumHeroIdentity nativeHeroIdentity">
     <PlayerPhotoAvatar name={profile.name} photoUrl={profile.photoUrl} size={72} className="premiumAthleteAvatar"/>
@@ -908,7 +913,7 @@ function PremiumHomeOverview({
    {trackerDiscoveryCta}
    <button type="button" className="commercialStartToday nativeJuniorPrimary" onClick={()=>onNavigate(nextWorkout?"Calendar":latestReadiness?"Analytics":"Coach",nextWorkout?"workout-log":latestReadiness?undefined:"setup-readiness")}><span>Start Today</span><strong>→</strong></button>
    <div className="nativeJuniorTiles premiumQuickGrid">
-    {quickActions.map(action=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>›</strong></button>)}
+    {quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="premiumQuickIcon"/><div><b>{action.label}</b><small>{action.detail}</small></div><strong>›</strong></button>)}
    </div>
    <button type="button" className="premiumRoleFocusCard nativeJuniorFocus" onClick={()=>onNavigate(roleFocus.tab,roleFocus.tab==="Calendar"?"workout-log":roleFocus.tab==="Coach"?"setup-readiness":undefined)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>{roleFocus.action} →</strong></button>
   </section>;
@@ -931,7 +936,7 @@ function PremiumHomeOverview({
      <div className="eliteRecoveryMiniTips">{recoveryTips.slice(1).map((tip,index)=><span key={index}>{tip}</span>)}</div>
      <strong>OPEN RECOVERY →</strong>
     </button>
-    <div className="nativeEditorialSection eliteActionSection"><div className="nativeSectionKicker"><span>MOVE FORWARD</span><b>Four ways into your day</b></div><div className="nativeActionList">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="nativeActionIndex">0{index+1}</span><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small></div><strong>↗</strong></button>)}</div></div>
+    <div className="nativeEditorialSection eliteActionSection"><div className="nativeSectionKicker"><span>MOVE FORWARD</span><b>Four ways into your day</b></div><div className="nativeActionList">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="nativeActionIndex">0{index+1}</span><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="premiumQuickIcon"/><div><b>{action.label}</b><small>{action.detail}</small></div><strong>↗</strong></button>)}</div></div>
    </div>
   </section>;
  }
@@ -946,7 +951,7 @@ function PremiumHomeOverview({
     <div className="nativeCoachSignalBand"><div><small>PLAYER READINESS</small><b>{readinessValue!==null?`${readinessValue}/100`:"No check-in"}</b></div><div><small>ACTIVE GOALS</small><b>{activeGoals.length}</b></div><div className="wide"><small>DEVELOPMENT PRIORITY</small><b>{developmentFocus}</b></div></div>
     <button type="button" className="premiumRoleFocusCard nativeCoachPriority" onClick={()=>onNavigate(roleFocus.tab,roleFocus.tab==="Coach"?"setup-readiness":undefined)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Review →</strong></button>
     {eliteVisualPerformance}
-    <nav className="nativeCoachActionBar" aria-label="Coach shortcuts">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><PremiumAppIcon name={action.icon}/><span>{action.label}</span></button>)}</nav>
+    <nav className="nativeCoachActionBar" aria-label="Coach shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]}/><span>{action.label}</span></button>)}</nav>
    </div>
   </section>;
  }
@@ -958,7 +963,7 @@ function PremiumHomeOverview({
    {trackerHomeStrip}
    {trackerDiscoveryCta}
    <button type="button" className="premiumRoleFocusCard nativeParentStory" onClick={()=>onNavigate(roleFocus.tab,roleFocus.tab==="Coach"?"parent-recovery-summary":roleFocus.tab==="Calendar"?"workout-log":undefined)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Support →</strong></button>
-   <div className="nativeParentTimeline" aria-label="Parent support shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="nativeTimelineMarker">{index+1}</span><div><small>{action.label}</small><b>{action.detail}</b></div><PremiumAppIcon name={action.icon}/></button>)}</div>
+   <div className="nativeParentTimeline" aria-label="Parent support shortcuts">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="parentTimelineIcon"/><div><small>{action.label}</small><b>{action.detail}</b></div><strong className="parentTimelineAction">↗</strong></button>)}</div>
   </section>;
  }
 
@@ -966,7 +971,7 @@ function PremiumHomeOverview({
   {hero}
   {elitePerformanceBand}
   <button type="button" className="premiumRoleFocusCard nativeAdminFocus" onClick={()=>setTab(roleFocus.tab)}><PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/><div><small>{roleFocus.eyebrow}</small><b>{roleFocus.title}</b><span>{roleFocus.detail}</span></div><strong>Inspect →</strong></button>
-  <div className="nativeAdminCommandList rc56AdminLaunchRows">{quickActions.map(action=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><span className="premiumQuickIcon"><PremiumAppIcon name={action.icon}/></span><div><b>{action.label}</b><small>{action.detail}</small><strong className="adminLaunchAction">Open →</strong></div></button>)}</div>
+  <div className="nativeAdminCommandList rc56AdminLaunchRows">{quickActions.map((action,index)=><button type="button" key={action.label} onClick={()=>onNavigate(action.tab,action.target)}><HomeIconBadge name={action.icon} tone={homeIconTones[index%homeIconTones.length]} className="premiumQuickIcon"/><div><b>{action.label}</b><small>{action.detail}</small><strong className="adminLaunchAction">Open →</strong></div></button>)}</div>
  </section>;
 }
 
@@ -1356,11 +1361,11 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.111",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.115",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
-   a.href=url;a.download=`athlete-performance-backup-${(profile.name||"athlete").replace(/[^a-z0-9]+/gi,"-").toLowerCase()}-${today()}.json`;
+   a.href=url;a.download=`elite-performance-backup-${(profile.name||"athlete").replace(/[^a-z0-9]+/gi,"-").toLowerCase()}-${today()}.json`;
    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
   }catch{}
  };
@@ -2088,10 +2093,10 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)
  },[]);
 
- if(!mounted)return <div className="app hydrationShell"><header><div className="logo">AP</div><div><strong>Athlete Performance</strong><small>Loading athlete dashboard…</small></div></header><main id="main-content" tabIndex={-1}><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading your performance data</b><small>Your saved athlete data will appear in a moment.</small></div></div></main></div>;
+ if(!mounted)return <div className="app hydrationShell"><header><div className="logo elitePerformanceLogo"><img src="/elite-performance-speed-e.svg" alt=""/></div><div><strong>Elite Performance</strong><small>Loading athlete dashboard…</small></div></header><main id="main-content" tabIndex={-1}><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading your performance data</b><small>Your saved athlete data will appear in a moment.</small></div></div></main></div>;
  if(!accountSession)return betaBridge?<div className="app hydrationShell"><main><div className="hydrationCard"><div className="hydrationPulse"/><div><b>Loading secure beta workspace</b><small>Verifying your account permissions…</small></div></div></main></div>:<RoleLogin profile={profile} activeAthleteId={activeAthleteId} roster={roster} onLogin={completeRoleLogin}/>;
  return <div className="app performanceOS" data-text-size={textSize} data-role={effectiveRole} data-junior={juniorPlayerMode?"true":"false"} data-tab={tab} data-sport={sport}><a className="skipLink" href="#main-content">Skip to main content</a>
-  <header className="appHeader"><div className="brandBlock"><div className="logo hockeyDevLogo">HD</div><div><strong>HOCKEY <em>DEV</em></strong><small>PLAY TODAY. A STRONGER TOMORROW.</small></div>{betaBridge&&<button type="button" className={"cloudStatus cloudStatusButton "+cloudStatus} onClick={()=>{if(cloudStatus==="error"||cloudStatus==="waiting"||pendingCloudSave)void retryPendingCloudSave()}} title={cloudErrorMessage||undefined}>{cloudStatus==="saved"?(cloudLastSavedAt?`Saved ${new Date(cloudLastSavedAt).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:"Cloud ready"):cloudStatus==="loading"?"Saving…":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Save failed · Retry":"Local"}{pendingCloudSave&&<i>{cloudOnline?"Retry copy ready":"Changes queued"}</i>}</button>}</div><div className="headerActions"><span className="accountHeaderRole">{betaBridge?.managedByParent?"Player · Parent Managed":accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span>
+  <header className="appHeader"><div className="brandBlock"><div className="logo elitePerformanceLogo"><img src="/elite-performance-speed-e.svg" alt=""/></div><div><strong>ELITE <em>PERFORMANCE</em></strong><small>HIGH PERFORMANCE ATHLETE DEVELOPMENT</small></div>{betaBridge&&<button type="button" className={"cloudStatus cloudStatusButton "+cloudStatus} onClick={()=>{if(cloudStatus==="error"||cloudStatus==="waiting"||pendingCloudSave)void retryPendingCloudSave()}} title={cloudErrorMessage||undefined}>{cloudStatus==="saved"?(cloudLastSavedAt?`Saved ${new Date(cloudLastSavedAt).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:"Cloud ready"):cloudStatus==="loading"?"Saving…":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Save failed · Retry":"Local"}{pendingCloudSave&&<i>{cloudOnline?"Retry copy ready":"Changes queued"}</i>}</button>}</div><div className="headerActions"><span className="accountHeaderRole">{betaBridge?.managedByParent?"Player · Parent Managed":accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span>
    {betaBridge?.returnToParentWorkspace&&<button className="headerUtilityButton parentReturnButton" onClick={betaBridge.returnToParentWorkspace}>← Parent View</button>}
    {betaBridge?.managedByParent&&<button type="button" className="headerUtilityButton managedProfileButton" onClick={openManagedPlayerProfile}>Edit Player</button>}
    {betaBridge?.openParentPlayers&&accountRole==="Parent"&&<button className="headerUtilityButton" onClick={betaBridge.openParentPlayers}>My Players</button>}
@@ -2209,7 +2214,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    {accountRole==="Admin"?<div className="trackerAccessLocked trackerPreviewLock"><b>PLAYER / PARENT SIGN-IN REQUIRED</b><span>Tracker authorization and Player-controlled Coach sharing cannot be changed from an Admin preview.</span></div>:accountRole==="Coach"?<CoachSharedTrackerPanel data={trackerData} loading={trackerLoading} message={trackerMessage}/>:!trackerAthleteId?<div className="trackerAccessLocked"><b>{accountRole==="Parent"?"CHOOSE A PLAYER":"PLAYER CLOUD RECORD REQUIRED"}</b><span>{accountRole==="Parent"?"Select the Player whose private workout and sleep data you want to connect.":"This Player login is not yet linked to its canonical cloud athlete record. Complete Player setup, then return here."}</span>{accountRole==="Parent"&&betaBridge?.openParentPlayers?<button type="button" className="featureAction trackerChoosePlayer" onClick={()=>{setShowTrackerSetup(false);betaBridge.openParentPlayers?.()}}>Choose Player</button>:<button type="button" className="featureAction trackerChoosePlayer" onClick={()=>{setShowTrackerSetup(false);setGuideStep(0);setShowGuide(true)}}>Open Player Setup</button>}</div>:<>
     <div className={`trackerConnectHero trackerSetupPrimary ${googleHealthConnection?.status==="connected"?"connected":""}`}>
      <div className="trackerConnectHeroIcon"><PremiumAppIcon name="recovery"/></div>
-     <div className="trackerConnectHeroCopy"><small>RECOMMENDED · FITBIT + PIXEL WATCH</small><h3>{googleHealthConnection?.status==="connected"?"Google Health connected":"Connect Google Health"}</h3><p>Authorize read-only workout, sleep, resting-heart-rate and HRV data. You will leave Athlete Performance briefly to approve access with Google, then return automatically.</p>{googleHealthConnection?.last_synced_at&&<span>Last sync {new Date(googleHealthConnection.last_synced_at).toLocaleString()}</span>}</div>
+     <div className="trackerConnectHeroCopy"><small>RECOMMENDED · FITBIT + PIXEL WATCH</small><h3>{googleHealthConnection?.status==="connected"?"Google Health connected":"Connect Google Health"}</h3><p>Authorize read-only workout, sleep, resting-heart-rate and HRV data. You will leave Elite Performance briefly to approve access with Google, then return automatically.</p>{googleHealthConnection?.last_synced_at&&<span>Last sync {new Date(googleHealthConnection.last_synced_at).toLocaleString()}</span>}</div>
      <div className="trackerConnectHeroAction">{googleHealthConnection?.status==="connected"?<><button type="button" className="featureAction trackerPrimaryConnect" disabled={googleHealthBusy} onClick={()=>void syncTracker("google-health")}>{googleHealthBusy?"Syncing…":"Sync Google Health"}</button><button type="button" className="trackerSecondaryAction" disabled={googleHealthBusy} onClick={()=>void disconnectTracker("google-health")}>Disconnect</button></>:<button type="button" className="featureAction trackerPrimaryConnect" disabled={googleHealthBusy} onClick={()=>void connectTracker("google-health")}>{googleHealthBusy?"Opening Google…":"Connect Google Health →"}</button>}<small>Private to Player + authorized Parent</small></div>
     </div>
     {trackerMessage&&<div className="trackerMessage" role="status">{trackerMessage}</div>}
@@ -2254,7 +2259,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
     <div className="settingsActionGrid"><button type="button" className="featureAction" onClick={()=>{setShowSettings(false);betaBridge.openPrivacyCenter?.()}}>Open Privacy Center</button><button type="button" onClick={()=>{setShowSettings(false);betaBridge.openLaunchChecklist?.()}}>Open Beta Start Checklist</button></div>
    </div>}
    <div className="installSettings">
-    <div className="settingLabel"><b>Install Athlete Performance</b><span>Add the closed beta to a phone, tablet, or desktop for faster access. Installation does not enable trackers.</span></div>
+    <div className="settingLabel"><b>Install Elite Performance</b><span>Add the closed beta to a phone, tablet, or desktop for faster access. Installation does not enable trackers.</span></div>
     <button type="button" className="recoveryBackupButton" onClick={()=>void installApp()}>{installPrompt?"Install App":"Show Install Steps"}</button>
    </div>
    <div className="reliabilitySettings">
@@ -2264,7 +2269,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    </div>
    <div className="settingsFooter"><button onClick={()=>changeTextSize("comfortable")}>Use Recommended Size</button><button className="featureAction" onClick={()=>setShowSettings(false)}>Done</button></div>
   </div></div></ViewportPortal>}
-  {showInstallHelp&&<ViewportPortal><div className="settingsOverlay" role="dialog" aria-modal="true" aria-label="Install app instructions" onClick={()=>setShowInstallHelp(false)}><div className="settingsCard installHelpCard" onClick={e=>e.stopPropagation()}><div className="settingsHead"><div><small>INSTALL APP</small><h2>Add Athlete Performance</h2><p>Use the steps for your device.</p></div><button className="settingsClose" onClick={()=>setShowInstallHelp(false)}>×</button></div><div className="installStepGrid"><div><b>iPhone / iPad</b><span>Open in Safari → tap Share → Add to Home Screen → Add.</span></div><div><b>Android / Chrome</b><span>Open the browser menu → Install app or Add to Home screen.</span></div><div><b>Desktop Chrome / Edge</b><span>Use the install icon in the address bar, or Browser menu → Install Athlete Performance.</span></div></div><div className="settingsFooter"><button className="featureAction" onClick={()=>setShowInstallHelp(false)}>Done</button></div></div></div></ViewportPortal>}
+  {showInstallHelp&&<ViewportPortal><div className="settingsOverlay" role="dialog" aria-modal="true" aria-label="Install app instructions" onClick={()=>setShowInstallHelp(false)}><div className="settingsCard installHelpCard" onClick={e=>e.stopPropagation()}><div className="settingsHead"><div><small>INSTALL APP</small><h2>Add Elite Performance</h2><p>Use the steps for your device.</p></div><button className="settingsClose" onClick={()=>setShowInstallHelp(false)}>×</button></div><div className="installStepGrid"><div><b>iPhone / iPad</b><span>Open in Safari → tap Share → Add to Home Screen → Add.</span></div><div><b>Android / Chrome</b><span>Open the browser menu → Install app or Add to Home screen.</span></div><div><b>Desktop Chrome / Edge</b><span>Use the install icon in the address bar, or Browser menu → Install Elite Performance.</span></div></div><div className="settingsFooter"><button className="featureAction" onClick={()=>setShowInstallHelp(false)}>Done</button></div></div></div></ViewportPortal>}
   {commandOpen&&<div className={"commandOverlay "+(juniorPlayerMode?"juniorFeatureOverlay":"")} role="dialog" aria-modal="true" aria-label={juniorPlayerMode?"All Junior Player features":"Quick navigation"} onClick={()=>setCommandOpen(false)}><div className={"commandPalette "+(juniorPlayerMode?"juniorFeaturePalette":"")} onClick={e=>e.stopPropagation()}><div className="sectionHead"><div><small>{juniorPlayerMode?"JUNIOR PLAYER":"QUICK NAVIGATION"}</small><h2>{juniorPlayerMode?"All My Features":"Go to a section"}</h2></div><button aria-label="Close quick navigation" onClick={()=>setCommandOpen(false)}>×</button></div><input autoFocus value={commandQuery} onChange={e=>setCommandQuery(e.target.value)} placeholder={juniorPlayerMode?"Search my features…":"Search Overview, Goals, Testing, Roster…"}/><div className="commandResults">{filteredActions.map(a=><button key={a.id} onClick={()=>{navigateTo(a.tab,a.target);setCommandOpen(false);setCommandQuery("")}}><span className="commandResultIcon"><NavMetaIcon icon={navMeta[a.tab]?.icon}/></span><b>{a.label}</b><small>{juniorPlayerMode?(playerPageHelp[a.tab]?.purpose||"Open this feature"):a.keywords.join(" · ")}</small></button>)}</div>{juniorPlayerMode&&filteredActions.length===0&&<div className="juniorFeatureEmpty">No matching feature. Try a different word.</div>}</div></div>}
  {navSheet&&<ViewportPortal><div className="simpleNavOverlay viewportNavOverlay" onClick={()=>setNavSheet(null)}><div className="simpleNavSheet" onClick={e=>e.stopPropagation()}>
    <div className="sectionHead"><div><small>{navSheet.toUpperCase()}</small><h2>{navSheet==="More"?"More Features":navSheet}</h2></div><button onClick={()=>setNavSheet(null)}>×</button></div>
@@ -2309,7 +2314,7 @@ function RoleLogin({profile,activeAthleteId,roster,onLogin}:{profile:Profile;act
  const toggleParentLink=(id:string)=>setParentLinks(x=>x.includes(id)?x.filter(a=>a!==id):[...x,id]);
  return <div className="roleLoginShell">
   <div className="roleLoginCard">
-   <div className="roleLoginBrand"><div className="logo hockeyDevLogo">HD</div><div><small>HOCKEY DEV</small><h1>Choose your workspace</h1><p>Each account type gets the tools and information appropriate for that role.</p></div></div>
+   <div className="roleLoginBrand"><div className="logo elitePerformanceLogo"><img src="/elite-performance-speed-e.svg" alt=""/></div><div><small>ELITE PERFORMANCE</small><h1>Choose your workspace</h1><p>Each account type gets the tools and information appropriate for that role.</p></div></div>
    <div className="roleChoiceGrid">{(["Player","Coach","Parent","Admin"] as AccountRole[]).map(r=><button key={r} className={"roleChoice "+(role===r?"active":"")} onClick={()=>setRole(r)}><span>{r==="Player"?"◆":r==="Coach"?"✦":r==="Parent"?"◎":"★"}</span><b>{r}</b><small>{descriptions[r]}</small></button>)}</div>
    <div className="roleLoginForm"><label>Your name<input value={name} onChange={e=>setName(e.target.value)} placeholder={role==="Player"?profile.name||"Player name":role==="Coach"?"Coach name":role==="Parent"?"Parent / guardian name":"Admin name"}/></label>
     <div className="linkedAthlete"><small>ACTIVE ATHLETE</small><b>{profile.name}</b><span>{profile.team||"No team saved"} · {profile.position||"Position not set"}</span></div>
@@ -4566,7 +4571,7 @@ function Analytics({sport,profile,results,goals,workouts,readiness,competitions,
 
 
  return <><div className="hero analyticsCockpitHero">
-  <div><small>ATHLETE PERFORMANCE · PRIMARY DISPLAY</small><h1>Analytics Cockpit</h1><p>{profile.name} · {sport}{profile.position?` · ${profile.position}`:""} · One shared dashboard for Player, Parent, and Coach.</p></div>
+  <div><small>ELITE PERFORMANCE · PRIMARY DISPLAY</small><h1>Analytics Cockpit</h1><p>{profile.name} · {sport}{profile.position?` · ${profile.position}`:""} · One shared dashboard for Player, Parent, and Coach.</p></div>
   <div className="cockpitLiveBadge"><i/><span><small>DATA SOURCE</small><b>Shared athlete profile</b></span></div>
  </div>
 
@@ -5144,7 +5149,7 @@ const verifiedExerciseBlockCatalog:RoutineReference[]=[
   url:"https://youtu.be/_sqm-VmIlqk",
   source:"Goalie Training Pro · Maria Mountain",
   section:"Young Goalie Stretch Series",
-  matchNote:"This source is explicitly a video for young hockey goalies. Athlete Performance uses it for the 9–13 development group only for the seven mobility exercises demonstrated in the source. It is not presented as a demo for strength, speed, or reaction exercises that may follow.",
+  matchNote:"This source is explicitly a video for young hockey goalies. Elite Performance uses it for the 9–13 development group only for the seven mobility exercises demonstrated in the source. It is not presented as a demo for strength, speed, or reaction exercises that may follow.",
   sport:"Ice Hockey",
   positions:["Goaltender"],
   ageMin:9,
@@ -6068,7 +6073,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
   ];
   const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="athlete-performance-summary.csv";a.click();URL.revokeObjectURL(url);
+  a.href=url;a.download="elite-performance-summary.csv";a.click();URL.revokeObjectURL(url);
  };
  const copySummary=async()=>{
   const text=`${profile.name} · ${sport}\nOverall ${overall}/100 (${reportGrade})\nGoals ${goalProgress}%\nTraining ${trainingConsistency}%\nReadiness ${avgReadiness||"—"}\nCompetition ${avgRating||"—"}`;
@@ -6129,7 +6134,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.111 RC61","good"],
+  ["App Version","72.3.115 RC65","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],
@@ -6746,7 +6751,7 @@ function DataCenter({profile,sport,roster,activeAthleteId,goals,workouts,results
     }
   });
   const envelope:BackupEnvelope={version:"17.0",created:new Date().toISOString(),activeAthleteId,roster:athleteRecords,athletes};
-  download("athlete-performance-full-backup.json",envelope);
+  download("elite-performance-full-backup.json",envelope);
   setMessage("Full roster backup created.");
  };
 
@@ -6788,7 +6793,7 @@ function DataCenter({profile,sport,roster,activeAthleteId,goals,workouts,results
         if(data.sport)setSport(data.sport);
         setMessage("Athlete backup restored.");
       }else{
-        setMessage("That file is not a valid Athlete Performance backup.");
+        setMessage("That file is not a valid Elite Performance backup.");
       }
     }catch{
       setMessage("Could not read the backup file.");

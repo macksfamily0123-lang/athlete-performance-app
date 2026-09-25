@@ -1,6 +1,48 @@
-# Phase 72.3.111 RC61 — Multi-Sport, Multi-Team + Shared Family Validation
+# Phase 72.3.115 RC65 — Home Icon System Validation
 
-- RC61 multi-sport/team/family checks: 21/21 passed.
+- RC65 Home icon-system and Parent-layout checks: 20/20 passed.
+- Confirmed **Beta Focus · Review Athlete** uses the normalized Progress icon instead of the distorted one-off filled mark.
+- Confirmed focus-card clipping is removed and SVG strokes remain crisp at every supported size.
+- Confirmed Player, Junior, Coach, Parent, and Admin Home shortcuts use the same square badge component.
+- Confirmed desktop and phone icon sizes, artwork scale, alignment, and green/silver accent tones.
+- Confirmed Parent Home icons occupy the left diamond timeline position and remain upright.
+- Confirmed Parent Progress is locked to the phone viewport and responsive grids cannot widen the page.
+- Confirmed Recovery Reminder text is centered and wraps safely.
+- Confirmed service worker cache `v115`, immediate update checking, old-cache deletion, and network-first navigation.
+- Full registered regression suite: passed.
+- TypeScript `tsc --noEmit`: passed.
+- Next.js optimized production build: passed.
+- No database migration added; migration 015 remains current.
+- Tracker connectivity remains disabled.
+
+## RC63 compatibility — Speed E Logo Validation
+
+- RC63 Speed E checks: 10/10 passed.
+- Full registered regression suite: passed.
+- TypeScript `tsc --noEmit`: passed.
+- Next.js optimized production build: passed.
+- Standalone mark and horizontal lockup: visually inspected.
+- PWA, Apple touch, header, authentication, and workspace icon assets: regenerated.
+- Crest and shield treatment: removed.
+- Elite Performance typography and approved palette: preserved.
+- No database migration added; migration 015 remains current.
+- Tracker connectivity remains disabled.
+
+## RC62 compatibility — Elite Performance Brand Validation
+
+- RC62 brand checks: 12/12 passed.
+- TypeScript `tsc --noEmit`: passed.
+- Next.js optimized production build: passed.
+- EP crest and full horizontal logo SVGs: validated.
+- PWA, Apple touch, header, authentication, and workspace logo placements: validated.
+- Legacy top-level HD and AP letter badges: removed.
+- Tracker connectivity remains disabled.
+
+## RC61 compatibility
+
+- RC61 multi-sport/team/family checks: 22/22 passed.
+
+- RC62 multi-sport/team/family checks: 22/22 passed.
 - Full registered regression suite: passed.
 - TypeScript `tsc --noEmit`: passed.
 - Next.js optimized production build: passed.

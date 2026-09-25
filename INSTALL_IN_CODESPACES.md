@@ -1,10 +1,10 @@
-# Phase 72.3.111 RC61 — Codespaces Installation
+# Elite Performance · Phase 72.3.115 RC65 — Codespaces Installation
 
-This is one full combined release. It adds multi-sport Player workspaces, multiple teams per sport, primary sport/team selection, an all-sports overview, and clearer multi-parent invitations while preserving all RC54–RC60 functionality. Tracker connectivity remains disabled.
+This full combined release repairs the distorted **Review Athlete** focus icon and standardizes every Home shortcut icon across all roles. It preserves the Elite Performance brand, multi-sport, multi-team, shared-family access, and all prior functionality. Tracker connectivity remains disabled.
 
 ## 1. Upload the ZIP
 
-Upload `athlete-performance-app-phase-72-3-111-RC61-multi-sport-team-family.zip` into the root of your existing Codespace. You do not need a second Codespace.
+Upload `elite-performance-app-phase-72-3-115-RC65-home-icon-system.zip` into the root of your existing Codespace. You do not need a second Codespace.
 
 ## 2. Open the terminal and enter the app folder
 
@@ -18,16 +18,16 @@ cd /workspaces/athlete-performance-app
 git pull --rebase origin main
 ```
 
-## 4. Extract RC61 over the existing app
+## 4. Extract RC65 over the existing app
 
 ```bash
-unzip -o athlete-performance-app-phase-72-3-111-RC61-multi-sport-team-family.zip
+unzip -o elite-performance-app-phase-72-3-115-RC65-home-icon-system.zip
 ```
 
 ## 5. Remove only the uploaded ZIP
 
 ```bash
-rm athlete-performance-app-phase-72-3-111-RC61-multi-sport-team-family.zip
+rm elite-performance-app-phase-72-3-115-RC65-home-icon-system.zip
 ```
 
 ## 6. Clear the old Next.js cache
@@ -54,14 +54,14 @@ npm run release:check
 npm run dev -- -H 0.0.0.0 -p 3001
 ```
 
-Open the forwarded port `3001` when Codespaces offers it. The release ribbon must say `CLOSED BETA · RC61 · v72.3.111`.
+Open the forwarded port `3001` when Codespaces offers it. The release ribbon must say `CLOSED BETA · RC65 · v72.3.115`.
 
-## 10. Install the new Supabase migration
+## 10. Confirm the database status
 
-Open the Supabase SQL Editor, copy the complete contents of the following file, paste it into a new query, and select **Run**:
+RC65 adds no new migration. Migration 015 from RC61 must already be installed:
 
 ```text
 supabase/migrations/015_multi_sport_team_family_profiles.sql
 ```
 
-Run migration 015 once, after migrations 001–014. Do not remove or rerun the older migrations. Migration 015 preserves existing Players, Parent links, team memberships, and saved workspace data.
+You already installed migration 015 successfully. Do not rerun migrations 001–015 for this icon update.

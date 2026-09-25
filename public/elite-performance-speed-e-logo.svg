@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-labelledby="title description">
+  <title id="title">Elite Performance</title>
+  <desc id="description">Elite Performance high performance athlete development logo with a metallic Speed E mark.</desc>
+  <defs>
+    <linearGradient id="silver" x1="30" y1="35" x2="1110" y2="295" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f5f8f7"/>
+      <stop offset="0.38" stop-color="#c7d0cc"/>
+      <stop offset="0.7" stop-color="#7f8d87"/>
+      <stop offset="1" stop-color="#e3e9e6"/>
+    </linearGradient>
+    <linearGradient id="forest" x1="35" y1="38" x2="170" y2="292" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#43e596"/>
+      <stop offset="0.44" stop-color="#16704c"/>
+      <stop offset="1" stop-color="#063526"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(12 18) scale(.57)">
+    <path d="M139 73h86l-70 366H68z" fill="url(#forest)"/>
+    <path d="M148 73h306l-42 76H133z" fill="url(#silver)"/>
+    <path d="M123 218h248l-38 72H109z" fill="url(#silver)"/>
+    <path d="M96 363h303l-42 76H81z" fill="url(#silver)"/>
+    <path d="M38 126h76l-12 55H25z" fill="#43e596" opacity=".88"/>
+    <path d="M24 232h79l-11 52H14z" fill="#9eaaa5" opacity=".82"/>
+    <path d="M35 341h56l-10 48H27z" fill="#43e596" opacity=".72"/>
+  </g>
+  <text x="330" y="147" fill="url(#silver)" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="900" letter-spacing="8">ELITE</text>
+  <text x="330" y="239" fill="#43e596" font-family="Arial, Helvetica, sans-serif" font-size="92" font-weight="900" letter-spacing="3">PERFORMANCE</text>
+  <path d="M333 264h799" stroke="#426458" stroke-width="2"/>
+  <text x="333" y="296" fill="#94a69f" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" letter-spacing="8">HIGH PERFORMANCE ATHLETE DEVELOPMENT</text>
+</svg>

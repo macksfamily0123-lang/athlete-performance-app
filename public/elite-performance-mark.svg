@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">Elite Performance Speed E</title>
+  <desc id="description">A forward-leaning metallic silver E with forest-green motion accents on a transparent background.</desc>
+  <defs>
+    <linearGradient id="silver" x1="72" y1="72" x2="430" y2="432" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f5f8f7"/>
+      <stop offset="0.38" stop-color="#c7d0cc"/>
+      <stop offset="0.68" stop-color="#7f8d87"/>
+      <stop offset="1" stop-color="#e3e9e6"/>
+    </linearGradient>
+    <linearGradient id="forest" x1="44" y1="70" x2="196" y2="432" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#43e596"/>
+      <stop offset="0.42" stop-color="#16704c"/>
+      <stop offset="1" stop-color="#063526"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <path d="M139 73h86l-70 366H68z" fill="url(#forest)"/>
+    <path d="M148 73h306l-42 76H133z" fill="url(#silver)"/>
+    <path d="M123 218h248l-38 72H109z" fill="url(#silver)"/>
+    <path d="M96 363h303l-42 76H81z" fill="url(#silver)"/>
+    <path d="M38 126h76l-12 55H25z" fill="#43e596" opacity=".88"/>
+    <path d="M24 232h79l-11 52H14z" fill="#9eaaa5" opacity=".82"/>
+    <path d="M35 341h56l-10 48H27z" fill="#43e596" opacity=".72"/>
+  </g>
+</svg>
