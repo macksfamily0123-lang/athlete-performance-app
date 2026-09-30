@@ -1,0 +1,7 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:typecheck
+> tsc --noEmit
+
+.next/types/app/visual-qa/page.ts(2,24): error TS2307: Cannot find module '../../../../app/visual-qa/page.js' or its corresponding type declarations.
+.next/types/app/visual-qa/page.ts(5,29): error TS2307: Cannot find module '../../../../app/visual-qa/page.js' or its corresponding type declarations.

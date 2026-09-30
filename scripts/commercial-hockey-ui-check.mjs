@@ -6,8 +6,8 @@ const hero=fs.readFileSync("public/sport-heroes/ice-hockey.svg","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const migration=fs.readFileSync("supabase/migrations/009_player_more_cloud_test_athletes.sql","utf8");
 const checks=[
- ["Phase version is 72.3.74",pkg.version==="72.3.116"],
- ["RC24 ribbon",beta.includes("CLOSED BETA · RC66 · v72.3.116")],
+ ["Phase version is 72.3.74",pkg.version==="72.3.117"],
+ ["RC24 ribbon",beta.includes("CLOSED BETA · RC67 · v72.3.117")],
  ["Player Profile has photo field",athlete.includes("photoUrl?:string")],
  ["Mobile photo resize helper",athlete.includes("resizePlayerPhoto")&&athlete.includes('canvas.toDataURL("image/jpeg",.78)')],
  ["Profile photo picker",athlete.includes('type="file" accept="image/*"')&&athlete.includes("Add Player Photo")],
@@ -16,7 +16,7 @@ const checks=[
  ["Parent My Players loads photos",beta.includes("parentPlayerPhotos")&&beta.includes('from("workspace_state").select("workspace_id,data")')],
  ["Clean initials fallback avatar",!athlete.includes('>🏒<')&&!beta.includes('>🏒<')&&athlete.includes("playerInitials(name)")],
  ["Recognizable hockey stick + puck header",hero.includes("<ellipse cx=\"650\"")&&hero.includes("<path d=\"M490 62L330 257")],
- ["Commercial accent palette",css.includes("--commercial-blue:#32a8ff")&&css.includes("--commercial-violet:#a94eff")&&css.includes("--commercial-amber:#ff9e2f")&&css.includes("--commercial-mint:#55efc4")],
+ ["Commercial accent palette",css.includes("--commercial-blue:#a2aca5")&&css.includes("--commercial-violet:#a2aca5")&&css.includes("--commercial-amber:#a2aca5")&&css.includes("--commercial-mint:#286147")],
  ["Sport-aware header art used",css.includes("var(--sport-hero-image)")&&athlete.includes("sportHeroAsset(sport)")],
  ["Bright Start Today action",athlete.includes("commercialStartToday")&&css.includes(".commercialStartToday")],
  ["Commercial More sheet",css.includes(".simpleNavChoices button:nth-child(4n+4)>span")],

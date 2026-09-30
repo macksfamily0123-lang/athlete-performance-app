@@ -1,5 +1,5 @@
-const CACHE="elite-performance-beta-v116";
-const CORE=["/","/manifest.webmanifest?v=116","/elite-performance-speed-e.svg","/elite-performance-icon-192.png","/elite-performance-icon-512.png","/elite-performance-apple-touch-icon.png"];
+const CACHE="elite-performance-beta-v117";
+const CORE=["/","/manifest.webmanifest?v=117","/elite-performance-speed-e.svg","/elite-performance-icon-192.png","/elite-performance-icon-512.png","/elite-performance-apple-touch-icon.png"];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE).catch(()=>{})).then(()=>self.skipWaiting()));
 });

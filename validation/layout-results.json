@@ -1,0 +1,945 @@
+{
+  "findings": [
+    {
+      "role": "Player",
+      "width": 320,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 320,
+      "action": "daily destination",
+      "top": 7213.5107421875,
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 320,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 320,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 320,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 320,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 320,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 320,
+      "tab": "Testing with results",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "action": "daily destination",
+      "top": 6273.3876953125,
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "tab": "Testing with results",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "action": "daily completion hides banner",
+      "passed": true
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "action": "weekly completion hides banner",
+      "passed": true
+    },
+    {
+      "role": "Player",
+      "width": 390,
+      "action": "saved routines survive reload",
+      "passed": true
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "action": "daily destination",
+      "top": 3966.9951171875,
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 768,
+      "tab": "Testing with results",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "action": "daily destination",
+      "top": 3685.09375,
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Player",
+      "width": 1440,
+      "tab": "Testing with results",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 320,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 320,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Parent",
+      "width": 320,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Parent",
+      "width": 320,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 320,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 320,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 390,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 390,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Parent",
+      "width": 390,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Parent",
+      "width": 390,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 390,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 390,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 768,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 768,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Parent",
+      "width": 768,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Parent",
+      "width": 768,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 768,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 768,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 1440,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 1440,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Parent",
+      "width": 1440,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Parent",
+      "width": 1440,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 1440,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Parent",
+      "width": 1440,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 320,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 390,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 768,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "action": "shared weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "action": "read-only shared routines",
+      "forbidden": 0
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Coach",
+      "width": 1440,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "action": "daily destination",
+      "top": 7602.7626953125,
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 320,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 320,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "action": "daily destination",
+      "top": 6707.93505859375,
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 390,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "action": "daily completion hides banner",
+      "passed": true
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "action": "weekly completion hides banner",
+      "passed": true
+    },
+    {
+      "role": "Admin",
+      "width": 390,
+      "action": "saved routines survive reload",
+      "passed": true
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "action": "daily destination",
+      "top": 4300.7470703125,
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 768,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 768,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "tab": "Home",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "action": "daily destination",
+      "top": 3868.966064453125,
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "action": "weekly destination",
+      "focused": true
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "tab": "Coach",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "tab": "Calendar",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "tab": "Analytics",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "tab": "Testing",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    },
+    {
+      "role": "Admin",
+      "width": 1440,
+      "tab": "Roster",
+      "overflow": false,
+      "scrollWidth": 1440,
+      "clipped": []
+    }
+  ],
+  "errors": []
+}

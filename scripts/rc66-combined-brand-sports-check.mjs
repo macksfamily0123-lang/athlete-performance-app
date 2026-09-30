@@ -7,8 +7,8 @@ const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[];
 const check=(ok,label)=>{if(!ok)throw new Error(`RC66 check failed: ${label}`);checks.push(label)};
 
-check(pkg.version==="72.3.116","release version is Phase 72.3.116");
-check(beta.includes("CLOSED BETA · RC66 · v72.3.116"),"RC66 release ribbon is present");
+check(pkg.version==="72.3.117","release version is Phase 72.3.117");
+check(beta.includes("CLOSED BETA · RC67 · v72.3.117"),"RC66 release ribbon is present");
 check(athlete.includes('src="/elite-performance-speed-e.svg"')&&athlete.includes("ELITE <em>PERFORMANCE</em>"),"Elite Performance header and Speed E logo are active");
 check(!athlete.includes('className="logo hockeyDevLogo">HD</div><div><strong>HOCKEY'),"old Hockey Dev header is absent");
 check(athlete.includes('"Combat Sports"|"Tennis"|"Volleyball"'),"Sport type includes all three new sports");
