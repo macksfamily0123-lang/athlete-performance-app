@@ -1,43 +1,38 @@
-# Elite Performance · Phase 72.3.116 RC66 — GitHub and Vercel Deployment
+# Vercel: preview then production
 
-Run these commands after RC66 passes `npm run release:check` in Codespaces and migration 016 has been run in Supabase.
+Complete INSTALL_IN_CODESPACES.md and SUPABASE_RC69.md. Retention remains disabled until the final activation SQL.
 
-## 1. Review the changed files
+In Vercel → your project → Settings → Environment Variables, keep existing NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY. Set these for the intended environments:
 
-```bash
-git status
+```dotenv
+NEXT_PUBLIC_PRIVACY_OPERATOR_NAME=Steve
+NEXT_PUBLIC_PRIVACY_CONTACT_EMAIL=Eliteperformanceath@gmail.com
 ```
 
-## 2. Stage the release
+Set NEXT_PUBLIC_PRIVACY_RETENTION_NOTE to the actual inactivity policy and verified backup lifetime. Do not set Resend, cron or Supabase service-role secrets in Vercel public variables. Those belong in Supabase Edge secrets.
+
+From Codespaces, preview:
 
 ```bash
-git add .
+npx vercel login
 ```
-
-## 3. Commit RC66
 
 ```bash
-git commit -m "Release Phase 72.3.116 RC66 Elite Performance brand and expanded sports"
+npx vercel
 ```
 
-## 4. Integrate any newer GitHub commit
-
-```bash
-git pull --rebase origin main
-```
-
-## 5. Push to GitHub
-
-```bash
-git push origin main
-```
-
-If the Vercel project is connected to this GitHub repository and watches `main`, the push starts deployment automatically.
-
-## 6. Manual Vercel deployment only if GitHub is not connected
+Choose your existing athlete-development project. Inspect the preview on phone and desktop. Check privacy notice, agreement, parent controls and ordinary check-ins/workouts. Once reviewed, publish:
 
 ```bash
 npx vercel --prod
 ```
 
-Use the same Supabase environment variables already configured. No tracker-provider credentials are needed because tracker connectivity remains disabled.
+If GitHub integration deploys main automatically, use the reviewed PR merge instead of a second CLI production deployment.
+
+Use the stable production domain in RETENTION_APP_URL. Keep PRIVACY_ALLOWED_ORIGINS current for the password-confirmed deletion function; this is a separate Edge secret from the cron secret. Your previously configured URL was:
+
+```text
+https://athlete-development-mqj7xsg3j-athlete-development-app.vercel.app
+```
+
+A new deployment URL may differ. Add each actual allowed app origin to PRIVACY_ALLOWED_ORIGINS, comma-separated, and check Supabase Auth redirect URLs too. Do not add wildcard origins. Redeploy after public environment changes; Next.js embeds them at build time.

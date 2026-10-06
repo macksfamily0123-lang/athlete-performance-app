@@ -1,0 +1,327 @@
+/* RC67 · One palette and spacing system for every role and Supabase dialog. */
+:root {
+ --ep-graphite:#141817; --ep-panel:#1c2220; --ep-raised:#252d29;
+ --ep-forest:#194d37; --ep-forest-light:#286147;
+ --ep-silver:#bdc5bf; --ep-white:#f4f3ec; --ep-muted:#a2aca5;
+ --ep-line:#3c4740; --ep-gutter:clamp(16px,3vw,32px);
+ --bg:var(--ep-graphite); --bg2:var(--ep-panel); --card:var(--ep-panel);
+ --card2:var(--ep-raised); --line:var(--ep-line); --text:var(--ep-white);
+ --muted:var(--ep-muted); --accent:var(--ep-silver); --accent2:var(--ep-silver);
+ --good:var(--ep-silver); --bad:var(--ep-white); --warn:var(--ep-silver);
+ color-scheme:dark;
+}
+html { background:var(--ep-graphite); scroll-padding-top:20px; }
+body { margin:0; background:var(--ep-graphite)!important; color:var(--ep-white)!important; }
+*,*::before,*::after { box-sizing:border-box; }
+button,input,select,textarea { font:inherit; }
+button,a,input,select,textarea,summary { -webkit-tap-highlight-color:transparent; }
+.app.performanceOS[data-role] {
+ --bg:var(--ep-graphite); --card:var(--ep-panel); --text:var(--ep-white);
+ --muted:var(--ep-muted); --accent:var(--ep-silver); --accent2:var(--ep-silver);
+ --line:var(--ep-line); --good:var(--ep-silver); --bad:var(--ep-white);
+ background:var(--ep-graphite)!important; color:var(--ep-white)!important;
+ width:100%!important; max-width:100%!important; min-height:100dvh;
+}
+.app.performanceOS[data-role] :is(main,.appHeader,.appNav,.sportSelectorBlock,.workspaceGuide,.pageGuide) {
+ width:100%!important; max-width:1240px!important; min-width:0;
+ margin-inline:auto!important;
+}
+.app.performanceOS[data-role] main { padding:24px var(--ep-gutter) 110px!important; }
+.app.performanceOS[data-role] main > * { min-width:0; max-width:100%; }
+.app.performanceOS[data-role] .appHeader {
+ position:relative!important; padding:22px var(--ep-gutter)!important;
+ border-bottom:1px solid var(--ep-line)!important;
+ background:var(--ep-graphite)!important; box-shadow:none!important;
+ display:flex!important; align-items:center!important; justify-content:space-between!important;
+ flex-wrap:wrap!important; gap:18px!important; height:auto!important;
+}
+.app.performanceOS[data-role] .brandBlock { min-width:0; gap:14px!important; }
+.app.performanceOS[data-role] .brandBlock > div { min-width:0; }
+.app.performanceOS[data-role] .brandBlock strong { font-size:clamp(18px,2.2vw,25px)!important; letter-spacing:.045em!important; line-height:1.15!important; color:var(--ep-white)!important; }
+.app.performanceOS[data-role] .brandBlock em { color:var(--ep-silver)!important; font-style:normal; }
+.app.performanceOS[data-role] .brandBlock small { color:var(--ep-muted)!important; font-size:10px!important; letter-spacing:.1em!important; line-height:1.5!important; margin-top:5px; }
+.app.performanceOS[data-role] .elitePerformanceLogo { width:48px!important; height:48px!important; flex:0 0 48px; background:none!important; border:0!important; box-shadow:none!important; padding:0!important; }
+.app.performanceOS[data-role] .elitePerformanceLogo img { width:100%; height:100%; object-fit:contain; }
+.app.performanceOS[data-role] .headerActions { display:flex!important; flex-wrap:wrap!important; gap:8px!important; min-width:0; align-items:center; }
+.app.performanceOS[data-role] .accountHeaderRole { color:var(--ep-silver)!important; font-size:12px!important; border:1px solid var(--ep-line); padding:8px 12px; border-radius:6px; }
+.app.performanceOS[data-role] :is(.appNav,.sectionSubnav,.parentSectionNav,.simpleSectionNav,.simpleAnalyticsNav) {
+ display:flex!important; flex-wrap:wrap!important; gap:8px!important; padding:12px var(--ep-gutter)!important;
+ background:var(--ep-graphite)!important; border-color:var(--ep-line)!important; box-shadow:none!important;
+}
+.app.performanceOS[data-role] :is(.appNav,.sectionSubnav,.parentSectionNav,.simpleSectionNav,.simpleAnalyticsNav) button {
+ min-width:0!important; flex:0 1 auto; height:auto!important; padding:10px 14px!important;
+ border:1px solid transparent!important; border-radius:7px!important; background:transparent!important;
+ color:var(--ep-silver)!important; line-height:1.35!important; white-space:normal!important;
+}
+.app.performanceOS[data-role] :is(.appNav,.sectionSubnav,.parentSectionNav,.simpleSectionNav,.simpleAnalyticsNav) button:is(.active,.sel) {
+ background:var(--ep-forest)!important; color:var(--ep-white)!important; border-color:var(--ep-forest-light)!important;
+ box-shadow:none!important;
+}
+.app.performanceOS[data-role] :is(button,input,select,textarea) { min-height:44px; max-width:100%; }
+.app.performanceOS[data-role] button { color:var(--ep-white); border-radius:8px!important; line-height:1.4!important; white-space:normal!important; height:auto; overflow-wrap:anywhere; }
+.app.performanceOS[data-role] button:not(:disabled):hover { filter:brightness(1.12); }
+.app.performanceOS[data-role] :is(button.primary,button.featureAction,.commercialStartToday,.nativePrimaryAction,.elitePrimaryAction,.betaPrimary) {
+ background:var(--ep-forest)!important; border:1px solid var(--ep-forest-light)!important; color:var(--ep-white)!important; box-shadow:none!important;
+}
+.app.performanceOS[data-role] button:disabled { opacity:.55; cursor:not-allowed; }
+:is(button,a,input,select,textarea,summary):focus-visible {
+ outline:2px solid var(--ep-silver)!important; outline-offset:4px!important; box-shadow:none!important;
+}
+.app.performanceOS[data-role] :is(input,select,textarea) { background:var(--ep-graphite)!important; border:1px solid var(--ep-line)!important; color:var(--ep-white)!important; border-radius:8px!important; padding:11px 12px!important; width:100%; min-width:0; }
+.app.performanceOS[data-role] label { min-width:0; color:var(--ep-silver); line-height:1.5; }
+.app.performanceOS[data-role] label > :is(input,select,textarea) { margin-top:6px; }
+.app.performanceOS[data-role] input::placeholder,.app.performanceOS[data-role] textarea::placeholder { color:var(--ep-muted); opacity:1; }
+.app.performanceOS[data-role] input:is([type=checkbox],[type=radio]) { width:20px!important; min-height:20px; accent-color:var(--ep-forest-light); }
+.app.performanceOS[data-role] :is(.card,.stat,.goalCard,.protocolCard,.coachRosterCard,.coachRosterPlayerCard,.parentPlayerCard,.cockpitTrendCard,.simpleDisclosure,.performanceIntelligence,.eliteRecoveryHome,.rc54PerformanceTile,.premiumRoleFocusCard,.nativeProfileHero,.commercialProfileHero) {
+ background:var(--ep-panel)!important; border:1px solid var(--ep-line)!important; color:var(--ep-white)!important;
+ border-radius:14px!important; box-shadow:none!important; padding:clamp(18px,2.4vw,26px)!important;
+ min-width:0!important; margin-bottom:16px;
+}
+.app.performanceOS[data-role] :is(.card,.stat,.goalCard,.protocolCard) > :last-child { margin-bottom:0; }
+.app.performanceOS[data-role] :is(.card,.goalCard,.protocolCard) > button { margin-top:14px; }
+.app.performanceOS[data-role] :is(.sectionHead,.sectionHeader,.cockpitTrendHeader,.cockpitToolbar) { display:flex; flex-wrap:wrap!important; align-items:center; justify-content:space-between; gap:12px!important; min-width:0; margin-bottom:16px; }
+.app.performanceOS[data-role] :is(.sectionHead,.sectionHeader,.cockpitTrendHeader) > div { min-width:0!important; }
+.app.performanceOS[data-role] :is(h1,h2,h3,p,b,strong,small,span,label) { overflow-wrap:break-word; }
+.app.performanceOS[data-role] :is(h1,h2,h3) { color:var(--ep-white)!important; line-height:1.22!important; letter-spacing:-.025em; text-transform:none; }
+.app.performanceOS[data-role] h1 { font-size:clamp(27px,4vw,40px)!important; }
+.app.performanceOS[data-role] h2 { font-size:clamp(20px,2.5vw,25px)!important; margin-top:0; }
+.app.performanceOS[data-role] p { line-height:1.65!important; color:var(--ep-silver); }
+.app.performanceOS[data-role] small { line-height:1.5!important; }
+.app.performanceOS[data-role] :is(.hero,.phase32Hero,.analyticsCockpitHero) {
+ background:var(--ep-panel)!important; padding:24px!important; border:1px solid var(--ep-line)!important; border-left:4px solid var(--ep-forest-light)!important;
+ border-radius:12px!important; box-shadow:none!important; min-height:0!important;
+}
+.app.performanceOS[data-role] :is(.hero,.workspaceGuide,.pageGuide) small { color:var(--ep-silver)!important; letter-spacing:.07em!important; }
+.app.performanceOS[data-role] :is(.commercialHeroPhoto,.sportHeroImage,.nativeHeroPhoto,.premiumSportVisual,.nativeProfileHeroPhoto) { filter:grayscale(1)!important; }
+.app.performanceOS[data-role] :is(.workspaceGuide,.pageGuide) { background:transparent!important; border:0!important; padding:8px 0!important; gap:12px; }
+.app.performanceOS[data-role] .workspaceGuide { display:none!important; }
+.app.performanceOS[data-role] .pageGuide { margin-bottom:18px!important; }
+.app.performanceOS[data-role] :is(.grid,.two,.three,.compareGrid,.cockpitInstrumentGrid,.sharedFocusGrid,.testSummary,.prBoard,.seasonMetricGrid,.nativeActionGrid) { gap:16px!important; }
+.app.performanceOS[data-role] :is(.grid,.two,.three,.compareGrid,.sharedFocusGrid,.testSummary) > * { min-width:0!important; }
+.app.performanceOS[data-role] :is(.progress,.eliteMicroGauge,.miniProgress) { height:6px!important; border-radius:10px!important; background:var(--ep-line)!important; overflow:hidden; }
+.app.performanceOS[data-role] :is(.progress,.eliteMicroGauge,.miniProgress) i { background:var(--ep-silver)!important; border-radius:10px; }
+.app.performanceOS[data-role] :is(.chart,.trend svg) { display:block; width:100%; max-width:100%; height:auto; color:var(--ep-silver)!important; }
+.app.performanceOS[data-role] :is(.prChip,.tag,.statusBadge,.prBanner,.reviewRating) { background:var(--ep-raised)!important; color:var(--ep-silver)!important; border-color:var(--ep-line)!important; box-shadow:none!important; }
+.app.performanceOS[data-role] :is(.good,.bad,.warning,.danger,.eliteStatusDot) { color:var(--ep-silver)!important; }
+.app.performanceOS[data-role] :is(.premiumAppIcon,.homeIconBadge svg) { width:24px; height:24px; flex-shrink:0; color:inherit!important; }
+.app.performanceOS[data-role] .homeIconBadge { background:var(--ep-forest)!important; border:1px solid var(--ep-forest-light)!important; color:var(--ep-white)!important; box-shadow:none!important; border-radius:10px!important; }
+.app.performanceOS[data-role] .commercialCameraBadge svg { width:18px!important; height:18px!important; }
+.app.performanceOS[data-role] .setupAnchor { scroll-margin-top:24px; }
+.app.performanceOS[data-role] :is(.routinePriorityStack,.rc67SharedRoutines) { margin:0 0 22px!important; width:100%; }
+.app.performanceOS[data-role] .routinePriorityStack { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px!important; }
+.app.performanceOS[data-role] .routinePriorityBanner {
+ display:grid!important; grid-template-columns:42px minmax(0,1fr)!important; align-items:center; gap:14px!important;
+ padding:20px!important; border:1px solid var(--ep-forest-light)!important; border-left:4px solid var(--ep-silver)!important;
+ background:var(--ep-forest)!important; border-radius:12px!important; text-align:left; color:var(--ep-white)!important; box-shadow:none!important;
+}
+.app.performanceOS[data-role] .routinePriorityBanner strong { grid-column:2; justify-self:start; color:var(--ep-white)!important; font-size:12px!important; letter-spacing:.06em; }
+.app.performanceOS[data-role] .routinePriorityIcon { width:40px!important; height:40px!important; color:var(--ep-white)!important; background:transparent!important; border:0!important; }
+.app.performanceOS[data-role] .routinePriorityCopy { display:grid; gap:5px; }
+.app.performanceOS[data-role] .routinePriorityCopy b { font-size:20px!important; color:var(--ep-white)!important; }
+.app.performanceOS[data-role] .routinePriorityCopy :is(small,span) { color:var(--ep-white)!important; font-size:12px!important; opacity:.9; }
+.rc67SharedRoutines { border:1px solid var(--ep-line); background:var(--ep-panel); border-radius:12px; padding:18px; }
+.rc67SectionEyebrow { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; color:var(--ep-muted); font-size:12px; }
+.rc67SharedRoutines > div:last-child { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.rc67SharedRoutines button { display:flex; align-items:center; gap:12px; text-align:left; padding:14px!important; background:var(--ep-raised)!important; border:1px solid var(--ep-line)!important; }
+.rc67SharedRoutines button > span { display:grid; gap:4px; flex:1; min-width:0; }
+.rc67SharedRoutines button strong { font-size:12px; white-space:nowrap; }
+.rc67SharedRoutines button small { color:var(--ep-muted); }
+.rc67EmptyState { display:flex; align-items:flex-start; gap:16px; padding:24px 8px; }
+.rc67EmptyState > span { display:grid; place-items:center; width:44px; height:44px; flex:0 0 44px; background:var(--ep-raised); border:1px solid var(--ep-line); border-radius:10px; color:var(--ep-silver); }
+.rc67EmptyState b { display:block; font-size:17px; }
+.rc67EmptyState p { margin:6px 0 0; max-width:65ch; }
+.rc67TestingDetails { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:16px; align-items:start; }
+.app.performanceOS[data-role] .testHistoryRow { display:grid!important; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:12px!important; padding:16px 0!important; border-bottom:1px solid var(--ep-line); }
+.testHistoryRow > div { display:grid; gap:4px; }
+.rc67HistoryChange { font-size:12px; color:var(--ep-silver); }
+.rc67Trend { margin:16px 0; padding:16px 0; }
+.rc67Trend figcaption { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; font-size:13px; }
+.rc67Trend figcaption span { color:var(--ep-muted); }
+.rc67ChartGrid line { stroke:var(--ep-line); stroke-width:1; }
+.rc67ChartGrid text,.rc67ChartAxis { fill:var(--ep-muted); font-size:10px; }
+.rc67ChartArea { fill:var(--ep-forest-light); opacity:.25; }
+.rc67ChartLine { stroke:var(--ep-silver); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+.rc67ChartPoint { fill:var(--ep-white); stroke:var(--ep-panel); stroke-width:2; }
+/* Secure account dialogs use the same design as the athlete workspace. */
+:is(.betaSetupShell,.betaShell,.betaLoginShell) { background:var(--ep-graphite)!important; color:var(--ep-white)!important; padding:24px 16px!important; }
+:is(.betaSetupCard,.betaLoginCard,.betaModal,.betaPanel,.betaAdminCard,.modal,.settingsPanel,.commandPalette,.navSheet) {
+ background:var(--ep-panel)!important; color:var(--ep-white)!important; border:1px solid var(--ep-line)!important; border-radius:16px!important; box-shadow:0 20px 80px #141817!important;
+ max-width:calc(100vw - 32px)!important; padding:24px!important;
+}
+:is(.betaSetupCard,.betaLoginCard,.betaModal,.betaPanel) :is(input,select,textarea) { background:var(--ep-graphite)!important; border:1px solid var(--ep-line)!important; color:var(--ep-white)!important; min-height:44px; max-width:100%; border-radius:8px; }
+:is(.betaPrimary,.betaModal .primary) { background:var(--ep-forest)!important; color:var(--ep-white)!important; border-color:var(--ep-forest-light)!important; min-height:44px; }
+:is(.betaModal,.modal,.settingsPanel) { max-height:calc(100dvh - 32px)!important; overflow-y:auto!important; overflow-x:hidden; }
+@media(min-width:901px) {
+ .app.performanceOS[data-role] .bottomNav { position:sticky!important; bottom:20px!important; max-width:750px!important; width:calc(100% - 64px)!important; margin:0 auto 20px!important; border:1px solid var(--ep-line)!important; border-radius:14px!important; background:var(--ep-panel)!important; box-shadow:0 8px 32px #141817!important; }
+}
+@media(max-width:900px) {
+ .app.performanceOS[data-role] .appHeader { padding-block:16px!important; }
+ .app.performanceOS[data-role] .headerActions { width:100%; }
+ .rc67TestingDetails { grid-template-columns:minmax(0,1fr); }
+ .app.performanceOS[data-role] :is(.nativeCoachLayout,.nativeParentLayout,.analyticsCockpitGrid,.cockpitMainGrid) { grid-template-columns:minmax(0,1fr)!important; }
+}
+@media(max-width:600px) {
+ .app.performanceOS[data-role] main { padding-top:18px!important; padding-bottom:110px!important; }
+ .app.performanceOS[data-role] .appNav { display:none!important; }
+ .app.performanceOS[data-role] .brandBlock strong { font-size:20px!important; }
+ .app.performanceOS[data-role] .brandBlock small { font-size:9px!important; }
+ .app.performanceOS[data-role] .headerActions > button { padding:9px 12px!important; font-size:12px!important; }
+ .app.performanceOS[data-role] :is(.routinePriorityStack,.rc67SharedRoutines > div:last-child,.two,.three,.twoCards,.compareGrid,.sharedFocusGrid,.testSummary,.cockpitInstrumentGrid,.cockpitQuickGrid,.seasonMetricGrid,.targetProgressHero) { grid-template-columns:minmax(0,1fr)!important; }
+ .app.performanceOS[data-role] :is(.card,.stat,.hero,.protocolCard,.goalCard) { padding:18px!important; border-radius:12px!important; }
+ .app.performanceOS[data-role] .routinePriorityBanner { padding:18px!important; grid-template-columns:36px minmax(0,1fr)!important; gap:12px!important; }
+ .app.performanceOS[data-role] .routinePriorityCopy b { font-size:18px!important; }
+ .app.performanceOS[data-role] .routinePriorityBanner strong { grid-column:2; }
+ .app.performanceOS[data-role] :is(.sectionHead,.sectionHeader) > button { justify-self:start; max-width:100%; }
+ .app.performanceOS[data-role] :is(.filters,.cockpitToolbar,.rosterActions,.weeklyReviewActions,.coachReviewActions,.goalActions,.headerActions) { flex-wrap:wrap!important; gap:10px!important; }
+ .app.performanceOS[data-role] .testHistoryRow { grid-template-columns:minmax(0,1fr) auto!important; }
+ .rc67HistoryChange { grid-column:1; grid-row:2; }
+ .app.performanceOS[data-role] .bottomNav { position:fixed!important; inset:auto 0 0!important; width:100%!important; max-width:100%!important; padding:8px 8px calc(8px + env(safe-area-inset-bottom))!important; background:var(--ep-panel)!important; border-top:1px solid var(--ep-line)!important; border-radius:0!important; display:grid!important; grid-template-columns:repeat(6,minmax(0,1fr))!important; gap:2px!important; box-shadow:none!important; }
+ .app.performanceOS[data-role] .bottomNav button { padding:8px 2px!important; min-width:0!important; min-height:54px!important; font-size:10px!important; line-height:1.25!important; background:transparent!important; color:var(--ep-silver)!important; border:0!important; border-radius:7px!important; }
+ .app.performanceOS[data-role] .bottomNav button.active { background:var(--ep-forest)!important; color:var(--ep-white)!important; }
+ .app.performanceOS[data-role] .bottomNav button svg { width:20px!important; height:20px!important; }
+ .app.performanceOS[data-role] :is(.row,.reviewRow,.prRow,.activityRow,.rosterRow) { flex-wrap:wrap!important; gap:12px!important; }
+ .app.performanceOS[data-role] :is(.calendarToolbar,.calendarHead,.nativeCalendarTop,.rosterToolbar) { flex-wrap:wrap!important; }
+ .app.performanceOS[data-role] :is(.calendarGrid,.weekGrid) { min-width:0!important; width:100%!important; }
+ .app.performanceOS[data-role] .calendarGrid > * { min-width:0!important; padding:5px!important; overflow-wrap:anywhere!important; }
+ .app.performanceOS[data-role] :is(.multiSportSelectorButtons,.settingsGrid) { grid-template-columns:minmax(0,1fr)!important; }
+ .app.performanceOS[data-role] .commercialCameraBadge { width:28px!important; height:28px!important; }
+}
+@media(max-width:380px) {
+ .app.performanceOS[data-role] .brandBlock { flex-wrap:wrap!important; }
+ .app.performanceOS[data-role] .brandBlock > div:not(.logo) { flex:1; min-width:150px; }
+ .app.performanceOS[data-role] .routinePriorityBanner { grid-template-columns:minmax(0,1fr)!important; }
+ .app.performanceOS[data-role] .routinePriorityIcon { display:none!important; }
+ .app.performanceOS[data-role] .routinePriorityBanner strong { grid-column:1; }
+ .app.performanceOS[data-role] .bottomNav button { font-size:9px!important; }
+}
+@media(prefers-reduced-motion:reduce) {
+ *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+}
+/* The navigation dock is portalled to body so it remains usable above overlays. */
+.simpleBottomNav.customBottomNav.viewportBottomNav {
+ position:fixed!important; inset:auto 0 0!important; margin:0!important;
+ width:100%!important; max-width:100%!important;
+ display:grid!important; grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:4px!important; padding:8px 12px calc(8px + env(safe-area-inset-bottom))!important;
+ background:var(--ep-panel)!important; border-top:1px solid var(--ep-line)!important;
+ height:auto!important; min-height:72px!important; box-shadow:none!important;
+}
+.simpleBottomNav.customBottomNav.viewportBottomNav button {
+ display:grid!important; justify-items:center!important; align-content:center!important;
+ gap:5px!important; padding:8px 4px!important; min-width:0!important; min-height:52px!important;
+ height:auto!important; line-height:1.25!important; color:var(--ep-silver)!important;
+ background:transparent!important; border:0!important; border-radius:8px!important;
+ white-space:normal!important;
+}
+.simpleBottomNav.customBottomNav.viewportBottomNav button b { font-size:11px!important; line-height:1.25!important; color:inherit!important; }
+.simpleBottomNav.customBottomNav.viewportBottomNav button.active { background:var(--ep-forest)!important; color:var(--ep-white)!important; box-shadow:none!important; }
+.simpleBottomNav.customBottomNav.viewportBottomNav button.active::after { display:none!important; }
+.simpleBottomNav.customBottomNav.viewportBottomNav button span { display:grid!important; place-items:center!important; width:24px!important; height:24px!important; color:inherit!important; background:none!important; }
+.simpleBottomNav.customBottomNav.viewportBottomNav button svg { width:22px!important; height:22px!important; }
+@media(min-width:901px) {
+ .simpleBottomNav.customBottomNav.viewportBottomNav {
+  width:640px!important; max-width:calc(100vw - 64px)!important; left:50%!important; right:auto!important; bottom:18px!important;
+  transform:translateX(-50%)!important; border:1px solid var(--ep-line)!important; border-radius:14px!important;
+ }
+}
+.app.performanceOS[data-role] :is(.eliteRoleHeroBackdrop,.eliteRoleHeroForeground) { filter:grayscale(1)!important; }
+.app.performanceOS[data-role] :is(.eliteProfileHero,.nativeProfileHero,.commercialProfileHero,.eliteRoleHeroMedia) { overflow:hidden; }
+.app.performanceOS[data-role] :is(.commercialProfileHero,.eliteProfileHero) { border-radius:14px!important; border:1px solid var(--ep-line)!important; }
+.app.performanceOS[data-role] :is(.eliteProfileHero h1,.eliteProfileHero p,.commercialProfileHero h1,.commercialProfileHero p) { color:var(--ep-white)!important; }
+.app.performanceOS[data-role] :is(.cleanContext,.contextBar) { max-width:1240px!important; width:100%!important; margin-inline:auto!important; padding:16px var(--ep-gutter)!important; background:var(--ep-panel)!important; border-block:1px solid var(--ep-line)!important; gap:12px!important; flex-wrap:wrap!important; }
+.app.performanceOS[data-role] .athleteContext { min-width:0; }
+.app.performanceOS[data-role] .contextControls { flex-wrap:wrap!important; gap:10px!important; min-width:0; }
+.app.performanceOS[data-role] :is(.rc54TileStatus,.rc54TileDetail,.cockpitTrendHeader small,.eliteSignalTop small,.eliteMicroGaugeLabel,.nativeSignalLabel) { color:var(--ep-silver)!important; }
+.app.performanceOS[data-role] .headerActions > button { width:auto!important; flex:0 1 auto!important; text-transform:none!important; padding:9px 12px!important; }
+.app.performanceOS[data-role] .brandBlock { flex:1 1 260px; }
+.app.performanceOS[data-role] :is(.elitePerformanceBand.rc54PerformanceTiles,.eliteMicroMetricGrid) { display:grid!important; grid-template-columns:repeat(4,minmax(0,1fr))!important; gap:12px!important; background:transparent!important; padding:0!important; border:0!important; }
+.app.performanceOS[data-role] .elitePerformanceBand.rc54PerformanceTiles > .rc54PerformanceTile { display:flex!important; flex-direction:column!important; align-items:stretch!important; gap:8px!important; padding:18px!important; margin:0!important; min-height:150px!important; }
+.app.performanceOS[data-role] .rc54PerformanceTile > strong { overflow:visible!important; white-space:normal!important; font-size:26px!important; }
+.app.performanceOS[data-role] :is(.commercialStartToday,.premiumRoleFocusCard,.performanceIntelligence,.eliteVisualPerformance,.eliteRecoveryHome) { clip-path:none!important; border-radius:14px!important; }
+.app.performanceOS[data-role] :is(.performanceIntelligence,.eliteVisualPerformance,.eliteRecoveryHome) { background:var(--ep-panel)!important; border:1px solid var(--ep-line)!important; padding:22px!important; box-shadow:none!important; }
+.app.performanceOS[data-role] :is(.performanceIntelligenceCopy small,.performanceIntelligenceScore small,.eliteVisualCopy small,.eliteVisualAction,.nativeFeatureStory small) { color:var(--ep-silver)!important; }
+.app.performanceOS[data-role] .performanceIntelligenceScore > b { color:var(--ep-white)!important; }
+.app.performanceOS[data-role] .rc67NoTrend { display:block; color:var(--ep-muted); font-size:13px; padding:22px 0; }
+.app.performanceOS[data-role] .premiumHomeHero { border-radius:14px!important; overflow:hidden!important; border:1px solid var(--ep-line)!important; }
+@media(max-width:600px) {
+ .app.performanceOS[data-role] .headerActions { width:auto!important; }
+ .app.performanceOS[data-role] .headerActions > button { width:auto!important; flex:1 1 auto!important; }
+ .app.performanceOS[data-role] .elitePerformanceBand.rc54PerformanceTiles { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+ .app.performanceOS[data-role] .elitePerformanceBand.rc54PerformanceTiles > .rc54PerformanceTile { min-height:148px!important; padding:16px!important; }
+ .app.performanceOS[data-role] .rc54PerformanceTile > strong { font-size:24px!important; }
+ .app.performanceOS[data-role] .rc54PerformanceTile .eliteSignalTop small { font-size:9px!important; letter-spacing:.04em!important; }
+}
+/* Keep identity and actions compact, with no truncation at any text size. */
+.app.performanceOS[data-role][data-tab] :is(h1,h2,h3,b,strong,.rc54TileDetail,.routinePriorityCopy,.nativeHeroIdentity p) {
+ text-overflow:clip!important; -webkit-line-clamp:unset!important; white-space:normal!important;
+ overflow-wrap:anywhere!important; max-width:100%;
+}
+.app.performanceOS[data-role][data-tab] .premiumHomeHero.nativeSportsHero.elitePerformanceHero {
+ min-height:300px!important; height:300px!important; width:100%!important; max-width:100%!important;
+ border-radius:14px!important; border:1px solid var(--ep-line)!important; padding:24px!important;
+}
+.app.performanceOS[data-role][data-tab] .nativeHeroBottom { width:100%!important; min-width:0!important; gap:16px!important; }
+.app.performanceOS[data-role][data-tab] .nativeHeroIdentity { min-width:0!important; }
+.app.performanceOS[data-role][data-tab] .nativeHeroIdentity h1 { font-size:clamp(25px,3vw,38px)!important; line-height:1.1!important; }
+.app.performanceOS[data-role][data-tab] .routinePriorityBanner { border-radius:12px!important; }
+.app.performanceOS[data-role][data-tab] :is(.eliteRoleHeroBackdrop,.eliteRoleHeroForeground) { max-width:100%!important; }
+@media(max-width:900px) {
+ .app.performanceOS[data-role][data-tab] .premiumHomeHero.nativeSportsHero.elitePerformanceHero { min-height:280px!important; height:280px!important; }
+ .app.performanceOS[data-role] .elitePerformanceBand.rc54PerformanceTiles { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+}
+@media(max-width:600px) {
+ .app.performanceOS[data-role][data-tab] .premiumHomeHero.nativeSportsHero.elitePerformanceHero { min-height:250px!important; height:250px!important; padding:18px!important; }
+ .app.performanceOS[data-role][data-tab] .nativeHeroIdentity h1 { font-size:25px!important; }
+ .app.performanceOS[data-role][data-tab] .nativeHeroIdentity p { font-size:12px!important; }
+ .app.performanceOS[data-role][data-tab] :is(.tableWrap,.rosterTableWrap,.analyticsTableWrap,.adminTableWrap) { overflow:visible!important; }
+ .app.performanceOS[data-role][data-tab] table { min-width:0!important; width:100%!important; table-layout:fixed; }
+ .app.performanceOS[data-role][data-tab] :is(th,td) { padding:8px 5px!important; white-space:normal!important; overflow-wrap:anywhere; }
+}
+.app.performanceOS[data-role][data-tab] .premiumHomeOverview.nativeSportsHome {
+ display:grid!important; grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important; min-width:0!important; max-width:100%!important; gap:18px!important;
+}
+.app.performanceOS[data-role][data-tab] :is(.nativePlayerFlow,.nativeCoachConsole,.elitePlayerFlow) {
+ display:grid!important; grid-template-columns:minmax(0,1fr)!important;
+ min-width:0!important; width:100%!important; max-width:100%!important; gap:16px!important;
+}
+.app.performanceOS[data-role][data-tab] :is(.premiumHomeOverview,.nativePlayerFlow,.nativeCoachConsole) > * {
+ min-width:0!important; max-width:100%!important;
+}
+.app.performanceOS[data-role][data-tab] :is(.eliteProgressHeading,.eliteVisualAction) {
+ display:flex!important; flex-wrap:wrap!important; width:100%!important; gap:8px!important;
+ justify-content:space-between!important;
+}
+.app.performanceOS[data-role][data-tab] :is(.eliteProgressHeading,.eliteVisualAction) > * {
+ min-width:0!important; max-width:100%!important; white-space:normal!important;
+}
+.app.performanceOS[data-role][data-tab] :is(.premiumRoleFocusCard,.nativeCoachPriority,.nativeParentStory) {
+ grid-template-columns:44px minmax(0,1fr) auto!important;
+}
+@media(max-width:600px) {
+ .app.performanceOS[data-role][data-tab] :is(.premiumRoleFocusCard,.nativeCoachPriority,.nativeParentStory) { grid-template-columns:36px minmax(0,1fr)!important; }
+ .app.performanceOS[data-role][data-tab] :is(.premiumRoleFocusCard,.nativeCoachPriority,.nativeParentStory) > strong { grid-column:2; justify-self:start; }
+}
+.app.performanceOS[data-role][data-tab] .eliteVisualPerformance.eliteProgressHome {
+ display:grid!important; grid-template-columns:minmax(0,1fr)!important; gap:12px!important;
+ width:100%!important; min-width:0!important;
+}
+.app.performanceOS[data-role][data-tab] .eliteVisualPerformance.eliteProgressHome > * {
+ grid-column:1!important; grid-row:auto!important; min-width:0!important; max-width:100%!important;
+}
+.app.performanceOS[data-role][data-tab] .eliteVisualMetric { border-left:0!important; padding-left:0!important; text-align:left!important; }
+.app.performanceOS[data-role][data-tab] main { overflow-x:clip; }
+.app.performanceOS[data-role][data-tab] :is(.elitePerformanceBand,.elitePrimaryAction,.nativeInstrumentRail) { margin-inline:0!important; }
+/* RC68 privacy controls share the existing palette and responsive gutters. */
+.rc68PrivacyControls {display:grid;gap:16px;padding:20px;border:1px solid #6f7c73;border-radius:16px;background:#1c2220;color:#f4f3ec;min-width:0;}
+.rc68PrivacyControls p {margin:0;line-height:1.6;overflow-wrap:anywhere;}
+.rc68PrivacyControls label {display:grid;gap:8px;min-width:0;}
+.rc68PrivacyControls button,.rc68PrivacyControls input,.rc68PrivacyControls select {min-height:44px;max-width:100%;white-space:normal;}
+.rc68PrivacyControls details {padding:16px;border:1px solid #6f7c73;border-radius:12px;}
+.rc68PrivacyControls details[open] {display:grid;gap:14px;}
+.rc68PrivacyTeam {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;}
+.rc68Policy {line-height:1.65;max-width:72ch;margin:24px auto;padding:24px;}
+.rc68Policy a {color:#bdc5bf;text-decoration:underline;}
+.rc68PrivacyGate {max-width:760px;margin:24px auto;padding:24px;display:grid;gap:16px;}
+.privacyCenterCard {max-height:90dvh;overflow-y:auto;}
+@media(max-width:600px){.rc68PrivacyControls{padding:16px;}.rc68PrivacyGate{margin:16px;padding:16px;}.rc68PrivacyControls .privacyActionGrid{grid-template-columns:1fr;}}

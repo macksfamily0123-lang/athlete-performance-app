@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';
+import {clearPrivateCache,needsGuardian,validatePhoto} from '../lib/privacy.mjs';
+import ts from 'typescript';
+let checks=0;const check=(condition,label)=>{assert.ok(condition,label);checks++;console.log('PASS:',label)};
+for(const age of [null,undefined,'',0,10,12,13,17,NaN])check(needsGuardian(age),'Minor or unknown age '+age+' requires guardian');
+check(!needsGuardian(18),'18 is the privacy adulthood boundary');check(!needsGuardian(27),'Adult privacy definition');
+const data=new Map([['profile','photo'],['athleteData:primary','private'],['pendingCloudSave:one','private'],['accountSession','private'],['uiTextSize','180'],['sb-test-auth-token','session']]);
+const storage={get length(){return data.size},key:i=>[...data.keys()][i],removeItem:k=>data.delete(k)};clearPrivateCache(storage);
+check(data.size===2&&!data.has('profile')&&!data.has('pendingCloudSave:one'),'Private snapshots and pending saves are cleared');check(data.get('uiTextSize')==='180','Accessibility preference retained');
+check(validatePhoto('data:image/jpeg;base64,QUJD'),'Resized upload supported');check(!validatePhoto('https://example.test/pixel.png'),'Remote photo URLs rejected');check(!validatePhoto('data:image/svg+xml;base64,QUJD'),'SVG profile uploads rejected');
+const code=ts.transpileModule(fs.readFileSync('supabase/functions/privacy-account-delete/index.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const cases=[['Origin not allowed',false,true,true,403],['Sign in required',true,false,true,401],['Password failed',true,true,false,403],['Valid erasure',true,true,true,200]];
+for(const [label,originAllowed,userOk,passwordOk,expected] of cases){let handler;let eraseId=null;let logs=[];
+const Deno={env:{get:k=>({SUPABASE_URL:'https://backend.test',SUPABASE_ANON_KEY:'anon',SUPABASE_SERVICE_ROLE_KEY:'server-only',PRIVACY_ALLOWED_ORIGINS:'https://app.test'})[k]},serve:h=>{handler=h}};
+const fetch=async(url,options)=>{if(url.endsWith('/user'))return new Response(JSON.stringify({id:'owner',email:'owner@example.test'}),{status:userOk?200:401});if(url.includes('grant_type=password'))return new Response(JSON.stringify({user:{id:'owner'},access_token:'fresh'}),{status:passwordOk?200:400});if(url.includes('/logout'))return new Response(null,{status:204});if(url.includes('privacy_delete_account_verified')){eraseId=JSON.parse(options.body).p_user;return new Response('true',{status:200})}throw Error('Unexpected endpoint')};
+new Function('Deno','fetch','Request','Response','exports',code)(Deno,fetch,Request,Response,{});
+const response=await handler(new Request('https://backend.test/functions/v1/privacy-account-delete',{method:'POST',headers:{Origin:originAllowed?'https://app.test':'https://attacker.test',Authorization:'Bearer user-token','Content-Type':'application/json'},body:JSON.stringify({password:'test-only',confirmation:'DELETE ACCOUNT',user_id:'victim'})}));
+check(response.status===expected,label);check(expected===200?eraseId==='owner':eraseId===null,'Account erasure bound to verified caller: '+label);
+}
+check(!fs.existsSync('app/visual-qa'),'No fixture bypass route is shipped');
+console.log(`RC68 runtime privacy checks passed (${checks}/${checks}).`);

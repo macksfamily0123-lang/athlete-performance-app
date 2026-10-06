@@ -1,67 +1,42 @@
-# Elite Performance · Phase 72.3.116 RC66 — Codespaces Installation
+# Install RC69 in your existing Codespace
 
-This full combined release corrects the live Hockey Dev/HD regression by installing the Elite Performance Speed E identity while preserving the expanded sports, Home icon system, multi-sport, multi-team, shared-family access, and all prior functionality. Tracker connectivity remains disabled.
+Download the combined RC69 ZIP. Open your existing athlete-performance-app Codespace. Upload the ZIP into the top-level Explorer folder. On Chromebook, tap the touchpad with two fingers to open the folder menu, then Upload. Keep your existing .env.local; this ZIP contains no secrets.
 
-## 1. Upload the ZIP
-
-Upload `elite-performance-app-phase-72-3-116-RC66-brand-sports-combined.zip` into the root of your existing Codespace. You do not need a second Codespace.
-
-## 2. Open the terminal and enter the app folder
+Paste each block separately into the terminal.
 
 ```bash
 cd /workspaces/athlete-performance-app
 ```
 
-## 3. Bring your GitHub branch up to date
-
 ```bash
-git pull --rebase origin main
+git switch -c release/rc69-inactivity-privacy
 ```
 
-## 4. Extract RC66 over the existing app
-
 ```bash
-unzip -o elite-performance-app-phase-72-3-116-RC66-brand-sports-combined.zip
+unzip -o elite-performance-app-phase-72-3-119-RC69-privacy-combined.zip
 ```
-
-## 5. Remove only the uploaded ZIP
-
-```bash
-rm elite-performance-app-phase-72-3-116-RC66-brand-sports-combined.zip
-```
-
-## 6. Clear the old Next.js cache
-
-```bash
-rm -rf .next
-```
-
-## 7. Install the locked dependencies
 
 ```bash
 npm install
 ```
 
-## 8. Run all checks and the production build
+```bash
+npm run test:typecheck
+```
 
 ```bash
-npm run release:check
+npm test
 ```
-
-## 9. Start the Codespaces preview
 
 ```bash
-npm run dev -- -H 0.0.0.0 -p 3001
+npm run build
 ```
 
-Open the forwarded port `3001` when Codespaces offers it. The release ribbon must say `CLOSED BETA · RC66 · v72.3.116`.
+In .env.local, keep your existing Supabase settings and add or replace these public contact settings:
 
-## 10. Confirm the database status
-
-RC66 includes migration 016 for Combat Sports, Tennis, and Volleyball:
-
-```text
-supabase/migrations/016_combat_tennis_volleyball_sports.sql
+```dotenv
+NEXT_PUBLIC_PRIVACY_OPERATOR_NAME="Steve"
+NEXT_PUBLIC_PRIVACY_CONTACT_EMAIL="Eliteperformanceath@gmail.com"
 ```
 
-You already installed migration 016 successfully, so do not rerun it. Migrations 001–015 remain preserved.
+Set NEXT_PUBLIC_PRIVACY_RETENTION_NOTE only after confirming your actual backup expiration; see SUPABASE_RC69.md. Do not put cron, email-provider or service-role secrets in NEXT_PUBLIC variables.

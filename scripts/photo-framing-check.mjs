@@ -3,7 +3,7 @@ const css=fs.readFileSync('app/globals.css','utf8');
 const app=fs.readFileSync('components/AthleteApp.tsx','utf8');
 const checks=[
  ['RC33 photo-framing section exists',css.includes('Phase 72.3.83 RC33 — Sport Photo Framing / Zoom-Out Pass')],
- ['realistic hero uses dark edge fill',css.includes('background-color:#030b09!important')],
+ ['realistic hero uses dark edge fill',css.includes('background-color:#141817!important')],
  ['desktop landscape images are inset',css.includes('background-size:cover,94% auto!important')],
  ['mobile landscape images use reduced height framing',css.includes('background-size:cover,auto 78%!important')],
  ['small phone landscape images zoom out further',css.includes('background-size:cover,auto 74%!important')],

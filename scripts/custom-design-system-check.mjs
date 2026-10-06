@@ -3,7 +3,7 @@ const app=fs.readFileSync("components/AthleteApp.tsx","utf8");
 const css=fs.readFileSync("app/globals.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.116"],
+ ["RC24 version",pkg.version==="72.3.119"],
  ["custom icon family exists",app.includes("function PremiumAppIcon")&&app.includes('type PremiumIconName=')],
  ["Home quick actions use normalized SVG badges",app.includes('<HomeIconBadge name={action.icon}')&&app.includes("function HomeIconBadge")],
  ["bottom navigation uses SVG icon family",app.includes("customBottomNav")&&app.includes('<PremiumAppIcon name="home"/>')&&app.includes('<PremiumAppIcon name="more"/>')],
@@ -12,7 +12,7 @@ const checks=[
  ["metrics are unified instrument panel",css.includes("Metrics are one continuous instrument panel")&&css.includes(".premiumMetricStrip button+button")],
  ["quick actions use neutral console tiles",css.includes("neutral equipment-console tiles")&&css.includes("--tile-accent")],
  ["custom bottom nav active indicator exists",css.includes(".simpleBottomNav.customBottomNav button.active::before")],
- ["global cards are restrained",css.includes("less rounded-box repetition")&&css.includes("box-shadow:0 10px 28px rgba(0,0,0,.14)")],
+ ["global cards are restrained",css.includes("less rounded-box repetition")&&css.includes("box-shadow:0 10px 28px rgba(20,24,23,.14)")],
  ["mobile hero is explicitly tuned",css.includes("@media(max-width:700px)")&&css.includes("min-height:430px!important")],
  ["Player/Admin focus icons use the normalized badge system",!app.includes("premiumRoleFocusSolid")&&app.includes('role==="Admin"?"progress":"train"')&&css.includes("clip-path:none!important")],
  ["realistic all-sport assets remain",["baseball","football","ice-hockey","basketball","lacrosse","wrestling","soccer","figure-skating"].every(x=>app.includes(`/commercial-scenes/${x}-player.webp`))],

@@ -7,7 +7,7 @@ const checks=[
  ['smooth readiness component exists', app.includes('function SmoothReadinessRing')],
  ['readiness uses svg', app.includes('premiumReadinessSvg')],
  ['ring uses rounded line caps', css.includes('stroke-linecap:round')],
- ['conic readiness override removed by final css', css.includes('.premiumReadinessOrb{\n  position:relative!important;') && css.includes('background:#081a16!important;')],
+ ['conic readiness override removed by final css', css.includes('.premiumReadinessOrb{\n  position:relative!important;') && css.includes('background:#141817!important;')],
  ['dynamic progress dash exists', app.includes('strokeDasharray={`${progress} ${100-progress}`}')],
  ['junior/non-junior hero logic preserved', app.includes('premiumHomeHeroAsset(sport,accountRole,juniorMode)')],
 ];

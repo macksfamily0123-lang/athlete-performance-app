@@ -1,0 +1,1386 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test
+> npm run test:roles && npm run test:regression && npm run test:reliability && npm run test:coach-invite && npm run test:family && npm run test:shared-support && npm run test:junior-goals && npm run test:family-reliability && npm run test:admin-preview && npm run test:junior-more && npm run test:connections && npm run test:beta-readiness && npm run test:commercial-ui && npm run test:sport-header && npm run test:realistic-hero && npm run test:realistic-all-sports && npm run test:avatar-readiness-polish && npm run test:role-dashboard-mobile && npm run test:focus-icon-alignment && npm run test:custom-design && npm run test:native-sports-redesign && npm run test:setup-modal && npm run test:performance-os && npm run test:viewport-shell && npm run test:always-active-nav && npm run test:coach-roster-more && npm run test:elite-visual && npm run test:elite-home-goals-recovery && npm run test:professional-athletic && npm run test:photo-framing && npm run test:settings-player-hero && npm run test:text180-role-heroes && npm run test:performance-intelligence && npm run test:beta-hardening && npm run test:tracker-disabled && npm run test:rc47 && npm run test:rc48 && npm run test:rc49 && npm run test:rc50 && npm run test:rc51 && npm run test:rc52 && npm run test:rc54 && npm run test:rc55 && npm run test:rc56 && npm run test:rc57 && npm run test:rc58 && npm run test:rc59 && npm run test:rc60 && npm run test:rc61 && npm run test:rc62 && npm run test:rc63 && npm run test:rc64 && npm run test:rc65 && npm run test:rc66 && npm run test:typecheck && npm run test:player-more-cloud && npm run test:visual-hierarchy && npm run test:premium-ui && npm run test:role-specific-hero && npm run test:rc67 && npm run test:migrations
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:roles
+> node scripts/role-permission-audit.mjs
+
+PASS  central permission matrix
+PASS  Player owns profile
+PASS  Coach cannot edit profile
+PASS  Parent cannot edit profile
+PASS  Admin profile override
+PASS  Player can create goal
+PASS  Coach cannot create goal
+PASS  Parent cannot create goal
+PASS  Coach goal feedback allowed
+PASS  Admin goal override allowed
+PASS  Goals page uses actual-role guard plus Junior Player path
+PASS  Coach goal create UI removed
+PASS  Coach goal feedback UI present
+PASS  Player Daily Check-In allowed
+PASS  Coach Daily Check-In denied
+PASS  Parent Daily Check-In denied
+PASS  Daily save uses permission guard
+PASS  Player Weekly Review allowed
+PASS  Coach Player Weekly denied
+PASS  Parent Player Weekly denied
+PASS  Coach Weekly Review permission
+PASS  Player Coach Review denied
+PASS  Parent Coach Review denied
+PASS  Coach manages Development Plan
+PASS  Player cannot manage Development Plan
+PASS  Parent cannot manage Development Plan
+PASS  Development objectives use role guard
+PASS  Player gets read-only development objective notice
+PASS  Parent cloud write restricted to managed-Player or support RPCs
+PASS  Coach cloud save preserves Player readiness/reviews
+PASS  Admin full cloud access retained
+PASS  Admin Coach review save retained
+PASS  Analytics writes require current real role
+PASS  Analytics formal development action Coach/Admin only
+PASS  Testing write permission centralized
+PASS  Parent may schedule workout support
+PASS  Parent may enter competition result support
+PASS  Parent still cannot broadly write training
+PASS  Parent still cannot broadly write competition
+PASS  Training write permission centralized
+PASS  Competition write permission centralized
+
+PASS: 41/41 role & permission checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:regression
+> node scripts/regression-check.mjs
+
+PASS  Coach Home 2.0
+PASS  Coach Home review-next
+PASS  Coach Home goal feedback metric
+PASS  Coach Home plan review metric
+PASS  Coach Home observations metric
+PASS  7-step development review
+PASS  Roster Command Center preserved
+PASS  Roster goal-feedback priority
+PASS  Roster plan-review priority
+PASS  Player Simple Mode retained
+PASS  Athlete Development Plan retained
+PASS  Player Progress simplification retained
+PASS  Player Development simplification retained
+PASS  Coach profile read-only retained
+PASS  Player-owned goals retained
+PASS  Admin full access retained
+PASS  Parent support retained
+PASS  Cloud retry retained
+PASS  Coach cloud roster retained
+PASS  Coach setup each login retained
+PASS  Migration 004 retained
+PASS  No practice planner
+PASS  Practice design boundary retained
+PASS  trainingAge fix retained
+PASS  Analytics brace fix retained
+
+PASS: 25/25 regression checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:reliability
+> node scripts/reliability-check.mjs
+
+PASS  Runtime error boundary exists
+PASS  Athlete app is wrapped
+PASS  Crash recovery reload exists
+PASS  Crash report path exists
+PASS  Offline state listener
+PASS  Offline banner
+PASS  Feedback diagnostic context
+PASS  No passwords in diagnostics
+PASS  No auth tokens in diagnostics
+PASS  Feedback app version
+PASS  Feedback diagnostic transparency
+PASS  RC24 ribbon
+PASS  Cloud retry retained
+PASS  Pending cloud save retained
+PASS  Migration 004 retained
+
+PASS: 15/15 reliability checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:coach-invite
+> node scripts/coach-invite-check.mjs
+
+PASS  Coach Roster has Invite Player button
+PASS  Coach Roster has Manage Teams button
+PASS  Roster explains Player ownership
+PASS  Invite callback exists in bridge
+PASS  Roster receives invite callback
+PASS  Beta bridge exposes invite mode
+PASS  Teams callback opens manage mode
+PASS  Invite modal has explicit tabs
+PASS  Invite modal selects team
+PASS  Invite code is visible
+PASS  Copy Invite Message exists
+PASS  Copy Code Only exists
+PASS  Invite message uses beta origin
+PASS  Invite explains Join Team
+PASS  Invite preserves Player ownership
+PASS  No fake email send button
+PASS  Joined roster is visible
+PASS  Manage mode can regenerate code
+PASS  Coach Help contains invite guidance
+PASS  Coach setup points to Roster
+
+PASS: 20/20 Coach invite checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:family
+> node scripts/family-junior-check.mjs
+
+PASS  Migration 005 exists
+PASS  Athlete account-management field
+PASS  Athlete age field
+PASS  Unique Player Access Code
+PASS  Parent creates managed athlete
+PASS  Parent-managed athlete links to Parent
+PASS  Parent-managed save RPC
+PASS  Managed save preserves formal development
+PASS  Managed save only merges Player reflections
+PASS  Managed save does not merge practice observations
+PASS  Player can claim existing record
+PASS  Claim refuses connected duplicate
+PASS  Claim refuses developed duplicate
+PASS  Signup trigger accepts claim code
+PASS  Privileged Coach/Admin invite precedence
+PASS  Claim links same athlete workspace
+PASS  Parent access survives Player claim
+PASS  New Parent Player requires age
+PASS  My Players shows management status
+PASS  Parent can open managed Player
+PASS  Junior mode label is automatic age 10 and under
+PASS  Parent can give Player login later
+PASS  Player signup has optional access code
+PASS  Existing Player can link record
+PASS  Parent managed save uses restricted RPC
+PASS  Parent managed session presents Player role
+PASS  Return to Parent workspace exists
+PASS  Junior Player mode calculation
+PASS  Junior Player has simplified bottom nav
+PASS  Junior Player has child-friendly labels
+PASS  Junior Player Home has one-step language
+PASS  Junior Goals simplified
+PASS  Junior readiness uses easy choices
+PASS  Junior readiness still saves normal readiness data
+PASS  Junior mode hides advanced tools via data attribute
+PASS  Coach team-link workflow retained
+PASS  One athlete model retained
+PASS  No direct-email fiction added
+PASS  Migration grants only intended family RPCs
+PASS  Private claim-code generator not granted
+PASS  RC24 ribbon
+
+PASS: 41/41 family/junior checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:shared-support
+> node scripts/shared-support-check.mjs
+
+PASS  Junior progress button is explicit primary action
+PASS  Junior progress button opens Analytics
+PASS  Junior progress button is pointer-enabled
+PASS  Junior progress button uses forest theme
+PASS  Narrow schedule permission exists
+PASS  Parent schedule permission allowed
+PASS  Parent competition-result permission allowed
+PASS  Parent broad training write still denied
+PASS  Parent broad competition write still denied
+PASS  Parent Schedule has Schedule Workout card
+PASS  Parent schedule creates Workout
+PASS  Parent schedule receives setWorkouts
+PASS  Root passes setWorkouts to Parent Schedule
+PASS  Parent Competition has score/result card
+PASS  Parent result is factual score-only entry
+PASS  Parent score-only entry has no invented rating
+PASS  Root passes setCompetitions to Parent Competition
+PASS  Parent history labels score-only entries
+PASS  Coach Home exposes Schedule Workout
+PASS  Coach Home exposes competition result
+PASS  Coach already has full training write
+PASS  Coach already has full competition write
+PASS  Migration 006 exists
+PASS  Migration has restricted Parent support RPC
+PASS  RPC requires Parent role
+PASS  RPC requires linked athlete
+PASS  RPC only handles workouts and competitions
+PASS  RPC preserves non-Parent workouts
+PASS  RPC preserves non-Parent competitions
+PASS  RPC only accepts Parent score entries
+PASS  RPC does not grant unrestricted workspace policy
+PASS  BetaGate uses support RPC in Parent view
+PASS  Managed Junior Player RPC is still retained
+PASS  Score-only results excluded from Player progress ratings
+PASS  Score-only results excluded from Home performance rating
+PASS  Score-only results excluded from Analytics rating
+PASS  Score-only results excluded from Reports rating
+PASS  Competition history shows result instead of 0/10
+PASS  Coach/Parent help mentions scheduling
+PASS  Parent help mentions competition score
+PASS  No practice-plan generator added
+PASS  RC24 ribbon
+
+PASS: 42/42 Junior/shared-support checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:junior-goals
+> node scripts/junior-goal-check.mjs
+
+PASS  Junior Goal mode has explicit owner fallback
+PASS  Junior Goal owner can create goals
+PASS  Junior goal card is immediately available
+PASS  Junior goal card uses setup anchor
+PASS  Junior goal has visible text input
+PASS  Junior goal input has accessible label
+PASS  Junior goal has category selector
+PASS  Junior goal has success criteria input
+PASS  Junior goal has optional note
+PASS  Junior goal has Save My Goal action
+PASS  Junior save disabled until goal text exists
+PASS  Junior goal saves as short-term
+PASS  Standard goal button uses safe zero-argument wrapper
+PASS  Goal add accepts explicit type
+PASS  Goal add still requires ownership and title
+PASS  Junior normal goal form is not duplicated
+PASS  Junior mode does not show read-only warning
+PASS  Junior goal fields forced visible
+PASS  Junior goal fields are touch-enabled
+PASS  Junior Save button is forest-green primary
+PASS  Junior mobile layout retained
+PASS  Managed Parent session still presents Player role
+PASS  Managed Parent goal save RPC retained
+PASS  Normal Parent role still cannot create goal
+PASS  Coach still cannot create goal
+PASS  Player still can create goal
+PASS  RC24 ribbon
+
+PASS: 27/27 Junior Goal checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:family-reliability
+> node scripts/family-reliability-check.mjs
+
+PASS  Migration 007 exists
+PASS  Parent Connection Code column added
+PASS  Parent Connection Code unique index
+PASS  Private Parent code generator
+PASS  Player can rotate Parent Connection Code
+PASS  Player-code RPC requires Player
+PASS  Parent can link existing Player
+PASS  Parent-link RPC requires Parent
+PASS  Parent linking keeps Player management
+PASS  Parent link uses same athlete record
+PASS  Parent link expires one-time code
+PASS  No automatic athlete merge added
+PASS  Player Connections has Invite Parent
+PASS  Player calls parent-link code RPC
+PASS  Player invite explains same athlete record
+PASS  Parent My Players has Connect Existing Player
+PASS  Parent calls existing-player link RPC
+PASS  Parent refreshes My Players after link
+PASS  Admin Family tab exists
+PASS  Admin family diagnostic RPC exists
+PASS  Admin diagnostic RPC requires Admin
+PASS  Diagnostics report Player login
+PASS  Diagnostics report Parent count
+PASS  Diagnostics report Coach count
+PASS  Diagnostics report team count
+PASS  Diagnostics report workspace state
+PASS  Diagnostics report workspace mismatch
+PASS  Diagnostics report stale access code
+PASS  Diagnostics flag manual-review workspace duplicates
+PASS  Safe Admin repair RPC exists
+PASS  Repair RPC requires Admin
+PASS  Repair can sync Player workspace
+PASS  Repair validates linked user is Player
+PASS  Repair can set Parent-managed conservatively
+PASS  Parent-managed repair requires Parent relation
+PASS  Repair can set Player-managed
+PASS  Repair can clear stale Player code
+PASS  Repair can create missing workspace_state
+PASS  Repair does not delete athlete
+PASS  Repair UI warns no automatic merge
+PASS  Cloud status supports waiting
+PASS  Offline saves queue locally
+PASS  Offline message says changes queued
+PASS  Online retry retained
+PASS  Visible cloud sync notice exists
+PASS  Cloud notice has Retry Now
+PASS  Cloud button shows Saved timestamp
+PASS  Cloud button shows Saving
+PASS  Cloud button shows Waiting
+PASS  Cloud button shows Failed
+PASS  Junior Back to Today route exists
+PASS  Junior context bar hidden
+PASS  Junior controls have 48px touch target
+PASS  Junior inputs avoid mobile zoom
+PASS  Junior bottom nav has larger touch target
+PASS  Junior Parent View remains available
+PASS  Junior advanced header clutter hidden
+PASS  Junior goal entry retained
+PASS  Junior How Am I Doing fix retained
+PASS  Parent workout scheduling retained
+PASS  Parent competition result entry retained
+PASS  Coach Schedule Workout shortcut retained
+PASS  Coach competition result shortcut retained
+PASS  Parent managed Player save retained
+PASS  Parent support save retained
+PASS  Player claim Parent-managed athlete retained
+PASS  Coach team linking retained
+PASS  Shared Development Focus card exists
+PASS  Player sees what am I working on
+PASS  Junior gets simplified shared focus
+PASS  Coach sees what Player needs next
+PASS  Parent sees how can I help this week
+PASS  Coach card preserves no-practice-planning boundary
+PASS  Shared focus is mobile one-column
+PASS  RC24 ribbon
+
+PASS: 75/75 family reliability / beta hardening checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:admin-preview
+> node scripts/admin-preview-check.mjs
+
+PASS  Persistent Admin Preview bar exists
+PASS  Admin Preview is based on actual Admin role
+PASS  Preview role dropdown remains Admin/Coach/Player/Parent
+PASS  Preview role changes adminView
+PASS  Preview switch returns to Home
+PASS  Persistent bar includes athlete selector
+PASS  Athlete selector changes active athlete
+PASS  Return to Admin button exists
+PASS  Beta Admin remains accessible from preview bar
+PASS  Junior preview is visibly identified
+PASS  Normal context no longer duplicates Admin preview picker
+PASS  Junior CSS explicitly preserves Admin Preview bar
+PASS  Admin Preview bar is sticky
+PASS  Admin Preview mobile layout exists
+PASS  Admin Preview narrow-phone layout exists
+PASS  Junior context bar can still be hidden
+PASS  Junior goal entry retained
+PASS  Junior How Am I Doing retained
+PASS  Junior Back to Today retained
+PASS  Admin role-preview logic retained
+PASS  Migration 007 diagnostics query uses qualified alias
+PASS  Migration 007 no ambiguous lower(display_name)
+PASS  Migration 007 family diagnostics retained
+PASS  Migration 007 safe repair retained
+PASS  Parent scheduling retained
+PASS  Parent competition result retained
+PASS  Shared development communication retained
+PASS  No practice-plan generator
+PASS  RC24 ribbon
+
+PASS: 29/29 persistent Admin Preview checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:junior-more
+> node scripts/junior-more-check.mjs
+
+PASS  Junior More still lists core secondary features
+PASS  Junior All Features button exists
+PASS  Junior button opens command palette
+PASS  Junior command overlay has dedicated class
+PASS  Junior command palette has dedicated class
+PASS  Junior palette has child-friendly title
+PASS  Junior palette has child-friendly search
+PASS  Junior empty-search state exists
+PASS  Junior quick action Today label
+PASS  Junior quick action My Goal label
+PASS  Junior quick action Training label
+PASS  Junior quick action My Tests label
+PASS  Junior quick action How I'm Doing label
+PASS  Junior quick action How I Feel label
+PASS  Junior quick action My Skills label
+PASS  Junior quick action Games label
+PASS  Junior palette is no longer hidden
+PASS  Advanced Junior tools remain hidden
+PASS  Junior palette explicitly visible
+PASS  Junior overlay explicitly visible
+PASS  Junior feature rows use large touch target
+PASS  Junior search uses 16px text
+PASS  Junior all-features button is green
+PASS  Persistent Admin Preview retained
+PASS  Junior Goal Entry retained
+PASS  Junior How Am I Doing retained
+PASS  Junior Back to Today retained
+PASS  Parent scheduling retained
+PASS  Parent competition result retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+PASS  RC24 ribbon
+
+PASS: 32/32 Junior More / All Features checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:connections
+> node scripts/connection-setup-check.mjs
+
+PASS  Parent setup separates create vs connect
+PASS  Parent one-athlete warning
+PASS  Parent frontend duplicate preflight
+PASS  Parent database duplicate guard
+PASS  Duplicate guard is scoped to signed-in Parent
+PASS  Duplicate guard does not merge athletes
+PASS  Parent connection status RPC
+PASS  Player connection status RPC
+PASS  Coach team connection status RPC
+PASS  Connection RPCs are authenticated only
+PASS  Connection status returns relationship counts only
+PASS  Parent Player cards show login status
+PASS  Parent Player cards show Parent status
+PASS  Parent Player cards show Coach status
+PASS  Player Connections summary
+PASS  Player Parent next step
+PASS  Player Coach next step
+PASS  Player Parent invite explains existing record
+PASS  Player team join explains same workspace
+PASS  Parent team join explains same workspace
+PASS  Parent-created Player recovery is secondary
+PASS  Coach invite says connect existing Player
+PASS  Coach roster shows Player login status
+PASS  Coach roster shows Parent connection status
+PASS  Admin Accounts explains login vs athlete
+PASS  Admin Family explains healthy relationships
+PASS  Admin Family guidance helper
+PASS  Admin Family View Athlete
+PASS  Connection UI has mobile layout
+PASS  Connection chips use project green
+PASS  No blue/purple connection styling
+PASS  Migration 008 reloads schema
+
+PASS: 32/32 connection & account setup checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:beta-readiness
+> node scripts/beta-release-readiness-check.mjs
+
+PASS  Combined version is 72.3.74
+PASS  RC24 ribbon
+PASS  Feedback version is 72.3.74
+PASS  Admin health version is RC24
+PASS  Connection operations have double-submit lock
+PASS  Parent create button disables while busy or unconsented
+PASS  Parent existing connect disables while busy
+PASS  Player team connect disables while busy or unconsented
+PASS  Parent team connect disables while busy or unconsented
+PASS  Friendly invalid Parent code error
+PASS  Friendly invalid Team code error
+PASS  Friendly migration/schema error
+PASS  Friendly network error
+PASS  Parent status refreshes after create
+PASS  Parent status refreshes after team join
+PASS  Player status refreshes after team join
+PASS  Coach status refreshes with roster
+PASS  Parent modal refreshes when opened
+PASS  Player Connections refreshes when opened
+PASS  One canonical athlete message retained
+PASS  No automatic merge in migration
+PASS  Parent RPC role-gated
+PASS  Player RPC role-gated
+PASS  Coach RPC role-gated
+PASS  Coach team ownership enforced
+PASS  No practice plan generator
+PASS  Player-owned goal permission preserved
+PASS  Coach cannot edit Player profile preserved
+PASS  Parent normal writeTraining false preserved
+PASS  Persistent Admin Preview retained
+PASS  Junior More fix retained
+PASS  Junior Goal Entry retained
+PASS  Junior Back to Today retained
+PASS  Cloud retry retained
+PASS  Migration contains no service role key
+PASS  Release check still includes tests and build
+
+PASS: 36/36 combined beta readiness checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:commercial-ui
+> node scripts/commercial-hockey-ui-check.mjs
+
+PASS  Phase version is 72.3.74
+PASS  RC24 ribbon
+PASS  Player Profile has photo field
+PASS  Mobile photo resize helper
+PASS  Profile photo picker
+PASS  Home avatar uses Player photo
+PASS  Roster uses Player photos
+PASS  Parent My Players loads photos
+PASS  Clean initials fallback avatar
+PASS  Recognizable hockey stick + puck header
+PASS  Commercial accent palette
+PASS  Sport-aware header art used
+PASS  Bright Start Today action
+PASS  Commercial More sheet
+PASS  Player More fix retained
+PASS  Junior mode retained
+PASS  Cloud test athletes retained
+PASS  Migration 009 retained
+PASS  No Phase 72.3.65 source marker
+
+PASS: 19/19 Commercial Hockey UI / Player Photo checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:sport-header
+> node scripts/sport-header-check.mjs
+
+PASS: Baseball hero mapping
+PASS: Baseball asset exists
+PASS: Football hero mapping
+PASS: Football asset exists
+PASS: Ice Hockey hero mapping
+PASS: Ice Hockey asset exists
+PASS: Basketball hero mapping
+PASS: Basketball asset exists
+PASS: Lacrosse hero mapping
+PASS: Lacrosse asset exists
+PASS: Wrestling hero mapping
+PASS: Wrestling asset exists
+PASS: Soccer hero mapping
+PASS: Soccer asset exists
+PASS: Figure Skating hero mapping
+PASS: Figure Skating asset exists
+PASS: hero reads current profile sport
+PASS: hero uses CSS sport image variable
+PASS: hockey header no longer uses detailed player hero
+PASS: hockey art includes distinct stick and puck shapes
+
+PASS: 20/20 sport-aware header checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:realistic-hero
+> node scripts/realistic-hero-check.mjs
+
+PASS: Baseball realistic image exists
+PASS: Baseball realistic mapping exists
+PASS: Football realistic image exists
+PASS: Football realistic mapping exists
+PASS: Ice Hockey realistic image exists
+PASS: Ice Hockey realistic mapping exists
+PASS: Basketball realistic image exists
+PASS: Basketball realistic mapping exists
+PASS: Lacrosse realistic image exists
+PASS: Lacrosse realistic mapping exists
+PASS: Wrestling realistic image exists
+PASS: Wrestling realistic mapping exists
+PASS: Soccer realistic image exists
+PASS: Soccer realistic mapping exists
+PASS: Figure Skating realistic image exists
+PASS: Figure Skating realistic mapping exists
+PASS: Junior mode keeps sport-specific illustrated asset
+PASS: all non-Junior sports are realistic
+PASS: Hockey Coach keeps dedicated coach scene
+PASS: hero exposes current sport marker
+PASS: hero exposes realistic vs illustrated marker
+PASS: RC20 realistic CSS is present
+
+PASS: 22/22 realistic non-junior all-sport hero checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:realistic-all-sports
+> node scripts/realistic-all-sports-check.mjs
+
+PASS: Baseball realistic asset mapping
+PASS: Baseball image exists
+PASS: Football realistic asset mapping
+PASS: Football image exists
+PASS: Ice Hockey realistic asset mapping
+PASS: Ice Hockey image exists
+PASS: Basketball realistic asset mapping
+PASS: Basketball image exists
+PASS: Lacrosse realistic asset mapping
+PASS: Lacrosse image exists
+PASS: Wrestling realistic asset mapping
+PASS: Wrestling image exists
+PASS: Soccer realistic asset mapping
+PASS: Soccer image exists
+PASS: Figure Skating realistic asset mapping
+PASS: Figure Skating image exists
+PASS: Junior still uses simple sport art
+PASS: All non-Junior accounts marked realistic
+PASS: Selected sport drives hero
+PASS: Hockey Coach keeps coach scene
+PASS: RC20 all-sport CSS present
+PASS: Version is 72.3.74
+
+PASS: 22/22 realistic all-sports checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:avatar-readiness-polish
+> node scripts/avatar-readiness-polish-check.mjs
+
+PASS: fallback avatar has no hockey emoji
+PASS: fallback avatar shows initials
+PASS: smooth readiness component exists
+PASS: readiness uses svg
+PASS: ring uses rounded line caps
+PASS: conic readiness override removed by final css
+PASS: dynamic progress dash exists
+PASS: junior/non-junior hero logic preserved
+PASS: 8/8 avatar/readiness polish checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:role-dashboard-mobile
+> node scripts/role-dashboard-mobile-check.mjs
+
+PASS: RC24 version
+PASS: role focus is data driven
+PASS: role focus card renders
+PASS: coach photo in next review
+PASS: coach roster photos
+PASS: team readiness metric
+PASS: upcoming session metric
+PASS: small-screen hero height
+PASS: small-screen hero reserves image area
+PASS: small-screen readiness is in grid
+PASS: mobile duplicate home heroes hidden
+PASS: mobile quick actions use two columns
+PASS: 390px breakpoint exists
+PASS: mobile forms use 16px text
+PASS: Junior mobile hero remains compact
+PASS: bottom nav small-screen polish
+PASS: RC20 readiness SVG preserved
+PASS: all sport realistic asset map preserved
+
+PASS: 18/18 role-dashboard/mobile checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:focus-icon-alignment
+> node scripts/focus-icon-alignment-check.mjs
+
+PASS: RC24 version
+PASS: shared focus icon component exists
+PASS: role focus uses shared component
+PASS: focus roles use normalized shared icon names
+PASS: focus icon uses the shared Home badge
+PASS: icon wrapper uses true grid centering
+PASS: SVG has explicit dimensions and no transform
+PASS: legacy focus clipping is explicitly removed
+PASS: mobile icon sizing remains centered
+PASS: custom mobile hero architecture present
+PASS: RC20 readiness ring preserved
+PASS: all-sport realistic assets preserved
+
+PASS: 12/12 focus-icon alignment checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:custom-design
+> node scripts/custom-design-system-check.mjs
+
+PASS: RC24 version
+PASS: custom icon family exists
+PASS: Home quick actions use normalized SVG badges
+PASS: bottom navigation uses SVG icon family
+PASS: role design tokens exist
+PASS: editorial hero system exists
+PASS: metrics are unified instrument panel
+PASS: quick actions use neutral console tiles
+PASS: custom bottom nav active indicator exists
+PASS: global cards are restrained
+PASS: mobile hero is explicitly tuned
+PASS: Player/Admin focus icons use the normalized badge system
+PASS: realistic all-sport assets remain
+PASS: Junior still uses illustrated sport hero
+PASS: readiness SVG preserved
+
+PASS: 15/15 custom design-system checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:native-sports-redesign
+> node scripts/native-sports-redesign-check.mjs
+
+PASS: RC24 version
+PASS: RC24 beta ribbon
+PASS: native sports home architecture
+PASS: edge-to-edge mobile hero
+PASS: hero separates topline and bottom identity
+PASS: player has asymmetric primary action
+PASS: player uses editorial action list
+PASS: coach uses tactical signal band
+PASS: parent uses support timeline
+PASS: admin uses operations command list
+PASS: junior retains distinct simplified architecture
+PASS: old Player dashboard duplicates suppressed
+PASS: old Parent dashboard duplicates suppressed
+PASS: smooth readiness preserved
+PASS: all sport realistic imagery preserved
+PASS: Junior illustrated sport art preserved
+PASS: Player More fix preserved
+PASS: migration 009 still present
+
+PASS: 18/18 native sports redesign checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:setup-modal
+> node scripts/setup-modal-restoration-check.mjs
+
+PASS setup modal overlay exists
+PASS setup modal is accessible dialog
+PASS setup card has modal class
+PASS setup only appears when incomplete
+PASS temporary hide state prevents blocking setup destination
+PASS temporary hide resets as progress changes
+PASS overlay is viewport-fixed
+PASS overlay centers modal
+PASS modal is above app navigation
+PASS modal is mobile constrained
+PASS setup open actions remain wired
+PASS dismiss behavior remains wired
+PASS: 12/12 setup modal restoration checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:performance-os
+> node scripts/performance-os-design-check.mjs
+
+PASS: Performance OS root class is active
+PASS: Release version is 72.3.83
+PASS: Performance OS test script exists
+PASS: Global cards use sharp geometry
+PASS: Home hero is hard-edged
+PASS: Primary CTA uses custom cut geometry
+PASS: Metric strip is flat
+PASS: Focus story is flat
+PASS: Action list uses ruled rows
+PASS: Coach command board is present
+PASS: Parent timeline is flat
+PASS: Admin console is flat
+PASS: Bottom navigation is integrated edge rail
+PASS: Setup modal stays a real overlay
+PASS: Setup modal adopts sharp sheet styling
+PASS: Mobile hero remains full-height
+PASS: Avatar circles remain circular
+PASS: Readiness remains circular
+
+PASS: 18/18 Performance OS design checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:viewport-shell
+> node scripts/viewport-shell-check.mjs
+
+PASS: RC31 version
+PASS: React portal is imported
+PASS: ViewportPortal helper exists
+PASS: guided setup is portaled
+PASS: skip setup warning is portaled
+PASS: role setup is portaled
+PASS: setup overlays are fixed to viewport
+PASS: setup overlays are centered
+PASS: bottom nav is fixed
+PASS: bottom nav clears old translate transform
+PASS: bottom nav uses five equal columns
+PASS: bottom nav spans viewport safely
+PASS: bottom nav sits below setup modal
+PASS: main reserves persistent nav space
+PASS: small-screen dock remains full width
+
+PASS: 15/15 viewport shell checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:always-active-nav
+> node scripts/always-active-nav-check.mjs
+
+PASS: version is 72.3.83
+PASS: primary navigation is portaled
+PASS: viewport nav class is present
+PASS: nav sheet is portaled
+PASS: train sheet copy wrapper exists
+PASS: viewport nav has high z-index
+PASS: viewport nav explicitly accepts pointer events
+PASS: viewport nav buttons explicitly accept pointer events
+PASS: nav sheet is above nav dock
+PASS: mobile nav sheet uses two-column grid
+PASS: mobile nav sheet separates action row
+PASS: nav copy can wrap safely
+PASS: Development remains a Train destination
+PASS: bottom nav retains five primary controls
+
+14/14 checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:coach-roster-more
+> node scripts/coach-roster-more-check.mjs
+
+PASS  RC31 version
+PASS  RC31 ribbon
+PASS  More sheet uses SVG-aware nav icon renderer
+PASS  Roster internal icon name is not rendered as visible text in sheet
+PASS  More choice copy can shrink without overlap
+PASS  Mobile More choices move action below copy
+PASS  Coach roster has one primary Invite Player action
+PASS  Coach roster duplicate invite guide buttons removed
+PASS  Coach command center duplicate invite button removed
+PASS  Coach Invite action has explicit launcher
+PASS  Coach Manage Teams action has explicit launcher
+PASS  Coach action fallback provides visible status
+PASS  Beta bridge still exposes real Coach invite action
+PASS  Beta bridge still exposes real Coach team management
+
+PASS: 14/14 More/Roster + Coach action checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:elite-visual
+> node scripts/elite-performance-visual-check.mjs
+
+PASS: version is 72.3.83
+PASS: RC29 coach roster repair remains
+PASS: elite visual check registered
+PASS: sparkline component exists
+PASS: live performance band exists
+PASS: embedded performance visual exists
+PASS: player uses elite signal band
+PASS: coach retains elite signal band
+PASS: parent retains elite signal band
+PASS: admin retains elite signal band
+PASS: hero telemetry exists
+PASS: sport motif system exists
+PASS: continuous signal rail CSS exists
+PASS: embedded sparkline CSS exists
+PASS: analytics flattening exists
+PASS: roster scouting row treatment exists
+PASS: premium command drawer treatment exists
+PASS: mobile 360-430 tuning exists
+PASS: RC67 release notes present
+PASS: all current migrations documented
+
+PASS: 20/20 Elite Performance Visual System checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:elite-home-goals-recovery
+> node scripts/elite-home-goals-recovery-check.mjs
+
+PASS: version is 72.3.83
+PASS: RC31 beta ribbon/version references updated
+PASS: new RC31 test registered
+PASS: hero circular pseudo geometry is reset
+PASS: Home Progress signal is explicitly labeled
+PASS: visual Progress action contains explicit Progress text
+PASS: recovery tips are computed from readiness
+PASS: Player Home has prominent Recovery Tips destination
+PASS: Recovery Home opens exact readiness/recovery destination
+PASS: Goals page has scoped elite wrapper
+PASS: Goals page has performance signal rail
+PASS: non-Junior Goals cards are explicitly square
+PASS: goal rows use sharp editorial treatment
+PASS: goal progress bars are square
+PASS: goal form controls are tightened
+PASS: mobile Recovery treatment exists
+PASS: RC30 elite visual regression remains registered
+PASS: RC29 coach roster regression remains registered
+PASS: release notes document current release
+PASS: migration 009 hash remains protected
+
+PASS: 20/20 RC31 Elite Home / Goals / Recovery checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:professional-athletic
+> node scripts/professional-athletic-system-check.mjs
+
+PASS: version is 72.3.83
+PASS: RC32 app version reference updated
+PASS: RC32 regression command registered
+PASS: Player Home has dedicated Progress heading
+PASS: Player Home Progress action is explicitly labeled
+PASS: Player Home Progress keeps analytics navigation
+PASS: wide Coach asset exists
+PASS: Hockey Coach uses new wide asset
+PASS: Coach hero is full cover
+PASS: Coach mobile crop is explicitly tuned
+PASS: front-to-back professional surface reset exists
+PASS: non-Junior cards are flattened
+PASS: professional section header treatment exists
+PASS: tabs use underline navigation instead of pills
+PASS: form controls use sharp athletic styling
+PASS: fixed nav receives professional styling
+PASS: Recovery Tips remain on Player Home
+PASS: RC29 Coach/Roster regression remains registered
+PASS: always-active nav regression remains registered
+PASS: release notes document current release
+PASS: migration 009 hash remains protected
+
+PASS: 21/21 RC32 Professional Athletic System checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:photo-framing
+> node scripts/photo-framing-check.mjs
+
+PASS: RC33 photo-framing section exists
+PASS: realistic hero uses dark edge fill
+PASS: desktop landscape images are inset
+PASS: mobile landscape images use reduced height framing
+PASS: small phone landscape images zoom out further
+PASS: hockey portrait gets separate framing
+PASS: coach wide image gets separate framing
+PASS: all realistic sport assets preserved
+PASS: wide coach asset preserved
+
+9/9 photo-framing checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:settings-player-hero
+> node scripts/settings-player-game-hero-check.mjs
+
+PASS: Player uses wide game hero asset
+PASS: Parent keeps dedicated role asset
+PASS: Coach keeps dedicated role asset
+PASS: Settings trigger explicit button
+PASS: Settings modal portaled
+PASS: Settings portal above nav
+PASS: Settings remains interactive
+PASS: Wide Player hero uses cover
+PASS: Wide Player asset exists
+
+9/9 RC35 settings/player hero checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:text180-role-heroes
+> node scripts/text180-role-heroes-check.mjs
+
+PASS: version is 72.3.89
+PASS: TextSize supports 180% maximum
+PASS: TextSize supports 150% accessibility step
+PASS: saved maximum text size is accepted
+PASS: maximum maps to 1.80 scale
+PASS: parent foreground fills hero
+PASS: coach foreground fills hero
+PASS: parent hero has full-height fill
+PASS: coach hero has full-height fill
+PASS: coach role asset remains dedicated
+PASS: parent role asset remains dedicated
+PASS: maximum text nav remains readable
+
+12/12 RC38 text/role hero checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:performance-intelligence
+> node scripts/rc37-performance-intelligence-check.mjs
+
+PASS: version is 72.3.89
+PASS: performance intelligence surface exists
+PASS: performance index calculation exists
+PASS: readiness can drive recovery-first guidance
+PASS: training can drive direct training guidance
+PASS: performance momentum guidance exists
+PASS: performance intelligence links to exact action destination
+PASS: subtle hero motion exists
+PASS: signal motion exists
+PASS: sparkline draw animation exists
+PASS: reduced motion is respected
+PASS: front-to-back flatter surface rule exists
+
+12/12 RC37 Performance Intelligence checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:beta-hardening
+> node scripts/rc38-beta-hardening-check.mjs
+
+PASS: combined version is 72.3.89
+PASS: beta ribbon is RC38
+PASS: in-app alerts state exists
+PASS: alerts are derived from performance data
+PASS: cloud save issues can generate alerts
+PASS: recovery can generate an alert
+PASS: training can generate an alert
+PASS: goal milestone alerts exist
+PASS: progress alerts exist
+PASS: notification portal exists
+PASS: notification preferences are saved
+PASS: reliability status rail exists
+PASS: local recovery points are timestamped
+PASS: downloadable recovery backup exists
+PASS: password reset flow exists
+PASS: service worker has a versioned offline cache
+PASS: navigation has network fallback
+PASS: notification overlay is above app chrome
+
+18/18 RC38 Beta Hardening checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:tracker-disabled
+> node scripts/rc45-tracker-disabled-check.mjs
+
+PASS: client tracker gate is off
+PASS: tracker discovery UI is gated off
+PASS: tracker loading and Coach access are gated off
+PASS: all tracker API endpoints are removed
+PASS: provider connection and sync modules are removed
+PASS: historical migrations remain available and untouched
+RC45 tracker-disable safety checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc47
+> node scripts/rc47-privacy-closed-beta-check.mjs
+
+PASS: combined release version is Phase 72.3.109
+PASS: RC47 closed-beta ribbon is present
+PASS: new access is email-approved
+PASS: signup requires versioned privacy acceptance
+PASS: junior creation requires guardian attestation
+PASS: Player and Parent Coach opt-in controls are present
+PASS: team-code Coach access is audited
+PASS: privacy request queue exists
+PASS: Privacy Center export and deletion controls exist
+PASS: Admin readiness dashboard includes privacy operations
+PASS: feedback captures accessibility category and impact
+PASS: install guidance supports PWA-capable browsers
+PASS: Settings exposes privacy and onboarding controls
+PASS: tracker client gate remains disabled
+PASS: tracker server connectivity remains removed
+PASS: historical migrations 010–012 are preserved
+RC47 combined privacy and closed-beta checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc48
+> node scripts/rc48-parent-player-form-check.mjs
+
+PASS: release version is Phase 72.3.109
+PASS: RC54 release ribbon is present
+PASS: Parent creation has sport-specific position data
+PASS: Position, discipline, or format is a dropdown, not a text input
+PASS: changing sport clears an incompatible position
+PASS: all supported sports have position choices
+PASS: RC48 form layout styles remain present
+PASS: form controls are large and mobile-readable
+PASS: desktop form uses readable two-column layout
+PASS: mobile form becomes one full-width column
+PASS: RC47 guardian consent remains intact
+PASS: tracker connectivity remains disabled
+RC54 Parent Player form checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc49
+> node scripts/rc49-parent-managed-ux-check.mjs
+
+PASS: release version is Phase 72.3.109
+PASS: RC54 release ribbon is present
+PASS: managed Junior view has an Edit Player action
+PASS: Edit Player opens the profile editor
+PASS: Junior mode preserves Edit Player and Report Problem
+PASS: RC49 layout repair remains present
+PASS: Coach Connection controls are touch-friendly
+PASS: claim-code repair avoids unavailable gen_random_bytes
+PASS: tracker connectivity remains disabled
+RC54 Parent-managed Junior UX checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc50
+> node scripts/rc50-junior-banner-profile-check.mjs
+
+PASS: release version is Phase 72.3.109
+PASS: RC54 release ribbon is present
+PASS: Junior banner copy is compact
+PASS: RC50 layout overrides remain present
+PASS: Junior navigation sits above the banner
+PASS: Junior banner is translucent
+PASS: Junior banner is compact
+PASS: Edit Player uses a dedicated action
+PASS: Edit request survives Home navigation
+PASS: Edit action has a direct profile-button fallback
+PASS: header button uses the reliable action
+PASS: tracker connectivity remains disabled
+RC50 Junior banner and profile action compatibility checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc51
+> node scripts/rc51-forest-silver-visual-check.mjs
+
+PASS: release version is Phase 72.3.109
+PASS: RC54 release ribbon is present
+PASS: RC51 visual system remains present
+PASS: dark forest palette is defined
+PASS: metallic silver palette is defined
+PASS: readable bold hierarchy is shared app-wide
+PASS: shared cards receive the new surface system
+PASS: form text is high contrast and readable
+PASS: navigation receives the forest and silver treatment
+PASS: overlays and settings receive the visual treatment
+PASS: RC50 compact Junior banner is visually integrated
+PASS: reduced-motion behavior remains supported
+PASS: tracker connectivity remains disabled
+RC51 forest and metallic-silver compatibility checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc52
+> node scripts/rc52-premium-performance-product-check.mjs
+
+PASS: release includes the Phase 72.3.102 baseline
+PASS: release ribbon is present
+PASS: RC52 premium product system is present
+PASS: approved palette is documented
+PASS: legacy role colors are neutralized to silver and graphite
+PASS: legacy orange tokens are neutralized
+PASS: global component geometry uses a restrained radius
+PASS: card and panel families are squared
+PASS: primary actions use the forest and silver hierarchy
+PASS: secondary actions use graphite and silver
+PASS: navigation is full-width and architectural
+PASS: RC50 Junior navigation clearance remains preserved
+PASS: tracker connectivity remains disabled
+RC52 premium performance product checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc54
+> node scripts/rc54-premium-ux-check.mjs
+
+PASS: release version is Phase 72.3.109
+PASS: RC54 release ribbon is present
+PASS: dashboard exposes one shared performance summary
+PASS: all four required dashboard tiles are present
+PASS: all four dashboard tiles render through the same component template
+PASS: data-backed tiles use the three approved statuses
+PASS: Progress empty state directs the user to add a first result
+PASS: Progress uses NO DATA when testing is empty
+PASS: Build signal wording is removed
+PASS: AI-sounding intelligence labels are removed from the interface
+PASS: plain-language action labels replace intelligence wording
+PASS: RC54 role-wide premium UX layer is present
+PASS: dashboard tiles adapt across desktop, tablet, and phone widths
+PASS: Progress blue styling is neutralized
+PASS: approved forest, silver, and graphite palette is defined
+PASS: premium panels use square geometry
+PASS: touch targets and small-phone layout are included
+PASS: tracker connectivity remains disabled in the client
+PASS: tracker endpoints and provider modules remain absent
+PASS: migration 010 is preserved
+PASS: migration 011 is preserved
+PASS: migration 012 is preserved
+PASS: migration 013 is preserved
+PASS: migration 014 is preserved
+PASS: Supabase integration is preserved
+RC54 premium UX and dashboard correction checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc55
+> node scripts/rc55-home-connections-check.mjs
+
+RC55 Home connection checks passed (16/16).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc56
+> node scripts/rc56-admin-launch-rows-check.mjs
+
+RC56 Admin launch-row checks passed (12/12).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc57
+> node scripts/rc57-player-home-gutter-check.mjs
+
+RC59 Player Home gutter checks passed (13/13).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc58
+> node scripts/rc58-global-gutter-alignment-check.mjs
+
+RC59 global gutter alignment checks passed (16/16).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc59
+> node scripts/rc59-mobile-header-check.mjs
+
+RC59 mobile header checks passed (13/13).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc60
+> node scripts/rc60-routine-destination-check.mjs
+
+RC60 routine destination checks passed (15/15).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc61
+> node scripts/rc61-multi-sport-team-family-check.mjs
+
+RC61 multi-sport/team/family checks passed (22/22).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc62
+> node scripts/rc62-elite-performance-brand-check.mjs
+
+RC66 Elite Performance brand checks passed (12/12).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc63
+> node scripts/rc63-speed-e-logo-check.mjs
+
+RC66 Speed E logo checks passed (10/10).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc64
+> node scripts/rc64-brand-cache-reset-check.mjs
+
+RC66 brand cache-reset checks passed (14/14).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc65
+> node scripts/rc65-home-icon-system-check.mjs
+
+RC66 Home icon-system checks passed (20/20).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc66
+> node scripts/rc66-combined-brand-sports-check.mjs
+
+RC66 combined Elite Performance brand and expanded-sports checks passed (21/21).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:player-more-cloud
+> node scripts/player-more-cloud-check.mjs
+
+PASS  Player More explicitly opens More sheet
+PASS  Player More no longer shortcuts directly to Competition
+PASS  More sheet still exposes Search All Features
+PASS  Junior See All My Features retained
+PASS  Junior feature palette retained
+PASS  BetaBridge exposes Admin test athlete creator
+PASS  Roster receives Admin test athlete creator
+PASS  Admin add uses cloud creator when available
+PASS  Cloud test athlete copy explains persistence
+PASS  Cloud test creation success message exists
+PASS  Standalone fallback remains local
+PASS  Roster cloud rows identify persistence
+PASS  BetaGate implements admin_create_test_athlete RPC
+PASS  Admin bridge exposes cloud creator
+PASS  Duplicate test athlete error cleaned
+PASS  Admin Test diagnostics label supported
+PASS  Admin Test diagnostics guidance exists
+PASS  Admin Test player login says not required
+PASS  Migration 009 adds beta_test column
+PASS  Migration 009 Admin role guard
+PASS  Migration 009 creates cloud workspace
+PASS  Migration 009 creates athlete
+PASS  Migration 009 creates workspace state
+PASS  Migration 009 blocks exact test duplicate
+PASS  Migration 009 grants authenticated execution
+PASS  Diagnostics skip missing Player login for test athlete
+PASS  Diagnostics returns Admin Test label
+PASS  Migration reloads PostgREST schema
+PASS  Persistent Admin Preview retained
+PASS  Junior Goal Entry retained
+PASS  Parent connection cleanup retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+PASS  RC24 ribbon
+PASS  Cloud create message styled
+
+PASS: 35/35 Player More / cloud athlete checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:visual-hierarchy
+> node scripts/visual-hierarchy-check.mjs
+
+PASS  RC24 ribbon
+PASS  Page guide title scale increased
+PASS  Page guide purpose remains readable
+PASS  Page guide action is compact pill
+PASS  Role orientation accent retained
+PASS  Hero title uses strong scale
+PASS  Card headings increased
+PASS  Body copy uses readable 13px scale
+PASS  Forms use 15px desktop text
+PASS  Forms use 16px mobile text
+PASS  Primary actions use readable 13px
+PASS  Metrics use large numeric scale
+PASS  Navigation has stronger active contrast
+PASS  Navigation labels are readable
+PASS  Nav sheets use larger feature labels
+PASS  Nested cards visually recede
+PASS  Advanced tools visually subordinate
+PASS  Junior page title is larger
+PASS  Global page help copy shortened
+PASS  Player page copy shortened
+PASS  Junior page copy shortened
+PASS  Parent page copy shortened
+PASS  Player More gateway fix retained
+PASS  Cloud test athlete bridge retained
+PASS  Migration 009 retained
+PASS  Persistent Admin Preview retained
+PASS  Junior All Features fix retained
+PASS  Junior Goal Entry retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+
+PASS: 30/30 visual hierarchy / navigation checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:premium-ui
+> node scripts/premium-ui-check.mjs
+
+PASS  Premium home component exists
+PASS  Premium home rendered only on Home tab
+PASS  Role-aware premium copy exists
+PASS  Player quick actions exist
+PASS  Coach quick actions exist
+PASS  Parent quick actions exist
+PASS  Admin quick actions exist
+PASS  Home performance instrument rail exists
+PASS  Readiness orb exists
+PASS  Root exposes tab for UI targeting
+PASS  Root exposes sport for future art direction
+PASS  Premium visual system CSS block exists
+PASS  Home duplicate page guide hidden
+PASS  Old Home hero hidden under premium home
+PASS  Premium home hero styled
+PASS  Athlete avatar styled
+PASS  Readiness orb uses smooth SVG progress
+PASS  Metric strip is scan-first
+PASS  Quick actions are app launchers
+PASS  Bottom nav is floating dock
+PASS  Navigation sheet is bottom sheet
+PASS  Commercial card treatment retained
+PASS  Motion respects reduced-motion preference
+PASS  Junior Premium Home treatment exists
+PASS  Mobile premium layout exists
+PASS  72.3.63 visual hierarchy retained
+PASS  Player More gateway fix retained
+PASS  Cloud test athlete creator retained
+PASS  Migration 009 retained
+PASS  Persistent Admin Preview retained
+PASS  Junior All Features retained
+PASS  Junior Goal Entry retained
+PASS  Family diagnostics retained
+PASS  No practice-plan generator
+PASS  RC24 ribbon
+
+PASS: 35/35 Premium Performance UI checks.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:role-specific-hero
+> node scripts/role-specific-hero-check.mjs
+
+PASS: Parent has dedicated hockey hero
+PASS: Coach has dedicated hockey hero
+PASS: Player has dedicated wide in-game hockey hero
+PASS: Hero exposes role to CSS
+PASS: Full-image foreground layer exists
+PASS: Backdrop fill layer exists
+PASS: Realistic hero no longer relies on CSS background image
+PASS: Foreground shows complete image
+PASS: Backdrop fills complete hero
+PASS: Role content remains above imagery
+PASS: Mobile hero keeps full-image renderer
+
+11/11 role-specific hero checks passed.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:rc67
+> node scripts/rc67-redesign-check.mjs
+
+RC67 redesign checks passed (35/35).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> elite-performance-app@72.3.117 test:migrations
+> node scripts/migrations-check.mjs
+
+RC66 migrations 001–016 preserved (16/16 SHA-256 checks).
