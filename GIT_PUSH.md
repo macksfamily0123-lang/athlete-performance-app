@@ -1,47 +1,37 @@
-# Elite Performance RC67 · Git push
+# RC68 Git push
 
-Run these after installing and testing the ZIP. They publish a review branch, not the production branch. Use this direct build independently of the earlier Codex Cloud RC67 branch.
-
-1. Open your app folder.
+Run each box separately after local checks pass.
 
 ```bash
 cd /workspaces/athlete-performance-app
 ```
 
-2. Verify that the current branch is `release/rc67-direct-build`.
-
 ```bash
 git branch --show-current
 ```
 
-3. Review changed and new files. `.env.local`, dependencies, build output, and ZIPs are ignored.
+Expected review branch: `release/rc68-parent-privacy`.
 
 ```bash
 git status
 ```
 
-4. Stage the source and guides.
-
 ```bash
 git add .
 ```
 
-5. Inspect the staged file list before committing. No credentials should appear.
+Inspect the staged list. No `.env.local`, installed dependencies, build outputs, ZIPs or secret files should be present:
 
 ```bash
-git diff --cached --stat
+git --no-pager diff --cached --stat
 ```
-
-6. Commit.
 
 ```bash
-git commit -m "Release RC67 Elite Performance visual and usability redesign"
+git commit -m "Release RC68 parent privacy and data controls"
 ```
-
-7. Push the review branch.
 
 ```bash
-git push -u origin release/rc67-direct-build
+git push -u origin release/rc68-parent-privacy
 ```
 
-GitHub will offer a pull request link. Open it to review the changes. A connected Vercel project may also generate a Preview deployment. Test that preview before merging. Merging to your configured production branch can trigger a live Vercel deployment.
+Review the preview and privacy setup before merging into your Vercel production branch.

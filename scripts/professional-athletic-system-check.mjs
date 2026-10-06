@@ -8,7 +8,7 @@ const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const migration=fs.readFileSync('supabase/migrations/009_player_more_cloud_test_athletes.sql');
 const coachAsset='public/commercial-scenes/ice-hockey-coach-role.webp';
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.117'],
+ ['version is 72.3.83',pkg.version==='72.3.119'],
  ['RC32 app version reference updated',app.includes('72.3.90 RC40')],
  ['RC32 regression command registered',pkg.scripts['test:professional-athletic']?.includes('professional-athletic-system-check.mjs')],
  ['Player Home has dedicated Progress heading',app.includes('className="eliteProgressHeading"')&&app.includes('<span>PROGRESS</span>')],
@@ -27,7 +27,7 @@ const checks=[
  ['Recovery Tips remain on Player Home',app.includes('className="eliteRecoveryHome"')&&app.includes('RECOVERY TIPS')],
  ['RC29 Coach/Roster regression remains registered',pkg.scripts['test:coach-roster-more']?.includes('coach-roster-more-check.mjs')],
  ['always-active nav regression remains registered',pkg.scripts['test:always-active-nav']?.includes('always-active-nav-check.mjs')],
- ['release notes document current release',release.includes('Phase 72.3.117 RC67')&&release.includes('recovery')],
+ ['release notes document current release',release.includes('Phase 72.3.119 RC68')&&release.includes('recovery')],
  ['migration 009 hash remains protected',crypto.createHash('sha256').update(migration).digest('hex')==='ea088a53e3ffbb4ecfcab6e42fc9358b26a3c53e984299a436b887e8a008f626']
 ];
 let pass=0;

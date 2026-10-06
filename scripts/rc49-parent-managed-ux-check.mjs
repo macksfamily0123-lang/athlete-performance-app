@@ -8,8 +8,8 @@ const css=read("app/globals.css");
 const migration=read("supabase/migrations/014_parent_player_claim_code_repair.sql");
 const pkg=JSON.parse(read("package.json"));
 
-check(pkg.version==="72.3.117","release version is Phase 72.3.109");
-check(beta.includes("CLOSED BETA · RC67 · v72.3.117"),"RC54 release ribbon is present");
+check(pkg.version==="72.3.119","release version is Phase 72.3.109");
+check(beta.includes("CLOSED BETA · RC68 · v72.3.119"),"RC54 release ribbon is present");
 check(athlete.includes('className="headerUtilityButton managedProfileButton"'),"managed Junior view has an Edit Player action");
 check(athlete.includes('setEditProfileRequest(x=>x+1)'),"Edit Player opens the profile editor");
 check(css.includes(':not(.managedProfileButton):not(.reportProblemButton)'),"Junior mode preserves Edit Player and Report Problem");

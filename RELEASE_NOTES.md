@@ -1,17 +1,18 @@
-# Elite Performance · Phase 72.3.117 RC67
+# Elite Performance · Phase 72.3.119 RC68
 
-Complete combined source release built directly from the RC66 ZIP.
+Complete combined source release built from RC67. Shared graphite, forest-green, metallic-silver and off-white redesign, readiness, recovery, progress charts and navigation retained.
 
-- Shared graphite, forest-green, metallic-silver, and off-white palette across the app and secure account screens. Existing Speed E branding retained.
-- Matching gutters, panel shapes, typography, button spacing, focus states, icons, and a five-item navigation dock.
-- Incomplete Daily Check-In and Weekly Review first in Home content for Player and Admin. Parent/Coach receive read-only routine status and exact links to recovery and saved reflections.
-- Exact navigation opens collapsed ancestors, focuses its destination, and selects the Readiness subview when needed. Reduced-motion preference is respected.
-- Testing history visible alongside target progress, with a labelled chart, baseline/latest context, lower-is-better improvement, and previous-result comparisons.
-- Empty trends show instructions instead of fabricated chart points. Recorded progress uses available inputs rather than default scores for missing data. Recent readiness is ordered by date.
-- Clear empty states, monochrome sport photography, matching camera icon, and responsive phone/tablet/desktop layouts.
-- Supabase persistence, APIs, role permissions, Junior mode, multi-sport profiles, teams, parent relationships, account connections, workouts, schedules, testing, goals, reviews, and recovery retained.
-- Migrations 001–016 unchanged; no new SQL migration. Tracker connectivity and subscriptions remain disabled.
+- Separate under-18 privacy authorization; existing Junior age rules and role layouts unchanged.
+- Versioned Terms of Use and Privacy Notice, explicit agreement, decline/sign-out and cloud acceptance records.
+- Guardian verification recorded only by an Admin with authenticator assurance. A signed form, documented verification call or approved-provider evidence reference must be reviewed first. A checkbox does not mark a guardian verified.
+- Privacy Center for each linked Player: export, photo removal, Coach revocation, consent withdrawal, collection pause/resumption and confirmed deletion.
+- Database rules enforce active accounts, workspace isolation, guardian authorization and paused collection. Qualified workspace write policies close ambiguous inherited correlation. Definer writes are checked at the database boundary.
+- Photo uploads remain optional. Remote profile image URLs are blocked; removed photo hashes prevent stale clients restoring deleted photos. Primary, sport and embedded matching photo copies are removed.
+- Single-guardian or adult Player erasure removes the active workspace, photos, linked Player login and cascaded app records. Shared guardian records need reviewed authority. A different guardian cannot silently override withdrawal.
+- Password-verified server-only account deletion; other guardians and shared Players retained. Solely managed Players must be erased or transferred first. The last Admin cannot erase the only operational administrator.
+- Logout/account-change cache clearing, cloud privacy rechecks and no personal workspace access while offline authorization cannot be verified. Pending save callbacks no longer repopulate caches after unmount.
+- Supabase migrations 001–016 unchanged. Apply the new migration 017 and deploy the account deletion Edge Function. No trackers or subscriptions enabled.
 
-This direct build is separate from the earlier Codex Cloud RC67 task. Install this ZIP on its own branch; do not combine both implementations without review.
+The manual guardian process, operator contact and actual retention schedule must be configured before accepting real minor records. Terms are an implementation draft for counsel review, not a legal certification. Live Supabase settings, hosted Auth/MFA, real email delivery, Edge deployment and backup erasure must be validated in your project. See TEST_RESULTS.md and PRIVACY_OPERATIONS.md.
 
-See `TEST_RESULTS.md` for actual validation and its limits. See `INSTALL_IN_CODESPACES.md`, `GIT_PUSH.md`, `DEPLOY_TO_VERCEL.md`, and `SUPABASE_SETUP.md` for installation.
+Migrations 001–016 unchanged; migration 017 adds the parent privacy controls.

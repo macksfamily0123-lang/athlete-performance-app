@@ -7,7 +7,7 @@ const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 const release=fs.readFileSync('RELEASE_NOTES.md','utf8');
 const migration=fs.readFileSync('supabase/migrations/009_player_more_cloud_test_athletes.sql');
 const checks=[
- ['version is 72.3.83',pkg.version==='72.3.117'],
+ ['version is 72.3.83',pkg.version==='72.3.119'],
  ['RC31 beta ribbon/version references updated',app.includes('72.3.90 RC40')],
  ['new RC31 test registered',pkg.scripts['test:elite-home-goals-recovery']?.includes('elite-home-goals-recovery-check.mjs')],
  ['hero circular pseudo geometry is reset',css.includes('.performanceOS .elitePerformanceHero::before')&&css.includes('border-radius:0!important')&&css.includes('box-shadow:none!important')],
@@ -25,7 +25,7 @@ const checks=[
  ['mobile Recovery treatment exists',css.includes('@media(max-width:700px)')&&css.includes('.performanceOS .eliteRecoveryHome')],
  ['RC30 elite visual regression remains registered',pkg.scripts['test:elite-visual']?.includes('elite-performance-visual-check.mjs')],
  ['RC29 coach roster regression remains registered',pkg.scripts['test:coach-roster-more']?.includes('coach-roster-more-check.mjs')],
- ['release notes document current release',release.includes('Phase 72.3.117 RC67')&&release.includes('recovery')],
+ ['release notes document current release',release.includes('Phase 72.3.119 RC68')&&release.includes('recovery')],
  ['migration 009 hash remains protected',crypto.createHash('sha256').update(migration).digest('hex')==='ea088a53e3ffbb4ecfcab6e42fc9358b26a3c53e984299a436b887e8a008f626']
 ];
 let pass=0;

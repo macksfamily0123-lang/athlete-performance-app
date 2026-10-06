@@ -1,49 +1,38 @@
-# Elite Performance RC67 · Vercel deployment
+# Vercel: preview then production
 
-Use the existing Vercel project and existing Supabase project. Subscriptions and tracker connectivity remain disabled. No new Supabase migration is needed.
+Complete INSTALL_IN_CODESPACES.md and SUPABASE_RC69.md. Retention remains disabled until the final activation SQL.
 
-## Preview through GitHub
+In Vercel → your project → Settings → Environment Variables, keep existing NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY. Set these for the intended environments:
 
-1. Follow `GIT_PUSH.md` to push `release/rc67-direct-build`.
-2. Open your existing project in Vercel and look for the deployment for that branch.
-3. Confirm that Preview has the same two public Supabase variables as your existing deployment:
-
-```text
-NEXT_PUBLIC_SUPABASE_URL
+```dotenv
+NEXT_PUBLIC_PRIVACY_OPERATOR_NAME=Steve
+NEXT_PUBLIC_PRIVACY_CONTACT_EMAIL=Eliteperformanceath@gmail.com
 ```
 
-```text
-NEXT_PUBLIC_SUPABASE_ANON_KEY
-```
+Set NEXT_PUBLIC_PRIVACY_RETENTION_NOTE to the actual inactivity policy and verified backup lifetime. Do not set Resend, cron or Supabase service-role secrets in Vercel public variables. Those belong in Supabase Edge secrets.
 
-4. Open the Preview URL, then verify login, athlete selection, each role, and the check-in/review links. Configure the preview's auth redirect URL in Supabase if you use an email callback. See `SUPABASE_SETUP.md`.
-
-## Production through GitHub
-
-After you approve the preview, merge the review pull request into the branch configured for Production in your existing Vercel project. If that branch is `main`, the merge starts its deployment. Verify the finished deployment and the RC67 ribbon. Installed app clients may need to close and reopen the app to load the new service worker cache.
-
-## CLI alternative
-
-Use only if you want to deploy manually. Run each command separately from the app folder. Choose your existing project when prompted.
+From Codespaces, preview:
 
 ```bash
 npx vercel login
 ```
 
 ```bash
-npx vercel link
-```
-
-Preview:
-
-```bash
 npx vercel
 ```
 
-Production, after you approve the preview:
+Choose your existing athlete-development project. Inspect the preview on phone and desktop. Check privacy notice, agreement, parent controls and ordinary check-ins/workouts. Once reviewed, publish:
 
 ```bash
 npx vercel --prod
 ```
 
-Framework: Next.js. Root directory: the folder containing `package.json`. Build command: `npm run build`. Leave the Next.js output directory at the framework default. Never set the root directory to the uploaded ZIP or `node_modules`.
+If GitHub integration deploys main automatically, use the reviewed PR merge instead of a second CLI production deployment.
+
+Use the stable production domain in RETENTION_APP_URL. Keep PRIVACY_ALLOWED_ORIGINS current for the password-confirmed deletion function; this is a separate Edge secret from the cron secret. Your previously configured URL was:
+
+```text
+https://athlete-development-mqj7xsg3j-athlete-development-app.vercel.app
+```
+
+A new deployment URL may differ. Add each actual allowed app origin to PRIVACY_ALLOWED_ORIGINS, comma-separated, and check Supabase Auth redirect URLs too. Do not add wildcard origins. Redeploy after public environment changes; Next.js embeds them at build time.

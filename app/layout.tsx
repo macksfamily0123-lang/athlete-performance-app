@@ -6,7 +6,7 @@ export const metadata:Metadata={
   title:"Elite Performance Beta",
   description:"High-performance athlete development, training, testing, readiness, and progress tools.",
   applicationName:"Elite Performance",
-  manifest:"/manifest.webmanifest?v=117",
+  manifest:"/manifest.webmanifest?v=118",
   icons:{icon:"/elite-performance-speed-e.svg",apple:"/elite-performance-apple-touch-icon.png"}
 };
 

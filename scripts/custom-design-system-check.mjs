@@ -3,7 +3,7 @@ const app=fs.readFileSync("components/AthleteApp.tsx","utf8");
 const css=fs.readFileSync("app/globals.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.117"],
+ ["RC24 version",pkg.version==="72.3.119"],
  ["custom icon family exists",app.includes("function PremiumAppIcon")&&app.includes('type PremiumIconName=')],
  ["Home quick actions use normalized SVG badges",app.includes('<HomeIconBadge name={action.icon}')&&app.includes("function HomeIconBadge")],
  ["bottom navigation uses SVG icon family",app.includes("customBottomNav")&&app.includes('<PremiumAppIcon name="home"/>')&&app.includes('<PremiumAppIcon name="more"/>')],

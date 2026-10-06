@@ -3522,7 +3522,7 @@ input,select,textarea{min-height:42px}
  .cockpitInstrumentValue strong{font-size:calc(36px * var(--ui-text-scale))}
 }
 
-/* Phase 72.3.117 RC67 · Elite Performance brand plus expanded sports */
+/* Phase 72.3.119 RC68 · Elite Performance brand plus expanded sports */
 .performanceOS[data-sport="Combat Sports"]{
  --elite-sport-motif:linear-gradient(145deg,transparent 0 46%,rgba(40,97,71,.045) 46.2%,transparent 46.5% 100%);
 }
@@ -11147,7 +11147,7 @@ h2,h3{letter-spacing:-.01em!important}
 }
 
 /* =========================================================
-   Phase 72.3.117 RC67 — Elite Performance Speed E refinement
+   Phase 72.3.119 RC68 — Elite Performance Speed E refinement
    Vector Speed E remains crisp in the app header, auth,
    workspace chooser, loading state, and installed app icon.
    ========================================================= */
@@ -11231,7 +11231,7 @@ h2,h3{letter-spacing:-.01em!important}
 }
 
 /* =========================================================
-   Phase 72.3.117 RC67 — Home icon system
+   Phase 72.3.119 RC68 — Home icon system
    One crisp SVG system for every role. Focus and shortcut
    icons share square geometry, balanced scale, and restrained
    forest-green / metallic-silver color accents.

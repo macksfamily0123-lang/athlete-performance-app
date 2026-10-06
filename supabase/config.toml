@@ -1,0 +1,7 @@
+[functions.privacy-account-delete]
+verify_jwt = false
+# JWT validation occurs server-side against Supabase Auth, not a decoded token.
+
+[functions.retention-worker]
+verify_jwt = false
+# Separate server-only cron secret required; no browser access.

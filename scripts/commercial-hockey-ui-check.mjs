@@ -6,8 +6,8 @@ const hero=fs.readFileSync("public/sport-heroes/ice-hockey.svg","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const migration=fs.readFileSync("supabase/migrations/009_player_more_cloud_test_athletes.sql","utf8");
 const checks=[
- ["Phase version is 72.3.74",pkg.version==="72.3.117"],
- ["RC24 ribbon",beta.includes("CLOSED BETA · RC67 · v72.3.117")],
+ ["Phase version is 72.3.74",pkg.version==="72.3.119"],
+ ["RC24 ribbon",beta.includes("CLOSED BETA · RC68 · v72.3.119")],
  ["Player Profile has photo field",athlete.includes("photoUrl?:string")],
  ["Mobile photo resize helper",athlete.includes("resizePlayerPhoto")&&athlete.includes('canvas.toDataURL("image/jpeg",.78)')],
  ["Profile photo picker",athlete.includes('type="file" accept="image/*"')&&athlete.includes("Add Player Photo")],

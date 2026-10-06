@@ -1,33 +1,21 @@
-# Elite Performance · RC67
+# RC69 inactivity privacy release
 
-Full combined Next.js app, built from RC66. Graphite, forest green, metallic silver, and off-white across Player, Parent, Coach, and Admin.
+Start with RC69_START_HERE.md.
 
-## Start here
+# Elite Performance RC68 · 72.3.119
 
-- `INSTALL_IN_CODESPACES.md` — upload the ZIP, install, test, and preview.
-- `GIT_PUSH.md` — publish the direct build on its own review branch.
-- `DEPLOY_TO_VERCEL.md` — preview and production deployment.
-- `SUPABASE_SETUP.md` — keep your existing project; no new migration.
-- `RELEASE_NOTES.md` — what changed.
-- `TEST_RESULTS.md` — validation and limits.
+Complete source ZIP from RC67, including the 2026 visual redesign and parent privacy controls. Junior functionality, sports, roles, teams, family links, daily/weekly routines, workouts and Supabase integration retained. Tracker connectivity and subscriptions remain disabled.
 
-## Retained capabilities
+| Task | Guide |
+| --- | --- |
+| Install in existing Codespace | INSTALL_IN_CODESPACES.md |
+| Push source to GitHub | GIT_PUSH.md |
+| Deploy to existing Vercel project | DEPLOY_TO_VERCEL.md |
+| Apply migration 017 and deploy deletion function | SUPABASE_SETUP.md |
+| Guardian verification, retention and deletion operations | PRIVACY_OPERATIONS.md |
+| Validation and limits | TEST_RESULTS.md |
 
-| Area | Included |
-|---|---|
-| Accounts | Supabase authentication, roles, permissions, invitations, account connections |
-| Athletes | Junior mode, multi-sport profiles, sport-specific positions, photos, testing |
-| Relationships | Teams, coach rosters, multiple players, multiple parents per athlete |
-| Daily work | Check-ins, weekly reviews, goals, development, workouts, competition |
-| Review | Readiness, progress, testing history, roster review, schedules, recovery |
-| Reliability | Cloud retry, local recovery copies, backups, support notes, diagnostics |
-| Database | Original migrations 001–016, with checksum verification |
-
-Tracker connectivity and subscriptions remain disabled. No live deployment or database update was performed as part of this release.
-
-This ZIP is the direct build from this conversation, separate from the earlier Codex Cloud RC67 task. Install one source version at a time.
-
-## Commands
+Current terms and notice are available at `/terms` and `/privacy`. Configure the operator contact and actual retention schedule before accounts can accept the new notice. Do not use Admin Test records for real children.
 
 Install:
 
@@ -35,13 +23,7 @@ Install:
 npm install
 ```
 
-Type check:
-
-```bash
-npm run test:typecheck
-```
-
-All automated checks:
+Validate:
 
 ```bash
 npm test
@@ -53,8 +35,4 @@ Production build:
 npm run build
 ```
 
-Development server:
-
-```bash
-npm run dev
-```
+This release adds migration 017. It must be applied after your existing migrations 001–016. Existing SQL files are unchanged and checked against the RC66 hashes. Do not reapply historical migrations to an existing database.

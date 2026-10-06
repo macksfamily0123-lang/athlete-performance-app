@@ -1,56 +1,50 @@
-# Elite Performance RC67 · Supabase
+# RC68 Supabase setup
 
-## Existing RC66 installation
+Use the same project and existing credentials. Migrations 001–016 are preserved byte-for-byte. RC68 adds one new SQL migration and one server-only Edge Function. No tracker or subscription setup is needed.
 
-RC67 changes presentation and navigation. **Migrations 001–016 are byte-for-byte preserved. No new migration is required.** Keep your current project, accounts, data, role approvals, team connections, and parent/player relationships. Do not rerun previously applied migrations.
+## Existing database
 
-The included `supabase/migrations.sha256` records the preserved migration hashes. Verify them with:
+Open `supabase/migrations/017_parent_privacy_controls.sql` in Codespaces, copy the complete file, and run it once in your existing Supabase SQL Editor. It is one transaction. Do not rerun migrations 001–016 on an existing project. Keep a provider backup before deployment; do not copy real youth data into public test fixtures.
 
-```bash
-npm run test:migrations
-```
+Migration 017 creates guardian verification and Player privacy controls, closes inherited workspace write ambiguity, and adds protected privacy RPCs. Existing under-18 and unknown-age records remain blocked until guardian approval and current authorization. Adult age transitions require a reviewed Admin decision. Admin Test fixtures are exempt from guardian gating; never use them for real minors.
 
-Keep these values in the existing Codespaces `.env.local` and Vercel environments:
+For a fresh database only, apply all included migrations in filename order 001 through 017.
 
-```text
-NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-```
+## Server-only deletion function
 
-```text
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
-```
-
-Only if `.env.local` does not already exist, create it from the example and replace the placeholders in the editor:
+Run each command separately in the Codespace app directory. Replace `YOUR_PROJECT_REF` with the identifier from your existing Supabase project URL. These commands deploy only the deletion function; the SQL step above is separate.
 
 ```bash
-cp .env.example .env.local
+npx supabase login
 ```
 
-Use the public anon key expected by the existing integration. Do not put a Supabase service-role key into a `NEXT_PUBLIC_` variable or commit credentials. No tracker-provider or billing credentials are needed.
+Configure the exact app origins that may invoke deletion. Replace the URL with your actual existing app URL. For multiple origins, use a comma-separated list. No wildcard origins.
 
-In Supabase Authentication URL configuration, keep your production Site URL and allow the callback URLs used by your Codespaces/Preview/production testing. Email confirmation and password reset links need an allowed redirect URL. Use the exact preview hostname you are testing rather than granting unrelated hosts access.
+```bash
+npx supabase secrets set PRIVACY_ALLOWED_ORIGINS="https://YOUR_APP.vercel.app" --project-ref YOUR_PROJECT_REF
+```
 
-## New Supabase project only
+Deploy:
 
-If you are keeping the RC66 project, skip this section. For a fresh project, run the included SQL migrations in numeric order in the SQL Editor:
+```bash
+npx supabase functions deploy privacy-account-delete --project-ref YOUR_PROJECT_REF
+```
 
-| Order | File in `supabase/migrations/` |
-|---|---|
-| 001 | `001_beta_foundation.sql` |
-| 002 | `002_shared_support_notes.sql` |
-| 003 | `003_coach_weekly_reviews.sql` |
-| 004 | `004_admin_full_access.sql` |
-| 005 | `005_family_accounts_junior_player.sql` |
-| 006 | `006_parent_support_scheduling_results.sql` |
-| 007 | `007_family_reliability_admin_diagnostics.sql` |
-| 008 | `008_connection_setup_reliability.sql` |
-| 009 | `009_player_more_cloud_test_athletes.sql` |
-| 010 | `010_connected_trackers_player_parent_only.sql` |
-| 011 | `011_google_health_fitbit_migration.sql` |
-| 012 | `012_kinexon_opt_in_coach_sharing.sql` |
-| 013 | `013_youth_privacy_closed_beta.sql` |
-| 014 | `014_parent_player_claim_code_repair.sql` |
-| 015 | `015_multi_sport_team_family_profiles.sql` |
-| 016 | `016_combat_tennis_volleyball_sports.sql` |
+`SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are server-side built-in function credentials. Never put a service-role key in a `NEXT_PUBLIC_*` variable or source file. The function validates the caller with Supabase Auth, verifies their current password, and calls a service-only deletion RPC using that caller's identity. It ignores any client-provided account ID. Its function configuration disables gateway JWT checking because the handler performs server-side Auth validation itself, including compatibility with current key formats.
 
-Follow the initial admin setup in migration 001 and `supabase/README.md`, then approve Coach/Admin access using the existing account flow. Installing tables 010–012 does not enable tracker connectivity: the application gate remains disabled.
+Set the public operator name, privacy contact and actual retention text as described in DEPLOY_TO_VERCEL.md, then restart Codespaces/redeploy Vercel so public build-time variables refresh.
+
+## Operator workflow
+
+1. Sign in as an Admin. Accept the current terms.
+2. Open Admin Review and enroll/verify an authenticator. Guardian approval and reviewed privacy decisions require `aal2` at the database.
+3. Complete a legally reviewed guardian-verification process outside the app. Review authority for the named Players; record an opaque reference in Admin → Accounts → Guardian verification review. Do not put identity documents or children’s information in feedback or references.
+4. The verified Parent signs in, accepts the current policy, opens Privacy Center, selects each existing Player, and explicitly authorizes collection. New Parent-managed creation requires prior verification.
+5. Test Coach opt-in and revoke. For a minor, a verified guardian must authorize new Coach sharing.
+6. Shared-guardian deletion/withdrawal conflicts go through Admin → Family → Reviewed guardian requests after authority review. Changing a privacy-request status does not perform erasure.
+
+Run hosted tests with dedicated disposable accounts: unrelated Player/Parent/Coach requests must fail; paused records must reject direct API writes; revoked Coaches must lose data access; account deletion must remove Auth and application rows while preserving another guardian's account.
+
+## Retention and restoration
+
+Publish a provider-verified retention schedule. Active erasure does not instantly erase provider backups or copies previously downloaded by other users. Maintain a restricted deletion journal outside the database backup boundary and reconcile erasures before restoring a backup into service. Configure periodic expiration of obsolete verification evidence and minimal review references. Removed-photo hashes prevent stale clients from restoring photos; determine their retention with counsel as part of the written schedule. The app does not claim these provider operations happen automatically.

@@ -1,26 +1,34 @@
-# RC67 validation · 30 September 2026
+# RC68 validation · 2 October 2026
 
-Built from the complete RC66 combined ZIP, version 72.3.117.
+Version 72.3.119, built from the completed RC67 combined source.
 
 | Check | Result |
 | --- | --- |
 | npm install | Passed |
 | npm run test:typecheck | Passed |
-| npm test | Full registered suite passed |
-| RC67 redesign tests | 35/35 passed |
-| Migration preservation | 16/16 original SQL files match RC66 SHA-256 |
-| npm run build | Passed |
+| npm test | Full registered regression suite passed |
+| Privacy runtime tests | 25/25 passed |
+| PostgreSQL privacy tests | 52/52 passed |
+| Existing redesign tests | 35/35 passed |
+| Original migrations | 001–016 preserved byte-for-byte; 16/16 checksum checks passed |
+| npm run build | Passed; existing CSS compatibility warnings documented in build log |
 
-## Browser checks
+## Privacy validation
 
-Local Chromium checks exercised Player, Parent, Coach and Admin at 320px, 390px, 768px and 1440px. Across 88 section/layout checks, no horizontal document overflow, clipped headings/actions or runtime errors were detected. Another 22 layout checks exercised 180% text at 320px across all four roles. JSON records are in `validation/`.
+The database tests apply migrations 001–017 to embedded PostgreSQL using PGlite 0.5.8. The fixture supplies Supabase-style Auth identities, JWT claims and grants. Tests exercise actual SQL policies, triggers and RPCs: unrelated access rejection, under-18 guardian gates, MFA-required Admin decisions, Coach revocation, pause/write rejection, export, erased-photo reinsertion rejection, shared-parent conflicts, reviewed erasure, linked child-login erasure and preservation of other parents' accounts. The fixture omits the pgcrypto extension statement; PostgreSQL's built-in UUID generation is available.
 
-Routine checks verified exact destination focus, read-only Parent/Coach controls, and Player/Admin saving daily check-ins and weekly reviews. Pending banners disappeared after save and stayed completed after reload. Testing history was inspected with real numeric fixture results. A lower-is-better percentage calculation defect was corrected and covered by runtime tests.
+Runtime tests cover age boundaries, local cache removal, photo validation and the deletion Edge Function with mocked Auth HTTP responses. Invalid origins, tokens, passwords and account mismatches cannot reach deletion. A valid request uses the server-verified owner ID, ignoring a client-supplied ID.
 
-These were local fixture sessions, not authenticated live Supabase sessions. Live authentication, account connections, team/family sharing and cloud database writes still require checks in your deployment with your existing accounts. No live database, repository or deployment was changed. The temporary fixture route was removed before production build and is excluded from the ZIP.
+Privacy controls passed 32 local browser findings across parent, unverified, paused, shared-parent, adult and Admin fixtures at 320px, 390px, 768px and 1440px. There was no document overflow, clipped heading/action text or browser runtime error. Confirmation and disabled controls were checked. The temporary fixture route was removed before the production build and is excluded from the archive.
 
-## Build notes
+These checks use disposable local fixtures, not live Supabase Auth, MFA, email delivery or production accounts. Hosted acceptance tests described in SUPABASE_SETUP.md remain necessary after installation. No production database, account, repository or deployment was changed.
 
-The production build emits existing Autoprefixer compatibility warnings about `start`/`end` flex alignment and a Supabase Node 20 deprecation notice. They do not prevent compilation. npm reports an environment `http-proxy` configuration warning. Logs are included in `validation/`.
+## Preserved RC67 evidence
 
-No new migration is required. Tracker connectivity and subscriptions remain disabled. No private environment files, installed dependencies, development server files or generated Next build files are packaged.
+The RC67 baseline previously passed 88 role/layout checks and 22 large-text layout checks across Player, Parent, Coach and Admin. Those dated results are included under validation/rc67-baseline; they are historical evidence, not a new RC68 run of authenticated role workflows.
+
+## Operational limits
+
+App deletion removes active records covered by the implemented SQL. Provider backups, restored data, downloaded exports and screenshots require the published retention and restoration process. Verification evidence and audit-reference expiration require operator configuration. PRIVACY_OPERATIONS.md records these responsibilities. Terms and guardian-consent drafts require jurisdiction-specific legal review; this test report does not certify legal compliance or a complete production security audit.
+
+Build warnings concern inherited CSS start/end alignment compatibility. The package manager also reports an environment-level http-proxy configuration warning. See the included logs for exact output.

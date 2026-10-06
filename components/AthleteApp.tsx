@@ -3,8 +3,9 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
 import {createPortal} from "react-dom";
 import {getSupabase} from "../lib/supabase";
+import {validatePhoto} from "../lib/privacy.mjs";
 import {routineStatus,trendGeometry,formatChartValue,percentageImprovement} from "../lib/performance-ui.mjs";
-// Phase 72.3.117 RC67: all external tracker connectivity remains intentionally
+// Phase 72.3.119 RC68: all external tracker connectivity remains intentionally
 // disabled. Keeping the archived types below makes this change reversible,
 // while the false gate prevents tracker UI, loading, syncing, and sharing.
 const TRACKER_CONNECTIVITY_ENABLED=false;
@@ -635,6 +636,7 @@ const levelScore=(level?:SkillLevel)=>level==="Advanced"?5:level==="Consistent"?
 const playerInitials=(name?:string|null)=>String(name||"Player").trim().split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]?.toUpperCase()||"").join("")||"P";
 
 function PlayerPhotoAvatar({name,photoUrl,size=58,className=""}:{name?:string|null;photoUrl?:string|null;size?:number;className?:string}){
+ if(!validatePhoto(photoUrl))photoUrl="";
  return <div className={`commercialPlayerAvatar ${photoUrl?"hasPhoto":"fallback"} ${className}`} style={{"--avatar-size":`${size}px`} as React.CSSProperties} aria-label={`${name||"Player"} photo`}>
   {photoUrl?<img src={photoUrl} alt={`${name||"Player"} profile`}/>:<span>{playerInitials(name)}</span>}
  </div>;
@@ -1234,6 +1236,8 @@ export default function AthleteApp({betaBridge}:{betaBridge?:BetaBridge}){
  const [navSheet,setNavSheet]=useState<null|"Plan"|"Train"|"Progress"|"More">(null);
  const pendingDestinationRef=useRef<string|null>(null);
  const cloudLoadedRef=useRef(false);
+ const privateActiveRef=useRef(true);
+ useEffect(()=>()=>{privateActiveRef.current=false},[]);
  const cloudReadyWorkspaceRef=useRef<string|null>(null);
  const cloudSaveTimerRef=useRef<number|null>(null);
  const [cloudStatus,setCloudStatus]=useState<"local"|"loading"|"saved"|"waiting"|"error">(betaBridge?"loading":"local");
@@ -1427,7 +1431,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
 
  const downloadRecoveryBackup=()=>{
   try{
-   const payload={version:"72.3.117",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
+   const payload={version:"72.3.119",createdAt:new Date().toISOString(),activeAthleteId,snapshot:buildSnapshot()};
    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
    const url=URL.createObjectURL(blob);
    const a=document.createElement("a");
@@ -1454,6 +1458,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    if(cloudSaveTimerRef.current)window.clearTimeout(cloudSaveTimerRef.current);
    setCloudStatus("loading");
    betaBridge.loadState().then((raw:any)=>{
+     if(!privateActiveRef.current)return;
      if(betaBridge.workspaceId!==workspaceId)return;
      if(raw){
       const cloudSport=(betaBridge?.selectedAthleteSport&&sports.includes(betaBridge.selectedAthleteSport as Sport)?betaBridge.selectedAthleteSport:raw.activeSport&&sports.includes(raw.activeSport as Sport)?raw.activeSport:raw.profile?.sport&&sports.includes(raw.profile.sport as Sport)?raw.profile.sport:raw.sport&&sports.includes(raw.sport as Sport)?raw.sport:sport) as Sport;
@@ -1538,7 +1543,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
      setCloudStatus("waiting");
      setCloudErrorMessage("Waiting for an internet connection. Your changes are safely queued on this device.");
      setPendingCloudSave(true);
-     try{localStorage.setItem(pendingCloudKey(),JSON.stringify(payload))}catch{}
+     try{privateActiveRef.current&&localStorage.setItem(pendingCloudKey(),JSON.stringify(payload))}catch{}
      return;
    }
    setCloudOnline(true);
@@ -1554,7 +1559,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
      setCloudStatus("error");
      setCloudErrorMessage(err?.message||"Cloud save failed. A local retry copy was kept.");
      setPendingCloudSave(true);
-     try{localStorage.setItem(pendingCloudKey(),JSON.stringify(payload))}catch{}
+     try{privateActiveRef.current&&localStorage.setItem(pendingCloudKey(),JSON.stringify(payload))}catch{}
    }
  };
  const retryPendingCloudSave=async()=>{
@@ -5247,7 +5252,7 @@ const verifiedExerciseBlockCatalog:RoutineReference[]=[
   offIce:true,
   exerciseNames:["Supine Hip Internal Rotation","3-Way Hamstring With Strap","Half-Kneeling Hip Flexor","Hip Flexor With Foot on Wall","Half-Kneeling Groin","Kneeling Lat Stretch","Active Ankle Dorsiflexion"],
   durationLabel:"about 10–15 min",
-  thumbnailUrl:"https://img.youtube.com/vi/_sqm-VmIlqk/hqdefault.jpg"
+  thumbnailUrl:""
  }
 ];
 
@@ -6236,7 +6241,7 @@ function Reports({sport,profile,goals,workouts,results,dev,program,readiness,com
 
 function AdminBetaHealth({cloudStatus,lastSaved,error,pending,workspaceId,selectedAthlete,cloudLoaded}:{cloudStatus:"local"|"loading"|"saved"|"waiting"|"error";lastSaved:string;error:string;pending:boolean;workspaceId:string;selectedAthlete:string;cloudLoaded:boolean}){
  const rows=[
-  ["App Version","72.3.117 RC67","good"],
+  ["App Version","72.3.119 RC68","good"],
   ["Supabase / Cloud",cloudStatus==="saved"?"Connected":cloudStatus==="loading"?"Working":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Issue":"Local only",cloudStatus==="error"?"bad":cloudStatus==="saved"?"good":"watch"],
   ["Cloud State",cloudLoaded?"Loaded":"Waiting",cloudLoaded?"good":"watch"],
   ["Selected Athlete",selectedAthlete||"No cloud athlete selected",selectedAthlete?"good":"watch"],

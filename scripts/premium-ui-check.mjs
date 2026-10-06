@@ -42,7 +42,7 @@ const checks=[
  ["Junior Goal Entry retained", athlete.includes("juniorGoalEntryCard")],
  ["Family diagnostics retained", beta.includes("Family & Account Diagnostics")],
  ["No practice-plan generator", !athlete.includes("Generate Practice Plan")&&!athlete.includes("Practice Plan Generator")],
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC67 · v72.3.117")]
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC68 · v72.3.119")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);

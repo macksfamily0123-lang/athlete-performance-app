@@ -6,17 +6,17 @@ const athlete=fs.readFileSync("components/AthleteApp.tsx","utf8");
 
 const checks=[
  ["Runtime error boundary exists", boundary.includes("getDerivedStateFromError")&&boundary.includes("componentDidCatch")],
- ["Athlete app is wrapped", beta.includes("<BetaErrorBoundary")&&beta.includes("<AthleteApp betaBridge={bridge!}/>")],
+ ["Athlete app is wrapped", beta.includes("<BetaErrorBoundary")&&/<AthleteApp[^>]*betaBridge=\{bridge!\}/.test(beta)],
  ["Crash recovery reload exists", boundary.includes("window.location.reload()")],
  ["Crash report path exists", boundary.includes("Report This Error")&&beta.includes("openFeedbackWithContext(details)")],
  ["Offline state listener", beta.includes('window.addEventListener("offline",sync)')&&beta.includes('window.addEventListener("online",sync)')],
  ["Offline banner", beta.includes("betaOfflineBanner")],
- ["Feedback diagnostic context", beta.includes("Beta diagnostic context")&&beta.includes("Version: 72.3.117 RC67")],
+ ["Feedback diagnostic context", beta.includes("Beta diagnostic context")&&beta.includes("Version: 72.3.119 RC68")],
  ["No passwords in diagnostics", !/feedbackContext[\s\S]{0,2000}password/i.test(beta)],
  ["No auth tokens in diagnostics", !/feedbackContext[\s\S]{0,2000}(access_token|refresh_token|session\\.access_token)/i.test(beta)],
- ["Feedback app version", beta.includes('app_version:"72.3.117"')],
+ ["Feedback app version", beta.includes('app_version:"72.3.119"')],
  ["Feedback diagnostic transparency", beta.includes("No password or authentication token is included.")],
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC67 · v72.3.117")],
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC68 · v72.3.119")],
  ["Cloud retry retained", athlete.includes("retryPendingCloudSave")],
  ["Pending cloud save retained", athlete.includes("pendingCloudSave")],
  ["Migration 004 retained", fs.existsSync("supabase/migrations/004_admin_full_access.sql")]

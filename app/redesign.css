@@ -312,3 +312,16 @@ button,a,input,select,textarea,summary { -webkit-tap-highlight-color:transparent
 .app.performanceOS[data-role][data-tab] .eliteVisualMetric { border-left:0!important; padding-left:0!important; text-align:left!important; }
 .app.performanceOS[data-role][data-tab] main { overflow-x:clip; }
 .app.performanceOS[data-role][data-tab] :is(.elitePerformanceBand,.elitePrimaryAction,.nativeInstrumentRail) { margin-inline:0!important; }
+/* RC68 privacy controls share the existing palette and responsive gutters. */
+.rc68PrivacyControls {display:grid;gap:16px;padding:20px;border:1px solid #6f7c73;border-radius:16px;background:#1c2220;color:#f4f3ec;min-width:0;}
+.rc68PrivacyControls p {margin:0;line-height:1.6;overflow-wrap:anywhere;}
+.rc68PrivacyControls label {display:grid;gap:8px;min-width:0;}
+.rc68PrivacyControls button,.rc68PrivacyControls input,.rc68PrivacyControls select {min-height:44px;max-width:100%;white-space:normal;}
+.rc68PrivacyControls details {padding:16px;border:1px solid #6f7c73;border-radius:12px;}
+.rc68PrivacyControls details[open] {display:grid;gap:14px;}
+.rc68PrivacyTeam {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;}
+.rc68Policy {line-height:1.65;max-width:72ch;margin:24px auto;padding:24px;}
+.rc68Policy a {color:#bdc5bf;text-decoration:underline;}
+.rc68PrivacyGate {max-width:760px;margin:24px auto;padding:24px;display:grid;gap:16px;}
+.privacyCenterCard {max-height:90dvh;overflow-y:auto;}
+@media(max-width:600px){.rc68PrivacyControls{padding:16px;}.rc68PrivacyGate{margin:16px;padding:16px;}.rc68PrivacyControls .privacyActionGrid{grid-template-columns:1fr;}}

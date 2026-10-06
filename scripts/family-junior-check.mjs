@@ -45,7 +45,7 @@ const checks=[
  ["No direct-email fiction added", !beta.includes(">Send Invite Email<")],
  ["Migration grants only intended family RPCs", migration.includes("grant execute on function public.parent_save_managed_player_state")&&migration.includes("grant execute on function public.player_claim_parent_managed_athlete")],
  ["Private claim-code generator not granted", migration.includes("revoke all on function public.new_player_claim_code() from public,anon,authenticated")],
- ["RC24 ribbon", beta.includes("CLOSED BETA · RC67 · v72.3.117")]
+ ["RC24 ribbon", beta.includes("CLOSED BETA · RC68 · v72.3.119")]
 ];
 
 const failed=checks.filter(([,ok])=>!ok);

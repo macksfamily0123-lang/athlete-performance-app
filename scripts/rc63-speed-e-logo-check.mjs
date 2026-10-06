@@ -9,8 +9,8 @@ const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[];
 const check=(ok,label)=>{if(!ok)throw new Error(`RC66 check failed: ${label}`);checks.push(label)};
 
-check(pkg.version==="72.3.117","release version is Phase 72.3.117");
-check(beta.includes("CLOSED BETA · RC67 · v72.3.117"),"RC66 release ribbon is present");
+check(pkg.version==="72.3.119","release version is Phase 72.3.119");
+check(beta.includes("CLOSED BETA · RC68 · v72.3.119"),"RC66 release ribbon is present");
 check(mark.includes("Elite Performance Speed E"),"standalone Speed E mark is installed");
 check(mark.includes("forward-leaning metallic silver E"),"Speed E asset includes accessible description");
 check(logo.includes("metallic Speed E mark"),"horizontal logo uses the Speed E mark");

@@ -3,7 +3,7 @@ const app=fs.readFileSync("components/AthleteApp.tsx","utf8");
 const css=fs.readFileSync("app/globals.css","utf8");
 const pkg=JSON.parse(fs.readFileSync("package.json","utf8"));
 const checks=[
- ["RC24 version",pkg.version==="72.3.117"],
+ ["RC24 version",pkg.version==="72.3.119"],
  ["shared focus icon component exists",app.includes("function PremiumRoleFocusIcon")],
  ["role focus uses shared component",app.includes("<PremiumRoleFocusIcon role={accountRole} juniorMode={juniorMode}/>")],
  ["focus roles use normalized shared icon names",app.includes('role==="Admin"?"progress":"train"')&&app.includes('role==="Coach"?"goal"')&&app.includes('role==="Parent"?"support"')],

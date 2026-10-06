@@ -26,7 +26,7 @@ check(formatChartValue(12.345)==='12.35','chart numbers are readable');
 const app=fs.readFileSync('components/AthleteApp.tsx','utf8');
 const css=fs.readFileSync('app/redesign.css','utf8');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-check(pkg.version==='72.3.117','RC67 metadata');
+check(pkg.version==='72.3.119','RC68 metadata');
 check(app.indexOf('<PlayerRoutinePriorityBanners')<app.indexOf('{betaBridge?.sportProfiles?.length?<div className="sportSelectorBlock'),'routine actions precede sport workspace');
 check(app.includes('canRole(effectiveRole,"playerDailyCheckIn")'),'routine completion respects effective role permissions');
 check(app.includes('<SharedRoutineStatus role={effectiveRole}'),'Parent and Coach receive read-only status');
@@ -44,4 +44,4 @@ check(css.includes('@media(max-width:380px)')&&css.includes('@media(max-width:90
 check(app.includes('if(!canRole(accountRole,"playerWeeklyReview"))return;'),'weekly writes follow the existing role permission');
 check(app.includes('const usable=points;')&&!app.includes('points:[50,50]'),'empty sparklines do not fabricate points');
 check(app.includes('hasPerformanceSummary?intelligenceScore:"—"'),'no default progress score for missing data');
-console.log(`RC67 redesign checks passed (${checks}/${checks}).`);
+console.log(`RC68 redesign checks passed (${checks}/${checks}).`);
