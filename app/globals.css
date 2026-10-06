@@ -11609,3 +11609,11 @@ h2,h3{letter-spacing:-.01em!important}
     gap:16px!important;
   }
 }
+
+/* Parent hero: one complete photo without enlarged side copies. */
+.app.performanceOS[data-role="Parent"] .rc34RoleHero .eliteRoleHeroBackdrop {
+  display:none!important;
+}
+.app.performanceOS[data-role="Parent"] .rc34RoleHero .eliteRoleHeroMedia {
+  background:#141817!important;
+}
