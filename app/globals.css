@@ -11576,3 +11576,36 @@ h2,h3{letter-spacing:-.01em!important}
 .app[data-junior="true"] .playerProfileCard.profileEditing{display:block!important}
 .playerProfileCard.profileEditing .commercialProfilePhotoPanel{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
 .playerProfileCard.profileEditing .commercialPhotoAction{min-height:44px;white-space:normal}
+
+/* Parent hero: keep player details inside the panel. */
+.app.performanceOS[data-role="Parent"] .rc34RoleHero {
+  height:auto!important;
+  max-height:none!important;
+  min-height:360px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:24px!important;
+}
+.app.performanceOS[data-role="Parent"] .rc34RoleHero .eliteHeroTelemetry {
+  position:absolute!important;
+}
+.app.performanceOS[data-role="Parent"] .rc34RoleHero .nativeHeroTopline {
+  flex:none!important;
+}
+.app.performanceOS[data-role="Parent"] .rc34RoleHero .nativeHeroBottom {
+  position:relative!important;
+  inset:auto!important;
+  flex:none!important;
+  margin-top:auto!important;
+  min-width:0!important;
+}
+.app.performanceOS[data-role="Parent"] .eliteRoleHeroForeground {
+  object-fit:contain!important;
+  object-position:center!important;
+}
+@media(max-width:650px) {
+  .app.performanceOS[data-role="Parent"] .rc34RoleHero .nativeHeroBottom {
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:16px!important;
+  }
+}
