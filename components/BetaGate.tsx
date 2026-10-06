@@ -251,6 +251,7 @@ export default function BetaGate(){
   const [parentPlayers,setParentPlayers]=useState<AthleteRow[]>([]);
   const [parentPlayerPhotos,setParentPlayerPhotos]=useState<Record<string,string>>({});
   const [parentPlayerMode,setParentPlayerMode]=useState(false);
+  const [parentProfileEditRequest,setParentProfileEditRequest]=useState(0);
   const [parentManagedAthleteId,setParentManagedAthleteId]=useState("");
   const [childName,setChildName]=useState("");
   const [childAge,setChildAge]=useState("");
@@ -806,6 +807,18 @@ export default function BetaGate(){
     setParentPlayerMode(true);
     setShowParentPlayers(false);
   };
+
+  const editParentManagedPlayer=(athlete:AthleteRow)=>void runConnectionAction("edit-player",async()=>{
+    if(!supabase||access?.role!=="Parent"||athlete.account_management!=="Parent"||!parentPlayers.some(p=>p.id===athlete.id))return;
+    const {data,error}=await supabase.rpc("privacy_status",{p_athlete:athlete.id});
+    if(error)throw error;
+    if(!data?.guardianVerified||!data?.canControl||!data?.collectionAllowed||data?.paused){
+      setParentMessage("Verify guardian authorization and resume collection in Privacy Center before editing this Player.");
+      return;
+    }
+    openManagedPlayer(athlete);
+    setParentProfileEditRequest(x=>x+1);
+  });
 
   const returnToParentWorkspace=()=>{
     setParentPlayerMode(false);
@@ -1396,6 +1409,11 @@ export default function BetaGate(){
     openPrivacyCenter,
     openLaunchChecklist:()=>setShowLaunchChecklist(true),
     openParentPlayers:access.role==="Parent"?()=>{void loadParentPlayers();setParentSetupMode("choose");setShowParentPlayers(true)}:undefined,
+    openParentPlayerProfile:access.role==="Parent"&&parentPlayers.some(p=>p.workspace_id===selectedCloudWorkspaceId&&p.account_management==="Parent")?()=>{
+      const player=parentPlayers.find(p=>p.workspace_id===selectedCloudWorkspaceId&&p.account_management==="Parent");
+      if(player)editParentManagedPlayer(player);
+    }:undefined,
+    parentProfileEditRequest,
     openPlayerJoinTeam:access.role==="Player"?()=>{void loadPlayerConnectionStatus();void loadAthleteSportProfiles();setShowPlayerJoinTeam(true)}:undefined,
     openCoachTeams:access.role==="Coach"?()=>{setCoachTeamsMode("manage");setShowTeams(true)}:undefined,
     openCoachInvitePlayer:access.role==="Coach"?()=>{setCoachTeamsMode("invite");setShowTeams(true)}:undefined,
@@ -1414,7 +1432,7 @@ export default function BetaGate(){
     saveSharedNotes,
     loadCoachWeeklyReviews,
     saveCoachWeeklyReview:["Coach","Admin"].includes(access.role)?saveCoachWeeklyReview:undefined
-  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,parentPlayerMode,parentManagedAthleteId,selectedAthleteName,selectedAthleteSport,selectedCoachAthleteId,selfAthlete,teamMembers,athleteSportProfiles]);
+  }:null,[access,user,selectedCloudWorkspaceId,parentPlayers,parentPlayerMode,parentProfileEditRequest,parentManagedAthleteId,selectedAthleteName,selectedAthleteSport,selectedCoachAthleteId,selfAthlete,teamMembers,athleteSportProfiles]);
 
   if(!betaConfigured())return <div className="betaSetupShell"><div className="betaSetupCard">
     <div className="betaMark">BETA</div><h1>Beta backend needs configuration</h1>
@@ -1579,6 +1597,7 @@ export default function BetaGate(){
           </div>
           <div className="familyPlayerActions">
             <button onClick={()=>openParentPlayer(player)}>Open Parent View</button>
+            {player.account_management==="Parent"&&<button type="button" disabled={!!connectionAction} onClick={()=>editParentManagedPlayer(player)}>Edit Player & Photo</button>}
             {player.account_management==="Parent"&&<button className="betaPrimary" onClick={()=>openManagedPlayer(player)}>{Number(player.age||0)<=10?"Open Junior Player":"Open Player View"}</button>}
             {player.account_management==="Parent"&&<button disabled={!!connectionAction} onClick={()=>void copyPlayerLoginAccess(player)}>{connectionAction==="player-access"?"Preparing…":Number(player.age||0)<=10?"Give Player Login Later":"Give Player Login Access"}</button>}
           </div>

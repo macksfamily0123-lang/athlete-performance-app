@@ -126,6 +126,8 @@ export type BetaBridge={
  openPrivacyCenter?:()=>void;
  openLaunchChecklist?:()=>void;
  openParentPlayers?:()=>void;
+ openParentPlayerProfile?:()=>void;
+ parentProfileEditRequest?:number;
  openPlayerJoinTeam?:()=>void;
  openCoachTeams?:()=>void;
  openCoachInvitePlayer?:()=>void;
@@ -2153,6 +2155,15 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
    (profileCard as HTMLElement|null)?.focus({preventScroll:true});
   },620);
  };
+ // A Parent opens only the existing, authorized Parent-managed workspace.
+ const consumedParentProfileRequest=useRef(0);
+ useEffect(()=>{
+  const request=betaBridge?.parentProfileEditRequest||0;
+  if(!betaBridge?.managedByParent||!cloudLoadedRef.current||request<=consumedParentProfileRequest.current)return;
+  consumedParentProfileRequest.current=request;
+  setTab("Home");
+  setEditProfileRequest(x=>x+1);
+ },[betaBridge?.parentProfileEditRequest,betaBridge?.managedByParent,cloudStatus]);
  const openAccountConnections=()=>{
   if(accountRole==="Parent"){betaBridge?.openParentPlayers?.();return}
   if(accountRole==="Player"){betaBridge?.openPlayerJoinTeam?.();return}
@@ -2170,6 +2181,7 @@ useEffect(()=>{if(program)localStorage.setItem("trainingProgram",JSON.stringify(
   <header className="appHeader"><div className="brandBlock"><div className="logo elitePerformanceLogo"><img src="/elite-performance-speed-e.svg" alt=""/></div><div><strong>ELITE <em>PERFORMANCE</em></strong><small>HIGH PERFORMANCE ATHLETE DEVELOPMENT</small></div>{betaBridge&&<button type="button" className={"cloudStatus cloudStatusButton "+cloudStatus} onClick={()=>{if(cloudStatus==="error"||cloudStatus==="waiting"||pendingCloudSave)void retryPendingCloudSave()}} title={cloudErrorMessage||undefined}>{cloudStatus==="saved"?(cloudLastSavedAt?`Saved ${new Date(cloudLastSavedAt).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:"Cloud ready"):cloudStatus==="loading"?"Saving…":cloudStatus==="waiting"?"Waiting for connection":cloudStatus==="error"?"Save failed · Retry":"Local"}{pendingCloudSave&&<i>{cloudOnline?"Retry copy ready":"Changes queued"}</i>}</button>}</div><div className="headerActions"><span className="accountHeaderRole">{betaBridge?.managedByParent?"Player · Parent Managed":accountRole==="Admin"&&adminView!=="Admin"?`Admin · ${adminView}`:accountRole}</span>
    {betaBridge?.returnToParentWorkspace&&<button className="headerUtilityButton parentReturnButton" onClick={betaBridge.returnToParentWorkspace}>← Parent View</button>}
    {betaBridge?.managedByParent&&<button type="button" className="headerUtilityButton managedProfileButton" onClick={openManagedPlayerProfile}>Edit Player</button>}
+   {betaBridge?.openParentPlayerProfile&&accountRole==="Parent"&&<button type="button" className="headerUtilityButton managedProfileButton" onClick={betaBridge.openParentPlayerProfile}>Edit Player & Photo</button>}
    {betaBridge?.openParentPlayers&&accountRole==="Parent"&&<button className="headerUtilityButton" onClick={betaBridge.openParentPlayers}>My Players</button>}
    {betaBridge?.openPlayerJoinTeam&&accountRole==="Player"&&!betaBridge?.managedByParent&&<button className="headerUtilityButton" onClick={betaBridge.openPlayerJoinTeam}>Connections</button>}
    {betaBridge?.openCoachTeams&&accountRole==="Coach"&&<button className="headerUtilityButton" onClick={betaBridge.openCoachTeams}>Teams</button>}
@@ -4095,7 +4107,7 @@ const signals:PerformanceSignal[]=[
   <div className="commandCard"><small>NEXT FOCUS</small><b className="focusText">{nextAction}</b><span>{openDev[0]?"development priority":"next action"}</span></div>
  </div>
 
- <div className="card playerProfileCard setupAnchor" id="setup-profile" tabIndex={-1}>
+ <div className={"card playerProfileCard setupAnchor "+(editingProfile?"profileEditing":"")} id="setup-profile" tabIndex={-1}>
   <div className="sectionHead playerProfileHead">
    <div><small>PLAYER PROFILE</small><h2>{editingProfile?(profileDraft.name||"Athlete"):(profile.name||"Athlete")}</h2><p>{editingProfile?sportDraft:sport}{(editingProfile?profileDraft.position:profile.position)?` · ${editingProfile?profileDraft.position:profile.position}`:""}{(editingProfile?profileDraft.team:profile.team)?` · ${editingProfile?profileDraft.team:profile.team}`:""}</p></div>
    <div className="profileHeadActions"><span className="tag">{profileCompletion}% complete</span>{canEditProfile?<button type="button" className={editingProfile?"profileDoneButton":"featureAction profileEditButton"} onClick={editingProfile?cancelProfileEdit:beginProfileEdit}>{editingProfile?"Cancel":"Edit Profile"}</button>:<span className="profileReadOnlyBadge">VIEW ONLY</span>}</div>

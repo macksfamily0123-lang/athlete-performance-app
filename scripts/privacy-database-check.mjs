@@ -12,6 +12,8 @@ create function auth.uid() returns uuid language sql stable as $$select nullif(c
 create function auth.jwt() returns jsonb language sql stable as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
 grant usage on schema public,auth to authenticated,anon,service_role;grant execute on all functions in schema auth to authenticated,anon,service_role;`);
 for(const n of fs.readdirSync('supabase/migrations').sort())await db.exec(fs.readFileSync('supabase/migrations/'+n,'utf8').replace(/create extension if not exists pgcrypto;/gi,''));
+// Exercise privacy actions in the production configuration with trackers absent.
+if(process.env.PRIVACY_KEEP_TRACKERS!=='1')await db.exec('drop table public.tracker_coach_shares');
 await db.exec('grant select,insert,update,delete on all tables in schema public to authenticated,anon,service_role;grant usage,select on all sequences in schema public to authenticated,service_role');
 const ids={admin:'00000000-0000-0000-0000-000000000001',parent:'00000000-0000-0000-0000-000000000002',parent2:'00000000-0000-0000-0000-000000000003',coach:'00000000-0000-0000-0000-000000000004',adult:'00000000-0000-0000-0000-000000000005',other:'00000000-0000-0000-0000-000000000006'};
 const role=async(id,priv='authenticated')=>{await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id||'']);await db.query("select set_config('request.jwt.claims',$1,false)",[JSON.stringify({aal:id===ids.admin?'aal2':'aal1'})]);await db.exec('set role '+priv)};
@@ -39,7 +41,13 @@ await reject(()=>query("select public.privacy_verify_guardian($1,'signed_form','
 await role(ids.other);await reject(()=>query('select public.privacy_export_player($1)',[minor]),'Unrelated account cannot export child data');await reject(()=>query('select public.privacy_status($1)',[minor]),'Unrelated account cannot read child privacy status');
 await reject(()=>query('select public.privacy_pause_player($1,true)',[minor]),'Unrelated account cannot pause child');await reject(()=>query("select public.privacy_delete_player($1,'DELETE PLAYER')",[minor]),'Unrelated account cannot delete child');
 await role(ids.coach);const team=(await query("insert into public.teams(coach_user_id,name,sport,invite_code) values($1,'Team','Ice Hockey','TESTCODE') returning id",[ids.coach])).rows[0].id;
-await role(ids.parent);await query("select public.join_team_with_code($1,'TESTCODE')",[minor]);
+await role(ids.parent);
+const parentPhoto='data:image/jpeg;base64,UEFSRU5U';
+await query('select public.parent_save_managed_player_state($1,$2)',[minor,JSON.stringify({profile:{name:'Minor',sport:'Ice Hockey',age:'12',position:'',team:'',photoUrl:parentPhoto}})]);
+check((await one('select data from public.workspace_state where workspace_id=$1',[mw])).profile.photoUrl===parentPhoto,'Verified linked Parent can save a Parent-managed Player photo');
+await query('select public.privacy_remove_photo($1)',[minor]);
+check(!(JSON.stringify(await one('select data from public.workspace_state where workspace_id=$1',[mw]))).includes(parentPhoto),'Parent photo removal persists in cloud workspace');
+await query("select public.join_team_with_code($1,'TESTCODE')",[minor]);
 await role(ids.coach);check(await one('select public.can_access_workspace($1)',[mw]),'Authorized Coach has opted-in access');
 await reject(()=>query('select public.privacy_export_player($1)',[minor]),'Coach cannot use guardian export');
 await role(ids.parent);await query('select public.privacy_revoke_coach($1,$2)',[minor,team]);
