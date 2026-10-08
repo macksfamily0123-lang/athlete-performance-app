@@ -325,3 +325,100 @@ button,a,input,select,textarea,summary { -webkit-tap-highlight-color:transparent
 .rc68PrivacyGate {max-width:760px;margin:24px auto;padding:24px;display:grid;gap:16px;}
 .privacyCenterCard {max-height:90dvh;overflow-y:auto;}
 @media(max-width:600px){.rc68PrivacyControls{padding:16px;}.rc68PrivacyGate{margin:16px;padding:16px;}.rc68PrivacyControls .privacyActionGrid{grid-template-columns:1fr;}}
+
+/* Parent Overview hero. Content owns height; photography never owns layout.
+   Kept in the final stylesheet to supersede the legacy fixed hero heights. */
+.app.performanceOS[data-role="Parent"][data-tab] .premiumHomeHero.nativeSportsHero.elitePerformanceHero.epParentHero {
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows:auto auto!important;
+ align-items:stretch!important;
+ align-content:space-between!important;
+ gap:72px!important;
+ width:100%!important;
+ min-width:0!important;
+ height:auto!important;
+ min-height:340px!important;
+ max-height:none!important;
+ margin:0!important;
+ padding:0!important;
+ box-sizing:border-box!important;
+ overflow:hidden!important;
+ background:#141817!important;
+ isolation:isolate!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .eliteRoleHeroMedia {
+ position:absolute!important; inset:0!important;
+ width:100%!important; height:100%!important;
+ background:#141817!important; z-index:0!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .eliteRoleHeroBackdrop {display:none!important}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .eliteRoleHeroForeground {
+ position:absolute!important; inset:0!important;
+ width:100%!important; height:100%!important;
+ object-fit:cover!important; object-position:center 44%!important;
+ transform:none!important; filter:grayscale(1)!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .eliteHeroTelemetry {display:none!important}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .nativeHeroTopline {
+ position:relative!important; inset:auto!important; z-index:3!important;
+ display:flex!important; flex-wrap:wrap!important;
+ justify-content:space-between!important; gap:8px 20px!important;
+ margin:0!important; padding:20px 24px!important;
+ min-width:0!important; width:100%!important; box-sizing:border-box!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .nativeHeroBottom {
+ position:relative!important; inset:auto!important; z-index:3!important;
+ display:grid!important; grid-template-columns:minmax(0,1fr) 140px!important;
+ grid-template-rows:auto!important; align-items:center!important;
+ width:100%!important; min-width:0!important;
+ height:auto!important; min-height:0!important; max-height:none!important;
+ gap:24px!important; margin:0!important; padding:24px!important;
+ box-sizing:border-box!important; transform:none!important;
+ background:linear-gradient(180deg,rgba(20,24,23,.45),rgba(20,24,23,.94))!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity {
+ display:flex!important; align-items:center!important; flex-wrap:wrap!important;
+ width:100%!important; max-width:none!important; min-width:0!important;
+ padding:0!important; margin:0!important; gap:16px!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity>div:last-child {
+ min-width:0!important; flex:1 1 180px!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity h1 {
+ margin:0 0 8px!important; font-size:clamp(26px,3vw,38px)!important;
+ line-height:1.2!important; overflow-wrap:anywhere!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity p {
+ display:block!important; overflow:visible!important; max-width:52ch!important;
+ margin:0!important; font-size:14px!important; line-height:1.6!important;
+ -webkit-line-clamp:unset!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumAthleteMeta {
+ display:flex!important; flex-wrap:wrap!important; gap:8px!important;
+ margin-top:12px!important; min-width:0!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumAthleteMeta span {
+ max-width:100%!important; white-space:normal!important; overflow-wrap:anywhere!important;
+}
+.app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumReadinessOrb {
+ position:relative!important; inset:auto!important;
+ width:116px!important; height:116px!important;
+ min-width:116px!important; min-height:116px!important;
+ margin:0!important; padding:0!important;
+ justify-self:center!important; align-self:center!important;
+ flex:none!important; transform:none!important;
+}
+@media(max-width:700px) {
+ .app.performanceOS[data-role="Parent"][data-tab] .premiumHomeHero.nativeSportsHero.elitePerformanceHero.epParentHero {
+  min-height:0!important; gap:64px!important;
+ }
+ .app.performanceOS[data-role="Parent"][data-tab] .epParentHero .nativeHeroTopline {padding:18px!important}
+ .app.performanceOS[data-role="Parent"][data-tab] .epParentHero .nativeHeroBottom {
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  gap:24px!important; padding:20px 18px 28px!important;
+ }
+ .app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity {gap:12px!important}
+ .app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity h1 {font-size:28px!important}
+}

@@ -931,7 +931,7 @@ function PremiumHomeOverview({
   <EliteSparkline values={trendValues} label={`${trendTitle} recent history`}/>
   <div className="eliteVisualAction"><b>VIEW PROGRESS</b><span>Open analytics ↗</span></div>
  </button>;
- const hero=<div className={`premiumHomeHero nativeSportsHero elitePerformanceHero rc34RoleHero ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-role={accountRole} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
+ const hero=<div className={`premiumHomeHero nativeSportsHero elitePerformanceHero rc34RoleHero ${accountRole==="Parent"?"epParentHero":""} ${realisticHero?"premiumRealisticSportHero":"premiumIllustratedSportHero"}`} data-hero-sport={sport} data-hero-role={accountRole} data-hero-style={realisticHero?"realistic":"illustrated"} style={{"--sport-hero-image":`url("${heroAsset}")`} as React.CSSProperties}>
   {realisticHero&&<div className="eliteRoleHeroMedia" aria-hidden="true"><img className="eliteRoleHeroBackdrop" src={heroAsset} alt=""/><img className="eliteRoleHeroForeground" src={heroAsset} alt=""/></div>}
   <div className="nativeHeroTopline"><span>{roleCopy[accountRole].eyebrow}</span><span>{sport}</span></div>
   {!juniorMode&&<div className="eliteHeroTelemetry" aria-hidden="true"><span>EP / HIGH PERFORMANCE</span><i/><span>{accountRole.toUpperCase()}</span></div>}
