@@ -11571,3 +11571,8 @@ h2,h3{letter-spacing:-.01em!important}
   grid-template-columns:minmax(0,1fr)!important;
  }
 }
+
+/* Parent-requested profile editing stays visible in Junior mode. */
+.app[data-junior="true"] .playerProfileCard.profileEditing{display:block!important}
+.playerProfileCard.profileEditing .commercialProfilePhotoPanel{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.playerProfileCard.profileEditing .commercialPhotoAction{min-height:44px;white-space:normal}
