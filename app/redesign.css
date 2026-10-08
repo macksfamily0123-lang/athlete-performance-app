@@ -422,3 +422,26 @@ button,a,input,select,textarea,summary { -webkit-tap-highlight-color:transparent
  .app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity {gap:12px!important}
  .app.performanceOS[data-role="Parent"][data-tab] .epParentHero .premiumHeroIdentity h1 {font-size:28px!important}
 }
+
+/* Junior check-in: clear selected answers and touch targets. */
+.app.performanceOS[data-role] .juniorFeelingQuestion button {
+  position: relative;
+  min-height: 80px !important;
+  background: #1c2220 !important;
+  border: 2px solid #3c4740 !important;
+  color: #f4f3ec !important;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.app.performanceOS[data-role] .juniorFeelingQuestion button.active {
+  background: #194d37 !important;
+  border-color: #bdc5bf !important;
+}
+.app.performanceOS[data-role] .juniorFeelingQuestion button.active::after {
+  content: "✓ Selected";
+  display: block;
+  margin-top: 6px;
+  color: #f4f3ec;
+  font-size: 12px;
+  font-weight: 700;
+}
